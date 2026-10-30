@@ -415,7 +415,7 @@ class GatewayRegistry:
         with self._lock:
             if len(self._contexts) >= 1024:
                 raise BoundaryRefused()
-            self._contexts[id(context)] = (name,context)
+            self._contexts[id(context)] = (name,context,sensitive_values)
         return context
 
     async def invoke(self, name, *, context: GatewayCallContext,
@@ -439,7 +439,7 @@ class GatewayRegistry:
                 raise BoundaryRefused()
             result = redaction.validate_mediated_v1(_RESULT_REF,result.to_json(),
                         scope_id=context.scope_id,generation=context.generation,
-                        sensitive_values=())  # bound execute already checked the current registry
+                        sensitive_values=owned[2])  # including local leaf composition
         except Exception:
             failed = True
         if failed:
