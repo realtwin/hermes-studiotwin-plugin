@@ -95,7 +95,7 @@ class PolicyStore:
             # Scope comes first even in the one active-connection slot. Epoch is
             # global to this connection, so A->B->A never resurrects generation A.
             for statement in (
-                'CREATE TABLE IF NOT EXISTS policy_active(scope_id TEXT NOT NULL, slot INTEGER PRIMARY KEY CHECK(slot=1), generation INTEGER NOT NULL, identity_hash TEXT NOT NULL)',
+                'CREATE TABLE IF NOT EXISTS policy_active(scope_id TEXT PRIMARY KEY, slot INTEGER NOT NULL CHECK(slot=1), generation INTEGER NOT NULL, identity_hash TEXT NOT NULL)',
                 'CREATE TABLE IF NOT EXISTS policy_assets(scope_id TEXT NOT NULL, generation INTEGER NOT NULL, asset_id TEXT NOT NULL, PRIMARY KEY(scope_id,generation,asset_id))',
                 'CREATE TABLE IF NOT EXISTS policy_quotes(scope_id TEXT NOT NULL, generation INTEGER NOT NULL, preview_id TEXT NOT NULL, binding_json TEXT NOT NULL, preview_json TEXT NOT NULL, price_version TEXT, server_token TEXT, consumed_by TEXT, PRIMARY KEY(scope_id,generation,preview_id))',
                 'CREATE TABLE IF NOT EXISTS policy_operations(scope_id TEXT NOT NULL, generation INTEGER NOT NULL, operation_id TEXT NOT NULL, session_id TEXT NOT NULL, binding_json TEXT NOT NULL, authorization_json TEXT NOT NULL, state TEXT NOT NULL, reserved_credits INTEGER NOT NULL, final_debit INTEGER, refund INTEGER, PRIMARY KEY(scope_id,operation_id))',
@@ -174,7 +174,8 @@ class PolicyStore:
             # Old in-flight/unknown reservations remain held for reconciliation;
             # only unsent unconsumed approvals can be expired automatically.
             self._db.execute("UPDATE policy_operations SET state='EXPIRED' WHERE state='AUTHORIZED'")
-            self._db.execute('INSERT OR REPLACE INTO policy_active VALUES (?,1,?,?)',(scope_id,generation,identity_hash))
+            self._db.execute('DELETE FROM policy_active')
+            self._db.execute('INSERT INTO policy_active VALUES (?,1,?,?)',(scope_id,generation,identity_hash))
             return generation
 
     def adopt_asset(self, scope_id, generation, asset_id):
