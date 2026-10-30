@@ -769,6 +769,41 @@ def test_asset_listing_never_claims_server_pagination(docs):
     assert page["properties"]["windowing"] == {"const": "local"}
 
 
+# ----------------------------------------------------------------------- S03 remediation R1
+
+def quote_preview(**changes):
+    value = {"contract": S.DASHBOARD_CONTRACT, "authorizes": False,
+             "enforcementMode": "interim-local", "tool": "text-to-environment-map",
+             "executable": True, "disabledReason": None, "previewId": "pv_" + "d" * 43,
+             "estimatedCredits": 20, "estimateLabel": "estimated charge",
+             "previewExpiresAtMs": 1793356800000, "balance": {"state": "unknown"},
+             "guardRemaining": 100, "scopePaused": False}
+    value.update(changes)
+    return value
+
+
+def test_r1_b2_exact_interim_server_maximum_contradiction(docs):
+    ref = "dashboard#/components/schemas/QuotePreviewV1"
+    assert S.errors(ref, quote_preview(), docs) == []
+    # Salt's exact reproduction: change only the label in a complete valid preview.
+    assert not S.is_valid(ref, quote_preview(estimateLabel="server-enforced maximum"), docs)
+
+
+def test_r1_b2_server_maximum_is_distinct_from_estimate(docs):
+    ref = "dashboard#/components/schemas/QuotePreviewV1"
+    server = quote_preview(enforcementMode="server-max-credits",
+                           estimateLabel="server-enforced maximum", maxCredits=25)
+    assert S.errors(ref, server, docs) == []
+    assert server["estimatedCredits"] != server["maxCredits"]
+    for bad in (None, -1, "25"):
+        assert not S.is_valid(ref, {**server, "maxCredits": bad}, docs)
+    del server["maxCredits"]
+    assert not S.is_valid(ref, server, docs)
+    assert not S.is_valid(ref, quote_preview(maxCredits=20), docs)
+    assert not S.is_valid(ref, quote_preview(enforcementMode="server-max-credits",
+                                          maxCredits=25), docs)
+
+
 # ----------------------------------------------------------------------- S02 fixtures vs contracts
 
 def _fixture(name):
