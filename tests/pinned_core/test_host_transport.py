@@ -231,3 +231,95 @@ def test_scope_tuple_requires_receiver_owned_context_and_d24():
         g.scope_tuple(ctx, "https://staging.example", {"accountId": "a", "orgId": "o"})
     # A provisional credential generation cannot manufacture account scope.
     assert not cap.publication_decision()["principalIdentity"] == "proven"
+
+
+@pytest.mark.parametrize("unowned", [None, {}, {"trusted": True}, False])
+def test_unowned_context_never_mints_operation(unowned):
+    with pytest.raises(ValueError):
+        gate().new_operation(unowned)
+
+
+@pytest.mark.parametrize("status", [[], {}, True, None])
+def test_malformed_handshake_status_is_refused_without_exception(status):
+    g = gate()
+    h = handshake()
+    h["hostVersionStatus"] = status
+    assert g.verify_capabilities(h, sign(h, "host-capabilities-v1")) is None
+
+
+def test_receiver_default_cannot_authenticate_and_wrong_boot_cannot_reuse():
+    value = context()
+    result = hc.HostContextGate().receive(arguments={}, metadata={hc.META_KEY: value})
+    assert not result["trusted"]
+    a, b = gate(), gate()
+    ca, cb = authenticated(a), authenticated(b)
+    op = a.new_operation(ca)
+    assert not b.consume_operation(op, cb)
+    assert not a.consume_operation(op, cb)
+    assert a.consume_operation(op, ca)
+
+
+@pytest.mark.parametrize("field", ["session_id", "cron_run_id", "approved", "authorization"])
+def test_unauthenticated_top_level_metadata_does_not_override_valid_context(field):
+    result = gate().receive(arguments={}, metadata={hc.META_KEY: context(), field: True})
+    assert not result["trusted"]
+
+
+def test_verified_outputs_are_snapshots():
+    g = gate()
+    raw = context()
+    trusted = g.receive(arguments={}, metadata={hc.META_KEY: raw})
+    raw["sessionId"] = "forged"
+    assert trusted["sessionId"] == "session-a"
+    with pytest.raises(TypeError):
+        trusted["sessionId"] = "forged"
+    h = handshake()
+    verified = g.verify_capabilities(h, sign(h, "host-capabilities-v1"))
+    h["capabilities"]["trustedToolContextV1"] = False
+    assert cap.host_ready(verified)
+    decision = cap.publication_decision(verified)
+    decision["hostCapabilities"]["capabilities"]["trustedToolContextV1"] = False
+    assert cap.host_ready(verified)
+    decision["principalIdentity"] = "proven"
+    decision["publishedTiers"] = ["setup", "paid"]
+    assert cap.published_tools(decision, ["text-to-material"]) == ["studiotwin_setup_status"]
+
+
+@pytest.mark.parametrize("surface", ["cli", "gateway"])
+@pytest.mark.parametrize("choice,expected", [("once", "accept"), ("deny", "decline"), ("timeout", "cancel")])
+def test_real_core_once_only_consent_routing(monkeypatch, surface, choice, expected):
+    from tools import approval_prompt as prompt, approval_context as sessions, approval
+    from tools import terminal_tool
+    monkeypatch.setattr(sessions, "_is_single_query_approval_context", lambda: False)
+    monkeypatch.setattr(sessions, "_is_gateway_approval_context", lambda: surface == "gateway")
+    monkeypatch.setattr(sessions, "_get_session_platform", lambda: "")
+    monkeypatch.setattr(sessions, "_no_user_can_answer", lambda: False)
+    monkeypatch.setattr(sessions, "_fire_approval_hook", lambda *a, **k: None)
+    monkeypatch.setattr(terminal_tool, "_get_approval_callback", lambda: None)
+    captured = []
+    if surface == "cli":
+        def answer(*args, **kwargs):
+            captured.append(kwargs)
+            return choice
+        monkeypatch.setattr(prompt, "prompt_dangerous_approval", answer)
+    else:
+        monkeypatch.setattr(approval, "_gateway_notify_cb", lambda key: object())
+        def answer(key, callback, payload, **kwargs):
+            captured.append(payload)
+            return {"resolved": choice != "timeout", "choice": choice}
+        monkeypatch.setattr(prompt._gw, "_await_gateway_decision", answer)
+    assert prompt.request_elicitation_consent("paid operation", "exact input", timeout_seconds=1) == expected
+    assert len(captured) == 1
+    assert captured[0]["allow_session"] is False
+    assert captured[0]["allow_permanent"] is False
+
+
+def test_pinned_write_reconnect_reports_unknown_without_replay():
+    from tools.mcp_tool_handlers import _track_inflight_rpc
+    async def run():
+        server = SimpleNamespace(_inflight_tasks=set(), _reconnecting=True)
+        with pytest.raises(RuntimeError, match="may already have been dispatched"):
+            async with _track_inflight_rpc(server, "studiotwin", "tools/call", retry_safe=False):
+                raise asyncio.CancelledError()
+        assert not server._inflight_tasks
+    asyncio.run(run())
