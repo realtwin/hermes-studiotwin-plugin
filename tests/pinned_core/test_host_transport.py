@@ -27,8 +27,11 @@ def load(name, path):
     return module
 
 
-hc = load("st_host_context", ROOT / "gateway/host_context.py")
-cap = load("st_capabilities", ROOT / "gateway/capabilities.py")
+package = type(sys)("st_gateway")
+package.__path__ = [str(ROOT / "gateway")]
+sys.modules["st_gateway"] = package
+cap = load("st_gateway.capabilities", ROOT / "gateway/capabilities.py")
+hc = load("st_gateway.host_context", ROOT / "gateway/host_context.py")
 contracts = load("s04_contracts", ROOT / "tests/contracts/support.py")
 KEY = b"receiver-fixture-key-not-a-live-secret" * 2
 HOST = "H" * 43
@@ -208,12 +211,17 @@ def test_unattended_zero_budget_even_for_authenticated_context(run_kind):
 
 def test_core_headless_consent_ignores_remembered_trust(monkeypatch):
     from tools import approval_context as sessions, approval_prompt, approval
-    from gateway.session_context import session_env
+    from gateway.session_context import _CRON_SESSION
     monkeypatch.setattr(approval, "is_approved", lambda *a, **kw: True)
     for marker in ("HERMES_CRON_SESSION", "HERMES_SINGLE_QUERY_SESSION"):
-        with session_env({marker: "1"}):
-            assert approval_prompt.request_elicitation_consent("paid", "exact operation") == "decline"
-            assert hc.paid_budget(hc.untrusted("trusted-context-absent-on-host"), configured_credits=200, interactive_surface=False) == 0
+        with monkeypatch.context() as local:
+            local.setenv(marker, "1")
+            token = _CRON_SESSION.set("1" if marker == "HERMES_CRON_SESSION" else "")
+            try:
+                assert approval_prompt.request_elicitation_consent("paid", "exact operation") == "decline"
+                assert hc.paid_budget(hc.untrusted("trusted-context-absent-on-host"), configured_credits=200, interactive_surface=False) == 0
+            finally:
+                _CRON_SESSION.reset(token)
 
 
 def test_scope_tuple_requires_receiver_owned_context_and_d24():
