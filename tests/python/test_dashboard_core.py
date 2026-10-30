@@ -220,6 +220,7 @@ def test_sqlite_restart_retention_purge_and_binding(tmp_path):
     s.put('lineage',A,value,scope_id=SCOPE,generation=3)
     now[0] += 30*86400
     assert s.get('lineage',A,scope_id=SCOPE,generation=3) is None
+    assert s.connection.execute('SELECT COUNT(*) FROM s11_metadata').fetchone()[0] == 0
     s.put('lineage',A,value,scope_id=SCOPE,generation=3)
     assert s.purge(scope_id=SCOPE,generation=3)['metadata'] == 1
     assert s.stats(scope_id=SCOPE,generation=3)['metadata'] == 0
@@ -383,3 +384,15 @@ def test_provenance_safe_shape_registered_secret_is_not_persisted(tmp_path):
     with pytest.raises(R.BoundaryRefused): P.ProvenanceStore(s).record(record_request(),scope_id=SCOPE,generation=1)
     assert list(s.connection.iterdump())==before
     s.close()
+
+
+def test_metadata_relational_id_and_scope_binding(tmp_path):
+    s,_,_ = make_store(tmp_path)
+    graph = dict(contract=CONTRACT,root=B,nodes=[],edges=[],truncated=False)
+    before = list(s.connection.iterdump())
+    with pytest.raises(R.BoundaryRefused): s.put('lineage',A,graph,scope_id=SCOPE,generation=1)
+    pause = dict(protocol='studiotwin.gateway.v1',scopeId='b'*64,reason='verified-overrun',operationId='op_'+'a'*43,estimatedCredits=20,actualCredits=22,createdAtMs=1,acknowledgedAtMs=None)
+    with pytest.raises(R.BoundaryRefused): s.put('pause','current',pause,scope_id=SCOPE,generation=1)
+    assert list(s.connection.iterdump())==before
+    s.close()
+
