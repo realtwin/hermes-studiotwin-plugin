@@ -221,7 +221,7 @@ def test_http_canary_never_reaches_forward_cache_error_or_logs(tmp_path,bad,capl
     async def run():
         async with http_backend(tmp_path) as (_,b,h,p,s,*_):
             before = s.connection.total_changes
-            response = await h.post('/operations/quote',json=dict(contract='studiotwin.dashboard.v1',tool=NAME,schemaHash=HASH,inputs={'prompt':bad}))
+            response = await h.post('/operations/quote',json=dict(contract='studiotwin.dashboard.v1',tool=NAME,schemaHash=HASH,inputs={'prompt':bad,'seed':1}))
             assert response.status_code==400
             assert bad not in response.text and not p.requests and s.connection.total_changes==before
             assert bad not in caplog.text
@@ -239,4 +239,44 @@ def test_http_internal_exception_is_static_validated_error(tmp_path,monkeypatch,
             assert response.status_code==503
             assert response.json()['code']=='UNAVAILABLE'
             assert 'STCANARY' not in response.text+caplog.text
+    asyncio.run(run())
+
+
+def test_http_remote_peer_and_duplicate_range_are_refused(tmp_path):
+    import asyncio,httpx
+    from tests.python.test_plugin_api_contract import http_backend
+    async def run():
+        async with http_backend(tmp_path) as (_,b,h,p,s,binding,item,data):
+            async with httpx.AsyncClient(transport=httpx.ASGITransport(app=h._transport.app,client=('203.0.113.9',1234)),base_url=str(h.base_url),headers=h.headers) as remote:
+                assert (await remote.get('/status')).status_code==403
+            assert not p.requests
+            response = await h.get('/local/file',params={'handle':item.handle},headers=[('Range','bytes=0-7'),('Range','bytes=8-15')])
+            assert response.status_code==400
+            assert b.proxy.active_streams==0
+    asyncio.run(run())
+
+
+def test_http_canary_in_authenticated_reply_is_not_cached(tmp_path,caplog):
+    import asyncio
+    from tests.python.test_dashboard_core import CONTRACT,ROOT
+    from tests.python.test_plugin_api_contract import http_backend
+    import json
+    canaries = json.loads((ROOT/'tests/fixtures/secret_channels/canaries.v1.json').read_text())['canaries']
+    async def run():
+        payloads = {}
+        async with http_backend(tmp_path,payloads) as (_,b,h,p,s,*_):
+            for row in canaries:
+                bad = row['value']
+                # A future gateway may be compromised: sign an invalid status
+                # with S05 MAC, bypassing the producer's normal schema guard.
+                def mutate(frame,req):
+                    env = {'protocol':'studiotwin.host-gateway.v1','requestId':req['requestId'],'ok':True,
+                           'result':{'method':'status.get','payload':dict(contract=CONTRACT,environment=bad,configured=False,featureFlags=dict(hostedRead=False,hostedMutation=False,paid=False,conceptPaid=False),balance={'state':'unknown'},activeCount=0,publishedTiers=['setup'])}}
+                    return {'envelope':env,'mac':p.channel._mac(env,'response')}
+                p.mutate = mutate
+                before = s.connection.total_changes
+                response = await h.get('/status')
+                assert response.status_code==503 and bad not in response.text+caplog.text
+                assert s.connection.total_changes==before
+            assert s.stats(scope_id='a'*64,generation=1)['metadata']==0
     asyncio.run(run())

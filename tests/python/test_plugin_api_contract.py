@@ -136,6 +136,9 @@ async def http_backend(tmp_path, payloads=None, *, clock=None):
     def respond(frame,req):
         payload = (payloads or {}).get(req['method'])
         if payload is None: return frame
+        if callable(payload):
+            try: payload = payload(req['params'])
+            except Exception: return peer.channel.response(req,code='INVALID_PARAMS')
         return peer.channel.response(req,payload=copy.deepcopy(payload))
     async with Peer(tmp_path/'ipc',respond) as peer:
         ipc_client = D.DashboardIpcClient(peer.root,scope_id=SCOPE,generation=1,current_binding=lambda:tuple(binding),sensitive_values=lambda:(),catalog=C.Classification(TOOLS))
@@ -199,4 +202,92 @@ def test_module_path_loading_and_exact_frozen_s11_route_inventory():
     actual = {(method,r.path) for r in mod.router.routes for method in r.methods}
     assert actual == expected
     assert not (ROOT/'dashboard/router.py').exists()
+
+
+def test_http_quote_operation_and_real_s10_pause_store_diff(tmp_path):
+    import importlib
+    from tests.python.test_dashboard_core import CONTRACT
+    policy = importlib.import_module(I.__package__+'.policy_store').PolicyStore(tmp_path/'policy')
+    SP = importlib.import_module(I.__package__+'.scope_pause')
+    assert policy.activate(SCOPE,'c'*64)==1
+    op = 'op_'+'a'*43
+    pause = dict(protocol='studiotwin.gateway.v1',scopeId=SCOPE,operationId=op,reason='verified-overrun',estimatedCredits=20,actualCredits=22,createdAtMs=1000,acknowledgedAtMs=None)
+    policy.put_pause(pause,generation=1)
+    service = SP.ScopePauseService(policy,clock_ms=lambda:2000)
+    snapshot = dict(protocol='studiotwin.gateway.v1',scopeId=SCOPE,operationId=op,jobId=None,enforcementMode='interim-local',state='UNKNOWN',estimatedCredits=20,reservedCredits=20,submissionCost={'state':'unknown'},finalDebit={'state':'unknown'},refund={'state':'unknown'},actualCost={'state':'unknown'},reservationHeld=True,scopePaused=True)
+    preview = dict(contract=CONTRACT,authorizes=False,enforcementMode='interim-local',tool=NAME,executable=False,disabledReason='host-capability-missing',previewId=None,estimatedCredits=25,estimateLabel='estimated charge',previewExpiresAtMs=None,balance={'state':'unknown'},guardRemaining=None,scopePaused=False)
+    payloads = {'operations.quote':preview,'operations.get':dict(contract=CONTRACT,operation=snapshot),
+                'scopePause.acknowledge':lambda params:service.acknowledge(params,scope_id=SCOPE,generation=1).to_json()}
+    async def run():
+        async with http_backend(tmp_path,payloads) as (_,b,h,p,*_):
+            before = list(policy._db.iterdump())
+            response = await h.post('/operations/quote',json=dict(contract=CONTRACT,tool=NAME,schemaHash=HASH,inputs={'prompt':'a forest','seed':1}))
+            assert response.status_code==200 and response.json()==preview
+            assert (await h.get('/operations/'+op)).json()['operation']==snapshot
+            assert list(policy._db.iterdump())==before
+            bad = dict(contract=CONTRACT,scopeId='b'*64,operationId=op)
+            count = len(p.requests)
+            assert (await h.post('/scope-pause/acknowledge',json=bad)).status_code==404
+            assert len(p.requests)==count and list(policy._db.iterdump())==before
+            bad['scopeId']=SCOPE; bad['operationId']='op_'+'b'*43
+            assert (await h.post('/scope-pause/acknowledge',json=bad)).status_code==503
+            assert list(policy._db.iterdump())==before
+            bad['operationId']=op
+            response = await h.post('/scope-pause/acknowledge',json=bad)
+            assert response.status_code==200 and response.json()['authorizes'] is False and response.json()['dispatches'] is False
+            assert policy.operation_count()==0 and policy.quote_count()==0
+            after = list(policy._db.iterdump())
+            assert after != before and service.get(SCOPE,1).to_json()['acknowledgedAtMs']==2000
+            assert (await h.post('/scope-pause/acknowledge',json=bad)).status_code==200
+            assert list(policy._db.iterdump())==after
+            assert all(r['method'] in {'operations.quote','operations.get','scopePause.acknowledge'} for r in p.requests)
+    try: asyncio.run(run())
+    finally: policy.close()
+
+
+def test_http_local_model_stats_and_blender_plan_are_real_read_only(tmp_path):
+    import json,struct,hashlib
+    from tests.python.test_dashboard_core import CONTRACT
+    model = {'asset':{'version':'2.0'},'meshes':[{'primitives':[{'attributes':{'POSITION':0},'indices':1}]}],
+             'accessors':[{'count':4},{'count':6}], 'materials':[{}], 'animations':[]}
+    raw = json.dumps(model).encode(); raw += b' '*((-len(raw))%4)
+    glb = struct.pack('<4sIIII',b'glTF',2,len(raw)+20,len(raw),0x4e4f534a)+raw
+    async def run():
+        async with http_backend(tmp_path) as (_,b,h,p,s,binding,*_):
+            item = b.proxy.cache.put(scope_id=SCOPE,generation=1,data=glb,mime='model/gltf-binary',kind='model',extension='.glb')
+            root = b.proxy.cache.root
+            before = {str(f):f.read_bytes() for f in root.rglob('*') if f.is_file()}
+            request = dict(contract=CONTRACT,source={'kind':'handle','handle':item.handle})
+            response = await h.post('/local/model/stats',json=request)
+            assert response.status_code==200, response.text
+            assert response.json()==dict(contract=CONTRACT,format='glb',bytes=len(glb),meshes=1,vertices=4,triangles=2,materials=1,animations=0)
+            response = await h.post('/handoff/blender/plan',json={**request,'outputDir':str(root)})
+            assert response.status_code==200, response.text
+            plan = response.json()
+            assert plan['sourceSha256']==hashlib.sha256(glb).hexdigest()
+            assert plan['executes'] is False and plan['mutatesOpenScene'] is False and plan['requiresSeparateConsent'] is True
+            assert {str(f):f.read_bytes() for f in root.rglob('*') if f.is_file()}==before
+            assert not p.requests and b.proxy.active_streams==0
+            assert (await h.post('/handoff/blender/plan',json={**request,'outputDir':'/etc'})).status_code==400
+    asyncio.run(run())
+
+
+def test_register_leaf_once_and_preserve_security_wrapper(tmp_path):
+    import importlib.util,sys
+    from fastapi import APIRouter,FastAPI
+    from tests.python.test_dashboard_core import ROOT
+    spec = importlib.util.spec_from_file_location('studiotwin_leaf_registration_probe',ROOT/'dashboard/plugin_api.py')
+    mod = importlib.util.module_from_spec(spec); sys.modules[spec.name]=mod; spec.loader.exec_module(mod)
+    leaf = APIRouter()
+    @leaf.get('/test-leaf')
+    async def endpoint(): return {'raw':'must not be served without host binding'}
+    mod.register_service('test_leaf',leaf)
+    with pytest.raises(ValueError): mod.register_service('test_leaf',leaf)
+    with pytest.raises(ValueError): mod.register_service('another_leaf',leaf)
+    app = FastAPI(); app.include_router(mod.router)
+    async def run():
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app),base_url='http://127.0.0.1') as http:
+            response = await http.get('/test-leaf')
+            assert response.status_code==503 and response.json()['code']=='UNAVAILABLE'
+    asyncio.run(run())
 
