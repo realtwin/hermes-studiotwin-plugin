@@ -804,6 +804,58 @@ def test_r1_b2_server_maximum_is_distinct_from_estimate(docs):
                                           maxCredits=25), docs)
 
 
+def concept(**changes):
+    value = {"conceptId": UUID, "title": "Cloned study", "conceptType": "object", "status": "idle",
+             "activeAssetId": None, "revision": None, "updatedAtMs": None,
+             "sourceConceptId": "000a55e7-0001-4000-8000-000000000001"}
+    value.update(changes)
+    return value
+
+
+def test_r1_b6_concept_load_more_without_invented_totals(docs):
+    ref = "dashboard#/components/schemas/ConceptPageV1"
+    # Exact Salt reproduction starts with a valid old-format Concept; only pagination is new.
+    item = concept(revision=0)
+    del item["sourceConceptId"]
+    page = {"contract": S.DASHBOARD_CONTRACT, "items": [item],
+            "hasMore": True, "nextCursor": "cc_" + "a" * 43}
+    assert S.errors(ref, page, docs) == []
+    assert S.errors(ref, {**page, "hasMore": False, "nextCursor": None}, docs) == []
+    for changes in ({"hasMore": False}, {"nextCursor": None}, {"total": 10},
+                    {"nextCursor": "https://x.invalid/page"}):
+        assert not S.is_valid(ref, {**page, **changes}, docs)
+    params = docs["dashboard"]["paths"]["/concepts"]["get"]["parameters"]
+    assert {p.get("name") for p in params} >= {"cursor", "limit"}
+    assert "total" not in docs["dashboard"]["components"]["schemas"]["ConceptPageV1"]["properties"]
+
+
+def test_r1_b6_cloned_concept_history_preserves_unknowns_and_failed_attempts(docs):
+    ref = "dashboard#/components/schemas/ConceptDetailV1"
+    entry = {"kind": "generate", "assetId": None, "jobId": UUID, "sourceAssetId": None,
+             "state": "failed", "active": False, "createdAtMs": None, "createdAtRaw": "unparseable time",
+             "submittedAtMs": 1793356500000, "reconciledAtMs": 1793356800000,
+             "failureMessage": "generation failed"}
+    detail = {"contract": S.DASHBOARD_CONTRACT, "concept": concept(), "assetIds": [],
+              "history": [entry], "historyHasMore": False, "historyNextCursor": None}
+    assert S.errors(ref, detail, docs) == []
+    attached = {**entry, "kind": "attach", "assetId": UUID, "jobId": None,
+                "state": "completed", "active": True, "failureMessage": None}
+    detail["concept"]["activeAssetId"] = UUID
+    detail["assetIds"] = [UUID]
+    detail["history"].append(attached)
+    assert S.errors(ref, detail, docs) == []
+    assert S.errors(ref, {**detail, "historyHasMore": True,
+                         "historyNextCursor": "ch_" + "b" * 43}, docs) == []
+    for changed in ({"historyNextCursor": "ch_" + "b" * 43}, {"historyHasMore": True},
+                    {"history": [{**entry, "providerDiagnostic": "raw"}]}):
+        assert not S.is_valid(ref, {**detail, **changed}, docs)
+    bad = copy.deepcopy(detail)
+    bad["concept"]["sourceConceptId"] = "s3://private/source"
+    assert not S.is_valid(ref, bad, docs)
+    params = docs["dashboard"]["paths"]["/concepts/{conceptId}"]["get"]["parameters"]
+    assert {p.get("name") for p in params} >= {"historyCursor", "historyLimit"}
+
+
 # ----------------------------------------------------------------------- S02 fixtures vs contracts
 
 def _fixture(name):
