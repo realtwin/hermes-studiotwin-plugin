@@ -40,6 +40,10 @@ class Refused(ValueError):
     """Static codes only: never interpolate an envelope, URL, key or exception."""
 
 
+class AlreadyRunning(Refused):
+    """A live lock owner or recorded endpoint prevents takeover."""
+
+
 class VersionRefused(Refused):
     def __init__(self, received):
         super().__init__('INCOMPATIBLE_PROTOCOL_VERSION')
@@ -496,33 +500,102 @@ class LocalServer:
         self.server = None
         self.descriptor = self.data / 'gateway-ipc.json'
         self._descriptor_identity = None
+        self._instance_fd = None
+
+    def _acquire_instance(self):
+        # Never unlink this stable inode: unlinking a held lock permits split
+        # ownership. OS closes/releases it even on SIGKILL or process failure.
+        path = self.data / 'gateway-ipc.lock'
+        fd = (self.windows.open(path, create=True) if self.windows is not None else
+              os.open(path, os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW | os.O_NONBLOCK, 0o600))
+        try:
+            info = os.fstat(fd)
+            if self.windows is None and (not stat.S_ISREG(info.st_mode) or
+                    info.st_uid != os.getuid() or info.st_mode & 0o077 or info.st_nlink != 1):
+                raise Refused('INVALID_BOOTSTRAP')
+            try:
+                if os.name == 'nt':
+                    import msvcrt
+                    os.lseek(fd, 0, os.SEEK_SET)
+                    msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError as error:
+                import errno
+                if error.errno in (errno.EACCES, errno.EAGAIN, errno.EDEADLK):
+                    raise AlreadyRunning('INSTANCE_ALREADY_RUNNING') from None
+                raise
+            current = path.lstat()
+            if (current.st_dev, current.st_ino) != (info.st_dev, info.st_ino):
+                raise Refused('INVALID_BOOTSTRAP')
+            self._instance_fd = fd
+        except BaseException:
+            os.close(fd)
+            raise
+
+    async def _check_abandoned_descriptor(self):
+        # Lock is authoritative for new gateways. Probe a private, valid older
+        # descriptor too, so a legacy owner without this lock is never replaced.
+        try:
+            self.descriptor.lstat()
+        except FileNotFoundError:
+            return
+        old = read_descriptor(self.descriptor, windows=self.windows)
+        try:
+            _, writer = await asyncio.wait_for(
+                asyncio.open_connection(old['host'], old['port']), 1)
+        except asyncio.TimeoutError:
+            raise Refused('INSTANCE_LIVENESS_UNAVAILABLE') from None
+        except OSError as error:
+            import errno
+            if error.errno == errno.ECONNREFUSED:
+                return
+            raise Refused('INSTANCE_LIVENESS_UNAVAILABLE') from None
+        writer.close()
+        await writer.wait_closed()
+        raise AlreadyRunning('INSTANCE_ALREADY_RUNNING')
 
     async def __aenter__(self):
         if self.windows is not None:
-            lock = self.windows.directory(self.data)
+            lock = self.windows.directory(self.data, tighten=True)
             lock.__enter__()
             self._directory_lock = lock
         else:
             self.data.mkdir(mode=0o700, parents=True, exist_ok=True)
-            info = self.data.lstat()
-            if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid() or info.st_mode & 0o077:
-                raise Refused('INVALID_BOOTSTRAP')
+            fd = os.open(self.data, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+            try:
+                info = os.fstat(fd)
+                if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid():
+                    raise Refused('INVALID_BOOTSTRAP')
+                os.fchmod(fd, 0o700)
+            finally:
+                os.close(fd)
+        temporary = None
         try:
+            self._acquire_instance()
+            await self._check_abandoned_descriptor()
             self.server = await asyncio.start_server(self._serve, local_address('127.0.0.1'), 0, limit=MAX_BYTES + 1)
             port = self.server.sockets[0].getsockname()[1]
-            fd = (self.windows.open(self.descriptor, create=True, exclusive=True)
+            candidate = self.data / ('gateway-ipc-' + secrets.token_hex(16) + '.tmp')
+            fd = (self.windows.open(candidate, create=True, exclusive=True)
                   if self.windows is not None else
-                  os.open(self.descriptor, os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW, 0o600))
+                  os.open(candidate, os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW, 0o600))
+            temporary = candidate
             with os.fdopen(fd, 'wb') as stream:
                 stream.write(encode({'host': '127.0.0.1', 'port': port, 'key': self.channel._key.hex()}))
                 stream.flush()
                 os.fsync(stream.fileno())
                 info = os.fstat(stream.fileno())
-                self._descriptor_identity = (info.st_dev, info.st_ino)
+            os.replace(temporary, self.descriptor)
+            self._descriptor_identity = (info.st_dev, info.st_ino)
             return self
         except BaseException:
             await self.__aexit__(None, None, None)
             raise
+        finally:
+            if temporary is not None:
+                temporary.unlink(missing_ok=True)
 
     async def _serve(self, reader, writer):
         task = asyncio.current_task()
@@ -560,13 +633,19 @@ class LocalServer:
             task.cancel()
         if tasks:
             await asyncio.gather(*tasks, return_exceptions=True)
-        if self._descriptor_identity is not None:
-            try:
-                info = self.descriptor.lstat()
-                if (info.st_dev, info.st_ino) == self._descriptor_identity:
-                    self.descriptor.unlink()
-            except FileNotFoundError:
-                pass
-        if self._directory_lock is not None:
-            self._directory_lock.__exit__(None, None, None)
-            self._directory_lock = None
+        try:
+            if self._descriptor_identity is not None:
+                try:
+                    info = self.descriptor.lstat()
+                    if (info.st_dev, info.st_ino) == self._descriptor_identity:
+                        self.descriptor.unlink()
+                except FileNotFoundError:
+                    pass
+                self._descriptor_identity = None
+        finally:
+            if self._instance_fd is not None:
+                os.close(self._instance_fd)
+                self._instance_fd = None
+            if self._directory_lock is not None:
+                self._directory_lock.__exit__(None, None, None)
+                self._directory_lock = None

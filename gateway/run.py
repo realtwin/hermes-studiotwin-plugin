@@ -19,7 +19,7 @@ if __package__ in (None, ''):
     __package__ = package.__name__
 
 from .startup import Gateway, gate_from_fd, gate_from_file, open_database
-from .ipc import LocalServer
+from .ipc import AlreadyRunning, LocalServer
 
 
 async def main():
@@ -41,7 +41,8 @@ async def main():
     data = os.environ.get('PLUGIN_DATA')
     if not data:
         raise ValueError('private plugin data required')
-    database = open_database(data)
+    # Exclusive IPC ownership precedes SQLite access: a losing launch must not
+    # touch the live owner's database/sidecars or descriptor.
 
     async def initialize_context(ctx, call_next):
         if ctx.method == 'initialize':
@@ -66,12 +67,13 @@ async def main():
 
     server = Server('hermes-studiotwin', version='0.1.0', on_list_tools=list_tools, on_call_tool=call_tool)
     server.middleware.append(initialize_context)
-    try:
-        async with LocalServer(data):
+    async with LocalServer(data):
+        database = open_database(data)
+        try:
             async with stdio_server() as (read_stream, write_stream):
                 await server.run(read_stream, write_stream, server.create_initialization_options())
-    finally:
-        database.close()
+        finally:
+            database.close()
 
 
 if __name__ == '__main__':
@@ -79,6 +81,9 @@ if __name__ == '__main__':
     # credentials). Fail closed with one static diagnostic and nonzero status.
     try:
         asyncio.run(main())
+    except AlreadyRunning:
+        sys.stderr.write('StudioTwin gateway already running for this plugin data.\n')
+        sys.exit(1)
     except (Exception, KeyboardInterrupt):
         sys.stderr.write('StudioTwin gateway startup or transport unavailable.\n')
         sys.exit(1)

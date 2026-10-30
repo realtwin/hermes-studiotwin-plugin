@@ -248,13 +248,20 @@ def open_database(data, *, windows=None):
     finally:
         os.close(directory_fd)
     path = data / 'studiotwin.sqlite3'
-    fd = os.open(path, os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
-    try:
-        info = os.fstat(fd)
-        if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or info.st_mode & 0o077:
-            raise ValueError('private database required')
-    finally:
-        os.close(fd)
+    for candidate in (path, Path(str(path) + '-wal'), Path(str(path) + '-shm')):
+        flags = os.O_RDWR | os.O_NOFOLLOW | os.O_NONBLOCK
+        if candidate == path:
+            flags |= os.O_CREAT
+        try:
+            fd = os.open(candidate, flags, 0o600)
+        except FileNotFoundError:
+            continue  # SQLite creates absent sidecars under the private directory.
+        try:
+            info = os.fstat(fd)
+            if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or info.st_mode & 0o077:
+                raise ValueError('private database required')
+        finally:
+            os.close(fd)
     connection = sqlite3.connect(path)
     connection.execute('PRAGMA journal_mode=WAL')
     return connection
