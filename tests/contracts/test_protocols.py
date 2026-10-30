@@ -561,6 +561,16 @@ def _secret_samples():
     samples = [upload["preSignedPost"]["url"], *upload["preSignedPost"]["fields"].values(),
                "s3://fixture-bucket/users/u/assets/a/x.png", "https://x.invalid/a?X-Amz-Signature=abc"]
     samples += [v for v in _strings(resolved) if "://" in v]
+    # Signed job-output URLs and storage URIs from a completed fake job (S02 settlement_evidence).
+    done = FakeStudioTwin(MODES["settlement_evidence"].scenario)
+    job_id = json.loads(done.call("text-to-environment-map", {"prompt": "x", "seed": 1}).text)["jobId"]
+    status = {"status": "unpolled"}
+    for _ in range(8):
+        status = json.loads(done.call("studiotwin_get_job_status", {"jobId": job_id}).text)
+        if status["status"] == "done":
+            break
+    assert status["status"] == "done"
+    samples += [v for v in _strings(status) if "://" in v]
     samples += [c["value"] for c in CAN.document()["canaries"]]
     return [s for s in samples if isinstance(s, str) and len(s) > 8]
 
