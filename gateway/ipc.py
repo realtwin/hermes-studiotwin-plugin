@@ -55,8 +55,10 @@ class WindowsFiles:
 
     Directory handles stay open without FILE_SHARE_DELETE during use. Files are
     created with a protected owner-only DACL BEFORE any secret bytes are written.
-    Existing foreign-owned files, null/inherited/foreign ACLs and reparse points
-    fail closed. Only startup may tighten an owner-owned data directory.
+    Existing foreign-owned files, null/foreign ACLs, unprotected directories and
+    reparse points fail closed. Inherited file grants must still be owner-only;
+    SQLite may create WAL/SHM this way beneath the locked private directory.
+    Only startup may tighten an owner-owned data directory.
     """
     def __init__(self, *, api=None):
         self.api = api if api is not None else _WindowsApi()
@@ -201,7 +203,8 @@ class _WindowsApi:
                 for index in range(count):
                     ace = c.c_void_p()
                     self._ok(self.get_ace(acl, index, c.byref(ace)))
-                    # Only ACCESS_ALLOWED_ACE, no inherited/conditional/object ACE.
+                    # Only ACCESS_ALLOWED_ACE; inheritance may carry owner-only
+                    # grants to SQLite sidecars, never foreign/conditional grants.
                     kind = c.c_ubyte.from_address(ace.value).value
                     flags = c.c_ubyte.from_address(ace.value + 1).value
                     mask = w.DWORD.from_address(ace.value + 4).value

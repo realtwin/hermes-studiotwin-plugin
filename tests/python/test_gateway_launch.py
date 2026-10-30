@@ -99,6 +99,24 @@ def test_bootstrap_only_inherited_private_pipe():
         startup.gate_from_fd(1)
 
 
+@pytest.mark.parametrize('unsafe', ['mode', 'directory', 'symlink', 'size', 'fields'])
+def test_private_file_bootstrap_refuses_unsafe_inputs(tmp_path, unsafe):
+    path = tmp_path / 'bootstrap.json'
+    path.touch(mode=0o600)
+    path.write_text(json.dumps(dict(key='6b' * 32, hostInstanceNonce='H' * 43,
+        profileId='profile-a', connectionId='local')))
+    if unsafe == 'mode': path.chmod(0o644)
+    if unsafe == 'directory': tmp_path.chmod(0o755)
+    if unsafe == 'symlink':
+        target = path.with_name('target.json')
+        path.rename(target)
+        path.symlink_to(target)
+    if unsafe == 'size': path.write_text(' ' * 16385)
+    if unsafe == 'fields': path.write_text('{"key":"00"}')
+    with pytest.raises(ValueError, match='bootstrap'):
+        startup.gate_from_file(path)
+
+
 @pytest.mark.parametrize('handshake', ['signed', 'tampered', 'unsigned'])
 @pytest.mark.parametrize('authenticated', [False, True])
 @pytest.mark.parametrize('launcher', ['manifest', 'posix-fallback', 'windows-python'])
