@@ -290,4 +290,3 @@ def test_register_leaf_once_and_preserve_security_wrapper(tmp_path):
             response = await http.get('/test-leaf')
             assert response.status_code==503 and response.json()['code']=='UNAVAILABLE'
     asyncio.run(run())
-

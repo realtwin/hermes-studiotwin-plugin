@@ -395,4 +395,3 @@ def test_metadata_relational_id_and_scope_binding(tmp_path):
     with pytest.raises(R.BoundaryRefused): s.put('pause','current',pause,scope_id=SCOPE,generation=1)
     assert list(s.connection.iterdump())==before
     s.close()
-
