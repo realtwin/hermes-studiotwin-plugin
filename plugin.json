@@ -1,0 +1,130 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "hermes-studiotwin",
+  "version": "0.1.0",
+  "description": "StudioTwin creative suite for Hermes: images, environment maps, worlds, PBR materials, meshes, rigs, motion, audio and Concepts, powered only by StudioTwin. A bundled local gateway mediates every hosted result and keeps a single-use operation ledger before any paid call. In Hermes Desktop: a StudioTwin page (Library, Jobs, Concepts, Create), inline asset cards, credit and active-job chips.",
+  "author": {
+    "name": "RealTwin"
+  },
+  "keywords": [
+    "studiotwin",
+    "3d",
+    "image-to-3d",
+    "environment-map",
+    "pbr-material",
+    "rigging",
+    "motion",
+    "sound-effects",
+    "concepts",
+    "mcp"
+  ],
+  "extensions": {
+    "com.nousresearch.hermes": {
+      "servers": {
+        "studiotwin": {
+          "trust": "untrusted",
+          "timeout": 300
+        }
+      },
+      "config_schema": {
+        "api_key": {
+          "type": "secret",
+          "env": "STUDIOTWIN_API_KEY",
+          "label": "StudioTwin API key",
+          "description": "Used only by the local StudioTwin gateway and Desktop backend; never shown to the model or the browser. Saving it restarts the StudioTwin tools."
+        },
+        "endpoint": {
+          "type": "str",
+          "choices": [
+            "staging",
+            "production",
+            "expert"
+          ],
+          "default": "staging",
+          "label": "StudioTwin environment",
+          "description": "Staging is the development default. Production stays disabled until it is certified. Expert uses the URL and separate key below."
+        },
+        "expert_url": {
+          "type": "str",
+          "default": "",
+          "label": "Expert endpoint URL",
+          "description": "HTTPS only, used when the environment is Expert. It never receives the staging or production key."
+        },
+        "expert_url_confirmed": {
+          "type": "bool",
+          "default": false,
+          "label": "I confirm this expert endpoint",
+          "description": "The gateway refuses an expert endpoint until you confirm it here."
+        },
+        "expert_api_key": {
+          "type": "secret",
+          "env": "STUDIOTWIN_EXPERT_API_KEY",
+          "label": "Expert endpoint API key",
+          "description": "Separate credential for the expert endpoint. It is never filled in from the main API key."
+        },
+        "spend_guard_credits": {
+          "type": "int",
+          "default": 200,
+          "label": "Spend guard per chat (credits)",
+          "description": "Estimated credits one chat may reserve before the gateway stops paid calls. This is a local guard on estimates, not a server-enforced maximum."
+        },
+        "unattended_max_credits": {
+          "type": "int",
+          "default": 0,
+          "label": "Unattended spend (credits)",
+          "description": "Cron and other headless runs. Zero means no paid StudioTwin calls without you present."
+        },
+        "poll_cadence": {
+          "type": "str",
+          "choices": [
+            "standard",
+            "relaxed"
+          ],
+          "default": "standard",
+          "label": "Job refresh cadence",
+          "description": "Standard refreshes active jobs at 3 s, then 10 s, then 30 s. Relaxed refreshes less often."
+        },
+        "inline_cards": {
+          "type": "bool",
+          "default": true,
+          "label": "Inline asset cards in chat",
+          "description": "Desktop: render StudioTwin results as interactive cards. Off keeps the built-in players."
+        },
+        "webgl_limit": {
+          "type": "int",
+          "default": 4,
+          "label": "Live 3D viewers",
+          "description": "Desktop: most WebGL viewers kept live at once. Others show thumbnails."
+        },
+        "blender_handoff": {
+          "type": "str",
+          "choices": [
+            "ask",
+            "never"
+          ],
+          "default": "ask",
+          "label": "Blender hand-off",
+          "description": "Ask before writing a new Blender file from a StudioTwin asset; it never edits an open scene. Never hides the offer."
+        },
+        "blender_path": {
+          "type": "str",
+          "default": "",
+          "label": "Blender executable",
+          "description": "Full path to Blender. Empty finds it on PATH or in the usual install folders."
+        },
+        "local_import_roots": {
+          "type": "list",
+          "default": [],
+          "label": "Project folders",
+          "description": "Absolute folders the backend may read local media from, in addition to its own data folder."
+        },
+        "cache_quota_mb": {
+          "type": "int",
+          "default": 2048,
+          "label": "Media cache size (MB)",
+          "description": "Unpinned downloaded media beyond this size, or older than 30 days, is removed first."
+        }
+      }
+    }
+  }
+}
