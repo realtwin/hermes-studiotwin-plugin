@@ -55,7 +55,7 @@ async def main():
             for name in gateway.tools()])
 
     async def call_tool(ctx, params):
-        metadata = ctx.meta.model_dump(exclude_none=True, by_alias=True) if ctx.meta is not None else None
+        metadata = dict(ctx.meta) if ctx.meta is not None else None
         result = gateway.call(params.name, params.arguments if params.arguments is not None else {}, metadata)
         return mcp.CallToolResult(content=[mcp.TextContent(type='text', text=json.dumps(result))],
                                   is_error=result.get('ok') is False)

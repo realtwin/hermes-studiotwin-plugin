@@ -150,7 +150,9 @@ def test_launch_translated_manifest_real_stdio(tmp_path, authenticated):
         if authenticated:
             send({'jsonrpc': '2.0', 'id': 5, 'method': 'tools/call', 'params': {
                 'name': 'studiotwin_setup_status', 'arguments': {}, '_meta': signed(None, tool='text-to-material')}})
-            result = receive()['result']
+            reply = receive()
+            assert 'result' in reply, reply
+            result = reply['result']
             assert result['isError'] is True
             assert json.loads(result['content'][0]['text'])['code'] == 'CONTEXT_MISMATCH'
             send({'jsonrpc': '2.0', 'id': 6, 'method': 'tools/call', 'params': {

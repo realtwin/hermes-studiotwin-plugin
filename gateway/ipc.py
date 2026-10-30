@@ -187,12 +187,17 @@ class Channel:
         request = decode(encode(candidate))
         if not isinstance(request, dict):
             raise Refused('INVALID_PARAMS')
+        # Authenticate even version refusals before replying over the socket.
+        # No unauthenticated caller can turn the listener into an echo service.
+        mac = request.get('mac')
+        if not isinstance(mac, str) or not re.fullmatch('[0-9a-f]{64}', mac):
+            raise Refused('BAD_MAC')
+        payload = {k: v for k, v in request.items() if k != 'mac'}
+        if not hmac.compare_digest(self._mac(payload, 'request'), mac):
+            raise Refused('BAD_MAC')
         if request.get('protocol') != PROTOCOL:
             raise VersionRefused(request.get('protocol'))
         validate('host-gateway', 'IpcRequestV1', request)
-        payload = {k: v for k, v in request.items() if k != 'mac'}
-        if not hmac.compare_digest(self._mac(payload, 'request'), request['mac']):
-            raise Refused('BAD_MAC')
         if abs(self.clock() - request['issuedAtMs']) > 30000:
             raise Refused('STALE_REQUEST')
         raw = base64.urlsafe_b64decode(request['nonce'] + '=')
@@ -319,9 +324,14 @@ class LocalServer:
             request = self.channel.accept_request(decode(line))
             writer.write(encode(self.channel.response(request, code='UNAVAILABLE')) + b'\n')
             await writer.drain()
+        except VersionRefused as refusal:
+            validate('gateway', 'VersionRefusalV1', refusal.envelope)
+            frame = {'envelope': refusal.envelope,
+                     'mac': self.channel._mac(refusal.envelope, 'response')}
+            writer.write(encode(frame) + b'\n')
+            await writer.drain()
         except (Refused, ValueError, OSError, asyncio.TimeoutError):
-            # Authentication/version errors close the socket. VersionRefused
-            # retains the safe refusal envelope for an authenticated caller API.
+            # Invalid unauthenticated frames close the socket without reflection.
             pass
         finally:
             self._active.discard(task)
