@@ -101,7 +101,7 @@ def test_bootstrap_only_inherited_private_pipe():
 
 @pytest.mark.parametrize('handshake', ['signed', 'tampered', 'unsigned'])
 @pytest.mark.parametrize('authenticated', [False, True])
-@pytest.mark.parametrize('launcher', ['manifest', 'posix-fallback'])
+@pytest.mark.parametrize('launcher', ['manifest', 'posix-fallback', 'windows-python'])
 def test_launch_translated_manifest_real_stdio(tmp_path, authenticated, launcher, handshake):
     from hermes_cli.agent_plugins import load_agent_plugin
     from tools.mcp_tool_config import _build_safe_env
@@ -112,7 +112,17 @@ def test_launch_translated_manifest_real_stdio(tmp_path, authenticated, launcher
     env['PYTHONDONTWRITEBYTECODE'] = '1'
     # A different core gateway package is on PYTHONPATH; the entry point must not import it.
     spawn = {}
-    if authenticated:
+    bootstrap_file = None
+    if authenticated and launcher == 'windows-python':
+        # Windows-style bare-python command + file bootstrap, exercised on Linux.
+        # Win32 ACL semantics are separately exercised via WindowsFiles' API seam.
+        (tmp_path / 'spawn').mkdir(mode=0o700)
+        bootstrap_file = tmp_path / 'spawn/host.json'
+        bootstrap_file.touch(mode=0o600)
+        bootstrap_file.write_text(json.dumps(dict(key='6b' * 32, hostInstanceNonce='H' * 43,
+            profileId='profile-a', connectionId='local')))
+        env['STUDIOTWIN_HOST_BOOTSTRAP_FILE'] = str(bootstrap_file)
+    elif authenticated:
         read, write = os.pipe()
         os.write(write, json.dumps(dict(key='6b' * 32, hostInstanceNonce='H' * 43,
             profileId='profile-a', connectionId='local')).encode())
@@ -122,9 +132,13 @@ def test_launch_translated_manifest_real_stdio(tmp_path, authenticated, launcher
     command, cwd = [server['command'], *server['args']], server['cwd']
     if launcher == 'posix-fallback':
         command, cwd = ['./gateway/run.py'], ROOT
+    if launcher == 'windows-python':
+        assert server['command'] == 'python'
+        assert command[1] == str(ROOT / 'gateway/run.py')
+        assert 'pass_fds' not in spawn
     process = subprocess.Popen(command, cwd=cwd,
         env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, **spawn)
-    if authenticated:
+    if authenticated and bootstrap_file is None:
         os.close(read)
     def send(message):
         process.stdin.write(json.dumps(message) + '\n')
@@ -186,6 +200,8 @@ def test_launch_translated_manifest_real_stdio(tmp_path, authenticated, launcher
             assert not result['isError']
             assert json.loads(result['content'][0]['text'])['publishedTiers'] == ['setup']
         assert not (ROOT / 'gateway/router.py').exists()
+        if bootstrap_file is not None:
+            assert not bootstrap_file.exists()
         assert not (ROOT / 'gateway/leaves').exists()
     finally:
         process.stdin.close()
