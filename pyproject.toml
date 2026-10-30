@@ -1,0 +1,46 @@
+[project]
+name = "hermes-studiotwin"
+version = "0.1.0"
+description = "StudioTwin creative suite for Hermes: enforcement gateway, Desktop backend and skill (offline/fake-backed build)."
+readme = "README.md"
+# The gateway must start on any Python a supported Hermes host can provide (DESIGN §0, §8.1 item 3).
+requires-python = ">=3.11"
+# Runtime: the gateway imports only stdlib plus this package-pinned MCP client (DESIGN §0).
+# Exact pins only; change a pin and re-run `uv lock` in the same commit.
+dependencies = [
+  "mcp==2.3.0",
+]
+
+[dependency-groups]
+# Test-only. ruamel.yaml is required to import the pinned Hermes core reference
+# (hermes_cli.agent_plugins -> agent.skill_utils -> utils -> hermes_yaml) via PYTHONPATH, and
+# requests + psutil to import agent.tool_executor for the S04 pinned-core transport tests, and
+# python-dotenv for core's stdio child-env builder (tools.mcp_tool_config._build_safe_env, a lazy
+# import) used by S05 launch tests. All are the core's own exact pins at 088f657;
+# fastapi/httpx serve the dashboard backend tests (the live dashboard process supplies them
+# at runtime); jsonschema serves the frozen-contract tests.
+dev = [
+  "pytest==9.1.1",
+  "ruamel.yaml==0.18.16",
+  "requests==2.34.2",
+  "psutil==7.2.2",
+  "python-dotenv==1.2.4",
+  "fastapi==0.133.1",
+  "httpx==0.28.1",
+  "jsonschema==4.26.0",
+]
+
+[tool.uv]
+# Not a distributable wheel: the repository is a Hermes plugin directory. `uv sync`
+# installs dependencies only and never builds/installs this project.
+package = false
+required-version = ">=0.12.3"
+
+[tool.pytest.ini_options]
+# importlib mode lets dotted filenames such as S27's `tests/docs/release.test.py` import
+# (prepend mode would try to import a `release` package), and keeps same-named test files in
+# different directories from colliding. `*.test.py` is also collected during directory walks.
+addopts = "--import-mode=importlib -p no:cacheprovider"
+python_files = ["test_*.py", "*_test.py", "*.test.py"]
+testpaths = ["tests"]
+# Serial by design (BUILD-BRIEF rule 5): no xdist, no parallel plugin configured.
