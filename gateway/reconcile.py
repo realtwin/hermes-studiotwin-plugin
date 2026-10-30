@@ -223,6 +223,10 @@ class Reconciler:
                 # final debit. Keep the hold (and S09 guard accounting) until
                 # debit evidence is independently known.
                 value.update(state='REFUNDED_VERIFIED',reservationHeld=value['finalDebit']['state']!='reported')
+            # Status and refund-only observations cannot promote correlation to
+            # binding authority. Only verified gross debit settles/quarantines it.
+            if row[1] is not None and value['finalDebit']['state']!='reported':
+                internal='AMBIGUOUS_UNRESOLVED'
             self.store._db.execute('UPDATE dispatch_records SET job_status=?,submitted_ms=?,terminal_ms=? WHERE scope_id=? AND operation_id=?',
                 (record['status'],submitted,terminal,binding['scope_id'],operation))
             return self._write(operation,binding,value,internal_state=internal)
@@ -233,7 +237,12 @@ class Reconciler:
         if type(jobs) is not list or len(jobs)>100: raise BoundaryRefused()
         with self.store.transaction():
             now=self.clock_ms(); value=self.snapshot(operation,binding).to_json(); row=self._record(operation,binding)
-            if row is None or self.store.get_operation(operation,binding)['state'] not in ('DISPATCHING','AMBIGUOUS_UNRESOLVED'):
+            state=self.store.get_operation(operation,binding)['state']
+            if row is None or value['finalDebit']['state']=='reported':
+                return self.operation_state(operation,binding)
+            # Existing recovery provenance remains refreshable even in old rows
+            # where an ordinary observation overwrote the recoverable state.
+            if row[1] is None and state not in ('DISPATCHING','AMBIGUOUS_UNRESOLVED'):
                 return self.operation_state(operation,binding)
             matches=[]; seen=set()
             for job in jobs:
@@ -250,7 +259,7 @@ class Reconciler:
                           dispatchAllowed=False,candidates=matches)
             value.update(state='UNKNOWN' if matches else 'UNKNOWN_NOT_VISIBLE',reservationHeld=True)
             # Every recoverable ID is provisional; direct accept() bindings are
-            # excluded by the operation-state gate above.
+            # excluded by the provenance/state gate above.
             value['jobId']=matches[0]['jobId'] if len(matches)==1 else None
             self._write(operation,binding,value,internal_state='AMBIGUOUS_UNRESOLVED',recovery=recovery)
             return self.operation_state(operation,binding)
