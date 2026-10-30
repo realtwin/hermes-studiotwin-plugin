@@ -76,6 +76,14 @@ def is_valid(ref: str, instance: Any, docs: dict[str, dict[str, Any]] | None = N
     return validator(ref, docs).is_valid(instance)
 
 
+def scoped_media_candidate(path: str, scope_id: str, docs=None) -> bool:
+    """Conformance oracle only, NOT an open-file authorization or production sandbox."""
+    return (is_valid("gateway#/$defs/ScopeIdV1", scope_id, docs)
+            and is_valid("gateway#/$defs/ScopedMediaPathV1", path, docs)
+            and path.count("/hermes-studiotwin/scopes/") == 1
+            and f"/hermes-studiotwin/scopes/{scope_id}/media/" in path)
+
+
 # --------------------------------------------------------------------------- schema walking
 
 def walk(node: Any, path: str = "") -> Iterator[tuple[str, Any]]:

@@ -80,8 +80,9 @@
     },
     "ScopedMediaPathV1": {
       "type": "string",
-      "pattern": "^/(?:[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}/){0,24}hermes-studiotwin/scopes/[0-9a-f]{64}/media/(?:[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}/){0,8}[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$",
-      "description": "Absolute local path inside the scope's media directory; no '.'/'..' segments."
+      "pattern": "^(?:/|[A-Za-z]:/)(?:(?!\\.{1,2}(?:/|$))[A-Za-z0-9_. -]{1,128}/){0,24}hermes-studiotwin/scopes/[0-9a-f]{64}/media/(?:(?!\\.{1,2}(?:/|$))[A-Za-z0-9_. -]{1,128}/){0,8}(?!\\.{1,2}(?:/|$))[A-Za-z0-9_. -]{1,128}$",
+      "description": "Absolute POSIX or slash-normalized Windows drive path; hidden ancestors and spaces supported. Syntax only: verify current scope/generation and approved root, resolve(strict=True), open and fstat before reading; reject symlink escape, wrong owner/permissions, nonregular file, disallowed extension/MIME and size overflow. Never percent-decode this path.",
+      "maxLength": 4096
     },
     "MediatedTextV1": {
       "type": "string",
