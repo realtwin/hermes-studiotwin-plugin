@@ -88,15 +88,17 @@ class DispatchService:
         # No raw side-channel callback ever escapes to a UI/logger/transcript.
         def event(raw):
             self.mediate_result_v1(tool,raw,binding,event=True)
-        failed=False; raw=None
+        failed=False; raw=None; error_text=None
         try:
             raw=bounded_copy_v1(await self._transport(tool,inputs,event))
         except Exception as exc:
-            # Collect full error material inside mediation, never interpolate it
-            # into a thrown exception, stored row, log, or result summary.
+            # Volatile only; mediation runs OUTSIDE this exception handler so a
+            # secondary boundary refusal cannot retain the raw transport chain.
             failed=True
-            self.mediate_result_v1(tool,{'error':str(exc)},binding,event=True)
-        if failed: return None
+            error_text=str(exc)
+        if failed:
+            self.mediate_result_v1(tool,{'error':error_text},binding,event=True)
+            return None
         self.mediate_result_v1(tool,raw,binding)
         return raw
 
