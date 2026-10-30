@@ -212,7 +212,9 @@ class Mediator:
                         raise BoundaryRefused()
                     registry.register(session)
                     registry.location(session['url'])
-                safe=redact_upstream_v1(raw,sensitive_values=registry)
+                # Scan every channel; only explicitly classified scalar/resource
+                # fields below may enter the outbound candidate.
+                redact_upstream_v1(raw,sensitive_values=registry)
                 resources=[]
                 media=[]
                 for rule,location,scheme,asset_id in extracted:
@@ -319,6 +321,19 @@ class Mediator:
             scope_id=scope_id,generation=generation,sensitive_values=registry)
 
     def materialize(self, token, *, scope_id, generation):
+        failed=False
+        result=None
+        try:
+            result=self._materialize(token,scope_id=scope_id,generation=generation)
+        except Exception:
+            # External loader exceptions can contain signed request traces.
+            # Neither direct callers nor mediate() receive the original chain.
+            failed=True
+        if failed:
+            raise MediaRefused()
+        return result
+
+    def _materialize(self, token, *, scope_id, generation):
         """Consume a resource capability, cache bytes, reapply open/fstat checks.
 
         The injected S11 loader gets a backend-only HandleRecord. It must bound
