@@ -1,0 +1,2 @@
+# pytest compiles conftest.py before it can turn bytecode writing off; keep that copy out of git.
+__pycache__/
