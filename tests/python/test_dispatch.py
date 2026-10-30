@@ -331,6 +331,26 @@ def test_release_requires_expected_unsent_state(harness):
     assert list(store._db.iterdump())==before
 
 
+def test_transport_error_mediation_refusal_has_no_raw_exception_chain(harness,monkeypatch):
+    build,store,_,_=harness
+    fake,u,s,x,ctx,op,b=build('normal','server-max-credits')
+    s.charge_policy.server_binding_verified=lambda *_:True
+    secret='ordinary-private-error-secret-32894'
+    async def fail_transport(*args): raise RuntimeError(secret)
+    s._transport=fail_transport
+    def refuse(*args,**kwargs): raise H.R.BoundaryRefused()
+    monkeypatch.setattr(s.mediator,'mediate',refuse)
+    with pytest.raises(H.R.BoundaryRefused) as caught:
+        run(s.dispatch(x,ctx,op))
+    seen=set(); exc=caught.value
+    while exc is not None and id(exc) not in seen:
+        seen.add(id(exc))
+        assert secret not in str(exc)
+        exc=exc.__cause__ or exc.__context__
+    assert store.get_operation(op,b)['state']=='DISPATCHING'
+    assert store.guard_used(H.SCOPE,'chat')==20
+
+
 def test_interactive_free_noarg_mutation_cannot_use_read_without_consent(harness):
     build,store,_,_=harness
     fake,u,s,x,ctx,op,b=build(name='studiotwin_upload_asset',values={})
