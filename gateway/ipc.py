@@ -30,9 +30,6 @@ from threading import RLock
 import time
 from urllib.parse import urljoin, urlsplit
 
-from jsonschema import Draft202012Validator
-from referencing import Registry, Resource
-from referencing.jsonschema import DRAFT202012
 
 PROTOCOL = 'studiotwin.host-gateway.v1'
 MAX_BYTES = 1048576
@@ -114,11 +111,22 @@ for _name in ('gateway', 'host-gateway', 'dashboard'):
         _doc = {'$schema': 'https://json-schema.org/draft/2020-12/schema',
                 '$id': _uri, 'components': _doc['components']}
     _DOCS[_name] = (_uri, _doc)
-_REGISTRY = Registry().with_resources((uri, Resource.from_contents(doc, default_specification=DRAFT202012))
-    for uri, doc in _DOCS.values())
+_REGISTRY = None
+_SCHEMA_LOCK = RLock()
 
 
 def validate(contract, definition, value):
+    # Exact frozen validation is lazy: these packages are bundled by pinned MCP,
+    # not independent startup dependencies or installed dynamically at runtime.
+    from jsonschema import Draft202012Validator
+    from referencing import Registry, Resource
+    from referencing.jsonschema import DRAFT202012
+    global _REGISTRY
+    with _SCHEMA_LOCK:
+        if _REGISTRY is None:
+            _REGISTRY = Registry().with_resources(
+                (uri, Resource.from_contents(doc, default_specification=DRAFT202012))
+                for uri, doc in _DOCS.values())
     encode(value)  # traversal/bytes/non-finite limits precede the schema walk
     uri, _ = _DOCS[contract]
     fragment = '/components/schemas/' if contract == 'dashboard' else '/$defs/'
@@ -233,6 +241,11 @@ class Channel:
         response = frame['envelope']
         if not hmac.compare_digest(self._mac(response, 'response'), frame['mac']):
             raise Refused('BAD_MAC')
+        if isinstance(response, dict) and response.get('protocol') == 'studiotwin.gateway.v1':
+            validate('gateway', 'VersionRefusalV1', response)
+            refusal = VersionRefused(response['error']['received'])
+            refusal.envelope = response  # validated snapshot; no pending ID in this contract
+            raise refusal
         validate('host-gateway', 'IpcResponseV1', response)
         with self._lock:
             expected = self.pending.get(response['requestId'])
