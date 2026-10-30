@@ -107,6 +107,7 @@ class OutputPolicy:
     summary_path: tuple | None = None
     job_path: tuple | None = None
     upload_path: tuple | None = None
+    upload_id_path: tuple | None = None
     fps: float | None = None
     manifest: bool = False
 
@@ -204,6 +205,13 @@ class Mediator:
                     extracted.append((rule,location,scheme,asset_id))
                 session=_get(raw,policy.upload_path)
                 if session is not _MISSING:
+                    if policy.upload_id_path is not None:
+                        # Captured platform response: {uuid,preSignedPost:{url,fields}}.
+                        # Paths are release-classified, never inferred from a
+                        # random credential-shaped object in unknown metadata.
+                        if type(session) is not dict or set(session)!={'url','fields'}:
+                            raise BoundaryRefused()
+                        session=dict(session,uploadSessionId=_get(raw,policy.upload_id_path))
                     if (type(session) is not dict or set(session)-{'url','fields','uploadSessionId','expiresAt'} or
                             type(session.get('fields')) is not dict or
                             type(session.get('uploadSessionId')) is not str):
