@@ -1344,6 +1344,72 @@
         },
         "x-studiotwin-origin": "S03 addition: §5 lists no Concept read route; S15 owns dashboard/services/concepts.py and the gateway allowlist (§7.3) includes Concept get/status."
       }
+    },
+    "/scope-pause/acknowledge": {
+      "post": {
+        "summary": "Classified local preview from the gateway; never authorizes or dispatches.",
+        "x-studiotwin-owner": "S11",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pause acknowledged without billing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScopePauseAcknowledgedV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScopePauseAcknowledgeRequestV1"
+              }
+            }
+          }
+        },
+        "operationId": "acknowledgeScopePause",
+        "x-studiotwin-origin": "S03 addition: nonbilling acknowledgement for S26 through ctx.rest, never IPC in browser.",
+        "x-ipc-method": "scopePause.acknowledge",
+        "x-effects": {
+          "write": [
+            "scope_pauses.acknowledged_at_ms"
+          ],
+          "settlement": "unchanged",
+          "authorization": "forbidden",
+          "dispatch": "forbidden"
+        },
+        "description": "S11 authenticates dashboard session and current scope/generation, then IPC to S10. scopeId is an equality assertion, not selected authority: foreign scope returns not-found. Atomically compare operationId to the current verified-overrun pause to refuse stale acknowledgement of a newer pause. Repeat of the same acknowledgement returns its original timestamp; absent/mismatched pause is not-found. Only acknowledged_at_ms changes; settlement/reservation/evidence/authorization and dispatch count remain unchanged. Fresh paid work still requires a new preview and once-only host consent. S10 and S11 must test this against their actual stores and dispatcher spies."
+      }
     }
   },
   "components": {
@@ -2740,6 +2806,62 @@
               "$ref": "#/components/schemas/UuidV1"
             },
             "maxItems": 64
+          }
+        }
+      },
+      "ScopePauseAcknowledgeRequestV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "scopeId",
+          "operationId"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "scopeId": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ScopeIdV1"
+          },
+          "operationId": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/OperationIdV1"
+          }
+        }
+      },
+      "ScopePauseAcknowledgedV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "scopeId",
+          "operationId",
+          "paused",
+          "acknowledgedAtMs",
+          "authorizes",
+          "dispatches"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "scopeId": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ScopeIdV1"
+          },
+          "operationId": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/OperationIdV1"
+          },
+          "paused": {
+            "const": false
+          },
+          "acknowledgedAtMs": {
+            "$ref": "#/components/schemas/EpochMsV1"
+          },
+          "authorizes": {
+            "const": false
+          },
+          "dispatches": {
+            "const": false
           }
         }
       }
