@@ -18,7 +18,7 @@ _VERSION = re.compile(r"([0-9]+)\.([0-9]+)\.([0-9]+)(?:([-+])[0-9A-Za-z.-]{1,32}
 
 
 def version_status(version):
-    if not isinstance(version, str) or not (match := _VERSION.fullmatch(version)):
+    if not isinstance(version, str) or len(version) > 128 or not (match := _VERSION.fullmatch(version)):
         return "unknown"
     parts = tuple(int(match[i]) for i in (1, 2, 3))
     # Prereleases have not met the stable host floor, even if numerically newer.
