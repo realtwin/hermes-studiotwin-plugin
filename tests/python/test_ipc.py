@@ -94,6 +94,15 @@ def test_response_mac_requestid_method_and_closed_payload():
     with pytest.raises(ipc.Refused):
         client.accept_response(bad)
     assert client.pending
+    bad_mac = copy.deepcopy(good)
+    bad_mac['mac'] = '0' * 64
+    with pytest.raises(ipc.Refused, match='BAD_MAC'):
+        client.accept_response(bad_mac)
+    wrong_id = copy.deepcopy(good['envelope'])
+    wrong_id['requestId'] = 'rq_' + 'x' * 22
+    with pytest.raises(ipc.Refused, match='MISMATCH'):
+        client.accept_response(server.seal_response(wrong_id))
+    assert client.pending
     with pytest.raises(ipc.Refused):
         server.response(request, payload={'secret': 'not-allowed'})
     assert client.accept_response(good)['ok'] is False
