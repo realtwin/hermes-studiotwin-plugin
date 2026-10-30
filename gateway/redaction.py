@@ -24,7 +24,7 @@ from types import MappingProxyType
 from urllib.parse import quote, unquote
 
 from .mediation_parse import (BoundaryRefused, Budget, bounded_copy_v1,
-                                     embedded_json_v1)
+                                     embedded_json_v1, decode_json_escapes_v1)
 
 _REDACTED = '[redacted]'
 _BANNED_NAME = re.compile(
@@ -131,20 +131,24 @@ class _Sensitive:
     def __repr__(self):
         return '<SensitiveRegistry>'
 
-    def unsafe(self, text):
+    def unsafe(self, text, *, secrets_only=False):
         def matches(value):
-            return bool(_UNSAFE_TEXT.search(value) or
+            return bool((not secrets_only and _UNSAFE_TEXT.search(value)) or
                         any(needle in value for needle in self.needles))
         # Exact registry membership is always checked independently of canaries.
         if matches(text):
             return True
         decoded = text
         for _ in range(3):
-            next_value = html.unescape(unquote(decoded))
+            next_value = decode_json_escapes_v1(html.unescape(unquote(decoded)))
             if next_value == decoded:
                 break
             decoded = next_value
             if matches(decoded):
+                return True
+        for match in re.finditer(r'(?<![0-9a-fA-F])(?:[0-9a-fA-F]{2}){8,}(?![0-9a-fA-F])', decoded):
+            blob = bytes.fromhex(match.group())
+            if matches(blob.decode('utf-8', errors='replace')):
                 return True
         for match in _B64.finditer(decoded):
             token = match.group()
@@ -152,7 +156,7 @@ class _Sensitive:
                 blob = base64.b64decode(token + '=' * (-len(token) % 4), altchars=b'-_', validate=True)
             except ValueError:
                 continue
-            if matches(blob.decode('latin-1')):
+            if matches(blob.decode('utf-8', errors='replace')):
                 return True
         return False
 
@@ -212,9 +216,10 @@ def _walk(value, registry, *, redact, scope_id=None):
         if type(item) is list:
             return [visit(child, depth + 1) for child in item]
         if type(item) is str:
-            # Registry provenance must survive parsing/JSON reformatting: the
-            # whole original string may itself be a registered secret.
-            if any(needle in item for needle in registry.needles):
+            # Check the WHOLE original value before parsing can split a secret
+            # across JSON spans. Key/shape heuristics still run on parsed members
+            # below, so harmless IDs adjacent to credential keys survive.
+            if registry.unsafe(item, secrets_only=True):
                 if not redact:
                     raise BoundaryRefused()
                 return _REDACTED

@@ -105,6 +105,25 @@ def parse_json_v1(raw: str | bytes):
     return bounded_copy_v1(result)
 
 
+# Decode only the JSON escape grammar, never Python/unicode_escape syntax.
+# Contiguous escapes let the JSON decoder combine UTF-16 surrogate pairs.
+_JSON_ESCAPES = re.compile(r'(?:\\(?:["\\/bfnrt]|u[0-9a-fA-F]{4}))+')
+
+
+def decode_json_escapes_v1(text: str):
+    """Bounded one-pass escape decoding for whole-value secret comparison.
+
+    This is detection only: it does not claim malformed prose is valid JSON.
+    The caller bounds the original wire value; decoded output cannot grow.
+    """
+    if len(text) > MAX_BYTES:
+        raise BoundaryRefused()
+    decoded = _JSON_ESCAPES.sub(lambda match: json.loads('"'+match.group()+'"'), text)
+    # Reject unpaired surrogates even in an otherwise malformed/prose fragment.
+    decoded.encode('utf-8')
+    return decoded
+
+
 def embedded_json_v1(text: str):
     """Yield nonoverlapping (start, end, JSON) spans, including fenced JSON.
 
@@ -113,7 +132,7 @@ def embedded_json_v1(text: str):
     """
     end = 0
     attempts = 0
-    for match in re.finditer(r'[\[{]', text):
+    for match in re.finditer(r'[\[{"]', text):
         if match.start() < end:
             continue
         attempts += 1
