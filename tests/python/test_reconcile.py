@@ -116,6 +116,8 @@ def test_cancel_only_queued_submitted_with_verified_refund(harness,prior):
         r=observe(s,op,b,job,status='cancelled',refundedCredits=20,ledgerRef='fixture-ledger-'+job.uuid)
         assert r['state']=='REFUNDED_VERIFIED' and r['refund']['credits']==20
         assert r['finalDebit']=={'state':'unknown'}  # refund is NOT debit evidence
+        assert r['reservationHeld'] is True  # missing final-debit evidence cannot release the hold
+        assert store.guard_used(H.SCOPE,'chat')==20
 
 
 def test_cancel_without_refund_evidence_stays_held(harness):
