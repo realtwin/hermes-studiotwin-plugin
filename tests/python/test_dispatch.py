@@ -331,6 +331,14 @@ def test_release_requires_expected_unsent_state(harness):
     assert list(store._db.iterdump())==before
 
 
+def test_interactive_free_noarg_mutation_cannot_use_read_without_consent(harness):
+    build,store,_,_=harness
+    fake,u,s,x,ctx,op,b=build(name='studiotwin_upload_asset',values={})
+    before=len(fake.uploads)
+    with pytest.raises(H.R.BoundaryRefused): run(s.read(x,ctx))
+    assert len(fake.uploads)==before
+
+
 def test_actual_process_exit_after_durable_dispatch_and_new_process_no_replay(harness,tmp_path):
     import os
     import subprocess
