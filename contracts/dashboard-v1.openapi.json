@@ -810,9 +810,17 @@
           {
             "name": "path",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
               "$ref": "#/components/schemas/LocalPathV1"
+            }
+          },
+          {
+            "name": "handle",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/OpaqueHandleV1"
             }
           }
         ],
@@ -860,7 +868,8 @@
             }
           }
         },
-        "x-studiotwin-media-src": true
+        "x-studiotwin-media-src": true,
+        "description": "Exactly one path or handle required, otherwise INVALID_PARAMS. Handle is scope/generation/purpose/read-count/expiry-bound and resolves only backend-side; foreign scope returns not-found. Both flows require the full open/fstat sandbox before streaming. Never derive backend paths from asset URLs."
       }
     },
     "/local/audio/convert": {
@@ -1548,7 +1557,8 @@
           "material",
           "motion",
           "concept",
-          "other"
+          "other",
+          "image_sequence"
         ]
       },
       "BalanceV1": {
@@ -1801,7 +1811,14 @@
             "type": "boolean"
           },
           "createdAtRaw": {
-            "anyOf": [{"type": "null"}, {"$ref": "#/components/schemas/MediatedTextV1"}],
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/MediatedTextV1"
+              }
+            ],
             "description": "Optional safe raw timestamp fallback. S12 preserves only mediated display text; absent means unavailable, not zero epoch."
           },
           "createdAtMs": {
@@ -1842,8 +1859,13 @@
               "environment",
               "material",
               "motion",
-              "none"
+              "none",
+              "image_sequence",
+              "world"
             ]
+          },
+          "resourceGroup": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ResourceGroupV1"
           }
         }
       },
@@ -1955,11 +1977,25 @@
             ]
           },
           "submittedAtRaw": {
-            "anyOf": [{"type": "null"}, {"$ref": "#/components/schemas/MediatedTextV1"}],
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/MediatedTextV1"
+              }
+            ],
             "description": "Optional mediated raw timestamp fallback for S14; never forward raw diagnostics."
           },
           "terminalAtRaw": {
-            "anyOf": [{"type": "null"}, {"$ref": "#/components/schemas/MediatedTextV1"}]
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/MediatedTextV1"
+              }
+            ]
           },
           "submittedAtMs": {
             "anyOf": [
@@ -2000,6 +2036,16 @@
           },
           "summary": {
             "$ref": "#/components/schemas/MediatedTextV1"
+          },
+          "outputGroups": {
+            "type": "array",
+            "maxItems": 32,
+            "items": {
+              "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ResourceGroupV1"
+            }
+          },
+          "recovery": {
+            "$ref": "#/components/schemas/RecoveryCandidatesV1"
           }
         }
       },
@@ -2320,7 +2366,6 @@
         "additionalProperties": false,
         "required": [
           "contract",
-          "sourcePath",
           "targetFormat"
         ],
         "properties": {
@@ -2338,15 +2383,40 @@
               "flac",
               "opus"
             ]
+          },
+          "source": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ProcessorSourceV1"
           }
-        }
+        },
+        "oneOf": [
+          {
+            "required": [
+              "source"
+            ],
+            "not": {
+              "required": [
+                "sourcePath"
+              ]
+            }
+          },
+          {
+            "required": [
+              "sourcePath"
+            ],
+            "not": {
+              "required": [
+                "source"
+              ]
+            }
+          }
+        ],
+        "description": "Exactly one source: remote Desktop sends an asset/variant ID or opaque scoped handle. sourcePath is legacy local-only input and still requires full sandbox proof; never guess it from contentRoute. ProcessorSourceV1 obligations apply to every source before reading."
       },
       "LocalEnvPreviewRequestV1": {
         "type": "object",
         "additionalProperties": false,
         "required": [
           "contract",
-          "sourcePath",
           "width"
         ],
         "properties": {
@@ -2363,15 +2433,40 @@
               1024,
               2048
             ]
+          },
+          "source": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ProcessorSourceV1"
           }
-        }
+        },
+        "oneOf": [
+          {
+            "required": [
+              "source"
+            ],
+            "not": {
+              "required": [
+                "sourcePath"
+              ]
+            }
+          },
+          {
+            "required": [
+              "sourcePath"
+            ],
+            "not": {
+              "required": [
+                "source"
+              ]
+            }
+          }
+        ],
+        "description": "Exactly one source: remote Desktop sends an asset/variant ID or opaque scoped handle. sourcePath is legacy local-only input and still requires full sandbox proof; never guess it from contentRoute. ProcessorSourceV1 obligations apply to every source before reading."
       },
       "LocalModelStatsRequestV1": {
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "contract",
-          "sourcePath"
+          "contract"
         ],
         "properties": {
           "contract": {
@@ -2379,8 +2474,34 @@
           },
           "sourcePath": {
             "$ref": "#/components/schemas/LocalPathV1"
+          },
+          "source": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ProcessorSourceV1"
           }
-        }
+        },
+        "oneOf": [
+          {
+            "required": [
+              "source"
+            ],
+            "not": {
+              "required": [
+                "sourcePath"
+              ]
+            }
+          },
+          {
+            "required": [
+              "sourcePath"
+            ],
+            "not": {
+              "required": [
+                "source"
+              ]
+            }
+          }
+        ],
+        "description": "Exactly one source: remote Desktop sends an asset/variant ID or opaque scoped handle. sourcePath is legacy local-only input and still requires full sandbox proof; never guess it from contentRoute. ProcessorSourceV1 obligations apply to every source before reading."
       },
       "LocalDerivedMediaV1": {
         "type": "object",
@@ -2485,7 +2606,6 @@
         "additionalProperties": false,
         "required": [
           "contract",
-          "sourcePath",
           "outputDir"
         ],
         "properties": {
@@ -2497,8 +2617,34 @@
           },
           "outputDir": {
             "$ref": "#/components/schemas/LocalPathV1"
+          },
+          "source": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ProcessorSourceV1"
           }
-        }
+        },
+        "oneOf": [
+          {
+            "required": [
+              "source"
+            ],
+            "not": {
+              "required": [
+                "sourcePath"
+              ]
+            }
+          },
+          {
+            "required": [
+              "sourcePath"
+            ],
+            "not": {
+              "required": [
+                "source"
+              ]
+            }
+          }
+        ],
+        "description": "Exactly one source: remote Desktop sends an asset/variant ID or opaque scoped handle. sourcePath is legacy local-only input and still requires full sandbox proof; never guess it from contentRoute. ProcessorSourceV1 obligations apply to every source before reading."
       },
       "BlenderPlanV1": {
         "type": "object",
@@ -2690,8 +2836,12 @@
           },
           "operation": {
             "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ReconciliationV1"
+          },
+          "recovery": {
+            "$ref": "#/components/schemas/RecoveryCandidatesV1"
           }
-        }
+        },
+        "description": "S10/S14 may present ambiguous candidates before any jobId is known. Read-only; no candidate selection or recovery action can authorize re-dispatch."
       },
       "ConceptCursorV1": {"type": "string", "pattern": "^cc_[A-Za-z0-9_-]{43}$"},
       "ConceptHistoryCursorV1": {"type": "string", "pattern": "^ch_[A-Za-z0-9_-]{43}$"},
@@ -2954,6 +3104,110 @@
           }
         },
         "description": "Returned only after S08 verifies exact live tool name/schemaHash against release classification. Hash is SHA256 of canonical {name,inputSchema,outputSchema} with sorted keys, compact separators and ensure_ascii=True (S02 catalog.schema_hash). It identifies upstream shape, not the lossy mediated projection and is not authority alone. Authenticated IPC and current scope/generation bind this response. S23 compares tool/schemaHash to current capability entry; invalidate on reconnect/drift. Unknown/drifted schemas return unavailable, remain visible in capabilities as disabled, and do not receive executable form schemas."
+      },
+      "RecoveryCandidatesV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "operationId",
+          "state",
+          "dispatchAllowed",
+          "candidates"
+        ],
+        "properties": {
+          "operationId": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/OperationIdV1"
+          },
+          "state": {
+            "enum": [
+              "not-visible",
+              "multiple",
+              "matched"
+            ]
+          },
+          "dispatchAllowed": {
+            "const": false
+          },
+          "candidates": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "jobId",
+                "functionName",
+                "submittedAtMs",
+                "submittedAtRaw",
+                "inputFingerprint",
+                "match"
+              ],
+              "properties": {
+                "jobId": {
+                  "$ref": "#/components/schemas/UuidV1"
+                },
+                "functionName": {
+                  "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ToolNameV1"
+                },
+                "submittedAtMs": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/EpochMsV1"
+                    }
+                  ]
+                },
+                "submittedAtRaw": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/MediatedTextV1"
+                    }
+                  ]
+                },
+                "inputFingerprint": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/Sha256HexV1"
+                    }
+                  ]
+                },
+                "match": {
+                  "enum": [
+                    "possible",
+                    "verified"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "description": "S14 read-only ambiguous-call presentation. not-visible means UNKNOWN_NOT_VISIBLE, not unbilled. Multiple candidates remain unresolved and reservation held; no UI selection authorizes a retry. S10 verifies exactly one candidate by time/function/canonical fingerprint and same-scope ownership before binding a matched ID. Candidate times can be unavailable; never invent a zero epoch. No route in this type dispatches.",
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "not-visible"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "candidates": {
+                  "maxItems": 0
+                }
+              }
+            }
+          }
+        ]
       }
     },
     "parameters": {

@@ -983,7 +983,7 @@ def test_r1_b5_grouped_resources_and_remote_processor_sources(docs):
     material["maps"]["height"] = absent
     world = {"kind": "world", "outputs": {"skyMap": present, "worldMesh": absent}}
     sequence = {"kind": "image_sequence", "fps": 24,
-                "frames": [{"index": i, "name": f"frame-{i}.png", "resource": resource()} for i in range(2)],
+                "frames": [{"index": i, "name": f"frame-{i}.png", "resource": {**resource(), "resourceId": f"frame-{i}"}} for i in range(2)],
                 "manifest": None}
     bare = {"kind": "single", "resource": resource()}
     for group in (material, world, sequence, bare, {"kind": "world", "outputs": {"skyMap": unknown_slot, "worldMesh": absent}}):

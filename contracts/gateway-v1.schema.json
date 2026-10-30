@@ -1486,6 +1486,13 @@
               "$ref": "#/$defs/ReconciliationV1"
             }
           ]
+        },
+        "outputGroups": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "$ref": "#/$defs/ResourceGroupV1"
+          }
         }
       }
     },
@@ -1915,6 +1922,405 @@
         }
       ],
       "description": "Classified mediated form projection, not raw upstream JSON Schema. Recursive depth <=8, total nodes <=256 and encoded bytes <=65536 enforced by S08/S11 before serialization and S23 before rendering. Duplicate field names, invalid bounds/defaults/choices, secret-bearing names/text/defaults and unsupported upstream constructs cause SCHEMA_UNAVAILABLE and execution disabled; never silently replace an unsupported schema with an executable text box. S08 projects fields by reviewed classification from current tools/list, not a second catalog; raw additionalProperties is not permission to forward arbitrary extra inputs. Resources use reviewed safe asset/handle transforms. Descriptions are plain mediated text only; no HTML, external refs, remote fetches or executable expressions."
+    },
+    "ProcessorSourceV1": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "assetId",
+            "variantId"
+          ],
+          "properties": {
+            "kind": {
+              "const": "asset"
+            },
+            "assetId": {
+              "$ref": "#/$defs/AssetIdV1"
+            },
+            "variantId": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "#/$defs/LocalIdV1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "handle"
+          ],
+          "properties": {
+            "kind": {
+              "const": "handle"
+            },
+            "handle": {
+              "$ref": "#/$defs/OpaqueHandleV1"
+            }
+          }
+        }
+      ],
+      "description": "Resolve only under authenticated current scope/generation. S07/S11 prove owned asset/variant parent or live purpose-bound handle; foreign, expired or invalidated references return not-found. No backend path is derivable from IDs or browser content routes. Download into bounded scoped cache and apply the same resolve/open/fstat/extension/MIME/regular-file/owner/root/size checks before processing; no hosted call from Desktop."
+    },
+    "ResourceContentRouteV1": {
+      "type": "string",
+      "pattern": "^/api/plugins/hermes-studiotwin/(?:assets/[0-9a-f-]{36}/content(?:\\?variant=[A-Za-z0-9_-]{1,128})?|local/file\\?handle=sth_[A-Za-z0-9_-]{43})$",
+      "maxLength": 512
+    },
+    "ResourceDescriptorV1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resourceId",
+        "kind",
+        "assetId",
+        "libraryState",
+        "mime",
+        "source",
+        "contentRoute"
+      ],
+      "properties": {
+        "resourceId": {
+          "$ref": "#/$defs/LocalIdV1"
+        },
+        "kind": {
+          "enum": [
+            "image",
+            "audio",
+            "video",
+            "model",
+            "environment",
+            "motion",
+            "manifest",
+            "other"
+          ]
+        },
+        "assetId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/AssetIdV1"
+            }
+          ]
+        },
+        "libraryState": {
+          "enum": [
+            "indexed",
+            "not-in-library",
+            "unknown"
+          ]
+        },
+        "mime": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/MimeV1"
+            }
+          ]
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/ProcessorSourceV1"
+            }
+          ]
+        },
+        "contentRoute": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/ResourceContentRouteV1"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "libraryState": {
+                "const": "indexed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "assetId": {
+                "$ref": "#/$defs/AssetIdV1"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "assetId": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ],
+      "description": "Mediated descriptor; null source/route means unavailable, never permission to synthesize a URL or asset UUID. source and route must resolve the same resource under the same current scope/generation. resourceId is a scoped local label, not a server asset ID. Bare output is not-in-library with null assetId. S07 owns mapping and limits; S11 streams by opaque handle. No upstream URI is serialized."
+    },
+    "ResourceSlotV1": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state",
+            "resource"
+          ],
+          "properties": {
+            "state": {
+              "const": "present"
+            },
+            "resource": {
+              "$ref": "#/$defs/ResourceDescriptorV1"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state",
+            "resource"
+          ],
+          "properties": {
+            "state": {
+              "enum": [
+                "absent",
+                "unknown"
+              ]
+            },
+            "resource": {
+              "type": "null"
+            }
+          }
+        }
+      ]
+    },
+    "SequenceFrameV1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "index",
+        "name",
+        "resource"
+      ],
+      "properties": {
+        "index": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4095
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_][A-Za-z0-9_. -]{0,127}$"
+        },
+        "resource": {
+          "$ref": "#/$defs/ResourceDescriptorV1"
+        }
+      }
+    },
+    "ResourceGroupV1": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "resource"
+          ],
+          "properties": {
+            "kind": {
+              "const": "single"
+            },
+            "resource": {
+              "$ref": "#/$defs/ResourceDescriptorV1"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "frames",
+            "fps",
+            "manifest"
+          ],
+          "properties": {
+            "kind": {
+              "const": "image_sequence"
+            },
+            "frames": {
+              "type": "array",
+              "maxItems": 4096,
+              "items": {
+                "$ref": "#/$defs/SequenceFrameV1"
+              },
+              "minItems": 1
+            },
+            "fps": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 240
+                }
+              ]
+            },
+            "manifest": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "#/$defs/ResourceDescriptorV1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "maps"
+          ],
+          "properties": {
+            "kind": {
+              "const": "material"
+            },
+            "maps": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "albedo",
+                "normal",
+                "roughness",
+                "metalness",
+                "height"
+              ],
+              "properties": {
+                "albedo": {
+                  "$ref": "#/$defs/ResourceSlotV1"
+                },
+                "normal": {
+                  "$ref": "#/$defs/ResourceSlotV1"
+                },
+                "roughness": {
+                  "$ref": "#/$defs/ResourceSlotV1"
+                },
+                "metalness": {
+                  "$ref": "#/$defs/ResourceSlotV1"
+                },
+                "height": {
+                  "$ref": "#/$defs/ResourceSlotV1"
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "outputs"
+          ],
+          "properties": {
+            "kind": {
+              "const": "world"
+            },
+            "outputs": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "skyMap",
+                "worldMesh"
+              ],
+              "properties": {
+                "skyMap": {
+                  "$ref": "#/$defs/ResourceSlotV1"
+                },
+                "worldMesh": {
+                  "$ref": "#/$defs/ResourceSlotV1"
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "members"
+          ],
+          "properties": {
+            "kind": {
+              "enum": [
+                "image_set",
+                "environment",
+                "motion"
+              ]
+            },
+            "members": {
+              "type": "array",
+              "maxItems": 64,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "role",
+                  "slot"
+                ],
+                "properties": {
+                  "role": {
+                    "enum": [
+                      "image",
+                      "hdr",
+                      "preview",
+                      "animation",
+                      "trajectory",
+                      "model",
+                      "metadata"
+                    ]
+                  },
+                  "slot": {
+                    "$ref": "#/$defs/ResourceSlotV1"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "description": "Bounded mediated groups; material roles are all explicit, absent differs from unknown and corrupt/empty bytes are not absent. World may have either/neither output. Sequence frames are an ordered inline manifest; optional manifest resource is a backend-generated download/zip manifest, not raw upstream JSON. S07/S11 check unique resource IDs and contiguous zero-based frame indices, frame image MIME, manifest MIME, fps validity and cumulative media/encoded size limits before forwarding. Parent/source lineage remains in bounded LineageV1 (including two parents), not guessed from group order."
     }
   }
 }
