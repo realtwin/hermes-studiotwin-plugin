@@ -201,7 +201,10 @@ class Reconciler:
                         a=self.store.get_operation(operation,binding)['authorization']
                         _pause_in_transaction(self.store,a,actual,now,binding['generation'])
             if value['refund']['state']=='reported' and record['status']=='cancelled' and internal is None and value['state']!='SETTLED_OVERRUN':
-                value.update(state='REFUNDED_VERIFIED',reservationHeld=False)
+                # A verified refund is a distinct fact, not proof of the gross
+                # final debit. Keep the hold (and S09 guard accounting) until
+                # debit evidence is independently known.
+                value.update(state='REFUNDED_VERIFIED',reservationHeld=value['finalDebit']['state']!='reported')
             self.store._db.execute('UPDATE dispatch_records SET job_status=?,submitted_ms=?,terminal_ms=? WHERE scope_id=? AND operation_id=?',
                 (record['status'],submitted,terminal,binding['scope_id'],operation))
             return self._write(operation,binding,value,internal_state=internal)
