@@ -21,6 +21,111 @@ sys.modules[spec.name] = startup
 spec.loader.exec_module(startup)
 
 
+def launch_gateway(data):
+    env = dict(os.environ, PLUGIN_DATA=str(data), PYTHONDONTWRITEBYTECODE='1')
+    env.pop('STUDIOTWIN_HOST_BOOTSTRAP_FD', None)
+    env.pop('STUDIOTWIN_HOST_BOOTSTRAP_FILE', None)
+    return subprocess.Popen([sys.executable, str(ROOT / 'gateway/run.py')], cwd=ROOT,
+        env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+
+def initialize_gateway(process):
+    process.stdin.write(json.dumps({'jsonrpc': '2.0', 'id': 1, 'method': 'initialize',
+        'params': {'protocolVersion': '2025-03-26', 'capabilities': {},
+                   'clientInfo': {'name': 's05-recovery', 'version': '1'}}}) + '\n')
+    process.stdin.flush()
+    ready, _, _ = select.select([process.stdout], [], [], 15)
+    assert ready, 'initialize timed out'
+    line = process.stdout.readline()
+    assert line, 'gateway exited before initialize response'
+    assert json.loads(line)['result']['serverInfo']['name'] == 'hermes-studiotwin'
+
+
+def stop_gateway(process):
+    if process.poll() is None:
+        process.kill()
+    process.wait(timeout=10)
+    for stream in (process.stdin, process.stdout, process.stderr):
+        stream.close()
+
+
+def assert_ipc_alive(descriptor):
+    import socket
+    from s05_launch import ipc
+    data = ipc.read_descriptor(descriptor)
+    client = ipc.Channel(bytes.fromhex(data['key']), scope='setup', generation=0)
+    with socket.create_connection((data['host'], data['port']), timeout=5) as connection:
+        connection.sendall(ipc.encode(client.request('status.get', {})) + b'\n')
+        with connection.makefile('rb') as stream:
+            response = ipc.decode(stream.readline())
+    assert client.accept_response(response)['error']['code'] == 'UNAVAILABLE'
+
+
+@pytest.mark.skipif(os.name != 'posix', reason='exact SIGKILL crash regression')
+def test_sigkill_restart_recovers_descriptor_with_fresh_secret(tmp_path):
+    first = launch_gateway(tmp_path)
+    descriptor = tmp_path / 'gateway-ipc.json'
+    try:
+        initialize_gateway(first)
+        old = json.loads(descriptor.read_bytes())
+        first.kill()  # SIGKILL: no orderly __aexit__, descriptor MUST remain.
+        first.wait(timeout=10)
+        assert descriptor.exists()
+        second = launch_gateway(tmp_path)
+        try:
+            initialize_gateway(second)
+            assert json.loads(descriptor.read_bytes())['key'] != old['key']
+            assert descriptor.stat().st_mode & 0o777 == 0o600
+            assert_ipc_alive(descriptor)
+        finally:
+            stop_gateway(second)
+    finally:
+        stop_gateway(first)
+
+
+def test_live_owner_rejects_second_launch_without_descriptor_damage(tmp_path):
+    first = launch_gateway(tmp_path)
+    descriptor = tmp_path / 'gateway-ipc.json'
+    try:
+        initialize_gateway(first)
+        before = descriptor.read_bytes()
+        identity = descriptor.stat().st_ino
+        second = launch_gateway(tmp_path)
+        try:
+            stdout, stderr = second.communicate(timeout=15)
+            assert second.returncode != 0
+            assert 'already running' in stderr.lower()
+            assert stdout == ''
+        finally:
+            stop_gateway(second)
+        assert first.poll() is None
+        assert descriptor.read_bytes() == before
+        assert descriptor.stat().st_ino == identity
+        assert_ipc_alive(descriptor)
+    finally:
+        stop_gateway(first)
+
+
+@pytest.mark.parametrize('suffix', ['-wal', '-shm'])
+@pytest.mark.parametrize('unsafe', ['symlink', 'mode', 'fifo'])
+def test_posix_database_rejects_unsafe_existing_sidecar(tmp_path, suffix, unsafe):
+    if os.name != 'posix':
+        pytest.skip('POSIX sidecar policy')
+    target = tmp_path / 'outside'
+    target.write_bytes(b'untouched')
+    path = tmp_path / ('studiotwin.sqlite3' + suffix)
+    if unsafe == 'symlink':
+        path.symlink_to(target)
+    elif unsafe == 'mode':
+        path.touch(mode=0o644)
+    else:
+        os.mkfifo(path, 0o600)
+    with pytest.raises((ValueError, OSError)):
+        connection = startup.open_database(tmp_path)
+        connection.close()
+    assert target.read_bytes() == b'untouched'
+
+
 def signed(gate, tool='studiotwin_setup_status', nonce=0, session='session-a'):
     from s05_launch.host_context import META_KEY
     import hashlib
