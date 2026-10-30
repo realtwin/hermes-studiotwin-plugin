@@ -52,7 +52,7 @@ def _authenticated_capabilities(payload):
     flags = payload["capabilities"]
     if (payload["protocol"] != HOST_PROTOCOL
             or payload["versionSource"] != "running-distribution-metadata"
-            or payload["hostVersionStatus"] not in {"unknown", "below-floor", "at-or-above-floor"}
+            or payload["hostVersionStatus"] not in ("unknown", "below-floor", "at-or-above-floor")
             or not isinstance(flags, dict) or set(flags) != set(CAPABILITIES)
             or any(type(flags[k]) is not bool for k in CAPABILITIES)):
         return None

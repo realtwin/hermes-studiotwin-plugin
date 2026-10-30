@@ -152,7 +152,7 @@ class HostContextGate:
             return result
 
     def _owned(self, context):
-        return self._contexts.get(id(context)) is context
+        return context is not None and self._contexts.get(id(context)) is context
 
     def new_operation(self, context):
         with self._lock:
