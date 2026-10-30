@@ -8,21 +8,45 @@ No hosted calls, logger, or persistent secret store is implemented here.
 from __future__ import annotations
 
 from collections.abc import Collection
+from contextlib import ExitStack
+import base64
+import html
 from dataclasses import dataclass
 import json
 import re
 import secrets
 from threading import RLock
-from urllib.parse import urlsplit, parse_qsl
+from urllib.parse import urlsplit, parse_qsl, unquote
 
 from .handles import HandleStore, HandleNotFound
 from .media_cache import CATEGORY_CAPS, DEFAULT_QUOTA, MediaRefused
-from .mediation_parse import BoundaryRefused, bounded_copy_v1, embedded_json_v1
+from .mediation_parse import (BoundaryRefused, Budget, bounded_copy_v1,
+                              embedded_json_v1, decode_json_escapes_v1)
 from .redaction import (redact_upstream_v1, validate_mediated_v1, _binding,
-                        _BANNED_NAME)
+                        _BANNED_NAME, _B64)
 
 _MISSING = object()
-_LOCATION = re.compile(r'(?:https|s3)://[^\s"<>]+')
+_LOCATION = re.compile(r'(?:https?|s3)://[^\s"<>]+', re.I)
+
+
+def _location_views(value):
+    """Bounded S06-compatible normalization, not arbitrary recursive decoding."""
+    yield value
+    for _ in range(3):
+        decoded=decode_json_escapes_v1(html.unescape(unquote(value)))
+        if decoded==value:
+            break
+        value=decoded
+        yield value
+    for match in re.finditer(r'(?<![0-9a-fA-F])(?:[0-9a-fA-F]{2}){8,}(?![0-9a-fA-F])',value):
+        yield bytes.fromhex(match.group()).decode('utf-8',errors='replace')
+    for match in _B64.finditer(value):
+        token=match.group()
+        try:
+            blob=base64.b64decode(token+'='*(-len(token)%4),altchars=b'-_',validate=True)
+        except ValueError:
+            continue
+        yield blob.decode('utf-8',errors='replace')
 
 
 class SensitiveValueRegistry(Collection):
@@ -67,24 +91,32 @@ class SensitiveValueRegistry(Collection):
         parsed=urlsplit(value)
         for _, part in parse_qsl(parsed.query,keep_blank_values=False):
             self.register(part)
-        if parsed.username: self.register(parsed.username)
-        if parsed.password: self.register(parsed.password)
+        if parsed.scheme.lower()=='s3':
+            self.register(unquote(parsed.netloc))
+            if parsed.path.strip('/'):
+                self.register(unquote(parsed.path.strip('/')))
+        if parsed.username: self.register(unquote(parsed.username))
+        if parsed.password: self.register(unquote(parsed.password))
 
     def collect(self, candidate):
-        """All channels, including embedded/fenced JSON and unknown extensions."""
+        """All channels, including encoded strings and dictionary keys."""
+        budget=Budget()
         def walk(value, depth=0):
-            if depth > 48:
-                raise BoundaryRefused()
+            budget.visit(depth)
             if type(value) is dict:
                 for key, child in value.items():
+                    walk(key,depth+1)
                     if _BANNED_NAME.search(key) or key == 'fields':
                         self.register(child)
                     walk(child,depth+1)
             elif type(value) is list:
                 for child in value: walk(child,depth+1)
             elif type(value) is str:
-                for location in _LOCATION.findall(value): self.location(location)
-                for _,_,parsed in embedded_json_v1(value): walk(parsed,depth+1)
+                for view in _location_views(value):
+                    budget.visit(depth+1)
+                    for location in _LOCATION.findall(view): self.location(location)
+                    for _,_,parsed in embedded_json_v1(view):
+                        walk(bounded_copy_v1(parsed,budget=budget,depth=depth+1),depth+1)
         walk(candidate)
 
 
@@ -158,7 +190,9 @@ class Mediator:
         result=None
         minted=[]
         try:
-            with self._lock:
+            with self._lock, ExitStack() as transaction:
+                if self.cache is not None:
+                    transaction.enter_context(self.cache.batch())
                 _binding(scope_id,generation)
                 self.handles.bind(scope_id,generation)
                 if (type(policy) is not OutputPolicy or policy.schema_hash != live_schema_hash or
@@ -243,6 +277,7 @@ class Mediator:
                     # path is ever emitted when no bytes were safely cached.
                     if can_resolve and self.cache is not None and (self.loader if scheme=='https' else self.storage_resolver):
                         item=self.materialize(token,scope_id=scope_id,generation=generation)
+                        minted.append(item.handle)
                         media.append(dict(localPath=item.path,handle=item.handle,kind=item.kind,mime=item.mime,assetId=asset_id))
                 if session is not _MISSING:
                     if resources:
@@ -282,7 +317,9 @@ class Mediator:
                     media=media,summary=summary,operation=None,outputGroups=groups)
                 result=validate_mediated_v1('gateway#/$defs/GatewayResultV1',candidate,
                     scope_id=scope_id,generation=generation,sensitive_values=registry)
-        except (ValueError,TypeError,KeyError,RecursionError,OSError):
+        except Exception:
+            # Roll back all capabilities even on backend/cache/validator faults;
+            # never forward upstream-bearing exception strings or chains.
             failed=True
         if failed:
             for token in minted: self.handles.revoke(token)

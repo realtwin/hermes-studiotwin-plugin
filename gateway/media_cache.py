@@ -7,7 +7,7 @@ survive restart. Scope/generation is authenticated by the caller, not a path.
 """
 from __future__ import annotations
 
-from contextlib import ExitStack
+from contextlib import ExitStack, contextmanager
 from dataclasses import dataclass
 import json
 import os
@@ -101,6 +101,7 @@ class MediaCache:
             self._windows = WindowsFiles()
         self._lock = RLock()
         self._streams = {}
+        self._batch = None
         self._mkdir(self.root)
         if self.root.resolve(strict=True) != self.root:
             raise MediaRefused()
@@ -221,6 +222,34 @@ class MediaCache:
             raise MediaRefused()
         return result
 
+    @contextmanager
+    def batch(self):
+        """Retain allocations through publication, rolling back on ANY failure.
+
+        A tentative result may not evict unrelated files: rollback must preserve
+        their bytes and handles too. Batches conservatively use free quota only;
+        normal explicit evict()/standalone put() still provide unpinned LRU.
+        The owner lock prevents competing batches/writes from self-evicting.
+        """
+        with self._lock:
+            if self._batch is not None:
+                raise MediaRefused()
+            allocated=[]
+            self._batch=allocated
+            try:
+                yield
+                for item in allocated:
+                    with self.open(item.path,scope_id=item.scope_id,generation=item.generation,
+                                   mime=item.mime,kind=item.kind):
+                        pass
+            except BaseException:
+                for item in reversed(allocated):
+                    self.handles.revoke(item.handle)
+                    self._unlink(Path(item.path))
+                raise
+            finally:
+                self._batch=None
+
     def put(self, *, scope_id, generation, data, mime, kind, extension, pinned=False):
         failed=False
         result=None
@@ -252,6 +281,8 @@ class MediaCache:
                     kind=kind,role='media',mime=mime,size=len(data),target={'localPath':str(path)},
                     ttl=min(self.ttl,2592000),operations=('read','process'),max_reads=1000000)
                 result=CachedMedia(str(path),token,scope_id,generation,mime,kind,len(data))
+                if self._batch is not None:
+                    self._batch.append(result)
         except (OSError,ValueError,TypeError):
             failed=True
             if path is not None:
@@ -328,6 +359,12 @@ class MediaCache:
                             raise MediaRefused()
                         entries.append((info.st_mtime,path,info.st_size,path.name.startswith('p_'),scope.name))
             total=sum(e[2] for e in entries)
+            if self._batch is not None:
+                # Actual cumulative bytes include unknown-size loaded resources,
+                # manifests, existing pins and every in-flight batch allocation.
+                if total+reserve > self.quota:
+                    raise MediaRefused()
+                return
             for modified,path,size,pinned,scope in sorted(entries):
                 if not pinned and (self.clock()-modified >= self.ttl or total+reserve > self.quota):
                     self._unlink(path)
