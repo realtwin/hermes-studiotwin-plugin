@@ -87,10 +87,54 @@ def byte_range(header, size):
     return start,min(end,size-1),206
 
 
+class _AdmittedHandles:
+    """S11 adapter for S07's consume-on-admission API, shared per store.
+
+    Exhausted rows can disappear on resolve/expire/mint without revoking an
+    admitted read. Observe explicit invalidations separately, even after that
+    removal. Only active leases are retained; no token tombstones accumulate.
+    All hooks, admission and lease checks serialize on the existing store lock.
+    """
+    def __init__(self, handles):
+        self.handles, self.active = handles, set()
+        revoke, invalidate, purge = handles.revoke, handles.invalidate_target, handles.purge_scope
+
+        def revoke_active(token):
+            with handles._lock:
+                revoke(token)
+                for lease in self.active:
+                    if lease.handle == token: lease.revoked = True
+
+        def invalidate_active(scope_id, path):
+            with handles._lock:
+                invalidate(scope_id, path)
+                for lease in self.active:
+                    if lease.row.scope_id == scope_id and lease.row.target.get('localPath') == path:
+                        lease.revoked = True
+
+        def purge_active(scope_id):
+            with handles._lock:
+                purge(scope_id)
+                for lease in self.active:
+                    if lease.row.scope_id == scope_id: lease.revoked = True
+
+        handles.revoke = revoke_active
+        handles.invalidate_target = invalidate_active
+        # S07 rotate invokes this hook under the same reentrant lock.
+        handles.purge_scope = purge_active
+
+    def check(self, lease):
+        with self.handles._lock:
+            self.handles.bind(*lease.binding)
+            if lease.revoked or lease.row.expires_at <= self.handles._clock():
+                raise ProxyRefused()
+
+
 class StreamLease:
-    def __init__(self, proxy, stream, key, binding, handle, start, end, status, mime, size):
+    def __init__(self, proxy, stream, key, binding, handle, start, end, status, mime, size, row=None):
         self.proxy, self.stream, self.key, self.binding, self.handle = proxy,stream,key,binding,handle
         self.start,self.end,self.status,self.closed = start,end,status,False
+        self.row, self.revoked = row, False
         self.headers = {'Content-Type':mime,'Content-Length':str(end-start+1),
             'Accept-Ranges':'bytes','X-Content-Type-Options':'nosniff',
             'Cache-Control':'no-store','Content-Disposition':'inline'}
@@ -100,19 +144,24 @@ class StreamLease:
         if not self.closed:
             self.closed = True
             try: self.stream.close()
-            finally: self.proxy.limits.release(self.key)
+            finally:
+                with self.proxy.handles._lock:
+                    self.proxy._admitted.active.discard(self)
+                self.proxy.limits.release(self.key)
+
+    def check(self):
+        self.proxy.check(*self.binding)
+        if self.handle: self.proxy._admitted.check(self)
 
     def chunks(self):
         try:
             self.stream.seek(self.start)
             remaining = self.end-self.start+1
             while remaining and not self.closed:
-                self.proxy.check(*self.binding)
-                if self.handle:
-                    self.proxy.handles.resolve(self.handle,scope_id=self.binding[0],generation=self.binding[1],purpose='resource',operation='read',consume=False)
+                self.check()
                 data = self.stream.read(min(CHUNK,remaining))
                 if not data: break
-                self.proxy.check(*self.binding)
+                self.check()
                 remaining -= len(data)
                 yield data
         except Exception:
@@ -127,6 +176,10 @@ class MediaProxy:
         self.handles,self.cache,self.sandbox = handles,cache,sandbox
         self._current,self._sensitive = current_binding,sensitive_values
         self.limits = limits or SessionLimits()
+        with handles._lock:
+            if not hasattr(handles, '_s11_admitted'):
+                handles._s11_admitted = _AdmittedHandles(handles)
+            self._admitted = handles._s11_admitted
 
     @property
     def active_streams(self):
@@ -138,7 +191,7 @@ class MediaProxy:
         if self._current() != (scope_id,generation): raise ProxyRefused()
 
     def prepare(self, *, scope_id, generation, session, path=None, handle=None, range_header=None):
-        failed,stream,acquired,status,size = False,None,False,404,None
+        failed,stream,acquired,status,size,row = False,None,False,404,None,None
         key = (scope_id,generation,session)
         try:
             self.check(scope_id,generation)
@@ -148,7 +201,7 @@ class MediaProxy:
             self.limits.acquire(key); acquired = True
             if (path is None)==(handle is None): raise ProxyRefused(400)
             if handle is not None:
-                row = self.handles.resolve(handle,scope_id=scope_id,generation=generation,purpose='resource',operation='read')
+                row = self.handles.resolve(handle,scope_id=scope_id,generation=generation,purpose='resource',operation='read',consume=False)
                 descriptor = dict(handle=handle,mime=row.mime,bytes=row.size,assetId=None)
                 redaction.validate_mediated_v1('host_gateway#/$defs/IpcStreamDescriptorV1',descriptor,
                     scope_id=scope_id,generation=generation,sensitive_values=tuple(self._sensitive()))
@@ -171,7 +224,16 @@ class MediaProxy:
             if handle is not None and row.size is not None and row.size != size: raise ProxyRefused()
             start,end,status = byte_range(range_header,size)
             self.check(scope_id,generation)
-            return StreamLease(self,stream,key,(scope_id,generation),handle,start,end,status,mime,size)
+            with self.handles._lock:
+                if handle is not None:
+                    # Re-resolve after opening and Range validation. Revocation or
+                    # another admission while opening must still fail closed.
+                    admitted = self.handles.resolve(handle,scope_id=scope_id,generation=generation,purpose='resource',operation='read')
+                    if admitted is not row: raise ProxyRefused()
+                lease = StreamLease(self,stream,key,(scope_id,generation),handle,start,end,status,mime,size,
+                                    row if handle is not None else None)
+                if handle is not None: self._admitted.active.add(lease)
+                return lease
         except ProxyRefused as e:
             failed,status = True,e.status
         except Exception:

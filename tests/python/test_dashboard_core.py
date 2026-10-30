@@ -476,6 +476,37 @@ def test_final_single_read_controls(tmp_path,control):
     assert lease.closed and p.active_streams == 0
 
 
+def test_shared_handle_store_hooks_and_lease_cleanup(tmp_path):
+    p,item,data,_ = make_proxy(tmp_path)
+    P = importlib.import_module('s11_dashboard.proxy')
+    token = final_read_token(p,item,data,2)
+    one = p.prepare(handle=token,scope_id=SCOPE,generation=1,session='one')
+    other = P.MediaProxy(p.handles,p.cache,p.sandbox,current_binding=lambda:(SCOPE,1),sensitive_values=lambda:())
+    two = other.prepare(handle=token,scope_id=SCOPE,generation=1,session='two')
+    assert other._admitted is p._admitted
+    streams = [one.chunks(),two.chunks()]
+    assert [next(s) for s in streams] == [data[:65536]]*2
+    p.handles.expire()
+    p.handles.invalidate_target(SCOPE,item.path)
+    assert [list(s) for s in streams] == [[],[]]
+    assert not p._admitted.active
+    assert p.active_streams == other.active_streams == 0
+
+
+def test_final_read_revocation_during_fd_read_does_not_yield_chunk(tmp_path,monkeypatch):
+    p,item,data,_ = make_proxy(tmp_path)
+    token = final_read_token(p,item,data)
+    lease = p.prepare(handle=token,scope_id=SCOPE,generation=1,session='final')
+    read = lease.stream.read
+    def revoked_read(n):
+        result = read(n)
+        p.handles.revoke(token)
+        return result
+    monkeypatch.setattr(lease.stream,'read',revoked_read)
+    assert list(lease.chunks()) == []
+    assert not p._admitted.active and p.active_streams == 0
+
+
 def test_rate_limiter_retires_idle_sessions_without_resetting_busy_budget():
     P = importlib.import_module('s11_dashboard.proxy')
     now = [0.0]
