@@ -319,6 +319,14 @@ def test_eviction_and_purge_never_follow_scope_ancestors(cache,tmp_path):
         scopes.unlink(); parked.rename(scopes)
 
 
+def test_root_creation_never_follows_ancestor_symlink(tmp_path):
+    outside=tmp_path/'outside'; outside.mkdir()
+    link=tmp_path/'link'; link.symlink_to(outside,target_is_directory=True)
+    with pytest.raises(C.MediaRefused):
+        C.MediaCache(link/'hermes-studiotwin',H.HandleStore())
+    assert list(outside.iterdir())==[]
+
+
 def test_put_ancestor_symlink_does_not_create_foreign_directories(cache,tmp_path):
     scopes=cache.root/'scopes'
     foreign=tmp_path/'external'; foreign.mkdir()
