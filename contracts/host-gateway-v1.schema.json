@@ -1690,7 +1690,8 @@
                 "UNKNOWN_METHOD",
                 "SCOPE_MISMATCH",
                 "INVALID_PARAMS",
-                "UNAVAILABLE"
+                "UNAVAILABLE",
+                "SCHEMA_UNAVAILABLE"
               ]
             },
             "message": {

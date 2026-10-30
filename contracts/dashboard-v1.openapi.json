@@ -1652,6 +1652,7 @@
               "SCOPE_MISMATCH",
               "RATE_LIMITED",
               "UNAVAILABLE",
+              "SCHEMA_UNAVAILABLE",
               "TOO_LARGE",
               "UNSUPPORTED_MEDIA"
             ]

@@ -1218,6 +1218,7 @@
             "concept-paid-d22",
             "unclassified",
             "schema-changed",
+            "schema-unavailable",
             "host-trusted-context-absent",
             "host-capability-missing",
             "host-version-unproven",
