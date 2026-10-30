@@ -1043,7 +1043,7 @@ def test_r1_b1_ipc_payloads_are_closed_and_method_specific(docs):
     defs = docs["host_gateway"]["$defs"]
     # Structural assertion deliberately kills reopening result to an unrestricted object.
     assert defs["IpcResponseV1"]["properties"]["result"].get("oneOf")
-    assert defs["IpcRequestV1"]["properties"]["params"].get("oneOf")
+    assert defs["IpcRequestV1"]["properties"]["params"].get("anyOf")
     assert S.errors("host_gateway#/$defs/IpcResponseV1", ipc_job_response(), docs) == []
     ref = "host_gateway#/$defs/IpcResponseV1"
     assert not S.is_valid(ref, {**ipc_job_response(), "result": {"apiKey": "https://x.invalid/?X-Amz-Signature=1"}}, docs)
@@ -1068,12 +1068,12 @@ def test_r1_b1_value_aware_refusal_at_complete_real_sinks(docs):
     for ref, good, path in cases:
         assert S.errors(ref, good, docs) == []
         assert S.validate_mediated_v1(ref, good, sensitive_values=secrets, docs=docs) == good
-        for secret in secrets:
+        for secret in [*secrets, *("prefix " + value + " suffix" for value in secrets)]:
             bad = copy.deepcopy(good)
             sink = bad
             for part in path[:-1]:
                 sink = sink[part]
-            sink[path[-1]] = "prefix " + secret + " suffix"
+            sink[path[-1]] = secret
             with pytest.raises(ValueError, match="^UNSAFE_PAYLOAD$"):
                 S.validate_mediated_v1(ref, bad, sensitive_values=secrets, docs=docs)
     bad = copy.deepcopy(quote)

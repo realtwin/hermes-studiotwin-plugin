@@ -2321,6 +2321,338 @@
         }
       ],
       "description": "Bounded mediated groups; material roles are all explicit, absent differs from unknown and corrupt/empty bytes are not absent. World may have either/neither output. Sequence frames are an ordered inline manifest; optional manifest resource is a backend-generated download/zip manifest, not raw upstream JSON. S07/S11 check unique resource IDs and contiguous zero-based frame indices, frame image MIME, manifest MIME, fps validity and cumulative media/encoded size limits before forwarding. Parent/source lineage remains in bounded LineageV1 (including two parents), not guessed from group order."
+    },
+    "CandidateValueDepth8V1": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/MediatedTextV1"
+        }
+      ]
+    },
+    "CandidateValueDepth7V1": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/MediatedTextV1"
+            }
+          ]
+        },
+        {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/CandidateValueDepth8V1"
+          }
+        },
+        {
+          "type": "object",
+          "maxProperties": 64,
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$"
+          },
+          "additionalProperties": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/CandidateValueDepth8V1"
+          }
+        }
+      ]
+    },
+    "CandidateValueDepth6V1": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/MediatedTextV1"
+            }
+          ]
+        },
+        {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/CandidateValueDepth7V1"
+          }
+        },
+        {
+          "type": "object",
+          "maxProperties": 64,
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$"
+          },
+          "additionalProperties": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/CandidateValueDepth7V1"
+          }
+        }
+      ]
+    },
+    "CandidateValueDepth5V1": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/MediatedTextV1"
+            }
+          ]
+        },
+        {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/CandidateValueDepth6V1"
+          }
+        },
+        {
+          "type": "object",
+          "maxProperties": 64,
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$"
+          },
+          "additionalProperties": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/CandidateValueDepth6V1"
+          }
+        }
+      ]
+    },
+    "CandidateValueDepth4V1": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/MediatedTextV1"
+            }
+          ]
+        },
+        {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/CandidateValueDepth5V1"
+          }
+        },
+        {
+          "type": "object",
+          "maxProperties": 64,
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$"
+          },
+          "additionalProperties": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/CandidateValueDepth5V1"
+          }
+        }
+      ]
+    },
+    "CandidateValueDepth3V1": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/MediatedTextV1"
+            }
+          ]
+        },
+        {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/CandidateValueDepth4V1"
+          }
+        },
+        {
+          "type": "object",
+          "maxProperties": 64,
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$"
+          },
+          "additionalProperties": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/CandidateValueDepth4V1"
+          }
+        }
+      ]
+    },
+    "CandidateValueDepth2V1": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/MediatedTextV1"
+            }
+          ]
+        },
+        {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/CandidateValueDepth3V1"
+          }
+        },
+        {
+          "type": "object",
+          "maxProperties": 64,
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$"
+          },
+          "additionalProperties": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/CandidateValueDepth3V1"
+          }
+        }
+      ]
+    },
+    "CandidateValueDepth1V1": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/MediatedTextV1"
+            }
+          ]
+        },
+        {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/CandidateValueDepth2V1"
+          }
+        },
+        {
+          "type": "object",
+          "maxProperties": 64,
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$"
+          },
+          "additionalProperties": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/CandidateValueDepth2V1"
+          }
+        }
+      ]
+    },
+    "CandidateValueDepth0V1": {
+      "anyOf": [
+        {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/MediatedTextV1"
+            }
+          ]
+        },
+        {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/CandidateValueDepth1V1"
+          }
+        },
+        {
+          "type": "object",
+          "maxProperties": 64,
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$"
+          },
+          "additionalProperties": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/CandidateValueDepth1V1"
+          }
+        }
+      ]
+    },
+    "CandidateInputsV1": {
+      "type": "object",
+      "maxProperties": 64,
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$"
+      },
+      "additionalProperties": {
+        "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/CandidateValueDepth0V1"
+      },
+      "description": "UNTRUSTED raw candidate inputs only; never mediated outputs or execution authority. Finite typed JSON, <=64 keys/object, <=4096 array elements, <=8 nested container levels below each input. S11 rejects oversized bytes before parsing; S06/S09 validate_candidate_inputs_v1 rejects credential-bearing names/values and unknown fields before any forwarding/logging, checks exact classified input schema/hash and reviewed source-ref transforms, then canonicalizes. Generic shape validity alone is not execution permission."
     }
   }
 }

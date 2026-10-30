@@ -383,7 +383,9 @@
         "concepts.status",
         "operations.quote",
         "operations.get",
-        "scopePause.acknowledge"
+        "scopePause.acknowledge",
+        "capabilities.inputSchema",
+        "resources.resolveStream"
       ]
     },
     "IpcRequestV1": {
@@ -398,7 +400,7 @@
         "method",
         "params"
       ],
-      "description": "Dashboard backend -> gateway over the package-local socket (§5.3). MAC over the canonical request with the boot capability; replayed nonces fail.",
+      "description": "Dashboard backend -> gateway over the package-local socket (§5.3). MAC over the canonical request with the boot capability; replayed nonces fail. Current authenticated scope/generation derives from peer and boot capability, never params. S05/S11 must call validate_mediated_v1 before sending or logging; operations.quote additionally validates raw candidates. uploads.putChunk is bounded binary upload content only, never display text; metadata must match the bound upload session and maxBytes, offsets must be contiguous/idempotent.",
       "properties": {
         "protocol": {
           "$ref": "#/$defs/ProtocolV1"
@@ -424,10 +426,870 @@
           "$ref": "#/$defs/IpcMethodV1"
         },
         "params": {
-          "type": "object",
-          "description": "Method parameters; typed by the owning slice's gateway/dashboard schema."
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {}
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "tool",
+                "schemaHash"
+              ],
+              "properties": {
+                "tool": {
+                  "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ToolNameV1"
+                },
+                "schemaHash": {
+                  "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/Sha256HexV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {
+                "type": {
+                  "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/AssetCategoryV1"
+                },
+                "offset": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "limit": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 200
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "assetId"
+              ],
+              "properties": {
+                "assetId": {
+                  "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/AssetIdV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "assetId"
+              ],
+              "properties": {
+                "assetId": {
+                  "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/AssetIdV1"
+                },
+                "variantId": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/LocalIdV1"
+                    }
+                  ]
+                },
+                "rangeStart": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "rangeEnd": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source"
+              ],
+              "properties": {
+                "source": {
+                  "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ProcessorSourceV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {
+                "state": {
+                  "enum": [
+                    "active",
+                    "terminal",
+                    "all"
+                  ]
+                },
+                "cursor": {
+                  "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/LocalIdV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "jobId"
+              ],
+              "properties": {
+                "jobId": {
+                  "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/AssetIdV1"
+                }
+              }
+            },
+            {
+              "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/UploadCreateRequestV1"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "uploadId",
+                "offset",
+                "bytes"
+              ],
+              "properties": {
+                "uploadId": {
+                  "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/LocalIdV1"
+                },
+                "offset": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "bytes": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 65536,
+                  "items": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 255
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "uploadId"
+              ],
+              "properties": {
+                "uploadId": {
+                  "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/LocalIdV1"
+                }
+              }
+            },
+            {
+              "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/ProvenanceRecordRequestV1"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {
+                "cursor": {
+                  "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/ConceptCursorV1"
+                },
+                "limit": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "conceptId"
+              ],
+              "properties": {
+                "conceptId": {
+                  "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/AssetIdV1"
+                },
+                "historyCursor": {
+                  "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/ConceptHistoryCursorV1"
+                },
+                "historyLimit": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "conceptId"
+              ],
+              "properties": {
+                "conceptId": {
+                  "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/AssetIdV1"
+                }
+              }
+            },
+            {
+              "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/QuoteRequestV1"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "operationId"
+              ],
+              "properties": {
+                "operationId": {
+                  "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/OperationIdV1"
+                }
+              }
+            },
+            {
+              "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/ScopePauseAcknowledgeRequestV1"
+            }
+          ]
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "status.get"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [],
+                "properties": {}
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "capabilities.list"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [],
+                "properties": {}
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "balance.get"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [],
+                "properties": {}
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "capabilities.inputSchema"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "tool",
+                  "schemaHash"
+                ],
+                "properties": {
+                  "tool": {
+                    "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ToolNameV1"
+                  },
+                  "schemaHash": {
+                    "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/Sha256HexV1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "assets.list"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [],
+                "properties": {
+                  "type": {
+                    "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/AssetCategoryV1"
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 200
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "assets.get"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "assetId"
+                ],
+                "properties": {
+                  "assetId": {
+                    "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/AssetIdV1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "assets.resolveStream"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "assetId"
+                ],
+                "properties": {
+                  "assetId": {
+                    "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/AssetIdV1"
+                  },
+                  "variantId": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/LocalIdV1"
+                      }
+                    ]
+                  },
+                  "rangeStart": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "rangeEnd": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "assets.thumbnail"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "assetId"
+                ],
+                "properties": {
+                  "assetId": {
+                    "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/AssetIdV1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "resources.resolveStream"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "source"
+                ],
+                "properties": {
+                  "source": {
+                    "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ProcessorSourceV1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "jobs.list"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [],
+                "properties": {
+                  "state": {
+                    "enum": [
+                      "active",
+                      "terminal",
+                      "all"
+                    ]
+                  },
+                  "cursor": {
+                    "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/LocalIdV1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "jobs.get"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "jobId"
+                ],
+                "properties": {
+                  "jobId": {
+                    "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/AssetIdV1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "uploads.create"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/UploadCreateRequestV1"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "uploads.putChunk"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "uploadId",
+                  "offset",
+                  "bytes"
+                ],
+                "properties": {
+                  "uploadId": {
+                    "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/LocalIdV1"
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "bytes": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 65536,
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 255
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "uploads.complete"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "uploadId"
+                ],
+                "properties": {
+                  "uploadId": {
+                    "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/LocalIdV1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "provenance.record"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/ProvenanceRecordRequestV1"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "lineage.get"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "assetId"
+                ],
+                "properties": {
+                  "assetId": {
+                    "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/AssetIdV1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "concepts.list"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [],
+                "properties": {
+                  "cursor": {
+                    "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/ConceptCursorV1"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "concepts.get"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "conceptId"
+                ],
+                "properties": {
+                  "conceptId": {
+                    "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/AssetIdV1"
+                  },
+                  "historyCursor": {
+                    "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/ConceptHistoryCursorV1"
+                  },
+                  "historyLimit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "concepts.status"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "conceptId"
+                ],
+                "properties": {
+                  "conceptId": {
+                    "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/AssetIdV1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "operations.quote"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/QuoteRequestV1"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "operations.get"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "operationId"
+                ],
+                "properties": {
+                  "operationId": {
+                    "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/OperationIdV1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "method": {
+                "const": "scopePause.acknowledge"
+              }
+            },
+            "required": [
+              "method"
+            ]
+          },
+          "then": {
+            "properties": {
+              "params": {
+                "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/ScopePauseAcknowledgeRequestV1"
+              }
+            }
+          }
+        }
+      ]
     },
     "IpcResponseV1": {
       "type": "object",
@@ -449,7 +1311,367 @@
           "type": "boolean"
         },
         "result": {
-          "type": "object"
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "status.get"
+                },
+                "payload": {
+                  "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/StatusV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "capabilities.list"
+                },
+                "payload": {
+                  "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/CapabilitiesV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "balance.get"
+                },
+                "payload": {
+                  "$ref": "#/$defs/IpcBalanceV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "capabilities.inputSchema"
+                },
+                "payload": {
+                  "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/ToolInputSchemaResponseV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "assets.list"
+                },
+                "payload": {
+                  "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/AssetPageV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "assets.get"
+                },
+                "payload": {
+                  "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/AssetDetailV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "assets.resolveStream"
+                },
+                "payload": {
+                  "$ref": "#/$defs/IpcStreamDescriptorV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "resources.resolveStream"
+                },
+                "payload": {
+                  "$ref": "#/$defs/IpcStreamDescriptorV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "assets.thumbnail"
+                },
+                "payload": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/$defs/IpcStreamDescriptorV1"
+                    },
+                    {
+                      "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/ThumbnailQueuedV1"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "jobs.list"
+                },
+                "payload": {
+                  "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/JobPageV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "jobs.get"
+                },
+                "payload": {
+                  "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/JobDetailV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "uploads.create"
+                },
+                "payload": {
+                  "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/UploadCreatedV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "uploads.putChunk"
+                },
+                "payload": {
+                  "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/UploadChunkAcceptedV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "uploads.complete"
+                },
+                "payload": {
+                  "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/UploadCompletedV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "provenance.record"
+                },
+                "payload": {
+                  "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/ProvenanceRecordedV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "lineage.get"
+                },
+                "payload": {
+                  "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/LineageV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "concepts.list"
+                },
+                "payload": {
+                  "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/ConceptPageV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "concepts.get"
+                },
+                "payload": {
+                  "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/ConceptDetailV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "concepts.status"
+                },
+                "payload": {
+                  "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/ConceptStatusV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "operations.quote"
+                },
+                "payload": {
+                  "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/QuotePreviewV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "operations.get"
+                },
+                "payload": {
+                  "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/OperationStateV1"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "method",
+                "payload"
+              ],
+              "properties": {
+                "method": {
+                  "const": "scopePause.acknowledge"
+                },
+                "payload": {
+                  "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/ScopePauseAcknowledgedV1"
+                }
+              }
+            }
+          ]
         },
         "error": {
           "type": "object",
@@ -475,6 +1697,91 @@
               "$ref": "#/$defs/MediatedTextV1"
             }
           }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "ok": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "result"
+            ],
+            "not": {
+              "required": [
+                "error"
+              ]
+            }
+          },
+          "else": {
+            "required": [
+              "error"
+            ],
+            "not": {
+              "required": [
+                "result"
+              ]
+            }
+          }
+        }
+      ],
+      "description": "Method-discriminated mediated result. S05/S11 compare result.method and requestId to the exact outstanding authenticated request before consuming. Validate the entire envelope with gateway.redaction.validate_mediated_v1 before serialization, forwarding, logging, caching or UI. Unknown payloads are refused, never forwarded raw."
+    },
+    "IpcStreamDescriptorV1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "handle",
+        "mime",
+        "bytes",
+        "assetId"
+      ],
+      "properties": {
+        "handle": {
+          "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/OpaqueHandleV1"
+        },
+        "mime": {
+          "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/MimeV1"
+        },
+        "bytes": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 2147483648
+        },
+        "assetId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/AssetIdV1"
+            }
+          ]
+        }
+      },
+      "description": "Scoped backend stream descriptor only. Resolve handle with current scope/generation, purpose, expiry/read count and full open/fstat sandbox. No backend path or upstream URL. S11 binds HTTP Range to the validated stream and caps bytes; a descriptor is not authorization outside its bound scope."
+    },
+    "IpcBalanceV1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract",
+        "balance"
+      ],
+      "properties": {
+        "contract": {
+          "const": "studiotwin.dashboard.v1"
+        },
+        "balance": {
+          "$ref": "urn:hermes-studiotwin:contracts:dashboard-v1#/components/schemas/BalanceV1"
         }
       }
     }

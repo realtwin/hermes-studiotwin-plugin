@@ -120,6 +120,50 @@ def form_binding(envelope, tool, schema_hash):
             and envelope["classification"] == "classified")
 
 
+def validate_mediated_v1(contract_ref, candidate, *, sensitive_values, docs=None):
+    """Executable contract oracle, NOT the S06 runtime redactor or its sink integration.
+
+    Never emit candidate data in a refusal. Production must additionally enforce classification,
+    provenance, authenticated scope/generation and opened-file/handle bindings (leaf-exports.md).
+    """
+    import copy
+    import math
+    unsafe = re.compile(r"(?:s3://|https?://[^\s]*[?&]|X-Amz-|STCANARY_|AKIA[0-9A-Z]{16}|"
+                        r"Bearer\s+[A-Za-z0-9_.-]+|(?:api[_-]?key|password|secret)\s*[:=])", re.I)
+    try:
+        if len(json.dumps(candidate, allow_nan=False).encode()) > 1048576:
+            raise ValueError
+        count = 0
+        def inspect(value, depth=0):
+            nonlocal count
+            count += 1
+            if depth > 48 or count > 100000:
+                raise ValueError
+            if isinstance(value, dict):
+                for key, item in value.items():
+                    if not isinstance(key, str) or (key not in NAME_ALLOWLIST and BANNED_NAME.search(key)):
+                        raise ValueError
+                    inspect(key, depth + 1)
+                    inspect(item, depth + 1)
+                # Form-field names are data values, not declared JSON property names.
+                if "schema" in value and "required" in value and "name" in value and BANNED_NAME.search(value["name"]):
+                    raise ValueError
+            elif isinstance(value, list):
+                for item in value:
+                    inspect(item, depth + 1)
+            elif isinstance(value, str):
+                if unsafe.search(value) or any(secret and secret in value for secret in sensitive_values):
+                    raise ValueError
+            elif isinstance(value, float) and not math.isfinite(value):
+                raise ValueError
+        inspect(candidate)
+        if not is_valid(contract_ref, candidate, docs):
+            raise ValueError
+        return copy.deepcopy(candidate)
+    except (ValueError, TypeError, RecursionError):
+        raise ValueError("UNSAFE_PAYLOAD") from None
+
+
 # --------------------------------------------------------------------------- schema walking
 
 def walk(node: Any, path: str = "") -> Iterator[tuple[str, Any]]:

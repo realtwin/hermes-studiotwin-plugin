@@ -2693,7 +2693,8 @@
         "required": [
           "contract",
           "tool",
-          "inputs"
+          "inputs",
+          "schemaHash"
         ],
         "properties": {
           "contract": {
@@ -2703,11 +2704,13 @@
             "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ToolNameV1"
           },
           "inputs": {
-            "type": "object",
-            "maxProperties": 64,
-            "description": "Candidate effective inputs; the gateway canonicalizes and classifies them."
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/CandidateInputsV1"
+          },
+          "schemaHash": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/Sha256HexV1"
           }
-        }
+        },
+        "description": "Raw candidate request, never reflected as mediated output. Before forwarding to IPC, quoting or logging, call gateway.redaction.validate_candidate_inputs_v1 with current exact classified tool/schemaHash and sensitive-value registry; then S09 canonicalizes effective inputs. Browser scope/authentication is not paid consent."
       },
       "QuotePreviewV1": {
         "type": "object",
