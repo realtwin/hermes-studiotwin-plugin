@@ -81,6 +81,24 @@ class Reconciler:
         row=self._record(operation,binding)
         return self._validated(json.loads(row[0]) if row else self._initial(operation,binding),binding)
 
+    @staticmethod
+    def _job_bound(value, row):
+        """No recovery record means accept()'s direct submission binding.
+
+        Recovery JSON is the durable provenance marker for provisional IDs,
+        including databases written before non-unique recovery cleared them.
+        Never promote a correlation to direct authority merely by observing it.
+        """
+        if row is None or value['jobId'] is None: return False
+        if row[1] is None: return True
+        recovery=json.loads(row[1])
+        return (recovery['state']=='matched' and len(recovery['candidates'])==1 and
+                recovery['candidates'][0]['jobId']==value['jobId'])
+
+    def poll_target(self, operation, binding):
+        value=self.snapshot(operation,binding).to_json()
+        return value['jobId'] if self._job_bound(value,self._record(operation,binding)) else None
+
     def operation_state(self, operation, binding):
         row=self._record(operation,binding)
         result=dict(contract='studiotwin.dashboard.v1',operation=self.snapshot(operation,binding).to_json())
@@ -170,7 +188,7 @@ class Reconciler:
             now=self.clock_ms()
             _validate('gateway#/$defs/EpochMsV1',now)
             value=self.snapshot(operation,binding).to_json(); row=self._record(operation,binding)
-            if row is None or value['jobId']!=record['jobId'] or value['jobId'] is None: raise BoundaryRefused()
+            if not self._job_bound(value,row) or value['jobId']!=record['jobId']: raise BoundaryRefused()
             for key in ('submittedAtMs','terminalAtMs'):
                 if record.get(key) is not None: _validate('gateway#/$defs/EpochMsV1',record[key])
             submitted=record.get('submittedAtMs',row[4]); terminal=record.get('terminalAtMs',row[5])
@@ -231,6 +249,8 @@ class Reconciler:
             recovery=dict(operationId=operation,state='not-visible' if not matches else 'matched' if len(matches)==1 else 'multiple',
                           dispatchAllowed=False,candidates=matches)
             value.update(state='UNKNOWN' if matches else 'UNKNOWN_NOT_VISIBLE',reservationHeld=True)
-            if len(matches)==1: value['jobId']=matches[0]['jobId']
+            # Every recoverable ID is provisional; direct accept() bindings are
+            # excluded by the operation-state gate above.
+            value['jobId']=matches[0]['jobId'] if len(matches)==1 else None
             self._write(operation,binding,value,internal_state='AMBIGUOUS_UNRESOLVED',recovery=recovery)
             return self.operation_state(operation,binding)

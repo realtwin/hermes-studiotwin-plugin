@@ -194,14 +194,16 @@ class DispatchService:
         return self.reconciler.recover(operation,binding,facts)
 
     async def poll(self, operation, binding):
-        snapshot=self.reconciler.snapshot(operation,binding).to_json()
-        if snapshot['jobId'] is None: return self.reconciler.snapshot(operation,binding)
-        raw=await self._rpc('studiotwin_get_job_status',dict(jobId=snapshot['jobId']),binding)
+        job_id=self.reconciler.poll_target(operation,binding)
+        if job_id is None: return self.reconciler.snapshot(operation,binding)
+        raw=await self._rpc('studiotwin_get_job_status',dict(jobId=job_id),binding)
         facts=_payload(raw)
-        if type(facts) is not dict or facts.get('uuid')!=snapshot['jobId']: return self.reconciler.snapshot(operation,binding)
+        if type(facts) is not dict or facts.get('uuid')!=job_id: return self.reconciler.snapshot(operation,binding)
         settlement=facts.get('settlement')
         if type(settlement) is not dict: settlement={}
-        return self.reconciler.observe(operation,binding,dict(jobId=snapshot['jobId'],status=str(facts.get('status','unknown')).lower(),
+        # observe() rechecks binding under the write transaction: recovery may
+        # have revoked the provisional target while this RPC was in flight.
+        return self.reconciler.observe(operation,binding,dict(jobId=job_id,status=str(facts.get('status','unknown')).lower(),
             submittedAtMs=timestamp_ms(facts.get('createdAt')),terminalAtMs=timestamp_ms(facts.get('finishedAt')),
             finalDebitCredits=settlement.get('finalDebitCredits'),refundedCredits=settlement.get('refundCredits'),
             ledgerRef=settlement.get('ledgerRef')))

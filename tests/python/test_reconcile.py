@@ -60,7 +60,12 @@ def test_ambiguous_recovery_guards_legacy_stale_persisted_id(harness,later,actio
     before=list(store._db.iterdump()); fake.clock_ms+=2000
     s.reconciler.ledger_verifier=ledger_verifier(fake)
     if action=='poll':
-        run(s.poll(op,b))
+        # Either refusal API is safe only if it sends no status request. A
+        # downstream observe() refusal cannot excuse an already issued RPC.
+        try:
+            run(s.poll(op,b))
+        except H.R.BoundaryRefused:
+            pass
         assert sum(c['name']=='studiotwin_get_job_status' for c in fake.calls)==0
     else:
         with pytest.raises(H.R.BoundaryRefused):
