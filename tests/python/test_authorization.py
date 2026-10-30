@@ -154,7 +154,7 @@ def binding(x,context):
 def quote(store,x,context,**changes):
     p=preview(x.tool)
     p.update(changes)
-    return store.save_quote(p,binding(x,context),price_version=None,server_token=None,now_ms=1000)
+    return store.save_quote(p,binding(x,context),price_version=None,server_token=None,clock_ms=lambda:1000)
 
 
 async def accept(request):
@@ -300,7 +300,7 @@ def test_concurrent_guard_straddle_and_session_isolation(catalog,store,tmp_path,
     gate,ctx,caps=host(); x=effective(catalog,store)
     store.set_guard_limit(SCOPE,'chat',30)
     p1=preview(); p2=preview(); p2['previewId']='pv_'+'b'*43
-    qs=[store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,now_ms=1000) for p in [p1,p2]]
+    qs=[store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,clock_ms=lambda:1000) for p in [p1,p2]]
     def worker(q):
         s=P.PolicyStore(tmp_path/'data')
         try:
@@ -322,7 +322,7 @@ def test_mode_proof_is_independent_of_principal(catalog,store,monkeypatch,mode):
     gate,ctx,caps=host(); x=effective(catalog,store)
     p=preview(mode=mode)
     q=store.save_quote(p,binding(x,ctx),price_version='price-1',
-                       server_token='sqt_'+'s'*43 if mode=='server-max-credits' else None,now_ms=1000)
+                       server_token='sqt_'+'s'*43 if mode=='server-max-credits' else None,clock_ms=lambda:1000)
     with pytest.raises(R.BoundaryRefused): asyncio.run(service(catalog,store,gate,caps).authorize(x,ctx,q))
     assert store.operation_count()==0
 
@@ -331,7 +331,7 @@ def test_server_maximum_not_estimate_and_token_binding(catalog,store,monkeypatch
     future_principal(monkeypatch)
     gate,ctx,caps=host(); x=effective(catalog,store)
     p=preview(mode='server-max-credits')
-    q=store.save_quote(p,binding(x,ctx),price_version='price-1',server_token='sqt_'+'s'*43,now_ms=1000)
+    q=store.save_quote(p,binding(x,ctx),price_version='price-1',server_token='sqt_'+'s'*43,clock_ms=lambda:1000)
     a=asyncio.run(service(catalog,store,gate,caps).authorize(x,ctx,q)).to_json()
     assert a['estimatedCredits']==20 and a['maxCredits']==25
     assert a['serverQuoteToken']=='sqt_'+'s'*43
@@ -361,10 +361,10 @@ def test_server_token_bound_to_exact_quote(catalog,store,monkeypatch):
     q=quote(store,x,ctx)
     a=asyncio.run(service(catalog,store,gate,caps).authorize(x,ctx,q)).to_json()
     p=preview(mode='server-max-credits'); p['previewId']='pv_'+'b'*43
-    q2=store.save_quote(p,binding(x,ctx),price_version='price-2',server_token='sqt_'+'s'*43,now_ms=1000)
+    q2=store.save_quote(p,binding(x,ctx),price_version='price-2',server_token='sqt_'+'s'*43,clock_ms=lambda:1000)
     a.update(operationId='op_'+'b'*43,previewId=q2,enforcementMode='server-max-credits',maxCredits=25,
              previewPriceVersion='price-2',serverQuoteToken='sqt_'+'t'*43)
-    with pytest.raises(R.BoundaryRefused): store.reserve(a,binding(x,ctx),now_ms=1001)
+    with pytest.raises(R.BoundaryRefused): store.reserve(a,binding(x,ctx),clock_ms=lambda:1001)
     assert store.operation_count()==1
 
 
@@ -373,9 +373,9 @@ def test_operation_id_cannot_be_reused_for_another_quote(catalog,store,monkeypat
     gate,ctx,caps=host(); x=effective(catalog,store); q=quote(store,x,ctx)
     a=asyncio.run(service(catalog,store,gate,caps).authorize(x,ctx,q)).to_json()
     p=preview(); p['previewId']='pv_'+'b'*43
-    q2=store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,now_ms=1000)
+    q2=store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,clock_ms=lambda:1000)
     a['previewId']=q2
-    with pytest.raises(R.BoundaryRefused): store.reserve(a,binding(x,ctx),now_ms=1001)
+    with pytest.raises(R.BoundaryRefused): store.reserve(a,binding(x,ctx),clock_ms=lambda:1001)
     assert store.operation_count()==1 and store.guard_used(SCOPE,'chat')==20
 
 
@@ -390,7 +390,7 @@ def test_spend_guard_counts_settled_debits_without_double_count(catalog,store,mo
     assert store.guard_used(SCOPE,'chat')==30  # not estimate 20, not 20+30
     store.set_guard_limit(SCOPE,'chat',40)
     p=preview(); p['previewId']='pv_'+'b'*43
-    q2=store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,now_ms=1000)
+    q2=store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,clock_ms=lambda:1000)
     with pytest.raises(R.BoundaryRefused): asyncio.run(service(catalog,store,gate,caps).authorize(x,ctx,q2))
     assert store.operation_count()==1
 
@@ -409,7 +409,7 @@ def test_n3_preflight_uses_tier_not_cost_class(catalog,store,monkeypatch):
 def test_unsafe_bindings_never_persist(catalog,store,field,value):
     gate,ctx,caps=host(); x=effective(catalog,store)
     b=binding(x,ctx); b[field]=value
-    with pytest.raises(R.BoundaryRefused): store.save_quote(preview(),b,price_version=None,server_token=None,now_ms=1000)
+    with pytest.raises(R.BoundaryRefused): store.save_quote(preview(),b,price_version=None,server_token=None,clock_ms=lambda:1000)
     assert store.quote_count()==0
 
 
@@ -419,7 +419,7 @@ def test_price_metadata_secret_never_persists(catalog,tmp_path):
         s.activate(SCOPE,'b'*64)
         gate,ctx,caps=host(); x=effective(catalog,s)
         with pytest.raises(R.BoundaryRefused):
-            s.save_quote(preview(),binding(x,ctx),price_version='ordinary-sensitive-value',server_token=None,now_ms=1000)
+            s.save_quote(preview(),binding(x,ctx),price_version='ordinary-sensitive-value',server_token=None,clock_ms=lambda:1000)
         assert s.quote_count()==0
     finally: s.close()
 
@@ -436,7 +436,7 @@ def test_real_process_restart_and_concurrent_duplicate(catalog,store,tmp_path,mo
     gate,ctx,caps=host(); x=effective(catalog,store); q=quote(store,x,ctx)
     a=asyncio.run(service(catalog,store,gate,caps).authorize(x,ctx,q)).to_json()
     p=preview(); p['previewId']='pv_'+'b'*43
-    q2=store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,now_ms=1000)
+    q2=store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,clock_ms=lambda:1000)
     a.update(operationId='op_'+'r'*43,previewId=q2)
     payload=json.dumps(dict(auth=a,binding=binding(x,ctx)))
     processes=[subprocess.Popen([sys.executable,__file__,'ledger-probe',str(tmp_path/'data')],
@@ -515,11 +515,11 @@ def test_pause_appearing_after_consent_blocks_atomic_reserve(catalog,store,monke
     gate,ctx,caps=host(); x=effective(catalog,store); q=quote(store,x,ctx)
     auth=asyncio.run(service(catalog,store,gate,caps).authorize(x,ctx,q)).to_json()
     p=preview(); p['previewId']='pv_'+'b'*43
-    q2=store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,now_ms=1000)
+    q2=store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,clock_ms=lambda:1000)
     auth.update(operationId='op_'+'b'*43,previewId=q2)
     store.put_pause(dict(protocol='studiotwin.gateway.v1',scopeId=SCOPE,reason='verified-overrun',
         operationId='op_'+'z'*43,estimatedCredits=10,actualCredits=20,createdAtMs=1000,acknowledgedAtMs=None),generation=1)
-    with pytest.raises(R.BoundaryRefused): store.reserve(auth,binding(x,ctx),now_ms=1001)
+    with pytest.raises(R.BoundaryRefused): store.reserve(auth,binding(x,ctx),clock_ms=lambda:1001)
     assert store.operation_count()==1 and store.guard_used(SCOPE,'chat')==20
 
 
@@ -579,7 +579,7 @@ def test_expiry_is_rechecked_after_waiting_for_sqlite_writer(catalog,store,tmp_p
     clock=lambda:int(time.time()*1000)
     p=preview(now=clock())
     p['previewExpiresAtMs']=clock()+(1000 if expired else 5000)
-    q=store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,now_ms=clock())
+    q=store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,clock_ms=clock)
     svc=service(catalog,store,gate,caps); svc._clock_ms=clock
     locked=threading.Event(); start=threading.Event(); errors=[]
     def writer():
@@ -625,7 +625,7 @@ def test_transactional_expiry_uses_injected_post_lock_clock(catalog,store,tmp_pa
     if entry=='reserve':
         q=quote(store,x,ctx)
         auth=asyncio.run(service(catalog,store,gate,caps).authorize(x,ctx,q)).to_json()
-        store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,now_ms=1000)
+        store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,clock_ms=lambda:1000)
         auth.update(operationId='op_'+'b'*43,previewId=p['previewId'],expiresAtMs=1050)
     now=[1001]; clock=lambda:now[0]
     locked=threading.Event(); attempted=threading.Event(); errors=[]
@@ -645,8 +645,8 @@ def test_transactional_expiry_uses_injected_post_lock_clock(catalog,store,tmp_pa
     store._db.set_trace_callback(lambda sql:attempted.set() if sql=='BEGIN IMMEDIATE' else None)
     try:
         with pytest.raises(R.BoundaryRefused):
-            if entry=='reserve': store.reserve(auth,binding(x,ctx),now_ms=clock())
-            else: store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,now_ms=clock())
+            if entry=='reserve': store.reserve(auth,binding(x,ctx),clock_ms=clock)
+            else: store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,clock_ms=clock)
     finally:
         store._db.set_trace_callback(None)
         thread.join(5)
@@ -662,7 +662,7 @@ if __name__=='__main__' and len(sys.argv)==3 and sys.argv[1]=='ledger-probe':
     s=P.PolicyStore(Path(sys.argv[2]))
     try:
         try:
-            s.reserve(payload['auth'],payload['binding'],now_ms=1001)
+            s.reserve(payload['auth'],payload['binding'],clock_ms=lambda:1001)
             print('reserved')
         except R.BoundaryRefused:
             print('refused')

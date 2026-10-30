@@ -225,9 +225,11 @@ class PolicyStore:
             (scope_id,session_id)).fetchone()
         return row[0]
 
-    def save_quote(self, preview, binding, *, price_version, server_token, now_ms):
+    def save_quote(self, preview, binding, *, price_version, server_token, clock_ms):
+        """Backend clock callable is evaluated only after acquiring the write lock."""
         b=_checked_binding(binding,self._sensitive)
-        p=check_preview(preview,b,now_ms,self._sensitive)
+        # Schema/metadata validation is safe before locking; expiry is not.
+        p=mediated('QuotePreviewV1',preview,b['scope_id'],b['generation'],self._sensitive).to_json()
         self.guard_key(b['scope_id'],b['generation'],b['session_id'])
         failed = False
         try:
@@ -248,6 +250,7 @@ class PolicyStore:
         # approval boundary; no server mode may be enabled from these labels.
         try:
             with self.transaction():
+                p=check_preview(p,b,clock_ms(),self._sensitive)
                 self.require_current(b['scope_id'],b['generation'])
                 self._db.execute('INSERT INTO policy_quotes VALUES (?,?,?,?,?,?,?,NULL)',
                     (b['scope_id'],b['generation'],p['previewId'],_json(b),_json(p),price_version,server_token))
@@ -264,12 +267,16 @@ class PolicyStore:
         p=check_preview(json.loads(row[1]),binding,now_ms,self._sensitive)
         return p,row[2],row[3]
 
-    def reserve(self, authorization, binding, *, now_ms):
+    def reserve(self, authorization, binding, *, clock_ms):
         """Internal S09 call after exact host consent; NOT a public approval API.
         Returns only a NEW reservation; duplicate/foreign use refuses and S10 can
         read existing state without ever treating it as permission to dispatch.
+        clock_ms is a trusted backend callable, never a sampled pre-lock time.
         """
         with self.transaction():
+            # BEGIN IMMEDIATE may wait behind another writer past either expiry.
+            # Use one fresh post-lock sample for both preview and authorization.
+            now_ms=clock_ms()
             self.require_current(binding['scope_id'],binding['generation'])
             p,price,token=self.load_quote(authorization['previewId'],binding,now_ms=now_ms)
             a=check_authorization(authorization,p,binding,now_ms,self._sensitive)

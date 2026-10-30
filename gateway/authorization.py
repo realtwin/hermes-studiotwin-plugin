@@ -129,4 +129,4 @@ class AuthorizationService:
         # input, pause, quote consumption and guard are rechecked after consent.
         if self._context(effective,context)!=binding:
             raise BoundaryRefused()
-        return self._store.reserve(auth,binding,now_ms=self._clock_ms())
+        return self._store.reserve(auth,binding,clock_ms=self._clock_ms)
