@@ -598,6 +598,26 @@ def test_location_components_collected_in_every_channel(location,channel):
     assert secret not in json.dumps(result.to_json())
 
 
+@pytest.mark.parametrize('manifest',[False,True])
+def test_failed_batch_preserves_unrelated_unpinned_files(tmp_path,manifest):
+    cache=C.MediaCache(tmp_path/'hermes-studiotwin',H.HandleStore(),quota=len(PNG)*2)
+    prior=put(cache)
+    before=set(cache.handles._rows)
+    med=M.Mediator(cache.handles,cache=cache,loader=lambda row:(PNG,'.png'))
+    # Without manifest, frame 2 exhausts capacity; with manifest, its final
+    # allocation exhausts capacity after frame 1. Neither may evict prior.
+    count=1 if manifest else 2
+    rules=tuple(M.ResourceRule(path=('frames',i),kind='image',role='image',mime='image/png') for i in range(count))
+    raw={'frames':['https://offline.invalid/'+str(i) for i in range(count)]}
+    with pytest.raises(BoundaryRefused):
+        med.mediate(raw,scope_id=A,generation=1,policy=policy(resources=rules,group='image_sequence',
+            manifest=manifest,summary_path=None,job_path=None),live_schema_hash='c'*64)
+    assert set(cache.handles._rows)==before
+    assert list((cache.root/'scopes'/A/'media').iterdir())==[Path(prior.path)]
+    with med.open_source(prior.handle,scope_id=A,generation=1) as f:
+        assert f.read()==PNG
+
+
 CANARIES=json.loads((ROOT/'tests/fixtures/secret_channels/canaries.v1.json').read_text())['canaries']
 NEEDLES=[s for row in CANARIES for s in row['needles']]
 @pytest.mark.parametrize('needle',NEEDLES)
