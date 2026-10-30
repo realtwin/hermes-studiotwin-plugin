@@ -1028,6 +1028,11 @@ def test_r1_b5_ambiguous_recovery_candidates_are_not_submission_authority(docs):
     job = {"jobId": UUID, "functionName": "text-to-environment-map", "status": "unknown", "submittedAtMs": None,
            "terminalAtMs": None, "outputAssetIds": [], "operationId": OP_ID, "recovery": value}
     assert S.errors("dashboard#/components/schemas/JobV1", job, docs) == []
+    # Jobs must surface ambiguous operations even before any server job ID exists, after reload.
+    page = {"contract": S.DASHBOARD_CONTRACT, "items": [], "nextCursor": None,
+            "ambiguousOperations": [{"contract": S.DASHBOARD_CONTRACT,
+                                     "operation": recon(state="UNKNOWN", jobId=None), "recovery": value}]}
+    assert S.errors("dashboard#/components/schemas/JobPageV1", page, docs) == []
 
 
 def gateway_result():
