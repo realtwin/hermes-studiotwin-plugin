@@ -84,8 +84,8 @@ def test_canonical_deterministic_detached_and_effective_digest(catalog,store):
 
 
 @pytest.mark.parametrize('name,values,expected',[
- ('text-to-material',dict(textPrompt='stone',resolution='1024',maskAssetId=UUID,referenceImageAssetId=OTHER),
-  dict(textPrompt='stone',resolution='1024',maskUrl='vpc::assets/'+UUID,referenceImageUrl='vpc::assets/'+OTHER)),
+ ('text-to-material',dict(textPrompt='stone',resolution=1024,maskAssetId=UUID,referenceImageAssetId=OTHER),
+  dict(textPrompt='stone',resolution=1024,maskUrl='vpc::assets/'+UUID,referenceImageUrl='vpc::assets/'+OTHER)),
  ('openai-gpt-image-2-v4-fn',dict(mode='edit',prompt='blue',masks=[UUID],sourceAsset=OTHER),
   dict(mode='edit',prompt='blue',masks=['vpc::assets/'+UUID],sourceAsset='vpc::assets/'+OTHER)),
  ('prompt-to-dart-translation',dict(inputPrompt='x',prompt='y',maxOutputUnits=5),
@@ -169,6 +169,7 @@ def service(catalog,store,gate,caps):
 def future_principal(monkeypatch):
     # Explicit absent-future-issuer fixture; never production trust from a boolean.
     monkeypatch.setattr(A,'_principal_scope',lambda *args,**kwargs:SCOPE)
+    monkeypatch.setattr(A,'_mode_ready',lambda mode:True)  # S10 capability/risk fixture only
 
 
 def test_real_d24_missing_cannot_be_bypassed(catalog,store):
