@@ -179,3 +179,99 @@ def test_outbound_quote_raw_candidate_rejected_before_forwarding(tmp_path):
                         {'contract':'studiotwin.dashboard.v1','tool':NAME,'schemaHash':HASH,'inputs':inputs})
             assert not peer.requests
     asyncio.run(run())
+
+
+CONTRACT = 'studiotwin.dashboard.v1'
+A, B, JOB, CONCEPT = [f'00000000-0000-0000-0000-{n:012d}' for n in range(1,5)]
+
+
+def record_request(sources=None, outputs=None, job=JOB):
+    return dict(contract=CONTRACT, jobId=job, tool=NAME, inputFingerprint=HASH,
+                sourceAssetIds=[A] if sources is None else sources,
+                outputAssetIds=[B] if outputs is None else outputs)
+
+
+def make_store(tmp_path, *, secrets=()):
+    module = importlib.import_module('s11_dashboard.store')
+    binding = [SCOPE, 1]
+    now = [100.0]
+    store = module.DashboardStore(tmp_path/'db', current_binding=lambda:tuple(binding),
+        sensitive_values=lambda:secrets, clock=lambda:now[0])
+    store.activate(*binding)
+    return store, binding, now
+
+
+def test_sqlite_restart_retention_purge_and_binding(tmp_path):
+    s, binding, now = make_store(tmp_path)
+    value = dict(contract=CONTRACT, root=A, nodes=[dict(kind='asset',id=A,depth=0)], edges=[], truncated=False)
+    s.put('lineage', A, value, scope_id=SCOPE, generation=1)
+    assert s.get('lineage', A, scope_id=SCOPE, generation=1).to_json() == value
+    s.close()
+    s, binding, now = make_store(tmp_path)
+    assert s.stats(scope_id=SCOPE,generation=1)['metadata'] == 1
+    binding[:] = ['b'*64,2]
+    s.activate(*binding)
+    assert s.get('lineage',A,scope_id=binding[0],generation=2) is None
+    with pytest.raises(R.BoundaryRefused): s.get('lineage',A,scope_id=SCOPE,generation=1)
+    binding[:] = [SCOPE,3]
+    s.activate(*binding)
+    assert s.get('lineage',A,scope_id=SCOPE,generation=3) is None
+    with pytest.raises(R.BoundaryRefused): s.activate(SCOPE,1)
+    s.put('lineage',A,value,scope_id=SCOPE,generation=3)
+    now[0] += 30*86400
+    assert s.get('lineage',A,scope_id=SCOPE,generation=3) is None
+    s.put('lineage',A,value,scope_id=SCOPE,generation=3)
+    assert s.purge(scope_id=SCOPE,generation=3)['metadata'] == 1
+    assert s.stats(scope_id=SCOPE,generation=3)['metadata'] == 0
+    s.close()
+
+
+@pytest.mark.parametrize('bad', ['https://signed.invalid/?token=secret','STCANARY_STORE_PRIVATE','opaque-private-secret'])
+def test_store_refuses_before_sql_sink(tmp_path,bad):
+    s, _, _ = make_store(tmp_path,secrets=('opaque-private-secret',))
+    before = s.connection.total_changes
+    with pytest.raises(R.BoundaryRefused):
+        s.put('lineage',A,dict(contract=CONTRACT,root=A,nodes=[],edges=[],truncated=False,extra=bad),scope_id=SCOPE,generation=1)
+    assert s.connection.total_changes == before
+    with pytest.raises(R.BoundaryRefused): s.put('anything',bad,{},scope_id=SCOPE,generation=1)
+    s.close()
+    assert bad.encode() not in (tmp_path/'db'/'studiotwin.sqlite3').read_bytes()
+
+
+def test_provenance_internal_attribution_and_closed_merged_wire(tmp_path):
+    P = importlib.import_module('s11_dashboard.provenance_store')
+    s, binding, _ = make_store(tmp_path)
+    p = P.ProvenanceStore(s)
+    result = p.record(record_request(), scope_id=SCOPE,generation=1,concept_id=CONCEPT)
+    assert result.to_json()['edgeCount'] == 2
+    server = dict(contract=CONTRACT,root=B,nodes=[dict(kind='asset',id=A,depth=-2),dict(kind='job',id=JOB,depth=-1),dict(kind='asset',id=B,depth=0)],
+                  edges=[dict(parent=A,child=JOB,relation='generated-from'),dict(parent=JOB,child=B,relation='output-of')],truncated=False)
+    p.merge_server(server,scope_id=SCOPE,generation=1)
+    wire = p.lineage(B,scope_id=SCOPE,generation=1).to_json()
+    assert len(wire['edges']) == 2 and len(wire['nodes']) == 3
+    assert {r['source'] for r in p.records(scope_id=SCOPE,generation=1)} == {'local-recorded','server-reported'}
+    assert any(r['concept_id'] == CONCEPT for r in p.records(scope_id=SCOPE,generation=1))
+    assert all(set(n)=={'kind','id','depth'} for n in wire['nodes'])
+    binding[:] = ['b'*64,2]; s.activate(*binding)
+    assert p.lineage(B,scope_id=binding[0],generation=2).to_json()['nodes'] == []
+    with pytest.raises(R.BoundaryRefused): p.record(record_request(),scope_id=SCOPE,generation=1)
+    s.close()
+
+
+def test_lineage_dag_cycles_and_limits(tmp_path):
+    P = importlib.import_module('s11_dashboard.provenance_store')
+    s, _, _ = make_store(tmp_path)
+    p = P.ProvenanceStore(s)
+    p.record(record_request(),scope_id=SCOPE,generation=1)
+    before = p.records(scope_id=SCOPE,generation=1)
+    with pytest.raises(R.BoundaryRefused):
+        p.record(record_request([B],[A],job=CONCEPT),scope_id=SCOPE,generation=1)
+    assert p.records(scope_id=SCOPE,generation=1) == before
+    for n in range(10,75):
+        p.record(record_request([B],[f'00000000-0000-0000-0001-{n:012d}'],job=f'00000000-0000-0000-0002-{n:012d}'),scope_id=SCOPE,generation=1)
+    wire = p.lineage(B,scope_id=SCOPE,generation=1).to_json()
+    assert len(wire['nodes']) == 100 and wire['truncated']
+    assert len(wire['edges']) <= 400
+    assert all(-12 <= n['depth'] <=12 for n in wire['nodes'])
+    assert all(e['parent'] in {n['id'] for n in wire['nodes']} and e['child'] in {n['id'] for n in wire['nodes']} for e in wire['edges'])
+    s.close()
