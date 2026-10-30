@@ -539,6 +539,35 @@ def test_all_required_outbound_envelopes_use_real_s06(catalog,store,monkeypatch)
             'gateway#/$defs/SpendGuardKeyV1','gateway#/$defs/ScopePauseV1'} <= set(calls)
 
 
+def test_policy_tables_keep_scope_in_every_unique_key(store):
+    names=[r[0] for r in store._db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'policy_%'")]
+    assert names
+    for name in names:
+        columns=list(store._db.execute('PRAGMA table_info('+name+')'))
+        assert columns[0][1]=='scope_id'
+        primary=[r[1] for r in columns if r[5]]
+        assert 'scope_id' in primary,(name,primary)
+        for index in store._db.execute('PRAGMA index_list('+name+')'):
+            if index[2]:
+                fields=[r[2] for r in store._db.execute('PRAGMA index_info('+index[1]+')')]
+                assert 'scope_id' in fields,(name,fields)
+    store.activate('c'*64,'d'*64)
+    store.activate(SCOPE,'b'*64)
+    assert store._db.execute('SELECT COUNT(*) FROM policy_active').fetchone()[0]==1
+
+
+def test_policy_database_uses_private_s05_storage(tmp_path):
+    import os
+    import stat
+    s=P.PolicyStore(tmp_path/'private')
+    try:
+        s.activate(SCOPE,'b'*64)
+        if os.name=='posix':
+            assert stat.S_IMODE((tmp_path/'private').stat().st_mode)==0o700
+            assert stat.S_IMODE((tmp_path/'private/studiotwin.sqlite3').stat().st_mode)==0o600
+    finally: s.close()
+
+
 if __name__=='__main__' and len(sys.argv)==3 and sys.argv[1]=='ledger-probe':
     payload=json.load(sys.stdin)
     s=P.PolicyStore(Path(sys.argv[2]))
