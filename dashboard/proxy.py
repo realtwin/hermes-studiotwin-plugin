@@ -43,7 +43,7 @@ class SessionLimits:
         if key not in self.rows:
             # Do not evict a busy/burst-exhausted row to reset its budget.
             for k,(tokens,stamp,active) in list(self.rows.items()):
-                if not active and now-stamp >= 60:
+                if not any(active.values()) and now-stamp >= 60:
                     del self.rows[k]
             if len(self.rows)>=self.capacity: raise ProxyRefused(429)
             self.rows[key] = [float(self.burst),now,{}]
