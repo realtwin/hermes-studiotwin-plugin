@@ -315,6 +315,8 @@ ENCODING_CASES = [
     ('ordinary😀private', r'"ordinary\ud83d\ude00private"'),
     ('ordinary\tprivate\nmaterial/"end', r'"ordinary\tprivate\nmaterial\/\"end"'),
     ('ordinary[123]private+material', r'ordinary[123]private\u002bmaterial'),
+    ('ordinary-private-review-material', 'ordinary-private-review-material'.encode().hex().upper()),
+    ('ordinary-private-review-material', '%62'+base64.b64encode(b'ordinary-private-review-material').decode()[1:]),
 ]
 
 
