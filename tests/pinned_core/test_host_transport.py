@@ -132,8 +132,8 @@ def test_replay_peer_and_shape_guards():
     assert first["trusted"]
     assert contracts.is_valid("host_gateway#/$defs/HostContextV1", dict(first))
     assert contracts.is_valid("host_gateway#/$defs/TrustedToolContextV1", context())
-    assert authenticated(g)["reason"] == "trusted-context-stale-nonce"
-    assert authenticated(g, nonce=1, profileId="other")["reason"] == "trusted-context-wrong-peer"
+    assert authenticated(g) == hc.untrusted("trusted-context-stale-nonce")
+    assert authenticated(g, nonce=1, profileId="other") == hc.untrusted("trusted-context-wrong-peer")
     assert not authenticated(g, nonce=True)["trusted"]
     assert not authenticated(g, nonce=2, runKind="cron", cronRunId=None)["trusted"]
     assert authenticated(g, nonce=3)["trusted"]
@@ -167,7 +167,7 @@ def test_concurrent_authenticated_sessions_and_cross_session_operation_reuse():
         g.new_operation(dict(a))  # copying a wire-shaped dict must not mint authority
 
 
-@pytest.mark.parametrize("version", [None, "unknown", "0.22.2", "0.22.3-rc.1", "0.21.99", "0.22.3junk"])
+@pytest.mark.parametrize("version", [None, "unknown", "0.22.2", "0.22.3-rc.1", "0.21.99", "0.22.3junk", "9" * 5000 + ".22.3"])
 def test_unknown_below_floor_or_prerelease_is_setup_only(version):
     g = gate()
     h = handshake(version)
