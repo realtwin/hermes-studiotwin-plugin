@@ -24,6 +24,12 @@ from .mediation import OutputPolicy, ResourceRule
 from .mediation_parse import BoundaryRefused, bounded_copy_v1
 from .redaction import MediatedValue, ValidatedCandidateInputs
 
+# Exact immutable representation returned by S04 HostContextGate.receive().
+# This alias alone is NOT proof: gate._owned(context) must authenticate receiver
+# ownership by object identity. Arbitrary mappings/dicts claiming trusted: True
+# and unowned MappingProxyType instances never establish verified provenance.
+VerifiedHostContext = MappingProxyType
+
 _FORM_REF = 'dashboard#/components/schemas/ToolInputSchemaResponseV1'
 _IPC_REF = 'host_gateway#/$defs/IpcResponseV1'
 _SCHEMA_REF = 'gateway#/$defs/ToolInputSchemaV1'
@@ -320,9 +326,7 @@ class Classification:
 class GatewayCallContext:
     scope_id: str
     generation: int
-    # S04 actually returns receiver-owned MappingProxyType, not a public class
-    # literally named VerifiedHostContext. Never invent a second trust wrapper.
-    trusted_context: Mapping
+    trusted_context: VerifiedHostContext
     execute: Callable[[ValidatedCandidateInputs], Awaitable[MediatedValue]]
 
     def __init__(self, *, _factory=None, **fields):
@@ -383,7 +387,8 @@ class GatewayRegistry:
     def context(self, name, *, scope_id, generation, gate, trusted_context, execute, sensitive_values):
         row = self._classification._row(name)
         redaction._binding(scope_id,generation)
-        if (type(gate) is not HostContextGate or not gate._owned(trusted_context) or
+        if (type(trusted_context) is not VerifiedHostContext or
+                type(gate) is not HostContextGate or not gate._owned(trusted_context) or
                 trusted_context['toolName'] != name or not inspect.iscoroutinefunction(execute)):
             raise BoundaryRefused()
         async def bound(inputs):
