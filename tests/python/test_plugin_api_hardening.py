@@ -19,7 +19,7 @@ PNG = b'\x89PNG\r\n\x1a\n' + b'\0'*50
 
 def setup(tmp_path):
     root = tmp_path/'My Project'/'.hidden'
-    root.mkdir(parents=True)
+    root.mkdir(parents=True,mode=0o700)
     path = root/'view.png'
     path.write_bytes(PNG)
     path.chmod(0o600)
@@ -32,7 +32,7 @@ def test_spaces_hidden_dirs_explicit_project_grant_and_checked_fd(tmp_path):
         assert stream.read() == PNG
         assert stat.S_ISREG(os.fstat(stream.fileno()).st_mode)
     project = tmp_path/'user project'
-    project.mkdir()
+    project.mkdir(mode=0o700)
     copy = project/'other.png'
     copy.write_bytes(PNG)
     copy.chmod(0o600)
@@ -72,7 +72,12 @@ def test_nonregular_and_linked_files_refused_without_blocking(tmp_path,kind):
     if kind == 'fifo': path.unlink(); os.mkfifo(path,0o600)
     if kind == 'directory': path.unlink(); path.mkdir()
     if kind == 'socket':
-        path.unlink(); sock = socket.socket(socket.AF_UNIX); sock.bind(str(path))
+        path.unlink(); sock = socket.socket(socket.AF_UNIX)
+        directory_fd = os.open(root,os.O_RDONLY|os.O_DIRECTORY)
+        try:
+            sock.bind(f'/proc/self/fd/{directory_fd}/{path.name}')
+        finally:
+            os.close(directory_fd)
     if kind == 'hardlink': path.unlink(); os.link(victim,path)
     try:
         with pytest.raises(S.SandboxRefused): box.open(str(path),mime='image/png',kind='image')
@@ -124,3 +129,35 @@ def test_sanitized_refusal_has_no_raw_path_or_exception_context(tmp_path):
         box.open(str(root/'secret-name.png'),mime='image/png',kind='image')
     assert str(e.value) == 'Local media unavailable.'
     assert e.value.__cause__ is None and e.value.__context__ is None
+
+
+@pytest.mark.parametrize('unsafe',[None,'owner','foreign','null','reparse'])
+def test_windows_actual_s05_acl_seam_on_granted_tree(tmp_path,unsafe):
+    from tests.python.test_ipc import WindowsApiFixture
+    box,root,path = setup(tmp_path)
+    class Api(WindowsApiFixture):
+        def __init__(self):
+            super().__init__()
+            self.paths = {}
+        def open(self,path,**kw):
+            fd = super().open(path,**kw)
+            self.paths[fd] = Path(path)
+            return fd
+        def inspect(self,fd):
+            info = super().inspect(fd)
+            if not self.paths[fd].is_relative_to(root):
+                info['entries'] = [('system-users',1)]
+            if self.paths[fd] == path:
+                if unsafe=='owner': info['owner'] = 'other'
+                if unsafe=='foreign': info['entries'] = [('other',1)]
+                if unsafe=='null': info['entries'] = None
+                if unsafe=='reparse': info['reparse'] = True
+            return info
+    api = Api()
+    box = S.FileSandbox(plugin_root=root,windows_files=D.ipc.WindowsFiles(api=api))
+    if unsafe:
+        with pytest.raises(S.SandboxRefused): box.open(str(path),mime='image/png',kind='image')
+    else:
+        with box.open(str(path),mime='image/png',kind='image') as stream:
+            assert stream.read() == PNG
+    assert not any(p == Path('/') for p in api.paths.values())
