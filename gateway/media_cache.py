@@ -135,7 +135,7 @@ class MediaCache:
         if not path.is_absolute() or '..' in path.parts or '\x00' in str(path):
             raise MediaRefused()
         relative = path.relative_to(self.root/'scopes'/scope_id/'media')
-        if len(relative.parts) != 1 or not re.fullmatch(r'[pu]_[0-9a-f]{64}\.[a-z0-9]{2,5}',relative.name):
+        if len(relative.parts) != 1 or not re.fullmatch(r'[pu]_'+f'{generation:016x}'+r'_[0-9a-f]{64}\.[a-z0-9]{2,5}',relative.name):
             raise MediaRefused()
         if path.resolve(strict=True) != path:
             raise MediaRefused()
@@ -217,7 +217,7 @@ class MediaCache:
                 _sniff(data[:512],extension)
                 parent=self._directory(scope_id,generation)
                 self.evict(reserve=len(data))
-                path=parent/(('p_' if pinned else 'u_')+secrets.token_hex(32)+extension)
+                path=parent/(('p_' if pinned else 'u_')+f'{generation:016x}_'+secrets.token_hex(32)+extension)
                 with ExitStack() as stack:
                     fd=self._raw_open(path,stack,create=True)
                     view=memoryview(data)
@@ -307,7 +307,7 @@ class MediaCache:
                     for path in self._list(media):
                         info=path.lstat()
                         if (not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or
-                                not re.fullmatch(r'[pu]_[0-9a-f]{64}\.[a-z0-9]{2,5}',path.name)):
+                                not re.fullmatch(r'[pu]_[0-9a-f]{16}_[0-9a-f]{64}\.[a-z0-9]{2,5}',path.name)):
                             raise MediaRefused()
                         entries.append((info.st_mtime,path,info.st_size,path.name.startswith('p_'),scope.name))
             total=sum(e[2] for e in entries)
