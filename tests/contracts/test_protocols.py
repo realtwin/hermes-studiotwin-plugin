@@ -677,7 +677,8 @@ DESIGN_ROUTES = {
 }
 MEDIA_SRC_ROUTES = {"/assets/{uuid}/content", "/assets/{uuid}/thumbnail", "/local/file"}
 # Read-only Concept routes: S15 owns dashboard/services/concepts.py but §5 lists no Concept read.
-S03_ADDED_ROUTES = {("get", "/concepts"), ("get", "/concepts/{conceptId}"), ("get", "/concepts/{conceptId}/status")}
+S03_ADDED_ROUTES = {("get", "/concepts"), ("get", "/concepts/{conceptId}"), ("get", "/concepts/{conceptId}/status"),
+                    ("post", "/scope-pause/acknowledge")}
 
 
 def _routes(doc):
@@ -901,6 +902,38 @@ def test_r1_b3_foreign_scope_is_not_authorized_by_valid_syntax(docs):
     assert S.is_valid(ref, path, docs)  # syntax alone cannot establish current scope
     assert not S.scoped_media_candidate(path, SCOPE_ID, docs)
     assert S.scoped_media_candidate(path, "b" * 64, docs)
+
+
+def test_r1_b7_dashboard_acknowledgement_is_scoped_and_nonbilling(docs):
+    d = docs["dashboard"]
+    assert "/scope-pause/acknowledge" in d["paths"]
+    op = d["paths"]["/scope-pause/acknowledge"]["post"]
+    assert op["x-studiotwin-owner"] == "S11"
+    assert op["x-billing"] == "nonbilling"
+    assert op["x-ipc-method"] == "scopePause.acknowledge"
+    assert op["x-effects"] == {"write": ["scope_pauses.acknowledged_at_ms"],
+                               "settlement": "unchanged", "authorization": "forbidden", "dispatch": "forbidden"}
+    req = {"contract": S.DASHBOARD_CONTRACT, "scopeId": SCOPE_ID, "operationId": OP_ID}
+    reqref = "dashboard#/components/schemas/ScopePauseAcknowledgeRequestV1"
+    assert S.errors(reqref, req, docs) == []
+    for extra in ({"authorizes": True}, {"settlement": "SETTLED"}, {"dispatch": True}):
+        assert not S.is_valid(reqref, {**req, **extra}, docs)
+    result = {"contract": S.DASHBOARD_CONTRACT, "scopeId": SCOPE_ID, "operationId": OP_ID,
+              "paused": False, "acknowledgedAtMs": 1793356800000, "authorizes": False, "dispatches": False}
+    ref = "dashboard#/components/schemas/ScopePauseAcknowledgedV1"
+    assert S.errors(ref, result, docs) == []
+    for extra in ({"paused": True}, {"authorizes": True}, {"dispatches": True}, {"actualCost": 0}):
+        assert not S.is_valid(ref, {**result, **extra}, docs)
+    # Executable effect oracle: the only writable column is the pause acknowledgement.
+    before = {"scope_pauses.acknowledged_at_ms": None, "settlement": recon(),
+              "authorizations": [interim_auth()], "dispatch_count": 1}
+    after = copy.deepcopy(before)
+    for field in op["x-effects"]["write"]:
+        after[field] = result["acknowledgedAtMs"]
+    assert after == {**before, "scope_pauses.acknowledged_at_ms": result["acknowledgedAtMs"]}
+    # Runtime mismatch oracle refuses foreign scope and stale operation, not an acknowledgement.
+    for expected_scope, expected_op in (("b" * 64, OP_ID), (SCOPE_ID, "op_" + "B" * 43)):
+        assert not (req["scopeId"] == expected_scope and req["operationId"] == expected_op)
 
 
 # ----------------------------------------------------------------------- S02 fixtures vs contracts
