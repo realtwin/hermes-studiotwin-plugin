@@ -4,6 +4,99 @@ import pytest
 from tests.python.test_dispatch import harness, run, H, D, Q, SP
 
 
+def recovery_transition(harness, later):
+    build,store,_,_=harness
+    fake,u,s,x,ctx,op,b=build('ambiguous_no_structured_content')
+    run(s.dispatch(x,ctx,op))
+    first=run(s.recover(op,b)).to_json()
+    assert first['recovery']['state']=='matched'
+    job=fake.jobs[first['operation']['jobId']]
+    if later=='multiple':
+        fake.call(H.NAME,x.to_json())  # independent identical job, not dispatch replay
+        second=run(s.recover(op,b)).to_json()
+    else:
+        second=s.reconciler.recover(op,b,[]).to_json()
+    assert second['recovery']['state']==later
+    assert second['recovery']['dispatchAllowed'] is False
+    assert second['operation']['reservationHeld'] is True
+    assert store.get_operation(op,b)['state']=='AMBIGUOUS_UNRESOLVED'
+    assert store.guard_used(H.SCOPE,'chat')==20 and u.paid_calls==1
+    return fake,u,s,x,ctx,op,b,job,second
+
+
+@pytest.mark.parametrize('later',['multiple','not-visible'])
+def test_recovery_transition_clears_provisional_job_id(harness,later):
+    fake,u,s,x,ctx,op,b,job,r=recovery_transition(harness,later)
+    assert r['operation']['jobId'] is None
+    assert s.reconciler.snapshot(op,b).value['jobId'] is None
+    assert r['operation']['state']==('UNKNOWN' if later=='multiple' else 'UNKNOWN_NOT_VISIBLE')
+
+
+@pytest.mark.parametrize('later',['multiple','not-visible'])
+def test_recovery_transition_no_status_rpc_or_stale_settlement(harness,later):
+    fake,u,s,x,ctx,op,b,job,r=recovery_transition(harness,later)
+    store=harness[1]
+    before=list(store._db.iterdump())
+    run(s.poll(op,b))
+    assert sum(c['name']=='studiotwin_get_job_status' for c in fake.calls)==0
+    fake.clock_ms+=2000
+    s.reconciler.ledger_verifier=ledger_verifier(fake)
+    with pytest.raises(H.R.BoundaryRefused):
+        observe(s,op,b,job,finalDebitCredits=job.cost,ledgerRef='fixture-ledger-'+job.uuid)
+    assert list(store._db.iterdump())==before
+    assert s.reconciler.snapshot(op,b).value['actualCost']=={'state':'unknown'}
+
+
+@pytest.mark.parametrize('later',['multiple','not-visible'])
+@pytest.mark.parametrize('action',['poll','observe'])
+def test_ambiguous_recovery_guards_legacy_stale_persisted_id(harness,later,action):
+    fake,u,s,x,ctx,op,b,job,r=recovery_transition(harness,later)
+    store=harness[1]
+    # Old S10 databases can already contain this inconsistent provisional ID.
+    snapshot=r['operation']; snapshot['jobId']=job.uuid
+    with store.transaction():
+        store._db.execute('UPDATE dispatch_records SET snapshot_json=? WHERE scope_id=? AND operation_id=?',
+                          (json.dumps(snapshot),H.SCOPE,op))
+    before=list(store._db.iterdump()); fake.clock_ms+=2000
+    s.reconciler.ledger_verifier=ledger_verifier(fake)
+    if action=='poll':
+        run(s.poll(op,b))
+        assert sum(c['name']=='studiotwin_get_job_status' for c in fake.calls)==0
+    else:
+        with pytest.raises(H.R.BoundaryRefused):
+            observe(s,op,b,job,finalDebitCredits=job.cost,ledgerRef='fixture-ledger-'+job.uuid)
+    assert list(store._db.iterdump())==before
+    assert store.get_operation(op,b)['state']=='AMBIGUOUS_UNRESOLVED'
+
+
+@pytest.mark.parametrize('later',['multiple','not-visible'])
+def test_unique_recovery_reestablished_allows_poll_without_replay(harness,later):
+    fake,u,s,x,ctx,op,b,job,r=recovery_transition(harness,later)
+    if later=='multiple':
+        other=next(k for k in fake.jobs if k!=job.uuid)
+        del fake.jobs[other]
+    restored=run(s.recover(op,b)).to_json()
+    assert restored['recovery']['state']=='matched'
+    assert restored['operation']['jobId']==job.uuid
+    run(s.poll(op,b)); run(s.dispatch(x,ctx,op))
+    assert sum(c['name']=='studiotwin_get_job_status' for c in fake.calls)==1
+    assert u.paid_calls==1
+
+
+def test_direct_submission_binding_survives_empty_or_multiple_recovery(harness):
+    build,store,_,_=harness
+    fake,u,s,x,ctx,op,b=build()
+    result=run(s.dispatch(x,ctx,op)).to_json()
+    job=result['operation']['jobId']
+    fake.call(H.NAME,x.to_json())
+    for recovery in (run(s.recover(op,b)),s.reconciler.recover(op,b,[])):
+        assert recovery.value['operation']['jobId']==job
+        assert 'recovery' not in recovery.value
+    run(s.poll(op,b)); run(s.dispatch(x,ctx,op))
+    assert sum(c['name']=='studiotwin_get_job_status' for c in fake.calls)==1
+    assert u.paid_calls==1
+
+
 def ledger_verifier(fake):
     def verify(*,scope_id,generation,operation_id,job_id,kind,ref,credits):
         if scope_id!=H.SCOPE or generation!=1 or ref!='fixture-ledger-'+job_id: return False
