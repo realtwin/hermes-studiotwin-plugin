@@ -99,7 +99,8 @@ def test_bootstrap_only_inherited_private_pipe():
         startup.gate_from_fd(1)
 
 
-def test_launch_translated_manifest_real_stdio(tmp_path):
+@pytest.mark.parametrize('authenticated', [False, True])
+def test_launch_translated_manifest_real_stdio(tmp_path, authenticated):
     from hermes_cli.agent_plugins import load_agent_plugin
     from tools.mcp_tool_config import _build_safe_env
     package = load_agent_plugin(ROOT, tmp_path / 'data')
@@ -108,8 +109,18 @@ def test_launch_translated_manifest_real_stdio(tmp_path):
     env['PATH'] = str(Path(sys.executable).parent) + os.pathsep + os.environ['PATH']
     env['PYTHONDONTWRITEBYTECODE'] = '1'
     # A different core gateway package is on PYTHONPATH; the entry point must not import it.
+    spawn = {}
+    if authenticated:
+        read, write = os.pipe()
+        os.write(write, json.dumps(dict(key='6b' * 32, hostInstanceNonce='H' * 43,
+            profileId='profile-a', connectionId='local')).encode())
+        os.close(write)
+        env['STUDIOTWIN_HOST_BOOTSTRAP_FD'] = str(read)
+        spawn['pass_fds'] = (read,)
     process = subprocess.Popen([server['command'], *server['args']], cwd=server['cwd'],
-        env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, **spawn)
+    if authenticated:
+        os.close(read)
     def send(message):
         process.stdin.write(json.dumps(message) + '\n')
         process.stdin.flush()
@@ -136,6 +147,17 @@ def test_launch_translated_manifest_real_stdio(tmp_path):
         send({'jsonrpc': '2.0', 'id': 4, 'method': 'tools/call', 'params': {
             'name': 'text-to-material', 'arguments': {}}})
         assert receive()['result']['isError'] is True
+        if authenticated:
+            send({'jsonrpc': '2.0', 'id': 5, 'method': 'tools/call', 'params': {
+                'name': 'studiotwin_setup_status', 'arguments': {}, '_meta': signed(None, tool='text-to-material')}})
+            result = receive()['result']
+            assert result['isError'] is True
+            assert json.loads(result['content'][0]['text'])['code'] == 'CONTEXT_MISMATCH'
+            send({'jsonrpc': '2.0', 'id': 6, 'method': 'tools/call', 'params': {
+                'name': 'studiotwin_setup_status', 'arguments': {}, '_meta': signed(None, nonce=1)}})
+            result = receive()['result']
+            assert not result['isError']
+            assert json.loads(result['content'][0]['text'])['publishedTiers'] == ['setup']
         assert not (ROOT / 'gateway/router.py').exists()
         assert not (ROOT / 'gateway/leaves').exists()
     finally:

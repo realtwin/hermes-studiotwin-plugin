@@ -45,6 +45,7 @@ def test_static_error_roundtrip_and_version_refusal():
     assert client.accept_response(response)['error']['code'] == 'UNAVAILABLE'
     bad = copy.deepcopy(request)
     bad['protocol'] = 'studiotwin.gateway.v2'
+    bad['mac'] = client._mac({k: v for k, v in bad.items() if k != 'mac'}, 'request')
     with pytest.raises(ipc.VersionRefused) as error:
         server.accept_request(bad)
     refusal = error.value.envelope
@@ -162,6 +163,21 @@ def test_descriptor_permissions_no_symlink_and_real_local_server(tmp_path):
             await writer.drain()
             response = json.loads(await asyncio.wait_for(reader.readline(), 5))
             assert client.accept_response(response)['error']['code'] == 'UNAVAILABLE'
+            writer.close()
+            await writer.wait_closed()
+            # Validly authenticated incompatible protocol must receive the frozen
+            # refusal over the real wire, not just a dropped connection.
+            reader, writer = await asyncio.open_connection(data['host'], data['port'])
+            request = client.request('status.get', {})
+            request['protocol'] = 'studiotwin.gateway.v2'
+            request['mac'] = client._mac({k: v for k, v in request.items() if k != 'mac'}, 'request')
+            writer.write(json.dumps(request).encode() + b'\n')
+            await writer.drain()
+            line = await asyncio.wait_for(reader.readline(), 5)
+            assert line, 'authenticated version refusal must be sent'
+            frame = json.loads(line)
+            ipc.validate('gateway', 'VersionRefusalV1', frame['envelope'])
+            assert frame['mac'] == client._mac(frame['envelope'], 'response')
             writer.close()
             await writer.wait_closed()
             descriptor.chmod(0o644)
