@@ -1,0 +1,37 @@
+{
+  "clips": [
+    {
+      "end": 3,
+      "name": "walk",
+      "start": 0
+    }
+  ],
+  "format": "studiotwin-fixture-motion/v1",
+  "fps": 30,
+  "frames": 4,
+  "joints": {
+    "root": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0.02,
+        0.1
+      ],
+      [
+        0,
+        0,
+        0.2
+      ],
+      [
+        0,
+        0.02,
+        0.3
+      ]
+    ]
+  },
+  "skeleton": "fixture-biped-2"
+}
