@@ -1086,6 +1086,55 @@ def test_r1_b1_value_aware_refusal_at_complete_real_sinks(docs):
         S.validate_mediated_v1("dashboard#/components/schemas/QuoteRequestV1", bad, sensitive_values=secrets, docs=docs)
 
 
+def test_r1_q1_relational_invariants_have_concrete_negative_fixtures(docs):
+    text = S.LEAF_EXPORTS_PATH.read_text()
+    assert "```json relational-checks" in text
+    checks = json.loads(text.split("```json relational-checks\n", 1)[1].split("```", 1)[0])
+    assert set(checks) == {"binding", "estimate", "debit-equality", "overrun", "time-order", "single-use", "guard", "pause"}
+    auth = interim_auth()
+    context = {"authorization": auth, "reconciliation": recon(), "nowMs": 1793356550000,
+               "preview": {**{k: auth[k] for k in ("scopeId", "trustedSessionId", "runKind", "runId", "operationId",
+                                                   "tool", "schemaHash", "canonicalInputHash", "previewId", "estimatedCredits",
+                                                   "enforcementMode", "previewExpiresAtMs")}, "observedAtMs": 1793356400000},
+               "consumed": False, "heldByOtherOperations": 0, "guardLimit": 200, "pauseActive": False}
+    assert S.relational_violations(context) == set()
+    mutations = [
+        ("binding", ("preview", "scopeId"), "b" * 64),
+        ("binding", ("preview", "trustedSessionId"), "another-session"),
+        ("binding", ("preview", "runId"), "other-run"),
+        ("binding", ("preview", "tool"), "text-to-sound-effect"),
+        ("binding", ("preview", "schemaHash"), "b" * 64),
+        ("binding", ("preview", "canonicalInputHash"), "b" * 64),
+        ("binding", ("preview", "previewId"), "pv_" + "b" * 43),
+        ("estimate", ("reconciliation", "reservedCredits"), 19),
+        ("estimate", ("authorization", "maxCredits"), 19),
+        ("time-order", ("nowMs",), auth["expiresAtMs"]),
+        ("time-order", ("authorization", "createdAtMs"), 1793356900000),
+        ("time-order", ("preview", "observedAtMs"), 1793356900000),
+        ("single-use", ("consumed",), True),
+        ("guard", ("heldByOtherOperations",), 190),
+        ("pause", ("pauseActive",), True),
+    ]
+    for rule, path, value in mutations:
+        bad = copy.deepcopy(context)
+        cursor = bad
+        for key in path[:-1]:
+            cursor = cursor[key]
+        cursor[path[-1]] = value
+        assert rule in S.relational_violations(bad), (rule, path)
+    settled = copy.deepcopy(context)
+    settled["reconciliation"] = recon(state="SETTLED", actualCost={"state": "known", "credits": 19, "derivedFrom": "job-specific-final-debit"},
+                                      finalDebit=evidence("job-specific-final-debit", 20, "ledger-1"))
+    # Complete schema-valid envelope that only a relational validator can refuse.
+    assert S.errors("gateway#/$defs/ReconciliationV1", settled["reconciliation"], docs) == []
+    assert "debit-equality" in S.relational_violations(settled)
+    over = copy.deepcopy(context)
+    over["reconciliation"] = recon(state="SETTLED_OVERRUN", actualCost={"state": "known", "credits": 20, "derivedFrom": "job-specific-final-debit"},
+                                   finalDebit=evidence("job-specific-final-debit", 20, "ledger-1"), scopePaused=True)
+    assert S.errors("gateway#/$defs/ReconciliationV1", over["reconciliation"], docs) == []
+    assert "overrun" in S.relational_violations(over)
+
+
 # ----------------------------------------------------------------------- S02 fixtures vs contracts
 
 def _fixture(name):

@@ -86,6 +86,25 @@ def test_leaf_paths_match_slice_grants(spec, scopes):
         assert re.fullmatch(pattern.replace(".", r"\."), path), path
 
 
+def test_registry_and_handler_interface_are_frozen(spec):
+    assert "gatewayRegistry" in spec
+    registry = spec["gatewayRegistry"]
+    assert registry == {
+        "definitionOwner": "S08", "integrationOwner": "S28",
+        "registration": "def add(self, name: str, handler: GatewayHandler) -> None",
+        "handler": "async def handler(*, context: GatewayCallContext, inputs: ValidatedCandidateInputs) -> MediatedValue",
+        "duplicates": "refuse", "unclassified": "refuse", "schemaDrift": "refuse",
+        "resultContract": "studiotwin.gateway.v1#GatewayResultV1"}
+    # An independent leaf author can implement the frozen callable without guessing arguments.
+    import inspect
+    async def handler(*, context: "GatewayCallContext", inputs: "ValidatedCandidateInputs") -> "MediatedValue":
+        return await context.execute(inputs)
+    sig = inspect.signature(handler)
+    assert list(sig.parameters) == ["context", "inputs"]
+    assert all(p.kind == inspect.Parameter.KEYWORD_ONLY for p in sig.parameters.values())
+    assert inspect.iscoroutinefunction(handler)
+
+
 # ----------------------------------------------------------------------- S28 ownership
 
 def test_only_s28_owns_the_integration_files(spec, scopes):
