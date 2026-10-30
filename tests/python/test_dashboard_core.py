@@ -275,3 +275,81 @@ def test_lineage_dag_cycles_and_limits(tmp_path):
     assert all(-12 <= n['depth'] <=12 for n in wire['nodes'])
     assert all(e['parent'] in {n['id'] for n in wire['nodes']} and e['child'] in {n['id'] for n in wire['nodes']} for e in wire['edges'])
     s.close()
+
+
+def make_proxy(tmp_path, *, binding=None):
+    P = importlib.import_module('s11_dashboard.proxy')
+    H = importlib.import_module(I.__package__+'.handles')
+    M = importlib.import_module(I.__package__+'.media_cache')
+    S = importlib.import_module('s11_dashboard.sandbox')
+    handles = H.HandleStore()
+    cache = M.MediaCache(tmp_path/'hermes-studiotwin',handles)
+    data = b'\x89PNG\r\n\x1a\n'+b'x'*160000
+    item = cache.put(scope_id=SCOPE,generation=1,data=data,mime='image/png',kind='image',extension='.png')
+    binding = binding if binding is not None else [SCOPE,1]
+    proxy = P.MediaProxy(handles,cache,S.FileSandbox(plugin_root=cache.root),current_binding=lambda:tuple(binding),sensitive_values=lambda:())
+    return proxy,item,data,binding
+
+
+@pytest.mark.parametrize('header,start,end',[(None,0,160007),('bytes=0-0',0,0),('bytes=8-15',8,15),('bytes=160000-',160000,160007),('bytes=-5',160003,160007),('bytes=0-999999',0,160007)])
+def test_proxy_actual_checked_fd_range_and_bounded_chunks(tmp_path,header,start,end):
+    p,item,data,_ = make_proxy(tmp_path)
+    lease = p.prepare(handle=item.handle,scope_id=SCOPE,generation=1,session='session',range_header=header)
+    assert lease.status == (200 if header is None else 206)
+    assert lease.headers['Accept-Ranges'] == 'bytes'
+    assert lease.headers['X-Content-Type-Options'] == 'nosniff'
+    assert lease.headers['Content-Type'] == 'image/png'
+    assert int(lease.headers['Content-Length']) == end-start+1
+    chunks = list(lease.chunks())
+    assert max(map(len,chunks)) <= 65536
+    assert b''.join(chunks) == data[start:end+1]
+    assert lease.closed
+
+
+@pytest.mark.parametrize('header',['bytes=160008-','bytes=9-8','bytes=-0','bytes=0-1,4-5','bytes=a-b','items=0-1','bytes='+'9'*100+'-'])
+def test_proxy_range_rejection_no_stream_leak(tmp_path,header):
+    p,item,_,_ = make_proxy(tmp_path)
+    P = importlib.import_module('s11_dashboard.proxy')
+    with pytest.raises(P.ProxyRefused) as e:
+        p.prepare(handle=item.handle,scope_id=SCOPE,generation=1,session='session',range_header=header)
+    assert e.value.status == 416
+    assert e.value.headers['Content-Range'] == 'bytes */160008'
+    assert p.active_streams == 0
+
+
+def test_proxy_scope_purpose_expiry_rotation_and_concurrency(tmp_path):
+    p,item,data,binding = make_proxy(tmp_path)
+    P = importlib.import_module('s11_dashboard.proxy')
+    with pytest.raises(P.ProxyRefused):
+        p.prepare(handle=item.handle,scope_id='b'*64,generation=1,session='session')
+    token = p.handles.mint(scope_id=SCOPE,generation=1,purpose='transfer',kind='image',role='media',mime='image/png',size=len(data),target={'localPath':item.path})
+    with pytest.raises(P.ProxyRefused):
+        p.prepare(handle=token,scope_id=SCOPE,generation=1,session='session')
+    one = p.prepare(handle=item.handle,scope_id=SCOPE,generation=1,session='session')
+    two = p.prepare(path=item.path,scope_id=SCOPE,generation=1,session='session')
+    with pytest.raises(P.ProxyRefused) as e:
+        p.prepare(handle=item.handle,scope_id=SCOPE,generation=1,session='session')
+    assert e.value.status == 429
+    two.close()
+    p.handles.revoke(item.handle)
+    assert list(one.chunks()) == []
+    assert one.closed and p.active_streams == 0
+    old = p.prepare(path=item.path,scope_id=SCOPE,generation=1,session='session')
+    binding[:] = ['b'*64,2]
+    assert list(old.chunks()) == []
+    assert p.active_streams == 0
+
+
+def test_proxy_does_not_fetch_upstream_targets_or_echo_failures(tmp_path,monkeypatch):
+    p,item,data,_ = make_proxy(tmp_path)
+    P = importlib.import_module('s11_dashboard.proxy')
+    token = p.handles.mint(scope_id=SCOPE,generation=1,purpose='resource',kind='image',role='media',mime='image/png',size=len(data),target={'url':'https://foreign.invalid/?secret=value'})
+    with pytest.raises(P.ProxyRefused) as e:
+        p.prepare(handle=token,scope_id=SCOPE,generation=1,session='session')
+    assert str(e.value)=='Media unavailable.' and e.value.__context__ is None
+    def fail(*a,**kw): raise RuntimeError('STCANARY_PROXY_PRIVATE')
+    monkeypatch.setattr(p.cache,'open',fail)
+    with pytest.raises(P.ProxyRefused) as e:
+        p.prepare(handle=item.handle,scope_id=SCOPE,generation=1,session='session')
+    assert e.value.__context__ is None and 'STCANARY' not in str(e.value)
+    assert p.active_streams == 0
