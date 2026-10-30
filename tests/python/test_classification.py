@@ -326,3 +326,33 @@ def test_unsupported_live_construct_never_becomes_a_textbox():
     catalog=C.Classification([changed])
     assert not catalog.is_classified(NAME)
     refuse(lambda:catalog.input_schema(NAME,digest(changed),**BIND))
+
+
+def test_classifier_eligibility_independent_of_s06_wire_defense():
+    catalog=release()
+    assert catalog._reason('future-forty-sixth')=='unclassified'
+    for name in BY_NAME:
+        assert catalog._reason(name)==('concept-paid-d22' if name in D22 else None)
+
+
+def test_release_file_tampering_is_refused_without_a_signer(monkeypatch):
+    original=Path.read_bytes
+    def tampered(path):
+        value=original(path)
+        return value+b' ' if path.name=='tool_classification.v1.json' else value
+    monkeypatch.setattr(Path,'read_bytes',tampered)
+    refuse(C._load_release)
+
+
+def test_leaf_local_composition_cannot_bypass_current_sensitive_registry(monkeypatch):
+    catalog=release();registry=C.GatewayRegistry(catalog);gate,verified=trusted()
+    async def execute(inputs):return safe_result()
+    async def local(*,context: C.GatewayCallContext,inputs: C.ValidatedCandidateInputs) -> R.MediatedValue:
+        raw=safe_result().to_json();raw['summary']='ordinary-current-secret'
+        return R.validate_mediated_v1('gateway#/$defs/GatewayResultV1',raw,**BIND)
+    registry.add(NAME,local)
+    context=registry.context(NAME,gate=gate,trusted_context=verified,execute=execute,
+                             **{**BIND,'sensitive_values':('ordinary-current-secret',)})
+    value=catalog.candidate_inputs(NAME,digest(BY_NAME[NAME]),{'prompt':'study','seed':1},**BIND)
+    monkeypatch.setattr(CAP,'published_tools',lambda decision,hosted_tools:['studiotwin_setup_status',*hosted_tools])
+    refuse(lambda:asyncio.run(registry.invoke(NAME,context=context,inputs=value)))
