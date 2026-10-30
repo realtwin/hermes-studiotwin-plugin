@@ -11,8 +11,11 @@ import pytest
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT))
-from gateway import mediation_parse as P, redaction as R
+import types
+pkg = types.ModuleType('s06_gateway')
+pkg.__path__ = [str(ROOT / 'gateway')]
+sys.modules[pkg.__name__] = pkg
+from s06_gateway import mediation_parse as P, redaction as R
 
 spec = importlib.util.spec_from_file_location('s06_contract_oracle', ROOT / 'tests/contracts/support.py')
 S = importlib.util.module_from_spec(spec)
