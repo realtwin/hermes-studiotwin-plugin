@@ -357,6 +357,118 @@ def test_windows_database_and_consumed_private_bootstrap(tmp_path):
         gate_from_file(path, windows=files)
 
 
+@pytest.mark.parametrize('platform', ['posix', 'windows-seam'])
+def test_instance_ownership_atomic_recovery_and_legacy_endpoint(tmp_path, platform, monkeypatch):
+    import os
+    files = ipc.WindowsFiles(api=WindowsApiFixture()) if platform == 'windows-seam' else None
+    descriptor = tmp_path / 'gateway-ipc.json'
+    original_replace = os.replace
+    publications = []
+
+    def checked_replace(source, destination):
+        assert Path(destination) == descriptor
+        assert Path(source) != descriptor
+        fresh = ipc.read_descriptor(source, windows=files)
+        assert Path(source).stat().st_mode & 0o777 == 0o600
+        publications.append(fresh['key'])
+        original_replace(source, destination)
+
+    monkeypatch.setattr(os, 'replace', checked_replace)
+
+    async def exercise():
+        async with ipc.LocalServer(tmp_path, windows=files) as first:
+            before = descriptor.read_bytes()
+            lock_identity = (tmp_path / 'gateway-ipc.lock').stat().st_ino
+            # Test lock independently of the redundant endpoint guard.
+            contender = ipc.LocalServer(tmp_path, windows=files)
+            try:
+                with pytest.raises(ipc.AlreadyRunning):
+                    contender._acquire_instance()
+            finally:
+                await contender.__aexit__(None, None, None)
+            with pytest.raises(ipc.AlreadyRunning):
+                async with ipc.LocalServer(tmp_path, windows=files):
+                    pytest.fail('concurrent ownership accepted')
+            assert descriptor.read_bytes() == before
+            # Emulate a legacy live gateway: no new lock, but its recorded
+            # listener is still live. Endpoint guard independently prevents theft.
+            os.close(first._instance_fd)
+            first._instance_fd = None
+            with pytest.raises(ipc.AlreadyRunning):
+                async with ipc.LocalServer(tmp_path, windows=files):
+                    pytest.fail('live legacy descriptor replaced')
+            assert descriptor.read_bytes() == before
+        assert not descriptor.exists()
+        assert (tmp_path / 'gateway-ipc.lock').stat().st_ino == lock_identity
+        # Reintroduce the prior private descriptor after its endpoint is closed.
+        descriptor.touch(mode=0o600)
+        descriptor.write_bytes(before)
+        async with ipc.LocalServer(tmp_path, windows=files):
+            assert descriptor.read_bytes() != before
+            assert (tmp_path / 'gateway-ipc.lock').stat().st_ino == lock_identity
+        assert len(publications) == 2
+        assert publications[0] != publications[1]
+        assert not list(tmp_path.glob('gateway-ipc-*.tmp'))
+    asyncio.run(exercise())
+
+
+@pytest.mark.parametrize('name', ['gateway-ipc.lock', 'gateway-ipc.json'])
+@pytest.mark.parametrize('unsafe', ['symlink', 'mode', 'fifo'])
+def test_instance_refuses_unsafe_existing_files_without_replacement(tmp_path, name, unsafe):
+    import os
+    target = tmp_path / 'outside'
+    target.write_bytes(b'untouched')
+    path = tmp_path / name
+    if unsafe == 'symlink':
+        path.symlink_to(target)
+    elif unsafe == 'mode':
+        path.touch(mode=0o644)
+    else:
+        os.mkfifo(path, 0o600)
+    before = path.lstat()
+
+    async def exercise():
+        with pytest.raises((ipc.Refused, OSError)):
+            async with ipc.LocalServer(tmp_path):
+                pytest.fail('unsafe instance file accepted')
+        assert path.lstat().st_ino == before.st_ino
+        assert target.read_bytes() == b'untouched'
+    asyncio.run(exercise())
+
+
+@pytest.mark.parametrize('name', ['gateway-ipc.lock', 'gateway-ipc.json'])
+@pytest.mark.parametrize('unsafe', ['owner', 'foreign', 'null', 'reparse'])
+def test_windows_recovery_checks_existing_file_policy(tmp_path, name, unsafe):
+    class UnsafeFileApi(WindowsApiFixture):
+        def open(self, path, **kwargs):
+            fd = super().open(path, **kwargs)
+            if not hasattr(self, 'paths'):
+                self.paths = {}
+            self.paths[fd] = Path(path).name
+            return fd
+
+        def inspect(self, fd):
+            info = super().inspect(fd)
+            if self.paths[fd] == name:
+                if unsafe == 'owner': info['owner'] = 'other'
+                if unsafe == 'foreign': info['entries'] = [('other', 0x1f01ff)]
+                if unsafe == 'null': info['entries'] = None
+                if unsafe == 'reparse': info['reparse'] = True
+            return info
+
+    path = tmp_path / name
+    path.touch(mode=0o600)
+    path.write_bytes(b'untouched')
+    files = ipc.WindowsFiles(api=UnsafeFileApi())
+
+    async def exercise():
+        with pytest.raises(ipc.Refused):
+            async with ipc.LocalServer(tmp_path, windows=files):
+                pytest.fail('unsafe Windows recovery accepted')
+        assert path.read_bytes() == b'untouched'
+    asyncio.run(exercise())
+
+
 def test_wire_limits_duplicate_keys_and_nonfinite():
     for wire in [b'{' + b'x' * 1048576, b'{"a":1,"a":2}', b'{"x":NaN}', b'[' * 100 + b']' * 100]:
         with pytest.raises(ipc.Refused):
