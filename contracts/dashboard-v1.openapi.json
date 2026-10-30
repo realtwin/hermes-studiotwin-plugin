@@ -2055,7 +2055,8 @@
         "required": [
           "contract",
           "items",
-          "nextCursor"
+          "nextCursor",
+          "ambiguousOperations"
         ],
         "properties": {
           "contract": {
@@ -2077,8 +2078,16 @@
                 "$ref": "#/components/schemas/LocalIdV1"
               }
             ]
+          },
+          "ambiguousOperations": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/OperationStateV1"
+            }
           }
-        }
+        },
+        "description": "S14 returns unresolved same-scope durable operations here even when no jobId is known, so Jobs can display candidates after reload without inventing a job. Empty is verified no unresolved operations in this page; unknown read is an error/stale state, not an invented empty list. nextCursor is a local scope/generation-bound window across jobs and ambiguous operations, not a server total or cursor. S14 validates recovery.operationId == operation.operationId, candidate ownership and state, unique operation IDs and no automatic retry; active/all filters include ambiguous operations."
       },
       "JobDetailV1": {
         "type": "object",
