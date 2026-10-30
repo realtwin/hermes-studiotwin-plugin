@@ -100,7 +100,8 @@ def test_bootstrap_only_inherited_private_pipe():
 
 
 @pytest.mark.parametrize('authenticated', [False, True])
-def test_launch_translated_manifest_real_stdio(tmp_path, authenticated):
+@pytest.mark.parametrize('launcher', ['manifest', 'posix-fallback'])
+def test_launch_translated_manifest_real_stdio(tmp_path, authenticated, launcher):
     from hermes_cli.agent_plugins import load_agent_plugin
     from tools.mcp_tool_config import _build_safe_env
     package = load_agent_plugin(ROOT, tmp_path / 'data')
@@ -117,7 +118,10 @@ def test_launch_translated_manifest_real_stdio(tmp_path, authenticated):
         os.close(write)
         env['STUDIOTWIN_HOST_BOOTSTRAP_FD'] = str(read)
         spawn['pass_fds'] = (read,)
-    process = subprocess.Popen([server['command'], *server['args']], cwd=server['cwd'],
+    command, cwd = [server['command'], *server['args']], server['cwd']
+    if launcher == 'posix-fallback':
+        command, cwd = ['./gateway/run.py'], ROOT
+    process = subprocess.Popen(command, cwd=cwd,
         env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, **spawn)
     if authenticated:
         os.close(read)
