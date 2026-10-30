@@ -883,6 +883,26 @@ def test_r1_q2_presentation_unknown_times_opus_and_quote_observation(docs):
     assert not S.is_valid(ref, quote_preview(observedAtMs=-1), docs)
 
 
+@pytest.mark.parametrize("root", ["/home/deploy/.hermes/plugins", "/home/alice/My Project", "C:/Users/Alice/My Project/.hermes"])
+def test_r1_b3_supported_local_path_syntax(docs, root):
+    path = root + "/hermes-studiotwin/scopes/" + SCOPE_ID + "/media/a file.png"
+    assert S.errors("gateway#/$defs/ScopedMediaPathV1", path, docs) == []
+    assert S.errors("dashboard#/components/schemas/LocalPathV1", path, docs) == []
+    assert S.errors("dashboard#/components/schemas/LocalPathV1", root + "/x.glb", docs) == []
+    for segment in ("../", "./", "%2e%2e/", "bad?query/", "bad\x00/"):
+        bad = path.replace("media/", "media/" + segment)
+        assert not S.is_valid("gateway#/$defs/ScopedMediaPathV1", bad, docs)
+        assert not S.is_valid("dashboard#/components/schemas/LocalPathV1", bad, docs)
+
+
+def test_r1_b3_foreign_scope_is_not_authorized_by_valid_syntax(docs):
+    ref = "gateway#/$defs/ScopedMediaPathV1"
+    path = "/data/hermes-studiotwin/scopes/" + "b" * 64 + "/media/x.png"
+    assert S.is_valid(ref, path, docs)  # syntax alone cannot establish current scope
+    assert not S.scoped_media_candidate(path, SCOPE_ID, docs)
+    assert S.scoped_media_candidate(path, "b" * 64, docs)
+
+
 # ----------------------------------------------------------------------- S02 fixtures vs contracts
 
 def _fixture(name):
