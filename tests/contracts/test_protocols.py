@@ -967,6 +967,66 @@ def test_r1_b4_capture_driven_forms_use_classified_hash_bound_schema(docs):
     assert not S.is_valid("gateway#/$defs/ToolInputSchemaV1", {"kind": "object", "rawSchema": {}}, docs)
 
 
+def resource(asset_id=None):
+    return {"resourceId": "res-1", "kind": "image", "assetId": asset_id,
+            "libraryState": "indexed" if asset_id else "not-in-library", "mime": "image/png",
+            "source": {"kind": "handle", "handle": HANDLE},
+            "contentRoute": "/api/plugins/hermes-studiotwin/local/file?handle=" + HANDLE}
+
+
+def test_r1_b5_grouped_resources_and_remote_processor_sources(docs):
+    assert "ResourceGroupV1" in docs["gateway"]["$defs"]
+    present = {"state": "present", "resource": resource()}
+    absent = {"state": "absent", "resource": None}
+    unknown_slot = {"state": "unknown", "resource": None}
+    material = {"kind": "material", "maps": {k: present for k in ("albedo", "normal", "roughness", "metalness")}}
+    material["maps"]["height"] = absent
+    world = {"kind": "world", "outputs": {"skyMap": present, "worldMesh": absent}}
+    sequence = {"kind": "image_sequence", "fps": 24,
+                "frames": [{"index": i, "name": f"frame-{i}.png", "resource": resource()} for i in range(2)],
+                "manifest": None}
+    bare = {"kind": "single", "resource": resource()}
+    for group in (material, world, sequence, bare, {"kind": "world", "outputs": {"skyMap": unknown_slot, "worldMesh": absent}}):
+        assert S.errors("gateway#/$defs/ResourceGroupV1", group, docs) == []
+        job = {"jobId": UUID, "functionName": "text-to-environment-map", "status": "done", "submittedAtMs": None,
+               "terminalAtMs": None, "outputAssetIds": [], "operationId": None, "outputGroups": [group]}
+        assert S.errors("dashboard#/components/schemas/JobDetailV1", {"contract": S.DASHBOARD_CONTRACT, "job": job}, docs) == []
+    assert bare["resource"]["assetId"] is None and bare["resource"]["libraryState"] == "not-in-library"
+    bad = copy.deepcopy(material)
+    bad["maps"]["height"] = {"state": "absent", "resource": resource()}
+    assert not S.is_valid("gateway#/$defs/ResourceGroupV1", bad, docs)
+    assert not S.is_valid("gateway#/$defs/ResourceDescriptorV1", {**resource(), "assetId": UUID}, docs)
+    assert not S.is_valid("gateway#/$defs/ResourceGroupV1", {**sequence, "fps": 0}, docs)
+    assert not S.is_valid("gateway#/$defs/ResourceGroupV1", {**sequence, "frames": []}, docs)
+    for name, extra in (("LocalAudioConvertRequestV1", {"targetFormat": "opus"}),
+                        ("LocalEnvPreviewRequestV1", {"width": 512}), ("LocalModelStatsRequestV1", {})):
+        for source in ({"kind": "asset", "assetId": UUID, "variantId": None},
+                       {"kind": "asset", "assetId": UUID, "variantId": "variant-1"},
+                       {"kind": "handle", "handle": HANDLE}):
+            req = {"contract": S.DASHBOARD_CONTRACT, "source": source, **extra}
+            ref = "dashboard#/components/schemas/" + name
+            assert S.errors(ref, req, docs) == []  # remote Desktop knows only an asset/variant ID or handle
+            assert not S.is_valid(ref, {**req, "sourcePath": "/data/guessed.png"}, docs)
+        assert not S.is_valid(ref, {"contract": S.DASHBOARD_CONTRACT,
+                                    "source": {"kind": "asset", "assetId": "/data/guess"}, **extra}, docs)
+    params = docs["dashboard"]["paths"]["/local/file"]["get"]["parameters"]
+    assert {p.get("name") for p in params} >= {"path", "handle"}
+
+
+def test_r1_b5_ambiguous_recovery_candidates_are_not_submission_authority(docs):
+    assert "RecoveryCandidatesV1" in docs["dashboard"]["components"]["schemas"]
+    value = {"operationId": OP_ID, "state": "multiple", "dispatchAllowed": False,
+             "candidates": [{"jobId": UUID, "functionName": "text-to-environment-map", "submittedAtMs": None,
+                             "submittedAtRaw": "unknown time", "inputFingerprint": HASH, "match": "possible"}]}
+    ref = "dashboard#/components/schemas/RecoveryCandidatesV1"
+    assert S.errors(ref, value, docs) == []
+    assert not S.is_valid(ref, {**value, "dispatchAllowed": True}, docs)
+    assert S.errors(ref, {**value, "state": "not-visible", "candidates": []}, docs) == []
+    job = {"jobId": UUID, "functionName": "text-to-environment-map", "status": "unknown", "submittedAtMs": None,
+           "terminalAtMs": None, "outputAssetIds": [], "operationId": OP_ID, "recovery": value}
+    assert S.errors("dashboard#/components/schemas/JobV1", job, docs) == []
+
+
 # ----------------------------------------------------------------------- S02 fixtures vs contracts
 
 def _fixture(name):
