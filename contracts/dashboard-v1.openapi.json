@@ -3209,6 +3209,46 @@
                 }
               }
             }
+          },
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "multiple"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "candidates": {
+                  "minItems": 2
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "matched"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "candidates": {
+                  "minItems": 1,
+                  "maxItems": 1,
+                  "items": {
+                    "properties": {
+                      "match": {
+                        "const": "verified"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         ]
       }
