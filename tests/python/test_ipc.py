@@ -233,6 +233,106 @@ def test_ipc_import_does_not_load_schema_dependencies():
     assert result.returncode == 0, result.stderr
 
 
+class WindowsApiFixture:
+    """Linux fd backing for the injectable Win32 seam, NOT native ACL proof."""
+    def __init__(self):
+        self.records = {}
+        self.events = []
+        self.owner = 'user'
+        self.entries = [('user', 0x1f01ff)]
+        self.protected = True
+        self.reparse = False
+
+    def open(self, path, *, directory=False, create=False, exclusive=False):
+        import os
+        self.events.append(('open', Path(path).name))
+        if directory:
+            Path(path).mkdir(parents=True, exist_ok=True)
+        flags = os.O_RDONLY if directory else os.O_RDWR
+        if create:
+            flags |= os.O_CREAT
+        if exclusive:
+            flags |= os.O_EXCL
+        fd = os.open(path, flags, 0o600)
+        self.records[fd] = directory
+        return fd
+
+    def inspect(self, fd):
+        import os
+        self.events.append(('inspect', fd))
+        return dict(owner=self.owner, user='user', protected=self.protected,
+            entries=self.entries, reparse=self.reparse, directory=self.records[fd],
+            size=os.fstat(fd).st_size)
+
+    def secure(self, fd):
+        self.events.append(('secure', fd))
+        self.protected = True
+        self.entries = [('user', 0x1f01ff)]
+
+    def close(self, fd):
+        import os
+        self.events.append(('close', fd))
+        os.close(fd)
+
+
+@pytest.mark.parametrize('change', ['owner', 'foreign', 'unprotected', 'null', 'reparse'])
+def test_windows_owner_acl_and_reparse_refusals(tmp_path, change):
+    api = WindowsApiFixture()
+    if change == 'owner': api.owner = 'other'
+    if change == 'foreign': api.entries.append(('other', 1))
+    if change == 'unprotected': api.protected = False
+    if change == 'null': api.entries = None
+    if change == 'reparse': api.reparse = True
+    files = ipc.WindowsFiles(api=api)
+    with pytest.raises(ipc.Refused, match='PRIVATE_STORAGE'):
+        with files.directory(tmp_path):
+            pytest.fail('unsafe directory accepted')
+    assert api.events[-1][0] == 'close'
+
+
+def test_windows_descriptor_and_real_loopback_with_acl_seam(tmp_path):
+    api = WindowsApiFixture()
+    files = ipc.WindowsFiles(api=api)
+    async def exercise():
+        async with ipc.LocalServer(tmp_path, windows=files):
+            data = ipc.read_descriptor(tmp_path / 'gateway-ipc.json', windows=files)
+            client = ipc.Channel(bytes.fromhex(data['key']), scope='setup', generation=0)
+            reader, writer = await asyncio.open_connection(data['host'], data['port'])
+            writer.write(ipc.encode(client.request('status.get', {})) + b'\n')
+            await writer.drain()
+            assert client.accept_response(ipc.decode(await reader.readline()))['error']['code'] == 'UNAVAILABLE'
+            writer.close()
+            await writer.wait_closed()
+            api.entries.append(('other', 1))
+            with pytest.raises(ipc.Refused):
+                ipc.read_descriptor(tmp_path / 'gateway-ipc.json', windows=files)
+            api.entries.pop()
+        assert not (tmp_path / 'gateway-ipc.json').exists()
+    asyncio.run(exercise())
+    assert any(event[0] == 'inspect' for event in api.events)
+
+
+def test_windows_database_and_consumed_private_bootstrap(tmp_path):
+    from s05_ipc.startup import open_database, gate_from_file
+    api = WindowsApiFixture()
+    files = ipc.WindowsFiles(api=api)
+    api.protected = False  # translated PLUGIN_DATA can initially inherit permissions
+    connection = open_database(tmp_path, windows=files)
+    assert connection.execute('PRAGMA journal_mode').fetchone() == ('wal',)
+    connection.close()
+    assert any(event[0] == 'secure' for event in api.events)
+    path = tmp_path / 'host-bootstrap.json'
+    path.write_text(json.dumps(dict(key='6b' * 32, hostInstanceNonce='H' * 43,
+        profileId='profile-a', connectionId='local')))
+    gate = gate_from_file(path, windows=files)
+    assert gate._key == KEY
+    assert not path.exists()
+    path.write_text('{}')
+    api.owner = 'foreign'
+    with pytest.raises(ValueError, match='bootstrap'):
+        gate_from_file(path, windows=files)
+
+
 def test_wire_limits_duplicate_keys_and_nonfinite():
     for wire in [b'{' + b'x' * 1048576, b'{"a":1,"a":2}', b'{"x":NaN}', b'[' * 100 + b']' * 100]:
         with pytest.raises(ipc.Refused):
