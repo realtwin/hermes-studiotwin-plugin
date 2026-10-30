@@ -94,3 +94,28 @@ def test_no_foreign_hostname_dns_or_connect_on_unsafe_descriptor(tmp_path, monke
     with pytest.raises(R.BoundaryRefused):
         D.DashboardIpcClient(root,scope_id=SCOPE,generation=1,current_binding=lambda:(SCOPE,1),sensitive_values=lambda:())
     assert not calls
+
+
+def test_real_s08_wrapped_semantic_boundary_is_invoked(tmp_path,monkeypatch):
+    calls = []
+    real = C.validate_input_schema_response_v1
+    def spy(candidate,**kw):
+        calls.append((candidate.get('result',{}).get('method'),kw.get('wrapped',False)))
+        return real(candidate,**kw)
+    monkeypatch.setattr(C,'validate_input_schema_response_v1',spy)
+    async def run():
+        async with Peer(tmp_path/'data') as peer:
+            await client(peer).request('capabilities.inputSchema',{'tool':NAME,'schemaHash':HASH})
+    asyncio.run(run())
+    assert ('capabilities.inputSchema',True) in calls
+
+
+def test_callback_failure_does_not_escape_secret_exception_context(tmp_path):
+    def current():
+        raise RuntimeError('STCANARY_CALLBACK_SECRET')
+    async def run():
+        async with Peer(tmp_path/'data') as peer:
+            with pytest.raises(R.BoundaryRefused) as e:
+                client(peer,current=current)
+            assert e.value.__context__ is None and str(e.value)=='UNSAFE_PAYLOAD'
+    asyncio.run(run())
