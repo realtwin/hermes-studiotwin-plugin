@@ -1,7 +1,7 @@
 """Real settlement/evidence/ack store diffs; proposed ledger issuer is offline only."""
 import json
 import pytest
-from test_dispatch import harness, run, H, D, Q, SP
+from tests.python.test_dispatch import harness, run, H, D, Q, SP
 
 
 def ledger_verifier(fake):

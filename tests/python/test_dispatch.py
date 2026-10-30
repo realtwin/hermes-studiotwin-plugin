@@ -5,7 +5,7 @@ from pathlib import Path
 import sys
 
 import pytest
-import test_authorization as H
+from tests.python import test_authorization as H
 from s09_gateway import dispatch as D, reconcile as Q, scope_pause as SP
 from s09_gateway.mediation import Mediator
 from s09_gateway.handles import HandleStore
