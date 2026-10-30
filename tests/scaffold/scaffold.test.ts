@@ -18,9 +18,10 @@ const read = (path: string) => readFileSync(path, 'utf8')
 const json = (path: string) => JSON.parse(read(join(ROOT, path)))
 
 describe('locked runner', () => {
-  it('is the pinned Vitest 3.2.4 in a single forked worker', () => {
-    expect(json('node_modules/vitest/package.json').version).toBe('3.2.4')
-    expect(json('package.json').devDependencies.vitest).toBe('3.2.4')
+  it('is the pinned Vitest 3.2.7 in a single forked worker', () => {
+    // 3.x is required: Vitest 4.1.12 rejects `--poolOptions` ("Unknown option"), which every §9 command passes.
+    expect(json('node_modules/vitest/package.json').version).toBe('3.2.7')
+    expect(json('package.json').devDependencies.vitest).toBe('3.2.7')
     expect(typeof process.send).toBe('function') // forks pool: a child_process with an IPC channel
     expect(process.env.VITEST_POOL_ID).toBe('1') // singleFork: exactly one worker
     const forks = vitestConfig.test?.poolOptions?.forks

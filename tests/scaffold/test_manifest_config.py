@@ -210,7 +210,8 @@ def test_node_project_and_lock_pin_the_serial_vitest_runner():
     deps = {**package.get("dependencies", {}), **package["devDependencies"]}
     for name, spec in deps.items():
         assert spec[0].isdigit(), f"{name} must be an exact pin, got {spec}"
-    assert deps["vitest"] == "3.2.4"  # 3.x: --pool=forks --poolOptions.forks.singleFork=true is supported
+    # 3.x: --pool=forks --poolOptions.forks.singleFork=true is supported; Vitest 4 rejects --poolOptions.
+    assert deps["vitest"] == "3.2.7"
     assert lock["lockfileVersion"] == 3
     for name, spec in deps.items():
         assert lock["packages"][f"node_modules/{name}"]["version"] == spec, name
