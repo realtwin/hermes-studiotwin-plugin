@@ -1,0 +1,85 @@
+{
+  "format": "studiotwin-concept-effective-inputs/v1",
+  "source": "studiotwin-platform api/src/concepts/concepts.service.ts buildOpInputs + resolutionInputs @ 2eb0df1e44b9acd03a177dc2c28dcfdaf2ff1bf4",
+  "function": "concept-lab-img-fn",
+  "note": "Expected values are hand-derived from the TypeScript source, not computed by the Python port; test_fixture_foundation.py checks the port and the fake server against them. Observed behaviour only: paid Concept actions stay fail-closed (D22).",
+  "cases": [
+    {
+      "id": "generate_defaults",
+      "action": "generate",
+      "conceptType": "object",
+      "sourceS3Uri": null,
+      "jobInputs": {"modelId": "openai/gpt-image-2", "prompt": {"user": "red chair", "enhancement": {"enabled": true}}},
+      "expected": {"prompt": "red chair", "conceptType": "object", "enhancePrompt": true, "mode": "generate", "n": 1}
+    },
+    {
+      "id": "gpt_image_2_resolution_alias",
+      "action": "generate",
+      "conceptType": "character",
+      "sourceS3Uri": null,
+      "jobInputs": {"modelId": "openai/gpt-image-2", "prompt": {"user": "knight", "enhancement": {"enabled": false}},
+                    "params": {"quality": "high", "resolution": "1536x1024", "width": 5, "height": 6, "size": "9x9"}},
+      "expected": {"quality": "high", "size": "1536x1024", "width": 1536, "height": 1024, "prompt": "knight",
+                   "conceptType": "character", "enhancePrompt": false, "mode": "generate", "n": 1}
+    },
+    {
+      "id": "non_gpt_dimension_resolution",
+      "action": "generate",
+      "conceptType": "object",
+      "sourceS3Uri": null,
+      "jobInputs": {"modelId": "openai/gpt-image-2", "prompt": {"user": "lamp", "enhancement": {"enabled": true}},
+                    "params": {"resolution": "1000x1000", "size": "1024x1024"}},
+      "expected": {"width": 1000, "height": 1000, "prompt": "lamp", "conceptType": "object", "enhancePrompt": true,
+                   "mode": "generate", "n": 1}
+    },
+    {
+      "id": "non_dimension_resolution_becomes_size",
+      "action": "generate",
+      "conceptType": "world",
+      "sourceS3Uri": null,
+      "jobInputs": {"modelId": "openai/gpt-image-2", "prompt": {"user": "valley", "enhancement": {"enabled": true}},
+                    "params": {"resolution": "auto"}},
+      "expected": {"size": "auto", "prompt": "valley", "conceptType": "world", "enhancePrompt": true, "mode": "generate", "n": 1}
+    },
+    {
+      "id": "null_resolution_is_not_undefined",
+      "action": "generate",
+      "conceptType": "object",
+      "sourceS3Uri": null,
+      "jobInputs": {"modelId": "openai/gpt-image-2", "prompt": {"user": "cup", "enhancement": {"enabled": true}},
+                    "params": {"resolution": null, "width": 64}},
+      "expected": {"size": null, "prompt": "cup", "conceptType": "object", "enhancePrompt": true, "mode": "generate", "n": 1}
+    },
+    {
+      "id": "controlled_fields_cannot_be_overridden",
+      "action": "generate",
+      "conceptType": "object",
+      "sourceS3Uri": null,
+      "jobInputs": {"modelId": "openai/gpt-image-2", "prompt": {"user": "safe", "enhancement": {"enabled": true}},
+                    "params": {"prompt": "injected", "enhancePrompt": false, "mode": "edit", "sourceAsset": "s3://evil/x.png",
+                               "conceptType": "world", "n": 4, "background": "opaque"}},
+      "expected": {"background": "opaque", "prompt": "safe", "conceptType": "object", "enhancePrompt": true,
+                   "mode": "generate", "n": 1}
+    },
+    {
+      "id": "generate_with_owned_source",
+      "action": "generate",
+      "conceptType": "object",
+      "sourceS3Uri": "s3://fixture-bucket/users/u/assets/a/ref.png",
+      "jobInputs": {"modelId": "openai/gpt-image-2", "prompt": {"user": "like this", "enhancement": {"enabled": true}},
+                    "sourceAsset": "vpc::assets/00000000-0000-4000-8000-000000000001"},
+      "expected": {"prompt": "like this", "conceptType": "object", "enhancePrompt": true, "mode": "generate",
+                   "sourceAsset": "s3://fixture-bucket/users/u/assets/a/ref.png", "n": 1}
+    },
+    {
+      "id": "edit_uses_active_asset",
+      "action": "edit",
+      "conceptType": "environmentMap",
+      "sourceS3Uri": "s3://fixture-bucket/users/u/assets/b/active.png",
+      "jobInputs": {"modelId": "openai/gpt-image-2", "prompt": {"user": "add fog", "enhancement": {"enabled": false}},
+                    "params": {"quality": "low"}},
+      "expected": {"quality": "low", "prompt": "add fog", "conceptType": "environmentMap", "enhancePrompt": false,
+                   "mode": "edit", "sourceAsset": "s3://fixture-bucket/users/u/assets/b/active.png", "n": 1}
+    }
+  ]
+}

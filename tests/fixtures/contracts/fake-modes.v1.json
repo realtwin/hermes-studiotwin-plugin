@@ -1,0 +1,457 @@
+{
+  "format": "studiotwin-fake-modes/v1",
+  "module": "tests/fixtures/fake_mcp/scenarios.py",
+  "modeCount": 32,
+  "modes": [
+    {
+      "name": "normal",
+      "transport": "any",
+      "consumers": [
+        "S06",
+        "S07",
+        "S10",
+        "S12",
+        "S13",
+        "S14",
+        "S30"
+      ],
+      "knobs": {},
+      "summary": "Live-faithful async lifecycle: text-JSON ack, queued->running->done by polls, outputs with signed URLs."
+    },
+    {
+      "name": "ambiguous_no_structured_content",
+      "transport": "any",
+      "consumers": [
+        "S10",
+        "S14"
+      ],
+      "knobs": {
+        "ack_style": "prose_no_id"
+      },
+      "summary": "Job is created and billed; the ack is prose with no job id and no structuredContent."
+    },
+    {
+      "name": "ambiguous_empty_content",
+      "transport": "any",
+      "consumers": [
+        "S06",
+        "S10"
+      ],
+      "knobs": {
+        "ack_style": "empty_content"
+      },
+      "summary": "Job is created and billed; the result content list is empty."
+    },
+    {
+      "name": "ambiguous_malformed_ack",
+      "transport": "any",
+      "consumers": [
+        "S06",
+        "S10"
+      ],
+      "knobs": {
+        "ack_style": "malformed_json"
+      },
+      "summary": "Job is created and billed; the ack text is truncated JSON."
+    },
+    {
+      "name": "ambiguous_protocol_error_after_create",
+      "transport": "any",
+      "consumers": [
+        "S10"
+      ],
+      "knobs": {
+        "ack_style": "protocol_error_after_create"
+      },
+      "summary": "Job is created and billed, then the call fails with a JSON-RPC error."
+    },
+    {
+      "name": "ambiguous_timeout_after_create",
+      "transport": "any",
+      "consumers": [
+        "S05",
+        "S10"
+      ],
+      "knobs": {
+        "ack_style": "timeout_after_create"
+      },
+      "summary": "Job is created and billed, then the handler hangs past the caller's timeout."
+    },
+    {
+      "name": "delayed_list_visibility",
+      "transport": "any",
+      "consumers": [
+        "S10",
+        "S14"
+      ],
+      "knobs": {
+        "list_visibility_delay": 2
+      },
+      "summary": "A new job stays absent from studiotwin_list_my_jobs for the first 2 list calls."
+    },
+    {
+      "name": "price_change_interim",
+      "transport": "any",
+      "consumers": [
+        "S10",
+        "S23",
+        "S30"
+      ],
+      "knobs": {
+        "price_delta": 12,
+        "run_provider": "fixture-provider-b",
+        "expose_settlement_evidence": true
+      },
+      "summary": "Run selects another provider and charges estimate+12; no server maximum; dispatches once."
+    },
+    {
+      "name": "price_change_server_max",
+      "transport": "any",
+      "consumers": [
+        "S10"
+      ],
+      "knobs": {
+        "price_delta": 12,
+        "run_provider": "fixture-provider-b",
+        "server_max_credits": true,
+        "advertise_max_credits": true,
+        "expose_settlement_evidence": true
+      },
+      "summary": "Proposed D30: maxCredits enforced; a run above it returns PRICE_EXCEEDS_MAX before any debit."
+    },
+    {
+      "name": "max_credits_advertised_not_enforced",
+      "transport": "any",
+      "consumers": [
+        "S10"
+      ],
+      "knobs": {
+        "price_delta": 12,
+        "run_provider": "fixture-provider-b",
+        "advertise_max_credits": true,
+        "expose_settlement_evidence": true
+      },
+      "summary": "Probe trap: the D30 capability is advertised but maxCredits is silently ignored."
+    },
+    {
+      "name": "settlement_evidence",
+      "transport": "any",
+      "consumers": [
+        "S10"
+      ],
+      "knobs": {
+        "expose_settlement_evidence": true
+      },
+      "summary": "Proposed API: job status carries job-specific final debit/refund evidence."
+    },
+    {
+      "name": "job_failure",
+      "transport": "any",
+      "consumers": [
+        "S10",
+        "S14"
+      ],
+      "knobs": {
+        "job_schedule": [
+          "submitted",
+          "running",
+          "failed"
+        ],
+        "final_state": "failed"
+      },
+      "summary": "Jobs end failed with a safe error; the reserved credits are refunded."
+    },
+    {
+      "name": "long_running",
+      "transport": "any",
+      "consumers": [
+        "S14",
+        "S24"
+      ],
+      "knobs": {
+        "job_schedule": [
+          "submitted",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "running",
+          "done"
+        ]
+      },
+      "summary": "Jobs stay running for 50 polls (pano-stickers can run for hours)."
+    },
+    {
+      "name": "insufficient_balance",
+      "transport": "any",
+      "consumers": [
+        "S10",
+        "S23"
+      ],
+      "knobs": {
+        "wallet_balance": 3
+      },
+      "summary": "Wallet holds 3 credits; priced runs fail with code 40001 and create no job."
+    },
+    {
+      "name": "secret_channels",
+      "transport": "any",
+      "consumers": [
+        "S06",
+        "S07",
+        "S30"
+      ],
+      "knobs": {
+        "secret_channels": true,
+        "emit_progress": true,
+        "emit_logs": true
+      },
+      "summary": "Every result channel carries a unique canary: text, embedded/fenced JSON, structuredContent, resource links, embedded resources, _meta, isError results, progress and logs."
+    },
+    {
+      "name": "secret_protocol_error",
+      "transport": "any",
+      "consumers": [
+        "S06"
+      ],
+      "knobs": {
+        "secret_channels": true,
+        "secret_error": "protocol",
+        "emit_progress": true,
+        "emit_logs": true
+      },
+      "summary": "secret_channels, but the failing call returns a JSON-RPC error with canaries in message and data."
+    },
+    {
+      "name": "new_unclassified_tool",
+      "transport": "any",
+      "consumers": [
+        "S08",
+        "S23",
+        "S30"
+      ],
+      "knobs": {
+        "include_unclassified_tool": true
+      },
+      "summary": "tools/list carries the 45 captured tools plus one unclassified billable tool."
+    },
+    {
+      "name": "new_tool_midsession",
+      "transport": "any",
+      "consumers": [
+        "S08"
+      ],
+      "knobs": {
+        "unclassified_tool_after_calls": 1
+      },
+      "summary": "The unclassified tool appears after the first tools/call and tools/list_changed is sent."
+    },
+    {
+      "name": "schema_drift",
+      "transport": "any",
+      "consumers": [
+        "S08"
+      ],
+      "knobs": {
+        "schema_drift_tool": "text-to-environment-map"
+      },
+      "summary": "text-to-environment-map keeps its name but gains a required input (schema hash changes)."
+    },
+    {
+      "name": "malformed_status",
+      "transport": "any",
+      "consumers": [
+        "S06",
+        "S14"
+      ],
+      "knobs": {
+        "malformed": "status_not_json"
+      },
+      "summary": "studiotwin_get_job_status returns an HTML error page as text."
+    },
+    {
+      "name": "malformed_concept",
+      "transport": "any",
+      "consumers": [
+        "S06",
+        "S15"
+      ],
+      "knobs": {
+        "malformed": "concept_schema_violation"
+      },
+      "summary": "Concept structuredContent violates the captured outputSchema."
+    },
+    {
+      "name": "mixed_timestamps",
+      "transport": "any",
+      "consumers": [
+        "S14"
+      ],
+      "knobs": {
+        "timestamp_style": "mixed"
+      },
+      "summary": "Job timestamps mix ISO-8601 Z, ISO with offset, epoch milliseconds and {$date} forms."
+    },
+    {
+      "name": "described_status_vocabulary",
+      "transport": "any",
+      "consumers": [
+        "S14"
+      ],
+      "knobs": {
+        "status_vocabulary": "described"
+      },
+      "summary": "Statuses use the tool description's QUEUED/RUNNING/COMPLETE/FAILED words, not the API's."
+    },
+    {
+      "name": "optional_outputs_omitted",
+      "transport": "any",
+      "consumers": [
+        "S17",
+        "S20"
+      ],
+      "knobs": {
+        "optional_outputs": "required_only"
+      },
+      "summary": "Jobs return only required outputs (world without skyMap, auto-rig metadata-only)."
+    },
+    {
+      "name": "expiring_signed_urls",
+      "transport": "any",
+      "consumers": [
+        "S07",
+        "S11"
+      ],
+      "knobs": {
+        "signed_url_ttl_seconds": 60
+      },
+      "summary": "Signed URLs expire 60 s after issue on the fake clock."
+    },
+    {
+      "name": "slow_calls",
+      "transport": "any",
+      "consumers": [
+        "S05"
+      ],
+      "knobs": {
+        "call_delay_seconds": 0.3
+      },
+      "summary": "Every tools/call sleeps 0.3 s first."
+    },
+    {
+      "name": "concept_active_asset_race",
+      "transport": "any",
+      "consumers": [
+        "S15"
+      ],
+      "knobs": {
+        "concept_active_swap_on_edit": true
+      },
+      "summary": "Between quote and edit the Concept's active asset swaps A->B, so the submission differs."
+    },
+    {
+      "name": "http_sse",
+      "transport": "http",
+      "consumers": [
+        "S05"
+      ],
+      "knobs": {
+        "emit_progress": true,
+        "http_json_response": false
+      },
+      "summary": "Streamable HTTP with SSE responses (progress/log notifications flow)."
+    },
+    {
+      "name": "http_rate_limited",
+      "transport": "http",
+      "consumers": [
+        "S05",
+        "S11"
+      ],
+      "knobs": {
+        "http_rate_limit_first": 2
+      },
+      "summary": "The first 2 POSTs get HTTP 429 with Retry-After: 1."
+    },
+    {
+      "name": "http_redirect_foreign",
+      "transport": "http",
+      "consumers": [
+        "S05",
+        "S06"
+      ],
+      "knobs": {
+        "http_redirect": "foreign"
+      },
+      "summary": "POST /mcp answers 307 to a foreign origin whose Location carries a signed canary."
+    },
+    {
+      "name": "http_redirect_same_origin",
+      "transport": "http",
+      "consumers": [
+        "S05"
+      ],
+      "knobs": {
+        "http_redirect": "same_origin"
+      },
+      "summary": "POST /mcp answers 307 to /mcp-moved on the same origin (allowed redirect)."
+    },
+    {
+      "name": "http_error_body",
+      "transport": "http",
+      "consumers": [
+        "S06",
+        "S11"
+      ],
+      "knobs": {
+        "http_error_status": 502
+      },
+      "summary": "POST /mcp answers 502 with a diagnostic body quoting a signed URL canary."
+    }
+  ]
+}
