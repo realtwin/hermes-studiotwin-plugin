@@ -18,7 +18,7 @@ spec = importlib.util.spec_from_file_location('s05_ipc.ipc', ROOT / 'gateway/ipc
 ipc = importlib.util.module_from_spec(spec)
 sys.modules[spec.name] = ipc
 spec.loader.exec_module(ipc)
-KEY = b'local-fixture-boot-key-not-live!!!'
+KEY = b'k' * 32  # explicit offline 256-bit fixture, never a live boot secret
 
 
 def pair(**kw):
@@ -30,7 +30,7 @@ def test_request_and_response_roundtrip_complete_closed_envelopes():
     request = client.request('balance.get', {})
     accepted = server.accept_request(request)
     response = server.response(accepted, payload={'contract': 'studiotwin.dashboard.v1',
-        'balance': {'availableCredits': 12, 'observedAtMs': 1}})
+        'balance': {'state': 'known', 'credits': 12, 'asOfMs': 1}})
     assert client.accept_response(response)['result']['method'] == 'balance.get'
     assert not client.pending
     with pytest.raises(ipc.Refused):
@@ -101,7 +101,7 @@ def test_response_mac_requestid_method_and_closed_payload():
     request = server.accept_request(client.request('status.get', {}))
     wrong = {'protocol': ipc.PROTOCOL, 'requestId': request['requestId'], 'ok': True,
         'result': {'method': 'balance.get', 'payload': {'contract': 'studiotwin.dashboard.v1',
-            'balance': {'availableCredits': 12, 'observedAtMs': 1}}}}
+            'balance': {'state': 'known', 'credits': 12, 'asOfMs': 1}}}}
     with pytest.raises(ipc.Refused, match='MISMATCH'):
         client.accept_response(server.seal_response(wrong))
 
