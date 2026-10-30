@@ -1027,6 +1027,65 @@ def test_r1_b5_ambiguous_recovery_candidates_are_not_submission_authority(docs):
     assert S.errors("dashboard#/components/schemas/JobV1", job, docs) == []
 
 
+def gateway_result():
+    return {"protocol": S.GATEWAY_PROTOCOL, "tool": "studiotwin_get_job_status", "status": "ok", "jobId": UUID,
+            "assetIds": [UUID], "media": [], "summary": "done", "operation": None}
+
+
+def ipc_job_response():
+    job = {"jobId": UUID, "functionName": "text-to-environment-map", "status": "done", "submittedAtMs": None,
+           "terminalAtMs": None, "outputAssetIds": [], "operationId": None, "summary": "done"}
+    return {"protocol": S.HOST_GATEWAY_PROTOCOL, "requestId": "rq_" + "a" * 22, "ok": True,
+            "result": {"method": "jobs.get", "payload": {"contract": S.DASHBOARD_CONTRACT, "job": job}}}
+
+
+def test_r1_b1_ipc_payloads_are_closed_and_method_specific(docs):
+    defs = docs["host_gateway"]["$defs"]
+    # Structural assertion deliberately kills reopening result to an unrestricted object.
+    assert defs["IpcResponseV1"]["properties"]["result"].get("oneOf")
+    assert defs["IpcRequestV1"]["properties"]["params"].get("oneOf")
+    assert S.errors("host_gateway#/$defs/IpcResponseV1", ipc_job_response(), docs) == []
+    ref = "host_gateway#/$defs/IpcResponseV1"
+    assert not S.is_valid(ref, {**ipc_job_response(), "result": {"apiKey": "https://x.invalid/?X-Amz-Signature=1"}}, docs)
+    assert not S.is_valid(ref, {**ipc_job_response(), "result": {"method": "status.get", "payload": {"arbitrary": {}}}}, docs)
+    req = {"protocol": S.HOST_GATEWAY_PROTOCOL, "requestId": "rq_" + "a" * 22, "nonce": "n" * 43,
+           "issuedAtMs": 1793356500000, "mac": "0" * 64, "method": "status.get", "params": {"jobId": UUID}}
+    assert not S.is_valid("host_gateway#/$defs/IpcRequestV1", req, docs)
+    req.update(method="jobs.get", params={"jobId": UUID})
+    assert S.errors("host_gateway#/$defs/IpcRequestV1", req, docs) == []
+    assert not S.is_valid(ref, {**ipc_job_response(), "ok": False}, docs)
+
+
+def test_r1_b1_value_aware_refusal_at_complete_real_sinks(docs):
+    assert hasattr(S, "validate_mediated_v1")
+    secrets = frozenset(c["value"] for c in CAN.document()["canaries"])
+    quote = {"contract": S.DASHBOARD_CONTRACT, "tool": "text-to-environment-map", "schemaHash": HASH,
+             "inputs": {"prompt": "study", "seed": 1}}
+    cases = [("host_gateway#/$defs/IpcResponseV1", ipc_job_response(), ("result", "payload", "job", "summary")),
+             ("gateway#/$defs/GatewayResultV1", gateway_result(), ("summary",)),
+             ("dashboard#/components/schemas/ErrorV1", {"contract": S.DASHBOARD_CONTRACT, "code": "UNAVAILABLE", "message": "try later"}, ("message",)),
+             ("dashboard#/components/schemas/QuoteRequestV1", quote, ("inputs", "prompt"))]
+    for ref, good, path in cases:
+        assert S.errors(ref, good, docs) == []
+        assert S.validate_mediated_v1(ref, good, sensitive_values=secrets, docs=docs) == good
+        for secret in secrets:
+            bad = copy.deepcopy(good)
+            sink = bad
+            for part in path[:-1]:
+                sink = sink[part]
+            sink[path[-1]] = "prefix " + secret + " suffix"
+            with pytest.raises(ValueError, match="^UNSAFE_PAYLOAD$"):
+                S.validate_mediated_v1(ref, bad, sensitive_values=secrets, docs=docs)
+    bad = copy.deepcopy(quote)
+    bad["inputs"]["nested"] = {"image": "https://x.invalid/object?X-Amz-Signature=fixture"}
+    with pytest.raises(ValueError, match="^UNSAFE_PAYLOAD$"):
+        S.validate_mediated_v1("dashboard#/components/schemas/QuoteRequestV1", bad, sensitive_values=secrets, docs=docs)
+    bad = copy.deepcopy(quote)
+    bad["inputs"]["apiKey"] = "innocent-looking-value"
+    with pytest.raises(ValueError, match="^UNSAFE_PAYLOAD$"):
+        S.validate_mediated_v1("dashboard#/components/schemas/QuoteRequestV1", bad, sensitive_values=secrets, docs=docs)
+
+
 # ----------------------------------------------------------------------- S02 fixtures vs contracts
 
 def _fixture(name):
