@@ -2475,6 +2475,10 @@
               }
             ]
           },
+          "maxCredits": {
+            "$ref": "#/components/schemas/CreditsV1",
+            "description": "Maximum enforced by the authenticated server's verified conditional submission contract, not the local estimate. Never present in interim-local."
+          },
           "estimateLabel": {
             "enum": [
               "estimated charge",
@@ -2508,7 +2512,20 @@
             "type": "boolean"
           }
         },
-        "description": "A classified local preview. Never authorizes or dispatches; consent only via the MCP elicitation round trip (§5.3)."
+        "allOf": [
+          {
+            "if": {"properties": {"enforcementMode": {"const": "interim-local"}}, "required": ["enforcementMode"]},
+            "then": {
+              "properties": {"estimateLabel": {"const": "estimated charge"}},
+              "not": {"required": ["maxCredits"]}
+            },
+            "else": {
+              "required": ["maxCredits"],
+              "properties": {"estimateLabel": {"const": "server-enforced maximum"}}
+            }
+          }
+        ],
+        "description": "A classified local preview. Never authorizes or dispatches; consent only via the MCP elicitation round trip (§5.3). estimatedCredits remains an estimate in both modes. maxCredits is a distinct server-mode bound, required only in server-max-credits and forbidden in interim-local. S10 must verify authenticated paidSubmissionMaxCreditsV1 proof before emitting server mode; labels are not capability proof. Interim execution additionally requires Victor's risk acceptance and D24/D31. observedAtMs (when supplied) is the estimate observation time, not a guaranteed price; S10/S23 must check observation <= expiry and freshness before displaying a fresh estimate."
       },
       "OperationStateV1": {
         "type": "object",
