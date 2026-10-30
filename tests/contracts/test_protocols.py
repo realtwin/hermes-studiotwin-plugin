@@ -1174,6 +1174,16 @@ def test_r1_b4_form_mediation_checks_values_defaults_and_structural_limits(docs)
             S.validate_mediated_v1(ref, bad, sensitive_values=frozenset(), docs=docs)
 
 
+def test_r1_b4_unavailable_schema_has_an_honest_disabled_reason(docs):
+    entry = {"name": "text-to-environment-map", "family": "generation", "schemaHash": HASH,
+             "fixedCost": 20, "classification": "classified", "executable": False,
+             "disabledReason": "schema-unavailable"}
+    assert S.errors("gateway#/$defs/CapabilityEntryV1", entry, docs) == []
+    assert not S.is_valid("gateway#/$defs/CapabilityEntryV1", {**entry, "executable": True}, docs)
+    err = {"contract": S.DASHBOARD_CONTRACT, "code": "SCHEMA_UNAVAILABLE", "message": "Tool schema unavailable"}
+    assert S.errors("dashboard#/components/schemas/ErrorV1", err, docs) == []
+
+
 # ----------------------------------------------------------------------- S02 fixtures vs contracts
 
 def _fixture(name):
