@@ -1,0 +1,4130 @@
+{
+  "contract": "studiotwin.tool-classification.v1",
+  "policy": "reviewed-release-only",
+  "capture": "2026-10-30",
+  "projectionPolicy": "Closed reviewed subset. No arbitrary extra keys, URL/data inputs or executable schema constructs. Container defaults omitted from display; no default injection. UUID/asset paths require central scope/resource transforms before dispatch. Array minLength/maxLength in capture are JSON Schema no-ops, not minItems/maxItems.",
+  "tools": {
+    "text-to-motion-edit": {
+      "schemaHash": "a857cfef78ef967a845757e92bf10c1e4fc7f2b8f3f9a430da0574e61bac5d0c",
+      "family": "generation",
+      "costClass": "paid_fixed",
+      "fixedCost": 5,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "animation",
+            "required": true,
+            "schema": {
+              "kind": "object",
+              "fields": [
+                {
+                  "name": "frames",
+                  "required": true,
+                  "schema": {
+                    "kind": "array",
+                    "maxItems": 4096,
+                    "items": {
+                      "kind": "object",
+                      "fields": [
+                        {
+                          "name": "keypoints3D",
+                          "required": true,
+                          "schema": {
+                            "kind": "array",
+                            "maxItems": 4096,
+                            "items": {
+                              "kind": "number"
+                            }
+                          }
+                        },
+                        {
+                          "name": "quaternions",
+                          "required": false,
+                          "schema": {
+                            "kind": "array",
+                            "maxItems": 4096,
+                            "items": {
+                              "kind": "number"
+                            }
+                          }
+                        },
+                        {
+                          "name": "smplPoses",
+                          "required": false,
+                          "schema": {
+                            "kind": "array",
+                            "maxItems": 4096,
+                            "items": {
+                              "kind": "number"
+                            }
+                          }
+                        },
+                        {
+                          "name": "rootTranslation",
+                          "required": false,
+                          "schema": {
+                            "kind": "array",
+                            "maxItems": 4096,
+                            "items": {
+                              "kind": "number"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "editMode",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000
+            }
+          },
+          {
+            "name": "seed",
+            "required": true,
+            "schema": {
+              "kind": "number"
+            }
+          },
+          {
+            "name": "textPrompt",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000
+            }
+          },
+          {
+            "name": "timeRange",
+            "required": true,
+            "schema": {
+              "kind": "array",
+              "maxItems": 4096,
+              "items": {
+                "kind": "number"
+              }
+            }
+          }
+        ]
+      },
+      "inputReferences": [],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        },
+        {
+          "path": [
+            "animation"
+          ],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "text-to-motion": {
+      "schemaHash": "cd60bf7c62cb185280d5529824063f361747910d6f3aec979398ff8633096a7b",
+      "family": "generation",
+      "costClass": "paid_dynamic",
+      "fixedCost": null,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "durations",
+            "required": true,
+            "schema": {
+              "kind": "array",
+              "maxItems": 4096,
+              "items": {
+                "kind": "number"
+              }
+            }
+          },
+          {
+            "name": "seed",
+            "required": true,
+            "schema": {
+              "kind": "number"
+            }
+          },
+          {
+            "name": "textPrompts",
+            "required": true,
+            "schema": {
+              "kind": "array",
+              "maxItems": 4096,
+              "items": {
+                "kind": "string",
+                "maxLength": 4000
+              }
+            }
+          }
+        ]
+      },
+      "inputReferences": [],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "text-to-motion-kimodo": {
+      "schemaHash": "f6bcb0f9783eb9ecd1c211004217b667ba8ceb8e7a213756a9638e862600c44b",
+      "family": "generation",
+      "costClass": "paid_dynamic",
+      "fixedCost": null,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "durations",
+            "required": true,
+            "schema": {
+              "kind": "array",
+              "maxItems": 4096,
+              "items": {
+                "kind": "number"
+              }
+            }
+          },
+          {
+            "name": "seed",
+            "required": true,
+            "schema": {
+              "kind": "number"
+            }
+          },
+          {
+            "name": "textPrompts",
+            "required": true,
+            "schema": {
+              "kind": "array",
+              "maxItems": 4096,
+              "items": {
+                "kind": "string",
+                "maxLength": 4000
+              }
+            }
+          }
+        ]
+      },
+      "inputReferences": [],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "text-to-motion-control": {
+      "schemaHash": "208ecfe14a4f21d3874a1f86b0bd100a9472893ee1df1402ec6100cfcb8e30f3",
+      "family": "generation",
+      "costClass": "paid_fixed",
+      "fixedCost": 5,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "seed",
+            "required": true,
+            "schema": {
+              "kind": "number"
+            }
+          },
+          {
+            "name": "textPrompt",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000
+            }
+          },
+          {
+            "name": "trajectory",
+            "required": true,
+            "schema": {
+              "kind": "object",
+              "fields": [
+                {
+                  "name": "rotations",
+                  "required": false,
+                  "schema": {
+                    "kind": "array",
+                    "maxItems": 4096,
+                    "items": {
+                      "kind": "number"
+                    }
+                  }
+                },
+                {
+                  "name": "waypoints",
+                  "required": true,
+                  "schema": {
+                    "kind": "array",
+                    "maxItems": 4096,
+                    "items": {
+                      "kind": "number"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "inputReferences": [],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        },
+        {
+          "path": [
+            "trajectory"
+          ],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "motion-stitch-single": {
+      "schemaHash": "89ac2f840b4c48cdcd43c77c80ef4a758a2e20af1c44bb4fe666504a43d08bcf",
+      "family": "generation",
+      "costClass": "paid_fixed",
+      "fixedCost": 5,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "blendLength",
+            "required": false,
+            "schema": {
+              "kind": "number"
+            }
+          },
+          {
+            "name": "bridgeFrames",
+            "required": false,
+            "schema": {
+              "kind": "number"
+            }
+          },
+          {
+            "name": "contextFrames",
+            "required": false,
+            "schema": {
+              "kind": "number"
+            }
+          },
+          {
+            "name": "lhsAnimation",
+            "required": true,
+            "schema": {
+              "kind": "object",
+              "fields": [
+                {
+                  "name": "frames",
+                  "required": true,
+                  "schema": {
+                    "kind": "array",
+                    "maxItems": 4096,
+                    "items": {
+                      "kind": "object",
+                      "fields": [
+                        {
+                          "name": "keypoints3D",
+                          "required": true,
+                          "schema": {
+                            "kind": "array",
+                            "maxItems": 4096,
+                            "items": {
+                              "kind": "number"
+                            }
+                          }
+                        },
+                        {
+                          "name": "quaternions",
+                          "required": false,
+                          "schema": {
+                            "kind": "array",
+                            "maxItems": 4096,
+                            "items": {
+                              "kind": "number"
+                            }
+                          }
+                        },
+                        {
+                          "name": "smplPoses",
+                          "required": false,
+                          "schema": {
+                            "kind": "array",
+                            "maxItems": 4096,
+                            "items": {
+                              "kind": "number"
+                            }
+                          }
+                        },
+                        {
+                          "name": "rootTranslation",
+                          "required": false,
+                          "schema": {
+                            "kind": "array",
+                            "maxItems": 4096,
+                            "items": {
+                              "kind": "number"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "rhsAnimation",
+            "required": true,
+            "schema": {
+              "kind": "object",
+              "fields": [
+                {
+                  "name": "frames",
+                  "required": true,
+                  "schema": {
+                    "kind": "array",
+                    "maxItems": 4096,
+                    "items": {
+                      "kind": "object",
+                      "fields": [
+                        {
+                          "name": "keypoints3D",
+                          "required": true,
+                          "schema": {
+                            "kind": "array",
+                            "maxItems": 4096,
+                            "items": {
+                              "kind": "number"
+                            }
+                          }
+                        },
+                        {
+                          "name": "quaternions",
+                          "required": false,
+                          "schema": {
+                            "kind": "array",
+                            "maxItems": 4096,
+                            "items": {
+                              "kind": "number"
+                            }
+                          }
+                        },
+                        {
+                          "name": "smplPoses",
+                          "required": false,
+                          "schema": {
+                            "kind": "array",
+                            "maxItems": 4096,
+                            "items": {
+                              "kind": "number"
+                            }
+                          }
+                        },
+                        {
+                          "name": "rootTranslation",
+                          "required": false,
+                          "schema": {
+                            "kind": "array",
+                            "maxItems": 4096,
+                            "items": {
+                              "kind": "number"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "seed",
+            "required": true,
+            "schema": {
+              "kind": "number"
+            }
+          }
+        ]
+      },
+      "inputReferences": [],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        },
+        {
+          "path": [
+            "lhsAnimation"
+          ],
+          "policy": "reviewed-fields-only"
+        },
+        {
+          "path": [
+            "rhsAnimation"
+          ],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "text-to-environment-map": {
+      "schemaHash": "8b86b6ff4d6ab525188ebecae023ca2688d42785b58fc5d8256735bc06362117",
+      "family": "generation",
+      "costClass": "paid_fixed",
+      "fixedCost": 20,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "brightnessLevel",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "defaultValue": 0
+            }
+          },
+          {
+            "name": "negativePrompt",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "defaultValue": ""
+            }
+          },
+          {
+            "name": "prompt",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000
+            }
+          },
+          {
+            "name": "seed",
+            "required": true,
+            "schema": {
+              "kind": "number"
+            }
+          }
+        ]
+      },
+      "inputReferences": [],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "image-to-environment-map": {
+      "schemaHash": "4deb289d645e8d33b1c96bfb9c63500cae242f804e1aee2b6d0c9c0b16bc2d55",
+      "family": "generation",
+      "costClass": "paid_fixed",
+      "fixedCost": 25,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "brightnessLevel",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "defaultValue": 0
+            }
+          },
+          {
+            "name": "negativePrompt",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "defaultValue": ""
+            }
+          },
+          {
+            "name": "prompt",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000
+            }
+          },
+          {
+            "name": "referenceImage",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "Owned asset UUID only; gateway verifies scope before resolving."
+            }
+          },
+          {
+            "name": "seed",
+            "required": true,
+            "schema": {
+              "kind": "number"
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "referenceImage"
+          ],
+          "kind": "asset"
+        }
+      ],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "environment-map-to-world": {
+      "schemaHash": "7fa2b59ae42b43ef2bed64da3b3416ac7f4b9dc26da7e99b130ef8a3f5172c69",
+      "family": "generation",
+      "costClass": "paid_fixed",
+      "fixedCost": 80,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "environmentMap",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "Owned asset UUID only; gateway verifies scope before resolving."
+            }
+          },
+          {
+            "name": "layer",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "defaultValue": ""
+            }
+          },
+          {
+            "name": "quality",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000
+            }
+          },
+          {
+            "name": "seed",
+            "required": true,
+            "schema": {
+              "kind": "number"
+            }
+          },
+          {
+            "name": "worldType",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "environmentMap"
+          ],
+          "kind": "asset"
+        }
+      ],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "environment-map-upscale-cpu": {
+      "schemaHash": "95e441b52baa6448be071e0c49b2339ba44a754eb0021b142ac499fc3ff361f5",
+      "family": "generation",
+      "costClass": "paid_dynamic",
+      "fixedCost": null,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "hdrAware",
+            "required": false,
+            "schema": {
+              "kind": "boolean",
+              "defaultValue": true
+            }
+          },
+          {
+            "name": "icoFovDeg",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 30,
+              "maximum": 120,
+              "defaultValue": 72
+            }
+          },
+          {
+            "name": "icoSoftnessDeg",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 1,
+              "maximum": 60,
+              "defaultValue": 14
+            }
+          },
+          {
+            "name": "inputEnvmap",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "Owned asset UUID only; gateway verifies scope before resolving."
+            }
+          },
+          {
+            "name": "outputHeight",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "choices": [
+                2048,
+                4096,
+                8192
+              ],
+              "defaultValue": 8192
+            }
+          },
+          {
+            "name": "targetMp",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 1,
+              "maximum": 128
+            }
+          },
+          {
+            "name": "tileMode",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "ico",
+                "cubemap"
+              ],
+              "defaultValue": "ico"
+            }
+          },
+          {
+            "name": "tileSize",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "upscaler",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "pruna-p-image-upscale"
+              ],
+              "defaultValue": "pruna-p-image-upscale"
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "inputEnvmap"
+          ],
+          "kind": "asset"
+        }
+      ],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "pano-sticker-placement": {
+      "schemaHash": "21de0f69c4509741bbc679ecf3c86cbf8cef874d62c0b91988d5f8e7e67c838c",
+      "family": "generation",
+      "costClass": "paid_fixed",
+      "fixedCost": 1,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "coverage",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "choices": [
+                180,
+                360
+              ],
+              "defaultValue": 360
+            }
+          },
+          {
+            "name": "environmentPrompt",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "defaultValue": ""
+            }
+          },
+          {
+            "name": "sticker",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "Owned asset UUID only; gateway verifies scope before resolving."
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "sticker"
+          ],
+          "kind": "asset"
+        }
+      ],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "pano-stickers": {
+      "schemaHash": "da31c381bfaacee204bc26f1fa14f0b74fbea84324cde5d4c93ec9f14c2481ff",
+      "family": "generation",
+      "costClass": "paid_dynamic",
+      "fixedCost": null,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "cfg",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "defaultValue": 5
+            }
+          },
+          {
+            "name": "coverage",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "defaultValue": 360
+            }
+          },
+          {
+            "name": "denoise",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "defaultValue": 1
+            }
+          },
+          {
+            "name": "loraStrength",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "defaultValue": 0.9
+            }
+          },
+          {
+            "name": "negativePrompt",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "defaultValue": "text, worst quality, blurry, ugly"
+            }
+          },
+          {
+            "name": "outputPreset",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "defaultValue": 2048
+            }
+          },
+          {
+            "name": "prompt",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000
+            }
+          },
+          {
+            "name": "samplerName",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "defaultValue": "euler"
+            }
+          },
+          {
+            "name": "scheduler",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "defaultValue": "simple"
+            }
+          },
+          {
+            "name": "seed",
+            "required": true,
+            "schema": {
+              "kind": "number"
+            }
+          },
+          {
+            "name": "steps",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "defaultValue": 20
+            }
+          },
+          {
+            "name": "stickers",
+            "required": false,
+            "schema": {
+              "kind": "array",
+              "maxItems": 4096,
+              "items": {
+                "kind": "object",
+                "fields": [
+                  {
+                    "name": "assetId",
+                    "required": true,
+                    "schema": {
+                      "kind": "string",
+                      "minLength": 36,
+                      "maxLength": 36,
+                      "description": "Owned asset UUID only; gateway verifies scope before resolving."
+                    }
+                  },
+                  {
+                    "name": "pitchDeg",
+                    "required": true,
+                    "schema": {
+                      "kind": "number"
+                    }
+                  },
+                  {
+                    "name": "yawDeg",
+                    "required": true,
+                    "schema": {
+                      "kind": "number"
+                    }
+                  },
+                  {
+                    "name": "hFovDeg",
+                    "required": true,
+                    "schema": {
+                      "kind": "number"
+                    }
+                  },
+                  {
+                    "name": "rollDeg",
+                    "required": false,
+                    "schema": {
+                      "kind": "number",
+                      "defaultValue": 0
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "name": "upscale",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "defaultValue": "none"
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "stickers",
+            "*",
+            "assetId"
+          ],
+          "kind": "asset"
+        }
+      ],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "text-to-material": {
+      "schemaHash": "dadb52192061c8051b84a54f076df9b238ffff09035fb5000941ddc7dee441c6",
+      "family": "generation",
+      "costClass": "paid_dynamic",
+      "fixedCost": null,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "enablePromptExpansion",
+            "required": false,
+            "schema": {
+              "kind": "boolean",
+              "defaultValue": true
+            }
+          },
+          {
+            "name": "enableSafetyChecker",
+            "required": false,
+            "schema": {
+              "kind": "boolean",
+              "defaultValue": true
+            }
+          },
+          {
+            "name": "imageSize",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "square_hd",
+                "square",
+                "portrait_4_3",
+                "portrait_16_9",
+                "landscape_4_3",
+                "landscape_16_9"
+              ],
+              "defaultValue": "square_hd"
+            }
+          },
+          {
+            "name": "maps",
+            "required": false,
+            "schema": {
+              "kind": "array",
+              "maxItems": 4096,
+              "items": {
+                "kind": "string",
+                "maxLength": 4000,
+                "choices": [
+                  "basecolor",
+                  "normal",
+                  "roughness",
+                  "metalness",
+                  "height"
+                ]
+              }
+            }
+          },
+          {
+            "name": "maskAssetId",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "Owned asset UUID only; gateway verifies scope before resolving."
+            }
+          },
+          {
+            "name": "maxPollTimeMs",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 10000,
+              "defaultValue": 600000
+            }
+          },
+          {
+            "name": "numImages",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 1,
+              "maximum": 4,
+              "defaultValue": 1
+            }
+          },
+          {
+            "name": "numInferenceSteps",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 1,
+              "maximum": 8,
+              "defaultValue": 8
+            }
+          },
+          {
+            "name": "outputFormat",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "png",
+                "jpeg",
+                "webp"
+              ],
+              "defaultValue": "png"
+            }
+          },
+          {
+            "name": "referenceImageAssetId",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "Owned asset UUID only; gateway verifies scope before resolving."
+            }
+          },
+          {
+            "name": "resolution",
+            "required": true,
+            "schema": {
+              "kind": "number",
+              "minimum": 1,
+              "maximum": 14142
+            }
+          },
+          {
+            "name": "seed",
+            "required": false,
+            "schema": {
+              "kind": "number"
+            }
+          },
+          {
+            "name": "strength",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "defaultValue": 0.75
+            }
+          },
+          {
+            "name": "textPrompt",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000
+            }
+          },
+          {
+            "name": "tileSize",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 32,
+              "maximum": 256,
+              "defaultValue": 128
+            }
+          },
+          {
+            "name": "tileStride",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 16,
+              "maximum": 128,
+              "defaultValue": 64
+            }
+          },
+          {
+            "name": "tilingMode",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "both",
+                "horizontal",
+                "vertical"
+              ],
+              "defaultValue": "both"
+            }
+          },
+          {
+            "name": "upscaleFactor",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "choices": [
+                0,
+                2,
+                4
+              ],
+              "defaultValue": 0
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "maskAssetId"
+          ],
+          "kind": "asset",
+          "upstreamField": "maskUrl"
+        },
+        {
+          "path": [
+            "referenceImageAssetId"
+          ],
+          "kind": "asset",
+          "upstreamField": "referenceImageUrl"
+        }
+      ],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "texture-to-material": {
+      "schemaHash": "7c2e613f8fd8c079676bde45af891c91366a79cbb5b36d9aea0c10e56f8485c5",
+      "family": "generation",
+      "costClass": "paid_fixed",
+      "fixedCost": 20,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "enableSafetyChecker",
+            "required": false,
+            "schema": {
+              "kind": "boolean",
+              "defaultValue": true
+            }
+          },
+          {
+            "name": "maps",
+            "required": false,
+            "schema": {
+              "kind": "array",
+              "maxItems": 4096,
+              "items": {
+                "kind": "string",
+                "maxLength": 4000,
+                "choices": [
+                  "basecolor",
+                  "normal",
+                  "roughness",
+                  "metalness",
+                  "height"
+                ]
+              }
+            }
+          },
+          {
+            "name": "maxPollTimeMs",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 10000,
+              "defaultValue": 300000
+            }
+          },
+          {
+            "name": "outputFormat",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "png",
+                "jpeg",
+                "webp"
+              ],
+              "defaultValue": "png"
+            }
+          },
+          {
+            "name": "referenceTexture",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "Owned asset UUID only; gateway verifies scope before resolving."
+            }
+          },
+          {
+            "name": "seed",
+            "required": false,
+            "schema": {
+              "kind": "number"
+            }
+          },
+          {
+            "name": "syncMode",
+            "required": false,
+            "schema": {
+              "kind": "boolean",
+              "defaultValue": false
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "referenceTexture"
+          ],
+          "kind": "asset"
+        }
+      ],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "image-to-material": {
+      "schemaHash": "cdb9c809cb12308d884f09446c6ef015c2ce15f41bee45cd542318814f1fdfc9",
+      "family": "generation",
+      "costClass": "paid_dynamic",
+      "fixedCost": null,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "enablePromptExpansion",
+            "required": false,
+            "schema": {
+              "kind": "boolean",
+              "defaultValue": true
+            }
+          },
+          {
+            "name": "enableSafetyChecker",
+            "required": false,
+            "schema": {
+              "kind": "boolean",
+              "defaultValue": true
+            }
+          },
+          {
+            "name": "imageSize",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "square_hd",
+                "square",
+                "portrait_4_3",
+                "portrait_16_9",
+                "landscape_4_3",
+                "landscape_16_9"
+              ],
+              "defaultValue": "square_hd"
+            }
+          },
+          {
+            "name": "maps",
+            "required": false,
+            "schema": {
+              "kind": "array",
+              "maxItems": 4096,
+              "items": {
+                "kind": "string",
+                "maxLength": 4000,
+                "choices": [
+                  "basecolor",
+                  "normal",
+                  "roughness",
+                  "metalness",
+                  "height"
+                ]
+              }
+            }
+          },
+          {
+            "name": "maxPollTimeMs",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 10000,
+              "defaultValue": 600000
+            }
+          },
+          {
+            "name": "numImages",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 1,
+              "maximum": 4,
+              "defaultValue": 1
+            }
+          },
+          {
+            "name": "numInferenceSteps",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 1,
+              "maximum": 8,
+              "defaultValue": 8
+            }
+          },
+          {
+            "name": "outputFormat",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "png",
+                "jpeg",
+                "webp"
+              ],
+              "defaultValue": "png"
+            }
+          },
+          {
+            "name": "referenceImage",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "Owned asset UUID only; gateway verifies scope before resolving."
+            }
+          },
+          {
+            "name": "resolution",
+            "required": true,
+            "schema": {
+              "kind": "number",
+              "minimum": 1,
+              "maximum": 14142
+            }
+          },
+          {
+            "name": "seed",
+            "required": false,
+            "schema": {
+              "kind": "number"
+            }
+          },
+          {
+            "name": "strength",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "defaultValue": 0.75
+            }
+          },
+          {
+            "name": "textPrompt",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000
+            }
+          },
+          {
+            "name": "tileSize",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 32,
+              "maximum": 256,
+              "defaultValue": 128
+            }
+          },
+          {
+            "name": "tileStride",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 16,
+              "maximum": 128,
+              "defaultValue": 64
+            }
+          },
+          {
+            "name": "tilingMode",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "both",
+                "horizontal",
+                "vertical"
+              ],
+              "defaultValue": "both"
+            }
+          },
+          {
+            "name": "upscaleFactor",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "choices": [
+                0,
+                2,
+                4
+              ],
+              "defaultValue": 0
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "referenceImage"
+          ],
+          "kind": "asset"
+        }
+      ],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "image-to-3d-mesh": {
+      "schemaHash": "7e433a06bbff1f109c2d44abca44db22e486ab8b115cc234780a5a76e5db3c80",
+      "family": "generation",
+      "costClass": "paid_fixed",
+      "fixedCost": 25,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "referenceImage",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "Owned asset UUID only; gateway verifies scope before resolving."
+            }
+          },
+          {
+            "name": "seed",
+            "required": true,
+            "schema": {
+              "kind": "number"
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "referenceImage"
+          ],
+          "kind": "asset"
+        }
+      ],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "tripo-image-to-3d-mesh": {
+      "schemaHash": "72f6187194467f8b1e15e00710a9e27c725ee5357f82caf8a99c09b2fc0bb080",
+      "family": "generation",
+      "costClass": "paid_dynamic",
+      "fixedCost": null,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "autoScale",
+            "required": false,
+            "schema": {
+              "kind": "boolean",
+              "defaultValue": false
+            }
+          },
+          {
+            "name": "compression",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "none",
+                "geometry"
+              ],
+              "defaultValue": "none"
+            }
+          },
+          {
+            "name": "enableImageAutofix",
+            "required": false,
+            "schema": {
+              "kind": "boolean",
+              "defaultValue": false
+            }
+          },
+          {
+            "name": "exportOrientation",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "+x",
+                "-x",
+                "-y",
+                "+y"
+              ]
+            }
+          },
+          {
+            "name": "exportUv",
+            "required": false,
+            "schema": {
+              "kind": "boolean",
+              "defaultValue": true
+            }
+          },
+          {
+            "name": "faceLimit",
+            "required": false,
+            "schema": {
+              "kind": "number"
+            }
+          },
+          {
+            "name": "generateParts",
+            "required": false,
+            "schema": {
+              "kind": "boolean",
+              "defaultValue": false
+            }
+          },
+          {
+            "name": "geometryQuality",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "standard",
+                "detailed"
+              ],
+              "defaultValue": "standard"
+            }
+          },
+          {
+            "name": "maxPollTimeMs",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 10000,
+              "defaultValue": 900000
+            }
+          },
+          {
+            "name": "modelVersion",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "P1-20260311",
+                "P2-20260801",
+                "v3.1-20260211"
+              ],
+              "defaultValue": "P1-20260311"
+            }
+          },
+          {
+            "name": "needPbr",
+            "required": false,
+            "schema": {
+              "kind": "boolean",
+              "defaultValue": true
+            }
+          },
+          {
+            "name": "needQuadMesh",
+            "required": false,
+            "schema": {
+              "kind": "boolean",
+              "defaultValue": false
+            }
+          },
+          {
+            "name": "orientation",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "default",
+                "align_image"
+              ],
+              "defaultValue": "default"
+            }
+          },
+          {
+            "name": "referenceImage",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "Owned asset UUID only; gateway verifies scope before resolving."
+            }
+          },
+          {
+            "name": "seed",
+            "required": false,
+            "schema": {
+              "kind": "number"
+            }
+          },
+          {
+            "name": "smartLowPoly",
+            "required": false,
+            "schema": {
+              "kind": "boolean",
+              "defaultValue": false
+            }
+          },
+          {
+            "name": "texture",
+            "required": false,
+            "schema": {
+              "kind": "boolean",
+              "defaultValue": true
+            }
+          },
+          {
+            "name": "textureAlignment",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "original_image",
+                "geometry"
+              ],
+              "defaultValue": "original_image"
+            }
+          },
+          {
+            "name": "textureQuality",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "standard",
+                "detailed",
+                "extreme"
+              ],
+              "defaultValue": "standard"
+            }
+          },
+          {
+            "name": "textureSeed",
+            "required": false,
+            "schema": {
+              "kind": "number"
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "referenceImage"
+          ],
+          "kind": "asset"
+        }
+      ],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "tripo-rig-check": {
+      "schemaHash": "9082753f3b27f4985e04024b2b811a80cae0876f223a741dd41b59fa7df0f23a",
+      "family": "generation",
+      "costClass": "free_compute",
+      "fixedCost": 0,
+      "tier": "hosted-mutation",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "sourceModel",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "Owned asset UUID only; gateway verifies scope before resolving."
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "sourceModel"
+          ],
+          "kind": "asset"
+        }
+      ],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "blender-auto-rig": {
+      "schemaHash": "40f4cd5f9231ff5cd914d1602bf0be334307b3fcd521e545a907894006f9f22a",
+      "family": "generation",
+      "costClass": "paid_fixed",
+      "fixedCost": 15,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "mesh",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "Owned asset UUID only; gateway verifies scope before resolving."
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "mesh"
+          ],
+          "kind": "asset"
+        }
+      ],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "tripo-auto-rig": {
+      "schemaHash": "886a0450d558108260b9808adcdc77433ba4b8e336e117c3dd3164c42fe1573a",
+      "family": "generation",
+      "costClass": "paid_fixed",
+      "fixedCost": 45,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "rigType",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "biped",
+                "quadruped",
+                "hexapod",
+                "octopod",
+                "avian",
+                "serpentine",
+                "aquatic"
+              ]
+            }
+          },
+          {
+            "name": "skipRigCheck",
+            "required": false,
+            "schema": {
+              "kind": "boolean",
+              "defaultValue": false
+            }
+          },
+          {
+            "name": "sourceModel",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "Owned asset UUID only; gateway verifies scope before resolving."
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "sourceModel"
+          ],
+          "kind": "asset"
+        }
+      ],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "tripo-retopology": {
+      "schemaHash": "4667c70f7357b747157b48b0946e055e18f2d62c3b6bd77495671d90c6091190",
+      "family": "generation",
+      "costClass": "paid_dynamic",
+      "fixedCost": null,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "bakeTextures",
+            "required": false,
+            "schema": {
+              "kind": "boolean"
+            }
+          },
+          {
+            "name": "faceLimit",
+            "required": false,
+            "schema": {
+              "kind": "number"
+            }
+          },
+          {
+            "name": "mode",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "smart",
+                "basic"
+              ],
+              "defaultValue": "smart"
+            }
+          },
+          {
+            "name": "sourceModel",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "Owned asset UUID only; gateway verifies scope before resolving."
+            }
+          },
+          {
+            "name": "topology",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "triangles",
+                "quads"
+              ]
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "sourceModel"
+          ],
+          "kind": "asset"
+        }
+      ],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "text-to-sound-effect": {
+      "schemaHash": "b292dc96fd6e0021c9bb002e8552947018292705b42be0aa9de4ebc215395ede",
+      "family": "generation",
+      "costClass": "paid_dynamic",
+      "fixedCost": null,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "duration",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 0.5,
+              "maximum": 30
+            }
+          },
+          {
+            "name": "loop",
+            "required": false,
+            "schema": {
+              "kind": "boolean",
+              "defaultValue": false
+            }
+          },
+          {
+            "name": "modelId",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "defaultValue": "eleven_text_to_sound_v2"
+            }
+          },
+          {
+            "name": "outputFormat",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "mp3_22050_32",
+                "mp3_24000_48",
+                "mp3_44100_32",
+                "mp3_44100_64",
+                "mp3_44100_96",
+                "mp3_44100_128",
+                "mp3_44100_192",
+                "pcm_8000",
+                "pcm_16000",
+                "pcm_22050",
+                "pcm_24000",
+                "pcm_32000",
+                "pcm_44100",
+                "pcm_48000",
+                "ulaw_8000",
+                "alaw_8000",
+                "opus_48000_32",
+                "opus_48000_64",
+                "opus_48000_96",
+                "opus_48000_128",
+                "opus_48000_192"
+              ],
+              "defaultValue": "pcm_48000"
+            }
+          },
+          {
+            "name": "prompt",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 450
+            }
+          },
+          {
+            "name": "promptInfluence",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "defaultValue": 0.3
+            }
+          },
+          {
+            "name": "timeoutMs",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 10000,
+              "maximum": 900000,
+              "defaultValue": 300000
+            }
+          }
+        ]
+      },
+      "inputReferences": [],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "prompt-to-dart-translation": {
+      "schemaHash": "bd01629c70e87420dcb76703e2ce2976cbc56595e5d47df65a856ea66d7840a2",
+      "family": "generation",
+      "costClass": "paid_fixed",
+      "fixedCost": 1,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "inputPrompt",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000
+            }
+          },
+          {
+            "name": "maxOutputUnits",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "defaultValue": 200
+            }
+          },
+          {
+            "name": "prompt",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000
+            }
+          },
+          {
+            "name": "temperature",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "defaultValue": 0.7
+            }
+          }
+        ]
+      },
+      "inputReferences": [],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        },
+        {
+          "path": [
+            "maxOutputUnits"
+          ],
+          "upstreamField": "maxTokens",
+          "policy": "reviewed-field-alias"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "openai-gpt-image-2-v4-fn": {
+      "schemaHash": "3164195655d06f82835f50eab88bb627a0d9039da7835ee5ed2e997292d9e004",
+      "family": "generation",
+      "costClass": "paid_dynamic",
+      "fixedCost": null,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "background",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "opaque",
+                "transparent",
+                "auto"
+              ],
+              "defaultValue": "opaque"
+            }
+          },
+          {
+            "name": "enhancePrompt",
+            "required": false,
+            "schema": {
+              "kind": "boolean",
+              "defaultValue": true
+            }
+          },
+          {
+            "name": "height",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 16,
+              "maximum": 3840
+            }
+          },
+          {
+            "name": "masks",
+            "required": false,
+            "schema": {
+              "kind": "array",
+              "maxItems": 1,
+              "items": {
+                "kind": "string",
+                "minLength": 36,
+                "maxLength": 36,
+                "description": "Owned asset UUID only; gateway verifies scope before resolving."
+              }
+            }
+          },
+          {
+            "name": "maxPollTimeMs",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 10000,
+              "defaultValue": 300000
+            }
+          },
+          {
+            "name": "mode",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "edit",
+                "generate"
+              ]
+            }
+          },
+          {
+            "name": "n",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 1,
+              "maximum": 4,
+              "defaultValue": 1
+            }
+          },
+          {
+            "name": "prompt",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000
+            }
+          },
+          {
+            "name": "quality",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "low",
+                "medium",
+                "high"
+              ],
+              "defaultValue": "medium"
+            }
+          },
+          {
+            "name": "seed",
+            "required": false,
+            "schema": {
+              "kind": "number"
+            }
+          },
+          {
+            "name": "size",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "auto",
+                "832x832",
+                "768x1152",
+                "720x1280",
+                "1280x720",
+                "1024x1024",
+                "1024x1536",
+                "1536x1024",
+                "1152x2048",
+                "2048x1152",
+                "1536x2304",
+                "1440x2560",
+                "2560x1440",
+                "2048x2048",
+                "2048x3072",
+                "2160x3840",
+                "2880x2880",
+                "3840x2160"
+              ],
+              "defaultValue": "1024x1024"
+            }
+          },
+          {
+            "name": "sourceAsset",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "Owned asset UUID only; gateway verifies scope before resolving."
+            }
+          },
+          {
+            "name": "width",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 16,
+              "maximum": 3840
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "masks",
+            "*"
+          ],
+          "kind": "asset"
+        },
+        {
+          "path": [
+            "sourceAsset"
+          ],
+          "kind": "asset"
+        }
+      ],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "concept-lab-img-fn": {
+      "schemaHash": "436f86e7bd77db2ee80fb504014f6ea8cebcb82dd7c5498558d12835567d1560",
+      "family": "generation",
+      "costClass": "paid_dynamic",
+      "fixedCost": null,
+      "tier": "paid",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "background",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "opaque",
+                "transparent",
+                "auto"
+              ],
+              "defaultValue": "opaque"
+            }
+          },
+          {
+            "name": "conceptType",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "object",
+                "character",
+                "environmentMap",
+                "world"
+              ]
+            }
+          },
+          {
+            "name": "enhancePrompt",
+            "required": false,
+            "schema": {
+              "kind": "boolean",
+              "defaultValue": true
+            }
+          },
+          {
+            "name": "height",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 16,
+              "maximum": 3840
+            }
+          },
+          {
+            "name": "masks",
+            "required": false,
+            "schema": {
+              "kind": "array",
+              "maxItems": 1,
+              "items": {
+                "kind": "string",
+                "minLength": 36,
+                "maxLength": 36,
+                "description": "Owned asset UUID only; gateway verifies scope before resolving."
+              }
+            }
+          },
+          {
+            "name": "mode",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "edit",
+                "generate"
+              ]
+            }
+          },
+          {
+            "name": "n",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 1,
+              "maximum": 4,
+              "defaultValue": 1
+            }
+          },
+          {
+            "name": "prompt",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000
+            }
+          },
+          {
+            "name": "quality",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "low",
+                "medium",
+                "high"
+              ],
+              "defaultValue": "medium"
+            }
+          },
+          {
+            "name": "referenceAssets",
+            "required": false,
+            "schema": {
+              "kind": "array",
+              "maxItems": 4096,
+              "items": {
+                "kind": "string",
+                "minLength": 36,
+                "maxLength": 36,
+                "description": "Owned asset UUID only; gateway verifies scope before resolving."
+              }
+            }
+          },
+          {
+            "name": "seed",
+            "required": false,
+            "schema": {
+              "kind": "number"
+            }
+          },
+          {
+            "name": "size",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "auto",
+                "832x832",
+                "768x1152",
+                "720x1280",
+                "1280x720",
+                "1024x1024",
+                "1024x1536",
+                "1536x1024",
+                "1152x2048",
+                "2048x1152",
+                "1536x2304",
+                "1440x2560",
+                "2560x1440",
+                "2048x2048",
+                "2048x3072",
+                "2160x3840",
+                "2880x2880",
+                "3840x2160"
+              ],
+              "defaultValue": "1024x1024"
+            }
+          },
+          {
+            "name": "sourceAsset",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "Owned asset UUID only; gateway verifies scope before resolving."
+            }
+          },
+          {
+            "name": "width",
+            "required": false,
+            "schema": {
+              "kind": "number",
+              "minimum": 16,
+              "maximum": 3840
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "masks",
+            "*"
+          ],
+          "kind": "asset"
+        },
+        {
+          "path": [
+            "referenceAssets",
+            "*"
+          ],
+          "kind": "asset"
+        },
+        {
+          "path": [
+            "sourceAsset"
+          ],
+          "kind": "asset"
+        }
+      ],
+      "inputRestrictions": [
+        {
+          "path": [],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": [
+          "content",
+          0,
+          "text",
+          "jobId"
+        ],
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "studiotwin_get_job_status": {
+      "schemaHash": "aa64007304a6698ee7ee00bc7e241f0fed15619e37da60e29fd76e77d590d8d1",
+      "family": "platform",
+      "costClass": "free_read",
+      "fixedCost": null,
+      "tier": "hosted-read",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "jobId",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000
+            }
+          }
+        ]
+      },
+      "inputReferences": [],
+      "inputRestrictions": [],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": null,
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "studiotwin_estimate_cost": {
+      "schemaHash": "72595c3cecfbadbdb48af31cf0252d14199c1069145405ae5b592eb0716ce42c",
+      "family": "platform",
+      "costClass": "free_read",
+      "fixedCost": null,
+      "tier": "hosted-read",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "functionName",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000
+            }
+          },
+          {
+            "name": "inputs",
+            "required": false,
+            "schema": {
+              "kind": "object",
+              "fields": []
+            }
+          }
+        ]
+      },
+      "inputReferences": [],
+      "inputRestrictions": [
+        {
+          "path": [
+            "inputs"
+          ],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": null,
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "studiotwin_get_credit_balance": {
+      "schemaHash": "6d44d44808ee42826dacb5d0e29396a67cd8354922ec934c2b628219caedb09a",
+      "family": "platform",
+      "costClass": "free_read",
+      "fixedCost": null,
+      "tier": "hosted-read",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": []
+      },
+      "inputReferences": [],
+      "inputRestrictions": [],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": null,
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "studiotwin_list_my_jobs": {
+      "schemaHash": "30625427f42cb8ead31d5abf5bb22137424840cbf5dff7c75ebc4aa88a54c751",
+      "family": "platform",
+      "costClass": "free_read",
+      "fixedCost": null,
+      "tier": "hosted-read",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "kind": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "kind": "number"
+            }
+          }
+        ]
+      },
+      "inputReferences": [],
+      "inputRestrictions": [],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": null,
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "studiotwin_cancel_job": {
+      "schemaHash": "810feb437ffab3327db2c388c789311e388051431f27db75e80898252c920f2f",
+      "family": "platform",
+      "costClass": "free_read",
+      "fixedCost": null,
+      "tier": "hosted-mutation",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "jobId",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000
+            }
+          }
+        ]
+      },
+      "inputReferences": [],
+      "inputRestrictions": [],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": null,
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "studiotwin_list_my_assets": {
+      "schemaHash": "ec86c7bd601ca6763e90737681f984847e5916af987e91bbebfaca7dabf04485",
+      "family": "platform",
+      "costClass": "free_read",
+      "fixedCost": null,
+      "tier": "hosted-read",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "type",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "image",
+                "image_sequence",
+                "3d_model",
+                "animation",
+                "audio",
+                "video",
+                "unknown",
+                "jpg",
+                "png"
+              ]
+            }
+          }
+        ]
+      },
+      "inputReferences": [],
+      "inputRestrictions": [],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": null,
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "studiotwin_upload_asset": {
+      "schemaHash": "dc526c3965946b6cab5f276832f026e1d4b31e8fd2a82078df8423b98ed833ea",
+      "family": "platform",
+      "costClass": "free_read",
+      "fixedCost": null,
+      "tier": "hosted-mutation",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": []
+      },
+      "inputReferences": [],
+      "inputRestrictions": [],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": null,
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "studiotwin_complete_asset_upload": {
+      "schemaHash": "0129cf473a30d0648f77ca98118bd9552f1d94b6ff49563c353df0383ebc9774",
+      "family": "platform",
+      "costClass": "free_read",
+      "fixedCost": null,
+      "tier": "hosted-mutation",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "uploadSessionId",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000
+            }
+          },
+          {
+            "name": "entries",
+            "required": false,
+            "schema": {
+              "kind": "array",
+              "maxItems": 4096,
+              "items": {
+                "kind": "object",
+                "fields": [
+                  {
+                    "name": "name",
+                    "required": true,
+                    "schema": {
+                      "kind": "string",
+                      "maxLength": 4000
+                    }
+                  },
+                  {
+                    "name": "offset",
+                    "required": true,
+                    "schema": {
+                      "kind": "integer"
+                    }
+                  },
+                  {
+                    "name": "size",
+                    "required": true,
+                    "schema": {
+                      "kind": "integer"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "inputReferences": [],
+      "inputRestrictions": [],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": null,
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "studiotwin_resolve_asset": {
+      "schemaHash": "42218c7d7f138388c904952b0651e38448a46606a193003cc4ae93cded3e702a",
+      "family": "platform",
+      "costClass": "free_read",
+      "fixedCost": null,
+      "tier": "hosted-read",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "assetId",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000
+            }
+          }
+        ]
+      },
+      "inputReferences": [],
+      "inputRestrictions": [],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": null,
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "studiotwin_conceptlab_create": {
+      "schemaHash": "f5637cc435dfdd23033351a188527cd40c19edd8cb2a32a40369ba5dcac42dd1",
+      "family": "concept",
+      "costClass": "free_read",
+      "fixedCost": null,
+      "tier": "hosted-mutation",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "conceptType",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "object",
+                "character",
+                "environmentMap",
+                "world"
+              ]
+            }
+          },
+          {
+            "name": "name",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          {
+            "name": "metadata",
+            "required": false,
+            "schema": {
+              "kind": "object",
+              "fields": []
+            }
+          }
+        ]
+      },
+      "inputReferences": [],
+      "inputRestrictions": [
+        {
+          "path": [
+            "metadata"
+          ],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": null,
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "studiotwin_conceptlab_create_and_generate": {
+      "schemaHash": "3627b1ecc1ca6c37576d35b45491430c993bc2dbdc63dbbf0e0360d73e7360d2",
+      "family": "concept",
+      "costClass": "paid_dynamic",
+      "fixedCost": null,
+      "tier": "paid",
+      "disabledReason": "concept-paid-d22",
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "conceptType",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "maxLength": 4000,
+              "choices": [
+                "object",
+                "character",
+                "environmentMap",
+                "world"
+              ]
+            }
+          },
+          {
+            "name": "name",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          {
+            "name": "metadata",
+            "required": false,
+            "schema": {
+              "kind": "object",
+              "fields": []
+            }
+          },
+          {
+            "name": "jobInputs",
+            "required": true,
+            "schema": {
+              "kind": "object",
+              "fields": [
+                {
+                  "name": "modelId",
+                  "required": true,
+                  "schema": {
+                    "kind": "string",
+                    "maxLength": 4000,
+                    "choices": [
+                      "openai/gpt-image-2"
+                    ]
+                  }
+                },
+                {
+                  "name": "prompt",
+                  "required": true,
+                  "schema": {
+                    "kind": "object",
+                    "fields": [
+                      {
+                        "name": "user",
+                        "required": true,
+                        "schema": {
+                          "kind": "string",
+                          "maxLength": 4000
+                        }
+                      },
+                      {
+                        "name": "enhancement",
+                        "required": true,
+                        "schema": {
+                          "kind": "object",
+                          "fields": [
+                            {
+                              "name": "enabled",
+                              "required": true,
+                              "schema": {
+                                "kind": "boolean"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "sourceAsset",
+                  "required": false,
+                  "schema": {
+                    "kind": "string",
+                    "maxLength": 4000
+                  }
+                },
+                {
+                  "name": "params",
+                  "required": false,
+                  "schema": {
+                    "kind": "object",
+                    "fields": [
+                      {
+                        "name": "quality",
+                        "required": false,
+                        "schema": {
+                          "kind": "string",
+                          "maxLength": 4000,
+                          "choices": [
+                            "low",
+                            "medium",
+                            "high"
+                          ],
+                          "defaultValue": "medium"
+                        }
+                      },
+                      {
+                        "name": "resolution",
+                        "required": false,
+                        "schema": {
+                          "kind": "string",
+                          "maxLength": 4000,
+                          "choices": [
+                            "auto",
+                            "832x832",
+                            "1024x1024",
+                            "2048x2048",
+                            "2880x2880",
+                            "768x1152",
+                            "1024x1536",
+                            "1152x2048",
+                            "1536x2304",
+                            "2048x3072",
+                            "2160x3840",
+                            "1536x1024",
+                            "2048x1152",
+                            "3840x2160",
+                            "720x1280",
+                            "1440x2560",
+                            "1280x720",
+                            "2560x1440"
+                          ],
+                          "defaultValue": "1024x1024"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "inputReferences": [],
+      "inputRestrictions": [
+        {
+          "path": [
+            "metadata"
+          ],
+          "policy": "reviewed-fields-only"
+        },
+        {
+          "path": [
+            "jobInputs",
+            "params"
+          ],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": null,
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "studiotwin_conceptlab_list": {
+      "schemaHash": "837b9eafb9a4e1c95a54b16937cc4d313e49cf08b3ddd600563e42e51a2e4ea3",
+      "family": "concept",
+      "costClass": "free_read",
+      "fixedCost": null,
+      "tier": "hosted-read",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "kind": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "defaultValue": 20
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "kind": "integer",
+              "minimum": 0,
+              "defaultValue": 0
+            }
+          }
+        ]
+      },
+      "inputReferences": [],
+      "inputRestrictions": [],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": null,
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "studiotwin_conceptlab_get": {
+      "schemaHash": "214a65d892b566b33b4a330830f3a063653e6fad3574113eab0969e5644266a4",
+      "family": "concept",
+      "costClass": "free_read",
+      "fixedCost": null,
+      "tier": "hosted-read",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "conceptId",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "UUID identifier."
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "conceptId"
+          ],
+          "kind": "uuid"
+        }
+      ],
+      "inputRestrictions": [],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": null,
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "studiotwin_conceptlab_get_status": {
+      "schemaHash": "5d417102da929cb3da952d87cf38ed3f9d8db5836a954a90870e281c513b3d38",
+      "family": "concept",
+      "costClass": "free_read",
+      "fixedCost": null,
+      "tier": "hosted-read",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "conceptId",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "UUID identifier."
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "conceptId"
+          ],
+          "kind": "uuid"
+        }
+      ],
+      "inputRestrictions": [],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": null,
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "studiotwin_conceptlab_attach_asset": {
+      "schemaHash": "9fa04bee33c308f0be907b305dbe2913134efab429e06a023f40aefe76367aa7",
+      "family": "concept",
+      "costClass": "free_read",
+      "fixedCost": null,
+      "tier": "hosted-mutation",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "conceptId",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "UUID identifier."
+            }
+          },
+          {
+            "name": "assetId",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "Owned asset UUID only; gateway verifies scope before resolving."
+            }
+          },
+          {
+            "name": "makeActive",
+            "required": false,
+            "schema": {
+              "kind": "boolean",
+              "defaultValue": false
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "conceptId"
+          ],
+          "kind": "uuid"
+        },
+        {
+          "path": [
+            "assetId"
+          ],
+          "kind": "asset"
+        }
+      ],
+      "inputRestrictions": [],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": null,
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "studiotwin_conceptlab_generate": {
+      "schemaHash": "506b9fb1c9ddd2feae52fe436404d3b936a31869d9a3d8377813811a83836646",
+      "family": "concept",
+      "costClass": "paid_dynamic",
+      "fixedCost": null,
+      "tier": "paid",
+      "disabledReason": "concept-paid-d22",
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "conceptId",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "UUID identifier."
+            }
+          },
+          {
+            "name": "jobInputs",
+            "required": true,
+            "schema": {
+              "kind": "object",
+              "fields": [
+                {
+                  "name": "modelId",
+                  "required": true,
+                  "schema": {
+                    "kind": "string",
+                    "maxLength": 4000,
+                    "choices": [
+                      "openai/gpt-image-2"
+                    ]
+                  }
+                },
+                {
+                  "name": "prompt",
+                  "required": true,
+                  "schema": {
+                    "kind": "object",
+                    "fields": [
+                      {
+                        "name": "user",
+                        "required": true,
+                        "schema": {
+                          "kind": "string",
+                          "maxLength": 4000
+                        }
+                      },
+                      {
+                        "name": "enhancement",
+                        "required": true,
+                        "schema": {
+                          "kind": "object",
+                          "fields": [
+                            {
+                              "name": "enabled",
+                              "required": true,
+                              "schema": {
+                                "kind": "boolean"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "sourceAsset",
+                  "required": false,
+                  "schema": {
+                    "kind": "string",
+                    "maxLength": 4000
+                  }
+                },
+                {
+                  "name": "params",
+                  "required": false,
+                  "schema": {
+                    "kind": "object",
+                    "fields": [
+                      {
+                        "name": "quality",
+                        "required": false,
+                        "schema": {
+                          "kind": "string",
+                          "maxLength": 4000,
+                          "choices": [
+                            "low",
+                            "medium",
+                            "high"
+                          ],
+                          "defaultValue": "medium"
+                        }
+                      },
+                      {
+                        "name": "resolution",
+                        "required": false,
+                        "schema": {
+                          "kind": "string",
+                          "maxLength": 4000,
+                          "choices": [
+                            "auto",
+                            "832x832",
+                            "1024x1024",
+                            "2048x2048",
+                            "2880x2880",
+                            "768x1152",
+                            "1024x1536",
+                            "1152x2048",
+                            "1536x2304",
+                            "2048x3072",
+                            "2160x3840",
+                            "1536x1024",
+                            "2048x1152",
+                            "3840x2160",
+                            "720x1280",
+                            "1440x2560",
+                            "1280x720",
+                            "2560x1440"
+                          ],
+                          "defaultValue": "1024x1024"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "conceptId"
+          ],
+          "kind": "uuid"
+        }
+      ],
+      "inputRestrictions": [
+        {
+          "path": [
+            "jobInputs",
+            "params"
+          ],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": null,
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "studiotwin_conceptlab_edit": {
+      "schemaHash": "0ef89f4c5388141527cc92b93973b577545bf316b4803b3e7f7368a0387af00c",
+      "family": "concept",
+      "costClass": "paid_dynamic",
+      "fixedCost": null,
+      "tier": "paid",
+      "disabledReason": "concept-paid-d22",
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "conceptId",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "UUID identifier."
+            }
+          },
+          {
+            "name": "jobInputs",
+            "required": true,
+            "schema": {
+              "kind": "object",
+              "fields": [
+                {
+                  "name": "modelId",
+                  "required": true,
+                  "schema": {
+                    "kind": "string",
+                    "maxLength": 4000,
+                    "choices": [
+                      "openai/gpt-image-2"
+                    ]
+                  }
+                },
+                {
+                  "name": "prompt",
+                  "required": true,
+                  "schema": {
+                    "kind": "object",
+                    "fields": [
+                      {
+                        "name": "user",
+                        "required": true,
+                        "schema": {
+                          "kind": "string",
+                          "maxLength": 4000
+                        }
+                      },
+                      {
+                        "name": "enhancement",
+                        "required": true,
+                        "schema": {
+                          "kind": "object",
+                          "fields": [
+                            {
+                              "name": "enabled",
+                              "required": true,
+                              "schema": {
+                                "kind": "boolean"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "params",
+                  "required": false,
+                  "schema": {
+                    "kind": "object",
+                    "fields": [
+                      {
+                        "name": "quality",
+                        "required": false,
+                        "schema": {
+                          "kind": "string",
+                          "maxLength": 4000,
+                          "choices": [
+                            "low",
+                            "medium",
+                            "high"
+                          ],
+                          "defaultValue": "medium"
+                        }
+                      },
+                      {
+                        "name": "resolution",
+                        "required": false,
+                        "schema": {
+                          "kind": "string",
+                          "maxLength": 4000,
+                          "choices": [
+                            "auto",
+                            "832x832",
+                            "1024x1024",
+                            "2048x2048",
+                            "2880x2880",
+                            "768x1152",
+                            "1024x1536",
+                            "1152x2048",
+                            "1536x2304",
+                            "2048x3072",
+                            "2160x3840",
+                            "1536x1024",
+                            "2048x1152",
+                            "3840x2160",
+                            "720x1280",
+                            "1440x2560",
+                            "1280x720",
+                            "2560x1440"
+                          ],
+                          "defaultValue": "1024x1024"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "conceptId"
+          ],
+          "kind": "uuid"
+        }
+      ],
+      "inputRestrictions": [
+        {
+          "path": [
+            "jobInputs",
+            "params"
+          ],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": null,
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "studiotwin_conceptlab_clone": {
+      "schemaHash": "307c661c35d1bb47c76474b9a221cb5c6ad8da007b2018ccbdd2bf0d676150cb",
+      "family": "concept",
+      "costClass": "free_read",
+      "fixedCost": null,
+      "tier": "hosted-mutation",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "conceptId",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "UUID identifier."
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "conceptId"
+          ],
+          "kind": "uuid"
+        }
+      ],
+      "inputRestrictions": [],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": null,
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "studiotwin_conceptlab_set_active_asset": {
+      "schemaHash": "28eecf380af12fc368176c7bed9969600a09293f5c8b74b6375db43f05e38338",
+      "family": "concept",
+      "costClass": "free_read",
+      "fixedCost": null,
+      "tier": "hosted-mutation",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "conceptId",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "UUID identifier."
+            }
+          },
+          {
+            "name": "assetId",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "Owned asset UUID only; gateway verifies scope before resolving."
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "conceptId"
+          ],
+          "kind": "uuid"
+        },
+        {
+          "path": [
+            "assetId"
+          ],
+          "kind": "asset"
+        }
+      ],
+      "inputRestrictions": [],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": null,
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "studiotwin_conceptlab_update": {
+      "schemaHash": "dae13181e2c8de6fddf7855b485766409e690aeb59eb9be01a7b4883f64b6ea5",
+      "family": "concept",
+      "costClass": "free_read",
+      "fixedCost": null,
+      "tier": "hosted-mutation",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "conceptId",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "UUID identifier."
+            }
+          },
+          {
+            "name": "name",
+            "required": false,
+            "schema": {
+              "kind": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          {
+            "name": "metadata",
+            "required": false,
+            "schema": {
+              "kind": "object",
+              "fields": []
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "conceptId"
+          ],
+          "kind": "uuid"
+        }
+      ],
+      "inputRestrictions": [
+        {
+          "path": [
+            "metadata"
+          ],
+          "policy": "reviewed-fields-only"
+        }
+      ],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": null,
+        "summaryPath": null,
+        "resources": []
+      }
+    },
+    "studiotwin_conceptlab_delete": {
+      "schemaHash": "0d724ebe4aa9c1489f43d858728aef59f2192a8b1f45dfff573ee194f2065b73",
+      "family": "concept",
+      "costClass": "free_read",
+      "fixedCost": null,
+      "tier": "hosted-mutation",
+      "disabledReason": null,
+      "inputSchema": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "conceptId",
+            "required": true,
+            "schema": {
+              "kind": "string",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "UUID identifier."
+            }
+          }
+        ]
+      },
+      "inputReferences": [
+        {
+          "path": [
+            "conceptId"
+          ],
+          "kind": "uuid"
+        }
+      ],
+      "inputRestrictions": [],
+      "mediation": {
+        "mode": "classified-summary",
+        "jobPath": null,
+        "summaryPath": null,
+        "resources": []
+      }
+    }
+  }
+}
