@@ -160,3 +160,63 @@ def test_stale_foreign_or_early_ack_no_write(harness,change):
     before=list(store._db.iterdump())
     with pytest.raises(H.R.BoundaryRefused): pauses.acknowledge(req,scope_id=H.SCOPE,generation=generation)
     assert list(store._db.iterdump())==before
+
+
+def another_reservation(s,x,ctx,fake,mode='interim-local'):
+    b=H.binding(x,ctx)
+    p=H.preview(x.tool,now=fake.clock_ms,mode=mode)
+    p['previewId']='pv_'+'b'*43; p['previewExpiresAtMs']=fake.clock_ms+100000
+    if mode=='server-max-credits': p['maxCredits']=20
+    s.store.save_quote(p,b,price_version='price-a',server_token='sqt_'+'s'*43 if mode=='server-max-credits' else None,
+                       clock_ms=lambda:fake.clock_ms)
+    return run(s.authorization.authorize(x,ctx,p['previewId'])).value['operationId']
+
+
+def test_newer_pause_cannot_be_replaced_by_reobserving_older_settlement(harness):
+    fake,u,s,op,b,pauses=paused(harness); store=harness[1]
+    latest=pauses.get(H.SCOPE,1).to_json(); latest.update(operationId='op_'+'z'*43,createdAtMs=fake.clock_ms+1)
+    fake.clock_ms+=10
+    store.put_pause(latest,generation=1)  # backend-only fixture for another operation's pause
+    before=pauses.get(H.SCOPE,1).to_json()
+    job=next(iter(fake.jobs.values()))
+    observe(s,op,b,job,finalDebitCredits=32,ledgerRef='fixture-ledger-'+job.uuid)
+    assert pauses.get(H.SCOPE,1).to_json()==before
+    with pytest.raises(H.R.BoundaryRefused):
+        pauses.acknowledge(dict(contract='studiotwin.dashboard.v1',scopeId=H.SCOPE,operationId=op),scope_id=H.SCOPE,generation=1)
+
+
+def test_scope_pause_blocks_preexisting_unsent_reservation(harness):
+    build,store,_,_=harness
+    fake,u,s,x,ctx,op,b=build('price_change_interim')
+    second=another_reservation(s,x,ctx,fake)
+    run(s.dispatch(x,ctx,op));job=next(iter(fake.jobs.values()));fake.clock_ms+=2000
+    s.reconciler.ledger_verifier=ledger_verifier(fake)
+    observe(s,op,b,job,finalDebitCredits=32,ledgerRef='fixture-ledger-'+job.uuid)
+    with pytest.raises(H.R.BoundaryRefused): run(s.dispatch(x,ctx,second))
+    assert u.paid_calls==1 and store.get_operation(second,b)['state']=='RESERVED_UNSENT'
+
+
+def test_capability_breach_blocks_other_server_submissions(harness):
+    build,store,_,_=harness
+    fake,u,s,x,ctx,op,b=build('normal','server-max-credits')
+    s.charge_policy.server_binding_verified=lambda *_:True
+    second=another_reservation(s,x,ctx,fake,'server-max-credits')
+    run(s.dispatch(x,ctx,op));job=next(iter(fake.jobs.values()));job.cost=32;fake.clock_ms+=2000
+    s.reconciler.ledger_verifier=ledger_verifier(fake)
+    observe(s,op,b,job,finalDebitCredits=32,ledgerRef='fixture-ledger-'+job.uuid)
+    with pytest.raises(H.R.BoundaryRefused): run(s.dispatch(x,ctx,second))
+    assert u.paid_calls==1 and store.get_operation(op,b)['state']=='CAPABILITY_BREACH'
+
+
+def test_overrun_and_pause_rollback_together_on_sink_failure(harness,monkeypatch):
+    build,store,_,_=harness
+    fake,u,s,x,ctx,op,b=build('price_change_interim');run(s.dispatch(x,ctx,op))
+    job=next(iter(fake.jobs.values()));fake.clock_ms+=2000
+    s.reconciler.ledger_verifier=ledger_verifier(fake)
+    before=list(store._db.iterdump())
+    def fail(*args,**kwargs):
+        assert store._db.execute('SELECT 1 FROM policy_pauses WHERE scope_id=?',(H.SCOPE,)).fetchone()==(1,)
+        raise H.R.BoundaryRefused()
+    monkeypatch.setattr(s.reconciler,'_write',fail)
+    with pytest.raises(H.R.BoundaryRefused): observe(s,op,b,job,finalDebitCredits=32,ledgerRef='fixture-ledger-'+job.uuid)
+    assert list(store._db.iterdump())==before

@@ -238,3 +238,71 @@ def test_all_channels_mediate_and_validate_no_persisted_secrets(harness,monkeypa
     persisted=' '.join(str(row) for row in store._db.iterdump())
     assert canaries.find(persisted)==set()
     assert 'https://' not in persisted and 'structuredContent' not in persisted
+
+
+def test_multiple_recovery_candidates_never_adopts_or_replays(harness):
+    build,store,_,_=harness
+    fake,u,s,x,ctx,op,b=build('ambiguous_no_structured_content')
+    run(s.dispatch(x,ctx,op))
+    fake.call(H.NAME,x.to_json())  # independent job, same fingerprint, same wallet
+    r=run(s.recover(op,b)).to_json()
+    assert r['recovery']['state']=='multiple' and len(r['recovery']['candidates'])==2
+    assert r['operation']['jobId'] is None and r['operation']['reservationHeld']
+    assert r['operation']['finalDebit']=={'state':'unknown'}
+    run(s.dispatch(x,ctx,op)); assert u.paid_calls==1
+
+
+def test_free_interactive_mutation_requires_consumed_reservation_and_once_only(harness):
+    build,store,_,_=harness
+    fake,u,s,x,ctx,op,b=build(name='studiotwin_conceptlab_create',values=dict(conceptType='object',name='draft'))
+    run(s.dispatch(x,ctx,op)); run(s.dispatch(x,ctx,op))
+    assert u.paid_calls==1 and u.durable_seen==['DISPATCHING']
+    assert len(fake.concepts)==1
+
+
+def test_concurrent_duplicate_rpc_one_mutation(harness):
+    build,store,_,_=harness
+    fake,u,s,x,ctx,op,b=build()
+    original=s._transport
+    async def yielding(*args):
+        await asyncio.sleep(0)
+        return await original(*args)
+    s._transport=yielding
+    async def concurrent():
+        return await asyncio.gather(*(s.dispatch(x,ctx,op) for _ in range(8)))
+    run(concurrent())
+    assert u.paid_calls==1 and len(fake.jobs)==1
+
+
+def test_server_rejection_string_alone_cannot_release(harness):
+    build,store,_,_=harness
+    fake,u,s,x,ctx,op,b=build('price_change_server_max','server-max-credits')
+    s.charge_policy.predebit_rejection_verified=lambda *_:False
+    r=run(s.dispatch(x,ctx,op)).to_json()['operation']
+    assert r['state']=='UNKNOWN' and r['reservationHeld']
+    assert store.get_operation(op,b)['state']=='AMBIGUOUS_UNRESOLVED'
+
+
+def test_secret_response_cannot_hide_skipped_generation(harness,monkeypatch):
+    build,store,_,_=harness
+    fake,u,s,x,ctx,op,b=build('secret_channels','server-max-credits')
+    s.charge_policy.server_binding_verified=lambda *_:True
+    seen=[]; old=s.mediator.mediate
+    def trace(raw,**kwargs):
+        seen.append(raw)
+        return old(raw,**kwargs)
+    monkeypatch.setattr(s.mediator,'mediate',trace)
+    result=run(s.dispatch(x,ctx,op)).to_json()
+    from tests.fixtures.fake_mcp import canaries
+    assert u.paid_calls==1 and len(fake.jobs)==1 and len(seen)>=3
+    assert not canaries.find(json.dumps(result))
+    assert not canaries.find(' '.join(store._db.iterdump()))
+
+
+def test_release_requires_expected_unsent_state(harness):
+    build,store,_,_=harness
+    fake,u,s,x,ctx,op,b=build()
+    with store.transaction(): s.reconciler.start_in_transaction(op,b,fake.clock_ms)
+    before=list(store._db.iterdump())
+    with pytest.raises(H.R.BoundaryRefused): s.reconciler.release(op,b)
+    assert list(store._db.iterdump())==before
