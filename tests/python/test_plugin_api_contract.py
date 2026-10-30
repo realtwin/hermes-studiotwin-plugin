@@ -119,3 +119,84 @@ def test_callback_failure_does_not_escape_secret_exception_context(tmp_path):
                 client(peer,current=current)
             assert e.value.__context__ is None and str(e.value)=='UNSAFE_PAYLOAD'
     asyncio.run(run())
+
+
+# HTTP tests use real ASGI and authenticated S05 TCP, not direct route calls.
+from contextlib import asynccontextmanager
+import httpx
+
+
+@asynccontextmanager
+async def http_backend(tmp_path, payloads=None, *, clock=None):
+    API = __import__('importlib').import_module('s11_dashboard.plugin_api')
+    from fastapi import FastAPI
+    from tests.python.test_dashboard_core import make_store, make_proxy, TOOLS
+    store,binding,now = make_store(tmp_path)
+    proxy,item,data,_ = make_proxy(tmp_path,binding=binding)
+    def respond(frame,req):
+        payload = (payloads or {}).get(req['method'])
+        if payload is None: return frame
+        return peer.channel.response(req,payload=copy.deepcopy(payload))
+    async with Peer(tmp_path/'ipc',respond) as peer:
+        ipc_client = D.DashboardIpcClient(peer.root,scope_id=SCOPE,generation=1,current_binding=lambda:tuple(binding),sensitive_values=lambda:(),catalog=C.Classification(TOOLS))
+        # Explicitly fake host auth adapter; never inferred by production.
+        def authenticate(request):
+            if request.headers.get('x-test-session') != 'admitted': return None
+            return ('session','csrf-private-token')
+        backend = API.Backend(ipc_client,store,proxy,current_binding=lambda:tuple(binding),sensitive_values=lambda:(),
+            authenticate=authenticate,allowed_hosts={'127.0.0.1:8000'},allowed_origins={'http://127.0.0.1:8000'},
+            catalog=ipc_client._catalog,clock=clock)
+        app = FastAPI()
+        app.state.studiotwin = backend
+        app.include_router(API.router,prefix='/api/plugins/hermes-studiotwin')
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app),base_url='http://127.0.0.1:8000/api/plugins/hermes-studiotwin',
+            headers={'X-StudioTwin-Contract':'studiotwin.dashboard.v1','X-Test-Session':'admitted','Origin':'http://127.0.0.1:8000','X-StudioTwin-CSRF':'csrf-private-token'}) as http:
+            yield API,backend,http,peer,store,binding,item,data
+    store.close()
+
+
+def test_http_status_capabilities_and_cf8_over_actual_ipc(tmp_path):
+    from tests.python.test_dashboard_core import CONTRACT
+    status = dict(contract=CONTRACT,environment='fake',configured=False,featureFlags=dict(hostedRead=False,hostedMutation=False,paid=False,conceptPaid=False),balance={'state':'unknown'},activeCount=0,publishedTiers=['setup'])
+    capabilities = dict(contract=CONTRACT,etag='"offline"',publishedTiers=['setup'],tools=[])
+    async def run():
+        async with http_backend(tmp_path,{'status.get':status,'capabilities.list':capabilities}) as (_,b,h,p,*_):
+            for path,expected in [('/status',status),('/capabilities',capabilities),('/capabilities/'+NAME+'/input-schema?schemaHash='+HASH,FORM)]:
+                response = await h.get(path)
+                assert response.status_code == 200, response.text
+                assert response.json() == expected
+                assert response.headers['X-StudioTwin-Contract'] == CONTRACT
+            assert [r['method'] for r in p.requests] == ['status.get','capabilities.list','capabilities.inputSchema']
+    asyncio.run(run())
+
+
+def test_http_local_file_ranges_and_provenance(tmp_path):
+    from tests.python.test_dashboard_core import record_request, B
+    async def run():
+        async with http_backend(tmp_path) as (_,b,h,p,s,binding,item,data):
+            response = await h.get('/local/file',params={'handle':item.handle},headers={'Range':'bytes=0-7'})
+            assert response.status_code == 206 and response.content == data[:8]
+            response = await h.get('/local/file',params={'handle':item.handle},headers={'Range':'bytes=999999-'})
+            assert response.status_code == 416
+            assert response.headers['Content-Range'] == 'bytes */160008'
+            response = await h.post('/provenance',json=record_request())
+            assert response.status_code == 200 and response.json()['edgeCount'] == 2
+            response = await h.get('/lineage/'+B)
+            assert response.status_code == 200 and len(response.json()['edges']) == 2
+            assert all(r['method']=='lineage.get' for r in p.requests)
+    asyncio.run(run())
+
+
+def test_module_path_loading_and_exact_frozen_s11_route_inventory():
+    import importlib.util
+    import sys
+    from tests.python.test_dashboard_core import ROOT
+    spec = importlib.util.spec_from_file_location('hermes_dashboard_plugin_studiotwin_probe',ROOT/'dashboard/plugin_api.py')
+    mod = importlib.util.module_from_spec(spec); sys.modules[spec.name]=mod
+    spec.loader.exec_module(mod)
+    contract = __import__('json').loads((ROOT/'contracts/dashboard-v1.openapi.json').read_text())
+    expected = {(method.upper(),path) for path,methods in contract['paths'].items() for method,row in methods.items() if isinstance(row,dict) and row.get('x-studiotwin-owner')=='S11'}
+    actual = {(method,r.path) for r in mod.router.routes for method in r.methods}
+    assert actual == expected
+    assert not (ROOT/'dashboard/router.py').exists()
+

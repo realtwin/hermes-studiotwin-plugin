@@ -161,3 +161,82 @@ def test_windows_actual_s05_acl_seam_on_granted_tree(tmp_path,unsafe):
         with box.open(str(path),mime='image/png',kind='image') as stream:
             assert stream.read() == PNG
     assert not any(p == Path('/') for p in api.paths.values())
+
+
+@pytest.mark.parametrize('kind,status',[('contract',412),('host',403),('origin',403),('csrf',403),('auth',401),('duplicate',400)])
+def test_http_guard_refuses_before_ipc_or_store(tmp_path,kind,status):
+    import asyncio
+    from tests.python.test_plugin_api_contract import http_backend
+    async def run():
+        async with http_backend(tmp_path) as (_,b,h,p,s,*_):
+            before = s.connection.total_changes
+            headers = {}
+            if kind=='contract': headers['X-StudioTwin-Contract']='studiotwin.dashboard.v2'
+            if kind=='host': headers['Host']='attacker.invalid'
+            if kind=='origin': headers['Origin']='https://attacker.invalid'
+            if kind=='csrf': headers['X-StudioTwin-CSRF']='wrong'
+            if kind=='auth': headers['X-Test-Session']='forged'
+            if kind=='duplicate': headers=[('X-StudioTwin-Contract','studiotwin.dashboard.v1'),('X-StudioTwin-Contract','studiotwin.dashboard.v2')]
+            response = await h.post('/provenance',content=b'{}',headers=headers)
+            assert response.status_code == status, response.text
+            assert set(response.json()) in ({'contract','code','message'},{'contract','code','message','supported','received'})
+            assert not p.requests and s.connection.total_changes==before
+    asyncio.run(run())
+
+
+def test_http_rate_limit_and_refill(tmp_path):
+    import asyncio
+    from tests.python.test_plugin_api_contract import http_backend
+    now = [10.0]
+    async def run():
+        async with http_backend(tmp_path,clock=lambda:now[0]) as (_,b,h,p,*_):
+            for _ in range(40): assert (await h.get('/status')).status_code == 503
+            response = await h.get('/status')
+            assert response.status_code==429 and response.headers['Retry-After']=='1'
+            assert len(p.requests)==40
+            now[0]+=1
+            assert (await h.get('/status')).status_code==503
+            assert len(p.requests)==41
+    asyncio.run(run())
+
+
+@pytest.mark.parametrize('body',[b'{"contract":"studiotwin.dashboard.v1","contract":"studiotwin.dashboard.v1"}',b'{"n":NaN}',b'x'*1048577])
+def test_http_bounded_strict_json_before_forwarding(tmp_path,body):
+    import asyncio
+    from tests.python.test_plugin_api_contract import http_backend
+    async def run():
+        async with http_backend(tmp_path) as (_,b,h,p,s,*_):
+            before = s.connection.total_changes
+            response = await h.post('/operations/quote',content=body,headers={'Content-Type':'application/json'})
+            assert response.status_code in (400,413)
+            assert not p.requests and s.connection.total_changes==before
+    asyncio.run(run())
+
+
+@pytest.mark.parametrize('bad',['s3://private/asset','https://signed.invalid/?token=value','STCANARY_HTTP_SECRET'])
+def test_http_canary_never_reaches_forward_cache_error_or_logs(tmp_path,bad,caplog):
+    import asyncio
+    from tests.python.test_dashboard_core import NAME,HASH
+    from tests.python.test_plugin_api_contract import http_backend
+    async def run():
+        async with http_backend(tmp_path) as (_,b,h,p,s,*_):
+            before = s.connection.total_changes
+            response = await h.post('/operations/quote',json=dict(contract='studiotwin.dashboard.v1',tool=NAME,schemaHash=HASH,inputs={'prompt':bad}))
+            assert response.status_code==400
+            assert bad not in response.text and not p.requests and s.connection.total_changes==before
+            assert bad not in caplog.text
+    asyncio.run(run())
+
+
+def test_http_internal_exception_is_static_validated_error(tmp_path,monkeypatch,caplog):
+    import asyncio
+    from tests.python.test_plugin_api_contract import http_backend
+    async def run():
+        async with http_backend(tmp_path) as (_,b,h,p,*_):
+            async def fail(*a,**kw): raise RuntimeError('STCANARY_HTTP_CALLBACK')
+            monkeypatch.setattr(b.ipc,'request',fail)
+            response = await h.get('/status')
+            assert response.status_code==503
+            assert response.json()['code']=='UNAVAILABLE'
+            assert 'STCANARY' not in response.text+caplog.text
+    asyncio.run(run())
