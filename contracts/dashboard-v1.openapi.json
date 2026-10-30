@@ -1,0 +1,2691 @@
+{
+  "openapi": "3.1.0",
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "info": {
+    "title": "hermes-studiotwin dashboard API v1 (frozen, S03)",
+    "version": "1.0.0",
+    "description": "DESIGN §5 routes mounted by pinned core under /api/plugins/hermes-studiotwin. Every route is nonbilling: the backend never authorizes, consents or dispatches."
+  },
+  "servers": [
+    {
+      "url": "/api/plugins/hermes-studiotwin"
+    }
+  ],
+  "x-studiotwin-version": {
+    "contract": "studiotwin.dashboard.v1",
+    "major": 1,
+    "compatibility": "exact-match",
+    "onMismatch": "refuse",
+    "refusalCode": "INCOMPATIBLE_PROTOCOL_VERSION"
+  },
+  "x-studiotwin-owners": [
+    "S11",
+    "S12",
+    "S13",
+    "S14",
+    "S15",
+    "S18",
+    "S20"
+  ],
+  "paths": {
+    "/status": {
+      "get": {
+        "summary": "Environment, configured flag, feature flags, balance summary, active count.",
+        "x-studiotwin-owner": "S11",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/capabilities": {
+      "get": {
+        "summary": "Normalized live tool list with classification/executable state.",
+        "x-studiotwin-owner": "S11",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CapabilitiesV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assets": {
+      "get": {
+        "summary": "Scoped asset list; offset/limit are local windowing.",
+        "x-studiotwin-owner": "S12",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/AssetCategoryV1"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetPageV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assets/{uuid}": {
+      "get": {
+        "summary": "Asset metadata and viewer hints; no presigned URL.",
+        "x-studiotwin-owner": "S12",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          },
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetDetailV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/assets/{uuid}/content": {
+      "get": {
+        "summary": "Server-side resolve then stream; upstream URL never serialized.",
+        "x-studiotwin-owner": "S12",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderMediaV1"
+          },
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          },
+          {
+            "name": "variant",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "original",
+                "preview",
+                "hdr",
+                "png",
+                "glb",
+                "wav",
+                "mp3"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Media bytes (Range supported)",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "206": {
+            "description": "Partial media bytes",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        },
+        "x-studiotwin-media-src": true
+      }
+    },
+    "/assets/{uuid}/thumbnail": {
+      "get": {
+        "summary": "Safe cached thumbnail, or 202 while queued locally.",
+        "x-studiotwin-owner": "S12",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderMediaV1"
+          },
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Thumbnail bytes",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/webp": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ThumbnailQueuedV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        },
+        "x-studiotwin-media-src": true
+      }
+    },
+    "/jobs": {
+      "get": {
+        "summary": "Normalized scoped jobs.",
+        "x-studiotwin-owner": "S14",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "active",
+                "terminal",
+                "all"
+              ]
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/LocalIdV1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobPageV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/{id}": {
+      "get": {
+        "summary": "Job status and output asset IDs; signed URL fields stripped.",
+        "x-studiotwin-owner": "S14",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobDetailV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/uploads": {
+      "post": {
+        "summary": "Authorize upload metadata; returns plugin-local opaque upload ID.",
+        "x-studiotwin-owner": "S13",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadCreatedV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadCreateRequestV1"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/uploads/{id}/content": {
+      "put": {
+        "summary": "Bounded chunk upload; backend validates and streams to the presigned POST.",
+        "x-studiotwin-owner": "S13",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadChunkAcceptedV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/uploads/{id}/complete": {
+      "post": {
+        "summary": "Complete the upload session; idempotent by local upload ID.",
+        "x-studiotwin-owner": "S13",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadCompletedV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadCompleteRequestV1"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/provenance": {
+      "post": {
+        "summary": "Record validated provenance edges (redacted).",
+        "x-studiotwin-owner": "S11",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProvenanceRecordedV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProvenanceRecordRequestV1"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lineage/{asset}": {
+      "get": {
+        "summary": "Bounded lineage DAG.",
+        "x-studiotwin-owner": "S11",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          },
+          {
+            "name": "asset",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LineageV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/local/file": {
+      "get": {
+        "summary": "Approved local derived media through the hard sandbox.",
+        "x-studiotwin-owner": "S11",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderMediaV1"
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/LocalPathV1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Media bytes (Range supported)",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "206": {
+            "description": "Partial media bytes",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        },
+        "x-studiotwin-media-src": true
+      }
+    },
+    "/local/audio/convert": {
+      "post": {
+        "summary": "Bounded local audio conversion.",
+        "x-studiotwin-owner": "S18",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocalDerivedMediaV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocalAudioConvertRequestV1"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/local/env/preview": {
+      "post": {
+        "summary": "Bounded local environment preview.",
+        "x-studiotwin-owner": "S20",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocalDerivedMediaV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocalEnvPreviewRequestV1"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/local/model/stats": {
+      "post": {
+        "summary": "Bounded local model statistics (processor script from S17).",
+        "x-studiotwin-owner": "S11",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelStatsV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocalModelStatsRequestV1"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/handoff/blender/plan": {
+      "post": {
+        "summary": "Blender handoff preflight only (planner script from S17); no execution.",
+        "x-studiotwin-owner": "S11",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlenderPlanV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlenderPlanRequestV1"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/operations/quote": {
+      "post": {
+        "summary": "Classified local preview from the gateway; never authorizes or dispatches.",
+        "x-studiotwin-owner": "S11",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuotePreviewV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuoteRequestV1"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/operations/{operationId}": {
+      "get": {
+        "summary": "Scoped reservation/reconciliation state.",
+        "x-studiotwin-owner": "S11",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          },
+          {
+            "name": "operationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^op_[A-Za-z0-9_-]{43}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationStateV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/concepts": {
+      "get": {
+        "summary": "Scoped Concept list (read-only).",
+        "x-studiotwin-owner": "S15",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConceptPageV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        },
+        "x-studiotwin-origin": "S03 addition: §5 lists no Concept read route; S15 owns dashboard/services/concepts.py and the gateway allowlist (§7.3) includes Concept get/status."
+      }
+    },
+    "/concepts/{conceptId}": {
+      "get": {
+        "summary": "Concept detail (read-only).",
+        "x-studiotwin-owner": "S15",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          },
+          {
+            "name": "conceptId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConceptDetailV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        },
+        "x-studiotwin-origin": "S03 addition: §5 lists no Concept read route; S15 owns dashboard/services/concepts.py and the gateway allowlist (§7.3) includes Concept get/status."
+      }
+    },
+    "/concepts/{conceptId}/status": {
+      "get": {
+        "summary": "Concept status by original ID (read-only).",
+        "x-studiotwin-owner": "S15",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          },
+          {
+            "name": "conceptId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConceptStatusV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        },
+        "x-studiotwin-origin": "S03 addition: §5 lists no Concept read route; S15 owns dashboard/services/concepts.py and the gateway allowlist (§7.3) includes Concept get/status."
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MediatedTextV1": {
+        "type": "string",
+        "maxLength": 4000,
+        "x-studiotwin-mediated-text": true,
+        "description": "Text that has passed the S06/S07 result-mediation boundary (D20). Never carries a URL, storage URI, presigned field, query string or credential.",
+        "not": {
+          "anyOf": [
+            {
+              "pattern": "[A-Za-z][A-Za-z0-9+.-]*://"
+            },
+            {
+              "pattern": "(^|[^A-Za-z0-9])[Ss]3:"
+            },
+            {
+              "pattern": "(^|[^A-Za-z0-9])data:[^\\s,]*[;,]"
+            },
+            {
+              "pattern": "[Xx]-[Aa][Mm][Zz]-"
+            },
+            {
+              "pattern": "[A-Za-z0-9_.-]=[^\\s]"
+            },
+            {
+              "pattern": "[?&][A-Za-z0-9_.-]+="
+            },
+            {
+              "pattern": "[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f]"
+            }
+          ]
+        }
+      },
+      "UuidV1": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+      },
+      "LocalIdV1": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+      },
+      "Sha256HexV1": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      },
+      "EpochMsV1": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 253402300799999
+      },
+      "CreditsV1": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1000000000
+      },
+      "MimeV1": {
+        "type": "string",
+        "pattern": "^(?:image|audio|video|model|application|text)/[a-z0-9][a-z0-9.+-]{0,63}$"
+      },
+      "LocalPathV1": {
+        "type": "string",
+        "pattern": "^/(?:[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}/){0,32}[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$",
+        "description": "Absolute POSIX path; the backend sandbox (§5) still resolves, allow-lists and fstat-checks it."
+      },
+      "AssetCategoryV1": {
+        "enum": [
+          "image",
+          "audio",
+          "video",
+          "model",
+          "environment",
+          "material",
+          "motion",
+          "concept",
+          "other"
+        ]
+      },
+      "BalanceV1": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "state"
+            ],
+            "properties": {
+              "state": {
+                "const": "unknown"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "state",
+              "credits",
+              "asOfMs"
+            ],
+            "properties": {
+              "state": {
+                "const": "known"
+              },
+              "credits": {
+                "type": "integer"
+              },
+              "asOfMs": {
+                "$ref": "#/components/schemas/EpochMsV1"
+              }
+            }
+          }
+        ]
+      },
+      "IncompatibleContractV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "code",
+          "supported",
+          "received",
+          "message"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "code": {
+            "const": "INCOMPATIBLE_PROTOCOL_VERSION"
+          },
+          "supported": {
+            "const": [
+              "studiotwin.dashboard.v1"
+            ]
+          },
+          "received": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[A-Za-z0-9._-]{0,64}$"
+          },
+          "message": {
+            "$ref": "#/components/schemas/MediatedTextV1"
+          }
+        },
+        "description": "412 refusal: the request named another contract version. Never a best-effort guess."
+      },
+      "ErrorV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "code",
+          "message"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "code": {
+            "enum": [
+              "NOT_FOUND",
+              "INVALID_REQUEST",
+              "SANDBOX_REFUSED",
+              "SCOPE_MISMATCH",
+              "RATE_LIMITED",
+              "UNAVAILABLE",
+              "TOO_LARGE",
+              "UNSUPPORTED_MEDIA"
+            ]
+          },
+          "message": {
+            "$ref": "#/components/schemas/MediatedTextV1"
+          }
+        }
+      },
+      "StatusV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "environment",
+          "configured",
+          "featureFlags",
+          "balance",
+          "activeCount",
+          "publishedTiers"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "environment": {
+            "enum": [
+              "staging",
+              "production",
+              "development",
+              "fake",
+              "unconfigured"
+            ]
+          },
+          "configured": {
+            "type": "boolean"
+          },
+          "featureFlags": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "hostedRead",
+              "hostedMutation",
+              "paid",
+              "conceptPaid"
+            ],
+            "properties": {
+              "hostedRead": {
+                "type": "boolean"
+              },
+              "hostedMutation": {
+                "type": "boolean"
+              },
+              "paid": {
+                "type": "boolean"
+              },
+              "conceptPaid": {
+                "type": "boolean"
+              }
+            }
+          },
+          "balance": {
+            "$ref": "#/components/schemas/BalanceV1"
+          },
+          "activeCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "publishedTiers": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/TierV1"
+            },
+            "uniqueItems": true
+          }
+        },
+        "description": "Never carries the key or any credential value."
+      },
+      "CapabilitiesV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "etag",
+          "publishedTiers",
+          "tools"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "etag": {
+            "type": "string",
+            "pattern": "^\"[A-Za-z0-9_-]{1,64}\"$"
+          },
+          "publishedTiers": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/TierV1"
+            },
+            "uniqueItems": true
+          },
+          "tools": {
+            "type": "array",
+            "items": {
+              "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/CapabilityEntryV1"
+            },
+            "maxItems": 512
+          }
+        }
+      },
+      "AssetV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "assetId",
+          "category",
+          "name",
+          "mime",
+          "source",
+          "pinned",
+          "createdAtMs",
+          "contentRoute",
+          "thumbnailRoute",
+          "jobId"
+        ],
+        "properties": {
+          "assetId": {
+            "$ref": "#/components/schemas/UuidV1"
+          },
+          "category": {
+            "$ref": "#/components/schemas/AssetCategoryV1"
+          },
+          "name": {
+            "$ref": "#/components/schemas/MediatedTextV1"
+          },
+          "mime": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/MimeV1"
+              }
+            ]
+          },
+          "source": {
+            "enum": [
+              "user",
+              "generated",
+              "concept",
+              "local-variant",
+              "unknown"
+            ]
+          },
+          "pinned": {
+            "type": "boolean"
+          },
+          "createdAtMs": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/EpochMsV1"
+              }
+            ]
+          },
+          "contentRoute": {
+            "type": "string",
+            "pattern": "^/api/plugins/hermes-studiotwin/assets/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/content$",
+            "description": "The only renderer-visible media location (§5 secret boundary)."
+          },
+          "thumbnailRoute": {
+            "type": "string",
+            "pattern": "^/api/plugins/hermes-studiotwin/assets/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/thumbnail$"
+          },
+          "jobId": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/UuidV1"
+              }
+            ]
+          },
+          "viewerHint": {
+            "enum": [
+              "image",
+              "audio",
+              "video",
+              "model",
+              "environment",
+              "material",
+              "motion",
+              "none"
+            ]
+          }
+        }
+      },
+      "AssetPageV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "windowing",
+          "offset",
+          "limit",
+          "items",
+          "hasMore"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "windowing": {
+            "const": "local"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssetV1"
+            },
+            "maxItems": 200
+          },
+          "hasMore": {
+            "type": "boolean"
+          }
+        },
+        "description": "offset/limit are local windowing over the full scoped list; the server tool has no cursor."
+      },
+      "AssetDetailV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "asset"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "asset": {
+            "$ref": "#/components/schemas/AssetV1"
+          }
+        }
+      },
+      "ThumbnailQueuedV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "state",
+          "retryAfterMs"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "state": {
+            "const": "queued"
+          },
+          "retryAfterMs": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 600000
+          }
+        }
+      },
+      "JobV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "jobId",
+          "functionName",
+          "status",
+          "submittedAtMs",
+          "terminalAtMs",
+          "outputAssetIds",
+          "operationId"
+        ],
+        "properties": {
+          "jobId": {
+            "$ref": "#/components/schemas/UuidV1"
+          },
+          "functionName": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ToolNameV1"
+          },
+          "status": {
+            "enum": [
+              "queued",
+              "running",
+              "done",
+              "failed",
+              "cancelled",
+              "unknown"
+            ]
+          },
+          "submittedAtMs": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/EpochMsV1"
+              }
+            ]
+          },
+          "terminalAtMs": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/EpochMsV1"
+              }
+            ]
+          },
+          "outputAssetIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UuidV1"
+            },
+            "maxItems": 256
+          },
+          "operationId": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/OperationIdV1"
+              }
+            ]
+          },
+          "summary": {
+            "$ref": "#/components/schemas/MediatedTextV1"
+          }
+        }
+      },
+      "JobPageV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "items",
+          "nextCursor"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JobV1"
+            },
+            "maxItems": 200
+          },
+          "nextCursor": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/LocalIdV1"
+              }
+            ]
+          }
+        }
+      },
+      "JobDetailV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "job"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "job": {
+            "$ref": "#/components/schemas/JobV1"
+          }
+        }
+      },
+      "UploadCreateRequestV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "filename",
+          "bytes",
+          "mime"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "filename": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9 ._()-]{0,254}$",
+            "description": "Basename only."
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "mime": {
+            "$ref": "#/components/schemas/MimeV1"
+          }
+        }
+      },
+      "UploadCreatedV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "uploadId",
+          "expiresAtMs",
+          "maxBytes"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "uploadId": {
+            "$ref": "#/components/schemas/LocalIdV1"
+          },
+          "expiresAtMs": {
+            "$ref": "#/components/schemas/EpochMsV1"
+          },
+          "maxBytes": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "description": "Plugin-local opaque upload ID. StudioTwin presigned fields never leave backend memory (D09)."
+      },
+      "UploadChunkAcceptedV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "uploadId",
+          "receivedBytes"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "uploadId": {
+            "$ref": "#/components/schemas/LocalIdV1"
+          },
+          "receivedBytes": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "UploadCompleteRequestV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          }
+        }
+      },
+      "UploadCompletedV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "uploadId",
+          "assetIds"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "uploadId": {
+            "$ref": "#/components/schemas/LocalIdV1"
+          },
+          "assetIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UuidV1"
+            },
+            "minItems": 1,
+            "maxItems": 16
+          }
+        },
+        "description": "Idempotent by local upload ID."
+      },
+      "ProvenanceRecordRequestV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "jobId",
+          "tool",
+          "inputFingerprint",
+          "sourceAssetIds",
+          "outputAssetIds"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "jobId": {
+            "$ref": "#/components/schemas/UuidV1"
+          },
+          "tool": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ToolNameV1"
+          },
+          "inputFingerprint": {
+            "$ref": "#/components/schemas/Sha256HexV1"
+          },
+          "sourceAssetIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UuidV1"
+            },
+            "maxItems": 64
+          },
+          "outputAssetIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UuidV1"
+            },
+            "maxItems": 256
+          },
+          "relation": {
+            "enum": [
+              "generated-from",
+              "edited-from",
+              "variant-of",
+              "uploaded"
+            ]
+          }
+        }
+      },
+      "ProvenanceRecordedV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "edgeCount"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "edgeCount": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "LineageNodeV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "id",
+          "depth"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "asset",
+              "job"
+            ]
+          },
+          "id": {
+            "$ref": "#/components/schemas/UuidV1"
+          },
+          "depth": {
+            "type": "integer",
+            "minimum": -12,
+            "maximum": 12
+          }
+        }
+      },
+      "LineageEdgeV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "parent",
+          "child",
+          "relation"
+        ],
+        "properties": {
+          "parent": {
+            "$ref": "#/components/schemas/UuidV1"
+          },
+          "child": {
+            "$ref": "#/components/schemas/UuidV1"
+          },
+          "relation": {
+            "enum": [
+              "generated-from",
+              "edited-from",
+              "variant-of",
+              "uploaded",
+              "output-of"
+            ]
+          }
+        }
+      },
+      "LineageV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "root",
+          "nodes",
+          "edges",
+          "truncated"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "root": {
+            "$ref": "#/components/schemas/UuidV1"
+          },
+          "nodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LineageNodeV1"
+            },
+            "maxItems": 100
+          },
+          "edges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LineageEdgeV1"
+            },
+            "maxItems": 400
+          },
+          "truncated": {
+            "type": "boolean"
+          }
+        },
+        "description": "Bounded DAG: at most 100 nodes, depth 12."
+      },
+      "LocalAudioConvertRequestV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "sourcePath",
+          "targetFormat"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "sourcePath": {
+            "$ref": "#/components/schemas/LocalPathV1"
+          },
+          "targetFormat": {
+            "enum": [
+              "wav",
+              "mp3",
+              "ogg",
+              "flac"
+            ]
+          }
+        }
+      },
+      "LocalEnvPreviewRequestV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "sourcePath",
+          "width"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "sourcePath": {
+            "$ref": "#/components/schemas/LocalPathV1"
+          },
+          "width": {
+            "enum": [
+              256,
+              512,
+              1024,
+              2048
+            ]
+          }
+        }
+      },
+      "LocalModelStatsRequestV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "sourcePath"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "sourcePath": {
+            "$ref": "#/components/schemas/LocalPathV1"
+          }
+        }
+      },
+      "LocalDerivedMediaV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "localPath",
+          "mime",
+          "bytes",
+          "sha256"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "localPath": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ScopedMediaPathV1"
+          },
+          "mime": {
+            "$ref": "#/components/schemas/MimeV1"
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "sha256": {
+            "$ref": "#/components/schemas/Sha256HexV1"
+          }
+        }
+      },
+      "ModelStatsV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "format",
+          "bytes",
+          "meshes",
+          "vertices",
+          "triangles",
+          "materials",
+          "animations"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "format": {
+            "enum": [
+              "glb",
+              "gltf",
+              "fbx",
+              "obj",
+              "usdz",
+              "unknown"
+            ]
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "meshes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "vertices": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "triangles": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "materials": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "animations": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "boundsMin": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "boundsMax": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3
+          }
+        }
+      },
+      "BlenderPlanRequestV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "sourcePath",
+          "outputDir"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "sourcePath": {
+            "$ref": "#/components/schemas/LocalPathV1"
+          },
+          "outputDir": {
+            "$ref": "#/components/schemas/LocalPathV1"
+          }
+        }
+      },
+      "BlenderPlanV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "executes",
+          "mutatesOpenScene",
+          "writesNewFiles",
+          "requiresSeparateConsent",
+          "sourceSha256",
+          "steps"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "executes": {
+            "const": false
+          },
+          "mutatesOpenScene": {
+            "const": false
+          },
+          "writesNewFiles": {
+            "const": true
+          },
+          "requiresSeparateConsent": {
+            "const": true
+          },
+          "sourceSha256": {
+            "$ref": "#/components/schemas/Sha256HexV1"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediatedTextV1"
+            },
+            "maxItems": 64
+          }
+        },
+        "description": "Preflight only. Execution is a separate consented action outside this contract."
+      },
+      "QuoteRequestV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "tool",
+          "inputs"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "tool": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ToolNameV1"
+          },
+          "inputs": {
+            "type": "object",
+            "maxProperties": 64,
+            "description": "Candidate effective inputs; the gateway canonicalizes and classifies them."
+          }
+        }
+      },
+      "QuotePreviewV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "authorizes",
+          "enforcementMode",
+          "tool",
+          "executable",
+          "disabledReason",
+          "previewId",
+          "estimatedCredits",
+          "estimateLabel",
+          "previewExpiresAtMs",
+          "balance",
+          "guardRemaining",
+          "scopePaused"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "authorizes": {
+            "const": false
+          },
+          "enforcementMode": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/EnforcementModeV1"
+          },
+          "tool": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ToolNameV1"
+          },
+          "executable": {
+            "type": "boolean"
+          },
+          "disabledReason": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/CapabilityEntryV1/properties/disabledReason"
+          },
+          "previewId": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "pattern": "^pv_[A-Za-z0-9_-]{43}$"
+              }
+            ]
+          },
+          "estimatedCredits": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditsV1"
+              }
+            ]
+          },
+          "estimateLabel": {
+            "enum": [
+              "estimated charge",
+              "server-enforced maximum"
+            ]
+          },
+          "previewExpiresAtMs": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/EpochMsV1"
+              }
+            ]
+          },
+          "balance": {
+            "$ref": "#/components/schemas/BalanceV1"
+          },
+          "guardRemaining": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CreditsV1"
+              }
+            ]
+          },
+          "scopePaused": {
+            "type": "boolean"
+          }
+        },
+        "description": "A classified local preview. Never authorizes or dispatches; consent only via the MCP elicitation round trip (§5.3)."
+      },
+      "OperationStateV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "operation"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "operation": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ReconciliationV1"
+          }
+        }
+      },
+      "ConceptV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "conceptId",
+          "title",
+          "conceptType",
+          "status",
+          "activeAssetId",
+          "revision",
+          "updatedAtMs"
+        ],
+        "properties": {
+          "conceptId": {
+            "$ref": "#/components/schemas/UuidV1"
+          },
+          "title": {
+            "$ref": "#/components/schemas/MediatedTextV1"
+          },
+          "conceptType": {
+            "enum": [
+              "object",
+              "character",
+              "environment",
+              "other"
+            ]
+          },
+          "status": {
+            "enum": [
+              "idle",
+              "generating",
+              "editing",
+              "failed",
+              "unknown"
+            ]
+          },
+          "activeAssetId": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/UuidV1"
+              }
+            ]
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "updatedAtMs": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/EpochMsV1"
+              }
+            ]
+          }
+        }
+      },
+      "ConceptPageV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "items"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConceptV1"
+            },
+            "maxItems": 200
+          }
+        }
+      },
+      "ConceptDetailV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "concept",
+          "assetIds"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "concept": {
+            "$ref": "#/components/schemas/ConceptV1"
+          },
+          "assetIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UuidV1"
+            },
+            "maxItems": 256
+          }
+        }
+      },
+      "ConceptStatusV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "conceptId",
+          "status",
+          "jobIds"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "conceptId": {
+            "$ref": "#/components/schemas/UuidV1"
+          },
+          "status": {
+            "enum": [
+              "idle",
+              "generating",
+              "editing",
+              "failed",
+              "unknown"
+            ]
+          },
+          "jobIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UuidV1"
+            },
+            "maxItems": 64
+          }
+        }
+      }
+    },
+    "parameters": {
+      "ContractHeaderV1": {
+        "name": "X-StudioTwin-Contract",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "const": "studiotwin.dashboard.v1"
+        },
+        "description": "Every request names the contract; a mismatch is 412 IncompatibleContractV1."
+      },
+      "ContractHeaderMediaV1": {
+        "name": "X-StudioTwin-Contract",
+        "in": "header",
+        "required": false,
+        "schema": {
+          "const": "studiotwin.dashboard.v1"
+        },
+        "description": "Media GETs used as <img>/<video> src cannot set headers: absent reads as v1, a present mismatching value is still refused with 412."
+      }
+    }
+  }
+}
