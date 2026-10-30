@@ -986,7 +986,8 @@ def test_r1_b5_grouped_resources_and_remote_processor_sources(docs):
                 "frames": [{"index": i, "name": f"frame-{i}.png", "resource": {**resource(), "resourceId": f"frame-{i}"}} for i in range(2)],
                 "manifest": None}
     bare = {"kind": "single", "resource": resource()}
-    for group in (material, world, sequence, bare, {"kind": "world", "outputs": {"skyMap": unknown_slot, "worldMesh": absent}}):
+    sequence_with_manifest = {**sequence, "manifest": {**resource(), "resourceId": "sequence-manifest", "kind": "manifest", "mime": "application/json"}}
+    for group in (material, world, sequence, sequence_with_manifest, bare, {"kind": "world", "outputs": {"skyMap": unknown_slot, "worldMesh": absent}}):
         assert S.errors("gateway#/$defs/ResourceGroupV1", group, docs) == []
         job = {"jobId": UUID, "functionName": "text-to-environment-map", "status": "done", "submittedAtMs": None,
                "terminalAtMs": None, "outputAssetIds": [], "operationId": None, "outputGroups": [group]}
@@ -1018,8 +1019,10 @@ def test_r1_b5_ambiguous_recovery_candidates_are_not_submission_authority(docs):
     value = {"operationId": OP_ID, "state": "multiple", "dispatchAllowed": False,
              "candidates": [{"jobId": UUID, "functionName": "text-to-environment-map", "submittedAtMs": None,
                              "submittedAtRaw": "unknown time", "inputFingerprint": HASH, "match": "possible"}]}
+    value["candidates"].append({**value["candidates"][0], "jobId": "000a55e7-0001-4000-8000-000000000001"})
     ref = "dashboard#/components/schemas/RecoveryCandidatesV1"
     assert S.errors(ref, value, docs) == []
+    assert not S.is_valid(ref, {**value, "candidates": value["candidates"][:1]}, docs)
     assert not S.is_valid(ref, {**value, "dispatchAllowed": True}, docs)
     assert S.errors(ref, {**value, "state": "not-visible", "candidates": []}, docs) == []
     job = {"jobId": UUID, "functionName": "text-to-environment-map", "status": "unknown", "submittedAtMs": None,
@@ -1076,6 +1079,14 @@ def test_r1_b1_value_aware_refusal_at_complete_real_sinks(docs):
             sink[path[-1]] = secret
             with pytest.raises(ValueError, match="^UNSAFE_PAYLOAD$"):
                 S.validate_mediated_v1(ref, bad, sensitive_values=secrets, docs=docs)
+    # Exact sensitive-value provenance is independent of synthetic canary/credential prefixes.
+    opaque_secret = "ordinary-looking-sensitive-value"
+    leaked = gateway_result()
+    leaked["summary"] = "prefix " + opaque_secret + " suffix"
+    assert S.is_valid("gateway#/$defs/GatewayResultV1", leaked, docs)
+    with pytest.raises(ValueError, match="^UNSAFE_PAYLOAD$"):
+        S.validate_mediated_v1("gateway#/$defs/GatewayResultV1", leaked,
+                               sensitive_values=frozenset({opaque_secret}), docs=docs)
     bad = copy.deepcopy(quote)
     bad["inputs"]["nested"] = {"image": "https://x.invalid/object?X-Amz-Signature=fixture"}
     with pytest.raises(ValueError, match="^UNSAFE_PAYLOAD$"):
