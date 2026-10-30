@@ -307,6 +307,56 @@ def test_registered_secret_that_is_itself_json_is_not_lost_by_fragment_parsing()
     assert 'registered material' not in json.dumps(R.redact_upstream_v1({'text':secret}, sensitive_values={secret}))
 
 
+# Each case exercises the original complete value, not pre-decoded test input.
+ENCODING_CASES = [
+    ('ordinary-private-review-material', r'"\u006frdinary-private-review-material"'),
+    ('ordinary[123]private+material', 'ordinary[123]private%2Bmaterial'),
+    ('ordinary-private-review-material', r'\u006frdinary-private-review-material'),
+    ('ordinary😀private', r'"ordinary\ud83d\ude00private"'),
+    ('ordinary\tprivate\nmaterial/"end', r'"ordinary\tprivate\nmaterial\/\"end"'),
+    ('ordinary[123]private+material', r'ordinary[123]private\u002bmaterial'),
+]
+
+
+@pytest.mark.parametrize('secret,encoded', ENCODING_CASES)
+@pytest.mark.parametrize('prose', [False, True])
+@pytest.mark.parametrize('sink', ['upstream', 'gateway', 'ipc', 'error', 'quote', 'candidate'])
+def test_encoded_registry_values_at_every_bound_sink(secret, encoded, prose, sink):
+    value = 'before '+encoded+' after' if prose else encoded
+    binding = {**BINDING, 'sensitive_values':{secret}}
+    if sink == 'upstream':
+        safe = R.redact_upstream_v1({'text':value, 'assetId':UUID}, sensitive_values={secret})
+        assert safe['assetId'] == UUID
+        assert safe['text'] != value
+        assert encoded not in safe['text'] and secret not in safe['text']
+    elif sink == 'candidate':
+        schema = {'type':'object', 'additionalProperties':False, 'required':['prompt'],
+                  'properties':{'prompt':{'type':'string'}}}
+        with R.candidate_schema_v1('text-to-environment-map', 'b'*64, schema):
+            assert R.validate_candidate_inputs_v1('text-to-environment-map', 'b'*64,
+                    {'prompt':'safe'}, **binding).to_json() == {'prompt':'safe'}
+            refused(lambda:R.validate_candidate_inputs_v1('text-to-environment-map', 'b'*64,
+                    {'prompt':value}, **binding))
+    else:
+        ref, good, path = envelopes()[['gateway','ipc','error','quote'].index(sink)]
+        assert S.is_valid(ref, good)
+        assert R.validate_mediated_v1(ref, good, **binding).to_json() == good
+        bad = inject(good, path, value)
+        assert S.is_valid(ref, bad)
+        refused(lambda:R.validate_mediated_v1(ref, bad, **binding))
+
+
+def test_json_literal_decoding_preserves_safe_ids_and_scans_decoded_objects():
+    text = 'before '+json.dumps(json.dumps({'apiKey':'innocent', 'jobId':UUID}))+' after'
+    safe = R.redact_upstream_v1({'text':text}, sensitive_values=())['text']
+    assert 'innocent' not in safe and UUID in safe
+    literal = r'"safe\ud83d\ude00\t\/\"value"'
+    spans = list(P.embedded_json_v1('before '+literal+' after'))
+    assert len(spans) == 1 and spans[0][2] == json.loads(literal)
+    for bad in (r'"\ud800"', '"safe" '*257):
+        refused(lambda:R.redact_upstream_v1({'text':bad}, sensitive_values=()))
+
+
 def test_safe_fallback_is_static_and_valid():
     assert R.safe_error_v1().to_json() == {'contract':'studiotwin.dashboard.v1','code':'UNAVAILABLE',
                                         'message':'Unsafe upstream payload refused.'}
