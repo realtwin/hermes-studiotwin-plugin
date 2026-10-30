@@ -299,6 +299,88 @@ def test_complete_ipc_stream_envelope_and_sink_no_raw_values():
         med.stream_response(token,request_id='rq_'+'a'*22,scope_id=B,generation=1)
 
 
+def test_eviction_and_purge_never_follow_scope_ancestors(cache,tmp_path):
+    first=put(cache)
+    scopes=cache.root/'scopes'
+    parked=cache.root/'parked'
+    scopes.rename(parked)
+    foreign=tmp_path/'external'
+    foreign_media=foreign/A/'media'
+    foreign_media.mkdir(parents=True)
+    victim=foreign_media/Path(first.path).name
+    victim.write_bytes(PNG)
+    os.utime(victim,(0,0))
+    scopes.symlink_to(foreign,target_is_directory=True)
+    try:
+        with pytest.raises(C.MediaRefused): cache.evict()
+        with pytest.raises(C.MediaRefused): cache.purge_scope(A)
+        assert victim.read_bytes()==PNG
+    finally:
+        scopes.unlink(); parked.rename(scopes)
+
+
+def test_put_ancestor_symlink_does_not_create_foreign_directories(cache,tmp_path):
+    scopes=cache.root/'scopes'
+    foreign=tmp_path/'external'; foreign.mkdir()
+    scopes.symlink_to(foreign,target_is_directory=True)
+    with pytest.raises(C.MediaRefused): put(cache)
+    assert list(foreign.iterdir())==[]
+
+
+def test_restart_quota_preserves_pins_and_counts_old_files(cache):
+    first=put(cache,pinned=True)
+    restarted=C.MediaCache(cache.root,H.HandleStore(),quota=len(PNG))
+    with pytest.raises(C.MediaRefused): put(restarted,scope_id=B)
+    assert Path(first.path).exists()
+
+
+def test_purge_closes_active_open_inode(cache):
+    item=put(cache)
+    stream=cache.open(item.path,scope_id=A,generation=1,mime='image/png',kind='image')
+    cache.purge_scope(A)
+    assert stream.closed
+
+
+def test_local_materialization_reaches_real_mediated_media_and_processor(cache):
+    def loader(row):
+        assert row.scope_id==A and row.target['location'].startswith('https://')
+        return PNG,'.png'
+    med=M.Mediator(cache.handles,cache=cache,loader=loader)
+    pol=policy(resources=(M.ResourceRule(path=('structuredContent','download'),kind='image',role='image',mime='image/png',size=len(PNG)),))
+    result=med.mediate(upstream(),scope_id=A,generation=1,policy=pol,live_schema_hash='c'*64)
+    media=result.to_json()['media']
+    assert len(media)==1 and Path(media[0]['localPath']).read_bytes()==PNG
+    with med.open_source(media[0]['handle'],scope_id=A,generation=1) as source:
+        assert source.read()==PNG
+    cache.rotate(A,2)
+    with pytest.raises((C.MediaRefused,H.HandleNotFound)):
+        med.open_source(media[0]['handle'],scope_id=A,generation=1)
+
+
+def test_missing_sequence_frame_and_wrong_material_map_are_not_silently_repaired():
+    rules=tuple(M.ResourceRule(path=('frames',i),kind='image',role='image',mime='image/png',size=10) for i in range(3))
+    with pytest.raises(BoundaryRefused):
+        mediate({'frames':['https://offline.invalid/1',None,'https://offline.invalid/3']},policy(resources=rules,group='image_sequence',summary_path=None,job_path=None))
+    rule=M.ResourceRule(path=('output',),kind='audio',role='normal',mime='audio/wav',size=10)
+    with pytest.raises(BoundaryRefused):
+        mediate({'output':'https://offline.invalid/1'},policy(resources=(rule,),group='material',summary_path=None,job_path=None))
+
+
+def test_sequence_manifest_is_backend_generated_not_upstream_json(cache):
+    rules=tuple(M.ResourceRule(path=('frames',i),kind='image',role='image',mime='image/png',size=10) for i in range(2))
+    raw={'frames':['https://offline.invalid/1','https://offline.invalid/2']}
+    med=M.Mediator(cache.handles,cache=cache)
+    pol=policy(resources=rules,group='image_sequence',fps=24,manifest=True,summary_path=None,job_path=None)
+    result=med.mediate(raw,scope_id=A,generation=1,policy=pol,live_schema_hash='c'*64)
+    group=result.to_json()['outputGroups'][0]
+    manifest=group['manifest']
+    assert manifest['kind']=='manifest' and manifest['mime']=='application/json'
+    with med.open_source(manifest['source']['handle'],scope_id=A,generation=1) as f:
+        payload=json.load(f)
+    assert payload['fps']==24 and len(payload['frames'])==2
+    assert 'offline.invalid' not in json.dumps(payload)
+
+
 CANARIES=json.loads((ROOT/'tests/fixtures/secret_channels/canaries.v1.json').read_text())['canaries']
 NEEDLES=[s for row in CANARIES for s in row['needles']]
 @pytest.mark.parametrize('needle',NEEDLES)
