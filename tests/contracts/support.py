@@ -164,6 +164,45 @@ def validate_mediated_v1(contract_ref, candidate, *, sensitive_values, docs=None
         raise ValueError("UNSAFE_PAYLOAD") from None
 
 
+def relational_violations(context):
+    """Contract equality/comparison oracle; no SQLite, consent, network or atomicity claim."""
+    a, p, r = (context[k] for k in ("authorization", "preview", "reconciliation"))
+    violations = set()
+    keys = ("scopeId", "trustedSessionId", "runKind", "runId", "operationId", "tool", "schemaHash",
+            "canonicalInputHash", "previewId", "enforcementMode", "previewExpiresAtMs")
+    if any(a[k] != p[k] for k in keys) or any(a[k] != r[k] for k in ("scopeId", "operationId", "enforcementMode")):
+        violations.add("binding")
+    if a["runKind"] == "interactive" and a["runId"] != a["trustedSessionId"]:
+        violations.add("binding")
+    if a["enforcementMode"] == "interim-local":
+        if not (a["maxCredits"] == a["estimatedCredits"] == p["estimatedCredits"] == r["reservedCredits"] == r["estimatedCredits"]):
+            violations.add("estimate")
+    elif r["reservedCredits"] != a["maxCredits"]:
+        violations.add("estimate")
+    if r["actualCost"]["state"] == "known":
+        if r["finalDebit"]["state"] != "reported" or r["actualCost"]["credits"] != r["finalDebit"]["credits"]:
+            violations.add("debit-equality")
+    if r["finalDebit"]["state"] == "reported":
+        debit = r["finalDebit"]["credits"]
+        if a["enforcementMode"] == "interim-local":
+            if (debit > a["estimatedCredits"]) != (r["state"] == "SETTLED_OVERRUN"):
+                violations.add("overrun")
+        elif debit > a["maxCredits"]:
+            violations.add("overrun")
+    try:
+        if not (p["observedAtMs"] <= a["createdAtMs"] <= context["nowMs"] < a["expiresAtMs"] <= p["previewExpiresAtMs"]):
+            violations.add("time-order")
+    except TypeError:
+        violations.add("time-order")
+    if context["consumed"]:
+        violations.add("single-use")
+    if context["heldByOtherOperations"] + a["maxCredits"] > context["guardLimit"]:
+        violations.add("guard")
+    if context["pauseActive"]:
+        violations.add("pause")
+    return violations
+
+
 # --------------------------------------------------------------------------- schema walking
 
 def walk(node: Any, path: str = "") -> Iterator[tuple[str, Any]]:

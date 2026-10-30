@@ -73,6 +73,16 @@ exactly one `export` statement. The fenced block below is the machine-readable s
     "dashboard/services/audio.py": "S18",
     "dashboard/services/env.py": "S20"
   },
+  "gatewayRegistry": {
+    "definitionOwner": "S08",
+    "integrationOwner": "S28",
+    "registration": "def add(self, name: str, handler: GatewayHandler) -> None",
+    "handler": "async def handler(*, context: GatewayCallContext, inputs: ValidatedCandidateInputs) -> MediatedValue",
+    "duplicates": "refuse",
+    "unclassified": "refuse",
+    "schemaDrift": "refuse",
+    "resultContract": "studiotwin.gateway.v1#GatewayResultV1"
+  },
   "integrationOwner": "S28",
   "integrationFiles": ["gateway/router.py", "dashboard/router.py", "src/registry.ts", "src/plugin.tsx"]
 }
@@ -89,6 +99,77 @@ exactly one `export` statement. The fenced block below is the machine-readable s
   router and never mounts itself.
 - **desktop**: exactly one export, `export const contribution: PluginContribution = ...`. No
   default export, no `export *`, no re-exports, no other named export.
+
+## GatewayRegistry and callable contract (Q3)
+
+S08 defines `GatewayRegistry`, `GatewayHandler`, `GatewayCallContext` and
+`ValidatedCandidateInputs` in its owned `gateway/classification.py`; S06 defines the
+`MediatedValue` validation wrapper in `gateway/redaction.py`. Consumers import these names
+from those modules, not independent local protocols. S28 supplies a registry instance when
+integrating leaves. S05's pre-integration setup-only launcher does not import future leaves.
+
+`registry.add(name, handler)` is synchronous, returns None, and has exactly the signature in
+the JSON block. It resolves name and exact current schemaHash through the S08 reviewed-release
+classification; leaves do not supply their own hash, policy or raw input schema. Registration
+refuses duplicate names (including identical handlers), unknown names, changed hashes and
+non-async or signature-incompatible handlers. A new unclassified tool remains discoverable
+but never receives a handler. Host/principal/publication gates still decide what is callable.
+Registry registration is not paid authorization, and there is no public global registry.
+
+`GatewayHandler` is an async callable with keyword-only `context` and `inputs`, no defaults,
+varargs or arbitrary kwargs. Inputs are the immutable `ValidatedCandidateInputs` wrapper,
+with exact bound tool/schemaHash, canonicalInputHash, scope_id and generation; it exposes a
+read-only `values` mapping containing only the validated effective candidate fields.
+`GatewayCallContext` is immutable and supplied by the gateway, never model data. It has:
+
+    scope_id: str
+    generation: int
+    trusted_context: VerifiedHostContext
+    execute: Callable[[ValidatedCandidateInputs], Awaitable[MediatedValue]]
+
+`VerifiedHostContext` is S04's authenticated HostContextV1 wrapper (defined in its owned
+`gateway/host_context.py`), not a dict marked trusted by a caller. `execute` is already bound
+to this registration's exact tool/hash/scope/generation. S08 provides the facade; S09/S10 own
+its consent/ledger/dispatch gates. It rejects a mismatched wrapper. It performs classified reads
+or the complete quote/once-only host consent/reserve/submit-once path for paid work; the handler
+cannot turn a browser quote into dispatch. Only gateway mediation owns hosted transport.
+A typical handler is `return await context.execute(inputs)`; special leaves may compose safe
+local presentation but must return a MediatedValue validated as GatewayResultV1. S28 validates
+registration and output at runtime. No handler returns raw MCP dictionaries, raw candidate
+inputs or unrestricted IPC result objects. The old GOOD_GATEWAY syntax-check fixture tests only
+export syntax and intentionally does not establish that its dummy `_tool(args)` is a runnable
+registered handler; Q3 requires S08/S28's actual callable validation too.
+
+## Mandatory relational checks (Q1)
+
+These are normative S09/S10 checks, not assertions that JSON Schema compares fields or that
+an oracle has executed the real SQLite/consent/dispatch path. The concrete complete-envelope
+negative fixtures are in `test_r1_q1_relational_invariants_have_concrete_negative_fixtures`;
+`support.relational_violations` is their independent conformance oracle.
+
+```json relational-checks
+{
+  "binding": "S09/S10: trusted scope/generation/session/run/operation/tool/schemaHash/canonicalInputHash and previewId/mode/expiry must agree across current classified call, preview row, authorization and reservation/reconciliation; interactive runId equals trustedSessionId. Bind consent elicitation ID to this exact in-flight host call, not model/browser assertions.",
+  "estimate": "S09: in interim mode approved maxCredits == preview estimatedCredits == authorization estimatedCredits == reservedCredits; never reinterpret it as a remote cap. In server mode reserve the authenticated approved maximum and bind the server token/effective inputs/provider-price version/expiry, not the estimate.",
+  "debit-equality": "S10: known actualCost.credits == verified job-specific finalDebit.credits; evidence ref must identify this same-scope operation/job in the authoritative ledger, not wallet delta or a differently scoped job. Refund likewise needs its own verified same-job evidence.",
+  "overrun": "S10: interim verified finalDebit > approved estimate iff SETTLED_OVERRUN; atomically create scope pause. Equal/below is not overrun. Server finalDebit above proven max is a capability breach requiring quarantine/escalation, never relabel as an allowed interim charge or release as unbilled.",
+  "time-order": "S09/S10: observedAt <= authorization.createdAt <= now < authorization.expiresAt <= previewExpiresAt. Unknown or expired binding cannot authorize; timestamps must come from the bound preview/host clocks, not browser receipt. S10 also enforces submitted <= terminal <= reconciled when known, pause.created <= acknowledged; unknown/raw timestamps remain unknown.",
+  "single-use": "S09/S10: atomically verify, consume operationId and insert RESERVED_UNSENT in BEGIN IMMEDIATE; duplicate/restart/timeout returns existing operation, never dispatches. Record DISPATCHING durably before RPC bytes. Only verified pre-send failure/pre-debit rejection releases; ambiguous candidates remain held.",
+  "guard": "S09: sum all unreleased reservations for exactly (scope_id, trusted_session_id), plus proposed reservation, <= user-lowered guardLimit. Concurrent checks and insertion share the consumption transaction; no cross-session aggregation or double-count of the same operation.",
+  "pause": "S09/S10: unacknowledged verified-overrun pause blocks all new paid operations in that scope, across sessions. S10/S11 acknowledgement compares authenticated current scope/generation and exact pause operationId atomically, only writes acknowledged_at_ms, and never changes settlement, consent or dispatch. Repeated acknowledgement is idempotent; stale acknowledgement cannot clear a newer pause."
+}
+```
+
+Additional mandatory owning-slice negative integration fixtures: forged consent ID; old-generation
+response after rotation; same job ID with a foreign ledger reference; server token bound to other
+inputs; reserved estimate != approved estimate; known actual 19 vs verified debit 20; SETTLED_OVERRUN
+with debit == estimate; SETTLED without pause when debit > estimate; server debit > maximum; future
+observation/created time, expired preview, terminal before submission, acknowledgement before pause;
+two concurrent reserves straddling the guard; duplicate consumed operation after restart; foreign
+scope/stale-pause acknowledgement; zero or multiple recovery candidates. Assert real store diffs
+and RPC/log spies, not just return values. The concrete S03 fixtures execute equality/binding/time/
+guard/single-use/pause predicates, but cannot prove atomicity, authentic ledger provenance,
+clock correctness, no-replay under crashes or runtime sink integration before S09/S10 exist.
 
 ## Values the contracts cannot prove
 
