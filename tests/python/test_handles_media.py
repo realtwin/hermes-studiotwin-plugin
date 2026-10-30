@@ -543,6 +543,61 @@ def test_rejected_result_rolls_back_local_handles(cache):
     assert resolve(cache.handles,prior.handle,scope_id=B).target['localPath']==prior.path
 
 
+@pytest.mark.parametrize('manifest',[False,True])
+def test_batch_success_keeps_all_media_and_manifest(cache,manifest):
+    prior=put(cache,scope_id=B,pinned=True)
+    med=M.Mediator(cache.handles,cache=cache,loader=lambda row:(PNG,'.png'))
+    rules=tuple(M.ResourceRule(path=('frames',i),kind='image',role='image',mime='image/png') for i in range(2))
+    result=med.mediate({'frames':['https://offline.invalid/1','https://offline.invalid/2']},
+        scope_id=A,generation=1,policy=policy(resources=rules,group='image_sequence',manifest=manifest,
+        summary_path=None,job_path=None),live_schema_hash='c'*64).to_json()
+    assert len(result['media'])==2
+    for item in result['media']:
+        assert Path(item['localPath']).read_bytes()==PNG
+        with med.open_source(item['handle'],scope_id=A,generation=1) as f:
+            assert f.read()==PNG
+    if manifest:
+        token=result['outputGroups'][0]['manifest']['source']['handle']
+        with med.open_source(token,scope_id=A,generation=1) as f:
+            assert len(json.load(f)['frames'])==2
+    assert Path(prior.path).read_bytes()==PNG
+
+
+def test_unexpected_cache_failure_rolls_back_partial_write(cache,monkeypatch):
+    prior=put(cache,scope_id=B)
+    before=set(cache.handles._rows)
+    def broken(*args,**kwargs):
+        raise RuntimeError('private-backend-trace')
+    monkeypatch.setattr(cache,'open',broken)
+    med=M.Mediator(cache.handles,cache=cache,loader=lambda row:(PNG,'.png'))
+    rule=M.ResourceRule(path=('structuredContent','download'),kind='image',role='image',mime='image/png')
+    with pytest.raises(BoundaryRefused) as exc:
+        med.mediate(upstream(),scope_id=A,generation=1,policy=policy(resources=(rule,)),live_schema_hash='c'*64)
+    assert exc.value.__context__ is None
+    assert set(cache.handles._rows)==before
+    assert not list((cache.root/'scopes'/A/'media').glob('*'))
+    assert Path(prior.path).read_bytes()==PNG
+
+
+@pytest.mark.parametrize('location',[
+    'HTTP://offline.invalid/file?signature={secret}',
+    'S3://private-bucket/{secret}',
+    'https://user:{secret}@offline.invalid/file',
+    'https://offline.invalid/signature/{secret}',
+])
+@pytest.mark.parametrize('channel',['content','_meta','error','progress','structuredContent'])
+def test_location_components_collected_in_every_channel(location,channel):
+    secret='ordinary-review-private-value'
+    raw=upstream(); raw['structuredContent']['summary']=secret
+    target=raw.setdefault(channel,{})
+    if isinstance(target,list):
+        target.append({'text':location.format(secret=secret)})
+    else:
+        target['diagnostic']=location.format(secret=secret)
+    _,result=mediate(raw)
+    assert secret not in json.dumps(result.to_json())
+
+
 CANARIES=json.loads((ROOT/'tests/fixtures/secret_channels/canaries.v1.json').read_text())['canaries']
 NEEDLES=[s for row in CANARIES for s in row['needles']]
 @pytest.mark.parametrize('needle',NEEDLES)
