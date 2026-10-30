@@ -120,6 +120,45 @@ def form_binding(envelope, tool, schema_hash):
             and envelope["classification"] == "classified")
 
 
+def validate_form_projection(form):
+    """Conformance predicates S08/S11 must implement before form publication."""
+    if len(json.dumps(form, allow_nan=False).encode()) > 65536:
+        raise ValueError
+    count = 0
+    def check(node, depth=0):
+        nonlocal count
+        count += 1
+        if depth > 8 or count > 256:
+            raise ValueError
+        kind = node["kind"]
+        def scalar_valid(value):
+            if kind == "string":
+                return isinstance(value, str) and node.get("minLength", 0) <= len(value) <= node.get("maxLength", 4000)
+            if kind in ("number", "integer"):
+                return (not isinstance(value, bool) and isinstance(value, (int, float))
+                        and (kind != "integer" or int(value) == value)
+                        and node.get("minimum", float("-inf")) <= value <= node.get("maximum", float("inf")))
+            return (kind == "boolean" and isinstance(value, bool)) or (kind == "null" and value is None)
+        if "defaultValue" in node:
+            value = node["defaultValue"]
+            if not scalar_valid(value) or ("choices" in node and value not in node["choices"]):
+                raise ValueError
+        if "choices" in node and (not node["choices"] or not all(scalar_valid(value) for value in node["choices"])):
+            raise ValueError
+        for lo, hi in (("minimum", "maximum"), ("minItems", "maxItems"), ("minLength", "maxLength")):
+            if lo in node and hi in node and node[lo] > node[hi]:
+                raise ValueError
+        if kind == "object":
+            fields = node["fields"]
+            if len({f["name"] for f in fields}) != len(fields):
+                raise ValueError
+            for field in fields:
+                check(field["schema"], depth + 1)
+        if kind == "array":
+            check(node["items"], depth + 1)
+    check(form)
+
+
 def validate_mediated_v1(contract_ref, candidate, *, sensitive_values, docs=None):
     """Executable contract oracle, NOT the S06 runtime redactor or its sink integration.
 
@@ -159,6 +198,8 @@ def validate_mediated_v1(contract_ref, candidate, *, sensitive_values, docs=None
         inspect(candidate)
         if not is_valid(contract_ref, candidate, docs):
             raise ValueError
+        if contract_ref.endswith("/ToolInputSchemaResponseV1"):
+            validate_form_projection(candidate["inputSchema"])
         return copy.deepcopy(candidate)
     except (ValueError, TypeError, RecursionError):
         raise ValueError("UNSAFE_PAYLOAD") from None
