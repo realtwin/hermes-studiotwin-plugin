@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 import json
+import re
 import sqlite3
 
 from .startup import open_database
@@ -31,7 +32,29 @@ def mediated(kind, value, scope, generation, sensitive_values=()):
                                    sensitive_values=sensitive_values)
 
 
+def _checked_binding(binding, sensitive_values=()):
+    failed = False
+    result = None
+    try:
+        result = bounded_copy_v1(binding)
+        if type(result) is not dict or set(result) != _BINDING:
+            raise BoundaryRefused()
+        R._binding(result['scope_id'],result['generation'])
+        for field in ('session_id','turn_id','tool_call_id'):
+            R._schema_validate('gateway#/$defs/TrustedIdV1',result[field])
+        R._schema_validate('gateway#/$defs/ToolNameV1',result['tool'])
+        for field in ('schema_hash','canonical_input_hash'):
+            R._schema_validate('gateway#/$defs/Sha256HexV1',result[field])
+        R._walk(result,R._Sensitive(sensitive_values),redact=False,scope_id=result['scope_id'])
+    except (ValueError,TypeError,KeyError):
+        failed = True
+    if failed:
+        raise BoundaryRefused()
+    return result
+
+
 def check_preview(preview, binding, now_ms, sensitive_values=()):
+    binding = _checked_binding(binding,sensitive_values)
     p = mediated('QuotePreviewV1',preview,binding['scope_id'],binding['generation'],sensitive_values).to_json()
     observed, expires = p.get('observedAtMs'), p['previewExpiresAtMs']
     if (p['tool'] != binding['tool'] or p['authorizes'] is not False or not p['executable'] or
@@ -156,9 +179,9 @@ class PolicyStore:
         R._binding(scope_id,0)
         mediated('SpendGuardKeyV1',dict(scopeId=scope_id,trustedSessionId=session_id),scope_id,0,self._sensitive)
         R._schema_validate('gateway#/$defs/CreditsV1',credits)
-        if credits > 200 and explicit_user_setting is not True:
-            raise BoundaryRefused()
         with self.transaction():
+            if credits > min(200,self.guard_limit(scope_id,session_id)) and explicit_user_setting is not True:
+                raise BoundaryRefused()
             self._db.execute('INSERT OR REPLACE INTO policy_guards VALUES (?,?,?)',(scope_id,session_id,credits))
 
     def guard_used(self, scope_id, session_id):
@@ -173,14 +196,23 @@ class PolicyStore:
         return row[0]
 
     def save_quote(self, preview, binding, *, price_version, server_token, now_ms):
-        b=bounded_copy_v1(binding)
-        if type(b) is not dict or set(b)!=_BINDING:
-            raise BoundaryRefused()
+        b=_checked_binding(binding,self._sensitive)
         p=check_preview(preview,b,now_ms,self._sensitive)
         self.guard_key(b['scope_id'],b['generation'],b['session_id'])
-        if p['enforcementMode']=='server-max-credits':
-            R._schema_validate('gateway#/$defs/AuthorizationV1/properties/serverQuoteToken',server_token)
-        elif server_token is not None:
+        failed = False
+        try:
+            if price_version is not None:
+                R._schema_validate('gateway#/$defs/TrustedIdV1',price_version)
+                R._walk(price_version,R._Sensitive(self._sensitive),redact=False)
+            if p['enforcementMode']=='server-max-credits':
+                if type(server_token) is not str or not re.fullmatch(r'sqt_[A-Za-z0-9_-]{43}',server_token):
+                    raise BoundaryRefused()
+                R._walk(server_token,R._Sensitive(self._sensitive),redact=False)
+            elif server_token is not None:
+                raise BoundaryRefused()
+        except (ValueError,TypeError):
+            failed = True
+        if failed:
             raise BoundaryRefused()
         # Validate price/token through the complete authorization schema at the
         # approval boundary; no server mode may be enabled from these labels.
