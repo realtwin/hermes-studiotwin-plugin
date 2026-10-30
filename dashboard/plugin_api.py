@@ -134,8 +134,12 @@ class Backend:
         return _validated(schema,value,binding,tuple(self._sensitive()))
 
     async def guard(self, request):
-        for header in ('host','origin','x-studiotwin-contract','x-studiotwin-csrf','content-length','content-type'):
+        for header in ('host','origin','x-studiotwin-contract','x-studiotwin-csrf','content-length','content-type','range'):
             if len(request.headers.getlist(header))>1: raise Refused()
+        # Core's HTTP host and isolated child connect locally. Forwarded peer
+        # headers are never evidence; remote access must terminate at core.
+        if request.client is None or not ipaddress.ip_address(request.client.host).is_loopback:
+            raise Refused(403)
         if request.headers.get('host') not in self.allowed_hosts: raise Refused(403)
         # Host admission is an injected trusted adapter, not a browser boolean.
         identity = self.authenticate(request)
