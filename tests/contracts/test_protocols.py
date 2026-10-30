@@ -856,6 +856,21 @@ def test_r1_b6_cloned_concept_history_preserves_unknowns_and_failed_attempts(doc
     assert {p.get("name") for p in params} >= {"historyCursor", "historyLimit"}
 
 
+def test_r1_q2_presentation_unknown_times_opus_and_quote_observation(docs):
+    for name, field in (("AssetV1", "createdAtRaw"), ("JobV1", "submittedAtRaw")):
+        ref = f"dashboard#/components/schemas/{name}/properties/{field}"
+        assert field in docs["dashboard"]["components"]["schemas"][name]["properties"]
+        assert S.is_valid(ref, None, docs)
+        assert S.is_valid(ref, "unparseable server timestamp", docs)
+        assert not S.is_valid(ref, "https://private.invalid/t?X-Amz-Signature=fixture", docs)
+    ref = "dashboard#/components/schemas/AudioConvertRequestV1/properties/targetFormat"
+    assert S.is_valid(ref, "opus", docs)
+    assert not S.is_valid(ref, "arbitrary-executable", docs)
+    ref = "dashboard#/components/schemas/QuotePreviewV1"
+    assert S.errors(ref, quote_preview(observedAtMs=1793356500000), docs) == []
+    assert not S.is_valid(ref, quote_preview(observedAtMs=-1), docs)
+
+
 # ----------------------------------------------------------------------- S02 fixtures vs contracts
 
 def _fixture(name):
