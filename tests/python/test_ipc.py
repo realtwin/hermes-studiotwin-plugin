@@ -201,6 +201,38 @@ def test_descriptor_permissions_no_symlink_and_real_local_server(tmp_path):
     asyncio.run(exercise())
 
 
+def test_authenticated_version_refusal_is_typed_and_preserves_pending():
+    client, server = pair(), pair()
+    client.request('status.get', {})
+    client.request('balance.get', {})
+    pending = copy.deepcopy(client.pending)
+    envelope = ipc.VersionRefused('studiotwin.gateway.v2').envelope
+    frame = {'envelope': envelope, 'mac': server._mac(envelope, 'response')}
+    with pytest.raises(ipc.VersionRefused) as error:
+        client.accept_response(frame)
+    assert error.value.envelope == envelope
+    assert client.pending == pending
+    frame['mac'] = '0' * 64
+    with pytest.raises(ipc.Refused, match='BAD_MAC') as error:
+        client.accept_response(frame)
+    assert not isinstance(error.value, ipc.VersionRefused)
+    frame['envelope']['error']['extra'] = True
+    frame['mac'] = server._mac(frame['envelope'], 'response')
+    with pytest.raises(ipc.Refused) as error:
+        client.accept_response(frame)
+    assert not isinstance(error.value, ipc.VersionRefused)
+    assert client.pending == pending
+
+
+def test_ipc_import_does_not_load_schema_dependencies():
+    import subprocess
+    result = subprocess.run([sys.executable, '-c',
+        "import runpy, sys; runpy.run_path('gateway/ipc.py'); "
+        "assert 'jsonschema' not in sys.modules; assert 'referencing' not in sys.modules"],
+        cwd=ROOT, capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr
+
+
 def test_wire_limits_duplicate_keys_and_nonfinite():
     for wire in [b'{' + b'x' * 1048576, b'{"a":1,"a":2}', b'{"x":NaN}', b'[' * 100 + b']' * 100]:
         with pytest.raises(ipc.Refused):
