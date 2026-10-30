@@ -17,7 +17,8 @@ startup = importlib.import_module(ipc.__package__ + '.startup')
 RETENTION = 30 * 86400
 CONTRACT = 'studiotwin.dashboard.v1'
 SCHEMAS = {'asset':'AssetV1', 'job':'JobV1', 'lineage':'LineageV1',
-           'status':'StatusV1', 'capabilities':'CapabilitiesV1', 'pause':'ScopePauseV1'}
+           'status':'StatusV1', 'capabilities':'CapabilitiesV1', 'pause':'ScopePauseV1',
+           'provenance':'ProvenanceRecordRequestV1'}
 
 
 class DashboardStore:
@@ -107,13 +108,20 @@ class DashboardStore:
             raise redaction.BoundaryRefused()
         self.validate('LocalIdV1',identifier,scope_id,generation)
 
-    def put(self, kind, identifier, value, *, scope_id, generation):
+    def _put_in_transaction(self, kind, identifier, value, scope_id, generation):
+        """Private composition primitive; caller holds the checked transaction."""
         self._key(kind,identifier,scope_id,generation)
         safe = self.validate(SCHEMAS[kind],value,scope_id,generation)
-        with self.transaction(scope_id,generation):
-            self.connection.execute('INSERT OR REPLACE INTO s11_metadata VALUES (?,?,?,?,?,?)',
-                (scope_id,generation,kind,identifier,json.dumps(safe.to_json(),allow_nan=False),self.now()))
+        self.connection.execute('INSERT OR REPLACE INTO s11_metadata VALUES (?,?,?,?,?,?)',
+            (scope_id,generation,kind,identifier,json.dumps(safe.to_json(),allow_nan=False),self.now()))
         return safe
+
+    def put(self, kind, identifier, value, *, scope_id, generation):
+        # Validate before even BEGIN: rejected candidates never reach a sink.
+        self._key(kind,identifier,scope_id,generation)
+        self.validate(SCHEMAS[kind],value,scope_id,generation)
+        with self.transaction(scope_id,generation):
+            return self._put_in_transaction(kind,identifier,value,scope_id,generation)
 
     def get(self, kind, identifier, *, scope_id, generation):
         self._key(kind,identifier,scope_id,generation)

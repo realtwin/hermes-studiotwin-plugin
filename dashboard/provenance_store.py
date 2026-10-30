@@ -44,7 +44,7 @@ class ProvenanceStore:
             raise redaction.BoundaryRefused()
         return kinds
 
-    def _insert(self, rows, *, scope_id, generation):
+    def _insert(self, rows, *, scope_id, generation, metadata=None):
         with self.store.transaction(scope_id,generation):
             existing = self._rows(scope_id,generation)
             if len(existing)+len(rows)>20000:
@@ -52,6 +52,9 @@ class ProvenanceStore:
             self._dag(existing+rows)
             self.store.connection.executemany('INSERT OR REPLACE INTO s11_provenance VALUES (?,?,?,?,?,?,?,?,?,?)',
                 [(scope_id,generation,*r,self.store.now()) for r in rows])
+            if metadata is not None:
+                kind,identifier,value = metadata
+                self.store._put_in_transaction(kind,identifier,value,scope_id,generation)
 
     def record(self, request, *, scope_id, generation, concept_id=None):
         v = self.store.validate('ProvenanceRecordRequestV1',request,scope_id,generation).to_json()
@@ -62,7 +65,7 @@ class ProvenanceStore:
         rows = [(a,job,relation,'asset','job','local-recorded',concept_id or '') for a in set(v['sourceAssetIds'])]
         rows += [(job,a,'output-of','job','asset','local-recorded',concept_id or '') for a in set(v['outputAssetIds'])]
         result = self.store.validate('ProvenanceRecordedV1',dict(contract=CONTRACT,edgeCount=len(rows)),scope_id,generation)
-        self._insert(rows,scope_id=scope_id,generation=generation)
+        self._insert(rows,scope_id=scope_id,generation=generation,metadata=('provenance',job,v))
         return result
 
     def merge_server(self, lineage, *, scope_id, generation, concept_id=None):
@@ -77,9 +80,8 @@ class ProvenanceStore:
             if e['parent'] not in kinds or e['child'] not in kinds:
                 raise redaction.BoundaryRefused()
             rows.append((e['parent'],e['child'],e['relation'],kinds[e['parent']],kinds[e['child']],'server-reported',concept_id or ''))
-        self._insert(rows,scope_id=scope_id,generation=generation)
-        # Preserve an isolated server root and its truncation indication too.
-        self.store.put('lineage',v['root'],v,scope_id=scope_id,generation=generation)
+        # Edges and isolated-root/truncation metadata are one atomic commit.
+        self._insert(rows,scope_id=scope_id,generation=generation,metadata=('lineage',v['root'],v))
 
     def records(self, *, scope_id, generation):
         with self.store.transaction(scope_id,generation):
