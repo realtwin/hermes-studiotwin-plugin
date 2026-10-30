@@ -107,19 +107,36 @@ class MediaCache:
 
     def _mkdir(self, path):
         # Only root's parent is provisioned externally; descendants are private.
-        created = False
+        # Creation itself is anchored: rejecting a followed link AFTER mkdir
+        # would still have modified a foreign directory.
+        failed=False
         try:
-            path.mkdir(mode=0o700)
-            created = True
-        except FileExistsError:
-            pass
-        if self._windows is not None:
-            with self._windows.directory(path, tighten=created):
-                pass
-        else:
-            st = path.lstat()
-            if not stat.S_ISDIR(st.st_mode) or st.st_uid != os.getuid() or st.st_mode & 0o077:
-                raise MediaRefused()
+            with ExitStack() as stack:
+                if self._windows is not None:
+                    if path.parent.resolve(strict=True) != path.parent:
+                        raise MediaRefused()
+                    stack.enter_context(self._windows.directory(path.parent))
+                    created=False
+                    try:
+                        path.mkdir(mode=0o700)
+                        created=True
+                    except FileExistsError:
+                        pass
+                    with self._windows.directory(path,tighten=created):
+                        pass
+                else:
+                    parent=self._parent_fd(path,stack)
+                    try:
+                        os.mkdir(path.name,mode=0o700,dir_fd=parent)
+                    except FileExistsError:
+                        pass
+                    st=os.stat(path.name,dir_fd=parent,follow_symlinks=False)
+                    if not stat.S_ISDIR(st.st_mode) or st.st_uid != os.getuid() or st.st_mode & 0o077:
+                        raise MediaRefused()
+        except (OSError,ValueError):
+            failed=True
+        if failed:
+            raise MediaRefused()
 
     def _directory(self, scope_id, generation):
         self.handles.bind(scope_id,generation)
