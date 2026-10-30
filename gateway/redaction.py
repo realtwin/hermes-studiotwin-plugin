@@ -166,11 +166,18 @@ def _binding(scope_id, generation):
 def _schema_validate(ref, value):
     # The pinned MCP dependency already bundles jsonschema/referencing. No test
     # helpers, dynamic install, remote refs or independent runtime dependency.
-    from .ipc import validate
+    from .ipc import validate, _DOCS
     match = re.fullmatch(r'(gateway|host_gateway|host-gateway|dashboard)#/(?:\$defs|components/schemas)/([A-Za-z][A-Za-z0-9]*V1)', ref)
     if match is None:
         raise BoundaryRefused()
     contract, definition = match.groups()
+    expected = '/components/schemas/' if contract == 'dashboard' else '/$defs/'
+    if ref != contract + '#' + expected + definition:
+        raise BoundaryRefused()
+    document = _DOCS[contract.replace('_','-')][1]
+    definitions = document['components']['schemas'] if contract == 'dashboard' else document['$defs']
+    if definition not in definitions:
+        raise BoundaryRefused()
     validate(contract.replace('_','-'), definition, value)
 
 
@@ -183,6 +190,13 @@ def _walk(value, registry, *, redact, scope_id=None):
             result = {}
             for name, child in item.items():
                 budget.visit(depth + 1)
+                # A presigned POST form is one credential-bearing unit. Its
+                # object key/location is privileged too, not just Policy/Signature.
+                if (name == 'fields' and type(child) is dict and
+                        any(_BANNED_NAME.search(field_name) for field_name in child)):
+                    if not redact:
+                        raise BoundaryRefused()
+                    continue
                 if registry.unsafe(name) or (name not in _NAME_EXCEPTIONS and _BANNED_NAME.search(name)):
                     if not redact:
                         raise BoundaryRefused()
