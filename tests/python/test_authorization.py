@@ -510,6 +510,35 @@ def test_no_raw_candidate_or_effective_value_can_mint_consent(catalog,store,monk
     assert store.operation_count()==0
 
 
+def test_pause_appearing_after_consent_blocks_atomic_reserve(catalog,store,monkeypatch):
+    future_principal(monkeypatch)
+    gate,ctx,caps=host(); x=effective(catalog,store); q=quote(store,x,ctx)
+    auth=asyncio.run(service(catalog,store,gate,caps).authorize(x,ctx,q)).to_json()
+    p=preview(); p['previewId']='pv_'+'b'*43
+    q2=store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,now_ms=1000)
+    auth.update(operationId='op_'+'b'*43,previewId=q2)
+    store.put_pause(dict(protocol='studiotwin.gateway.v1',scopeId=SCOPE,reason='verified-overrun',
+        operationId='op_'+'z'*43,estimatedCredits=10,actualCredits=20,createdAtMs=1000,acknowledgedAtMs=None),generation=1)
+    with pytest.raises(R.BoundaryRefused): store.reserve(auth,binding(x,ctx),now_ms=1001)
+    assert store.operation_count()==1 and store.guard_used(SCOPE,'chat')==20
+
+
+def test_all_required_outbound_envelopes_use_real_s06(catalog,store,monkeypatch):
+    future_principal(monkeypatch)
+    calls=[]
+    actual=R.validate_mediated_v1
+    def spy(ref,*args,**kwargs):
+        calls.append(ref)
+        return actual(ref,*args,**kwargs)
+    monkeypatch.setattr(R,'validate_mediated_v1',spy)
+    gate,ctx,caps=host(); x=effective(catalog,store); q=quote(store,x,ctx)
+    asyncio.run(service(catalog,store,gate,caps).authorize(x,ctx,q))
+    store.put_pause(dict(protocol='studiotwin.gateway.v1',scopeId=SCOPE,reason='verified-overrun',
+        operationId='op_'+'z'*43,estimatedCredits=10,actualCredits=20,createdAtMs=1000,acknowledgedAtMs=None),generation=1)
+    assert {'dashboard#/components/schemas/QuotePreviewV1', 'gateway#/$defs/AuthorizationV1',
+            'gateway#/$defs/SpendGuardKeyV1','gateway#/$defs/ScopePauseV1'} <= set(calls)
+
+
 if __name__=='__main__' and len(sys.argv)==3 and sys.argv[1]=='ledger-probe':
     payload=json.load(sys.stdin)
     s=P.PolicyStore(Path(sys.argv[2]))
