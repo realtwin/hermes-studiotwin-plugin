@@ -397,6 +397,85 @@ def test_metadata_relational_id_and_scope_binding(tmp_path):
     s.close()
 
 
+def final_read_token(p, item, data, budget=1):
+    return p.handles.mint(scope_id=SCOPE,generation=1,purpose='resource',kind='image',
+        role='media',mime='image/png',size=len(data),target={'localPath':item.path},max_reads=budget)
+
+
+@pytest.mark.parametrize('budget',[1,2])
+def test_final_permitted_handle_reads(tmp_path,budget):
+    p,item,data,_ = make_proxy(tmp_path)
+    token = final_read_token(p,item,data,budget)
+    for _ in range(budget):
+        lease = p.prepare(handle=token,scope_id=SCOPE,generation=1,session='final')
+        assert b''.join(lease.chunks()) == data
+    with pytest.raises(importlib.import_module('s11_dashboard.proxy').ProxyRefused):
+        p.prepare(handle=token,scope_id=SCOPE,generation=1,session='final')
+    assert p.active_streams == 0
+
+
+def test_final_read_invalid_range_and_open_failure_do_not_spend_budget(tmp_path,monkeypatch):
+    p,item,data,_ = make_proxy(tmp_path)
+    token = final_read_token(p,item,data)
+    P = importlib.import_module('s11_dashboard.proxy')
+    with pytest.raises(P.ProxyRefused) as e:
+        p.prepare(handle=token,scope_id=SCOPE,generation=1,session='final',range_header='bytes=9-8')
+    assert e.value.status == 416
+    real = p.cache.open
+    def fail(*a,**kw): raise ValueError('open refused')
+    monkeypatch.setattr(p.cache,'open',fail)
+    with pytest.raises(P.ProxyRefused):
+        p.prepare(handle=token,scope_id=SCOPE,generation=1,session='final')
+    monkeypatch.setattr(p.cache,'open',real)
+    lease = p.prepare(handle=token,scope_id=SCOPE,generation=1,session='final')
+    assert b''.join(lease.chunks()) == data
+
+
+@pytest.mark.parametrize('control',['none','revoke','target','purge','rotate','expiry','binding'])
+def test_concurrent_final_admitted_reads_survive_exhaustion_not_revocation(tmp_path,control):
+    p,item,data,binding = make_proxy(tmp_path)
+    now = [100.0]
+    p.handles._clock = lambda:now[0]
+    token = final_read_token(p,item,data,2)
+    leases = [p.prepare(handle=token,scope_id=SCOPE,generation=1,session=str(i)) for i in range(2)]
+    streams = [lease.chunks() for lease in leases]
+    first = [next(stream) for stream in streams]
+    assert first == [data[:65536]]*2
+    # Rejected admission deletes the exhausted row. That is NOT revocation.
+    with pytest.raises(importlib.import_module('s11_dashboard.proxy').ProxyRefused):
+        p.prepare(handle=token,scope_id=SCOPE,generation=1,session='third')
+    p.handles.expire()
+    if control == 'revoke': p.handles.revoke(token)
+    if control == 'target': p.handles.invalidate_target(SCOPE,item.path)
+    if control == 'purge': p.handles.purge_scope(SCOPE)
+    if control == 'rotate': p.handles.rotate(SCOPE,2)
+    if control == 'expiry': now[0] += 301
+    if control == 'binding': binding[:] = [SCOPE,2]
+    for stream in streams:
+        rest = b''.join(stream)
+        assert rest == (data[65536:] if control == 'none' else b'')
+    assert all(lease.closed for lease in leases)
+    assert p.active_streams == 0
+
+
+@pytest.mark.parametrize('control',['revoke','target','purge','rotate','expiry'])
+def test_final_single_read_controls(tmp_path,control):
+    p,item,data,_ = make_proxy(tmp_path)
+    now = [100.0]
+    p.handles._clock = lambda:now[0]
+    token = final_read_token(p,item,data)
+    lease = p.prepare(handle=token,scope_id=SCOPE,generation=1,session='final')
+    stream = lease.chunks()
+    assert next(stream) == data[:65536]
+    if control == 'revoke': p.handles.revoke(token)
+    if control == 'target': p.handles.invalidate_target(SCOPE,item.path)
+    if control == 'purge': p.handles.purge_scope(SCOPE)
+    if control == 'rotate': p.handles.rotate(SCOPE,2)
+    if control == 'expiry': now[0] += 301
+    assert list(stream) == []
+    assert lease.closed and p.active_streams == 0
+
+
 def test_rate_limiter_retires_idle_sessions_without_resetting_busy_budget():
     P = importlib.import_module('s11_dashboard.proxy')
     now = [0.0]

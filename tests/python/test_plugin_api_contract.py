@@ -173,6 +173,22 @@ def test_http_status_capabilities_and_cf8_over_actual_ipc(tmp_path):
     asyncio.run(run())
 
 
+@pytest.mark.parametrize('range_header',[None,'bytes=8-140000'])
+def test_http_final_handle_read_complete_body_and_next_refused(tmp_path,range_header):
+    from tests.python.test_dashboard_core import final_read_token
+    async def run():
+        async with http_backend(tmp_path) as (_,b,h,p,s,binding,item,data):
+            token = final_read_token(b.proxy,item,data)
+            headers = {} if range_header is None else {'Range':range_header}
+            r = await h.get('/local/file',params={'handle':token},headers=headers)
+            assert r.status_code == (200 if range_header is None else 206)
+            assert len(r.content) == int(r.headers['Content-Length'])
+            assert r.content == (data if range_header is None else data[8:140001])
+            r = await h.get('/local/file',params={'handle':token})
+            assert r.status_code == 404
+    asyncio.run(run())
+
+
 def test_http_local_file_ranges_and_provenance(tmp_path):
     from tests.python.test_dashboard_core import record_request, B
     async def run():
