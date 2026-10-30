@@ -130,7 +130,7 @@ def test_replay_peer_and_shape_guards():
     g = gate()
     first = authenticated(g)
     assert first["trusted"]
-    assert contracts.is_valid("host_gateway#/$defs/HostContextV1", first)
+    assert contracts.is_valid("host_gateway#/$defs/HostContextV1", dict(first))
     assert contracts.is_valid("host_gateway#/$defs/TrustedToolContextV1", context())
     assert authenticated(g)["reason"] == "trusted-context-stale-nonce"
     assert authenticated(g, nonce=1, profileId="other")["reason"] == "trusted-context-wrong-peer"
