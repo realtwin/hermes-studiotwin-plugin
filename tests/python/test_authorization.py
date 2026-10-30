@@ -450,6 +450,66 @@ def test_real_process_restart_and_concurrent_duplicate(catalog,store,tmp_path,mo
     assert store.operation_count()==2 and store.guard_used(SCOPE,'chat')==40
 
 
+@pytest.mark.parametrize('dimension,other',[('profileId','other-profile'),('connectionId','ssh'),
+    ('endpointOrigin','https://production.example'),('accountId','other-account'),('orgId','other-org')])
+def test_full_scope_tuple_a_b_a_and_credential_rotation(tmp_path,dimension,other):
+    s=P.PolicyStore(tmp_path/'tuple-data')
+    try:
+        identity=dict(profileId='profile',connectionId='local',endpointOrigin='https://staging.example',
+                      accountId='account',orgId='organization')
+        a,g1=s.activate_scope(identity,scope_key=KEY,credential_epoch='a'*64)
+        changed={**identity,dimension:other}
+        b,g2=s.activate_scope(changed,scope_key=KEY,credential_epoch='a'*64)
+        assert a!=b and g2>g1
+        again,g3=s.activate_scope(identity,scope_key=KEY,credential_epoch='a'*64)
+        assert again==a and g3>g2
+        same,g4=s.activate_scope(identity,scope_key=KEY,credential_epoch='b'*64)
+        assert same==a and g4>g3
+        with pytest.raises(R.BoundaryRefused): s.require_current(a,g1)
+        wire=(tmp_path/'tuple-data/studiotwin.sqlite3').read_bytes()
+        assert b'other-account' not in wire and b'organization' not in wire and KEY not in wire
+    finally: s.close()
+
+
+def test_rotation_while_elicitation_waits_quarantines_approval(catalog,store,monkeypatch):
+    future_principal(monkeypatch)
+    gate,ctx,caps=host(); x=effective(catalog,store); q=quote(store,x,ctx)
+    svc=service(catalog,store,gate,caps)
+    async def rotate(request):
+        store.activate('c'*64,'d'*64)
+        store.activate(SCOPE,'b'*64)
+        return await accept(request)
+    svc._elicit=rotate
+    with pytest.raises(R.BoundaryRefused): asyncio.run(svc.authorize(x,ctx,q))
+    assert store.quote_count()==store.operation_count()==0
+
+
+def test_newly_registered_secret_rechecked_after_consent(catalog,tmp_path,monkeypatch):
+    future_principal(monkeypatch)
+    secrets=[]
+    s=P.PolicyStore(tmp_path/'late-secret',sensitive_values=secrets)
+    try:
+        s.activate(SCOPE,'b'*64)
+        gate,ctx,caps=host(); x=effective(catalog,s); q=quote(s,x,ctx)
+        svc=service(catalog,s,gate,caps)
+        async def changed(request):
+            secrets.append('harbor')
+            return await accept(request)
+        svc._elicit=changed
+        svc._sensitive=secrets
+        with pytest.raises(R.BoundaryRefused): asyncio.run(svc.authorize(x,ctx,q))
+        assert s.operation_count()==0
+    finally: s.close()
+
+
+def test_no_raw_candidate_or_effective_value_can_mint_consent(catalog,store,monkeypatch):
+    future_principal(monkeypatch)
+    gate,ctx,caps=host(); x=effective(catalog,store); q=quote(store,x,ctx)
+    for raw in (x.to_json(),x.candidate,{'approved':True},None):
+        with pytest.raises(R.BoundaryRefused): asyncio.run(service(catalog,store,gate,caps).authorize(raw,ctx,q))
+    assert store.operation_count()==0
+
+
 if __name__=='__main__' and len(sys.argv)==3 and sys.argv[1]=='ledger-probe':
     payload=json.load(sys.stdin)
     s=P.PolicyStore(Path(sys.argv[2]))
