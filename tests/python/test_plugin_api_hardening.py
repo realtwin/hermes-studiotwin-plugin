@@ -1,7 +1,7 @@
 """S11 local-read hardening: actual descriptors, no network or broad HOME grant.
 
 Adapted test ideas from meshy/tests/test_plugin_api_hardening.py @
-1e326ddd28ae261821d7714d106fe114999a0bba (MIT; Copyright (c) 2025).
+1e326ddd28ae261821d7714d106fe114999a0bba (MIT; Copyright (c) 2025 Nous Research).
 No provider HTTP or task assumptions are retained.
 """
 import importlib

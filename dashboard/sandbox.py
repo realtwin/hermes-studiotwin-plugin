@@ -71,8 +71,11 @@ class FileSandbox:
                 if self._windows is not None:
                     # Lock every ancestor against reparse/rename until the
                     # opened-file ACL and fstat validation complete.
+                    # S05's private ACL policy applies to the granted tree,
+                    # not OS-owned ancestors such as a Windows drive root.
                     for parent in reversed(path.parents):
-                        stack.enter_context(self._windows.directory(parent))
+                        if parent.is_relative_to(root):
+                            stack.enter_context(self._windows.directory(parent))
                     fd = self._windows.open(path)
                 else:
                     parent_fd = os.open(path.anchor,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_NONBLOCK)
