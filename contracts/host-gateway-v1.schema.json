@@ -1,0 +1,482 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:hermes-studiotwin:contracts:host-gateway-v1",
+  "title": "hermes-studiotwin host<->gateway protocol v1 (frozen, S03)",
+  "description": "Host context (D31), host capability handshake and dashboard-backend IPC envelope. Exact-match versioning.",
+  "x-studiotwin-version": {
+    "contract": "studiotwin.host-gateway.v1",
+    "major": 1,
+    "compatibility": "exact-match",
+    "onMismatch": "refuse",
+    "refusalCode": "INCOMPATIBLE_PROTOCOL_VERSION"
+  },
+  "$defs": {
+    "ProtocolV1": {
+      "const": "studiotwin.host-gateway.v1",
+      "description": "Exact-match protocol label. Any other value is refused."
+    },
+    "TrustedIdV1": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "MediatedTextV1": {
+      "type": "string",
+      "maxLength": 4000,
+      "x-studiotwin-mediated-text": true,
+      "description": "Text that has passed the S06/S07 result-mediation boundary (D20). Never carries a URL, storage URI, presigned field, query string or credential.",
+      "not": {
+        "anyOf": [
+          {
+            "pattern": "[A-Za-z][A-Za-z0-9+.-]*://"
+          },
+          {
+            "pattern": "(^|[^A-Za-z0-9])[Ss]3:"
+          },
+          {
+            "pattern": "(^|[^A-Za-z0-9])data:[^\\s,]*[;,]"
+          },
+          {
+            "pattern": "[Xx]-[Aa][Mm][Zz]-"
+          },
+          {
+            "pattern": "[A-Za-z0-9_.-]=[^\\s]"
+          },
+          {
+            "pattern": "[?&][A-Za-z0-9_.-]+="
+          },
+          {
+            "pattern": "[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f]"
+          }
+        ]
+      }
+    },
+    "HostContextV1": {
+      "description": "What the gateway knows about its caller. On unmodified pinned core (no D31) this is the untrusted variant and carries no identity at all: setup-only.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "protocol",
+            "trusted",
+            "reason"
+          ],
+          "properties": {
+            "protocol": {
+              "$ref": "#/$defs/ProtocolV1"
+            },
+            "trusted": {
+              "const": false
+            },
+            "reason": {
+              "enum": [
+                "trusted-context-absent-on-host",
+                "trusted-context-mac-invalid",
+                "trusted-context-stale-nonce",
+                "trusted-context-wrong-peer",
+                "trusted-context-in-model-arguments",
+                "trusted-context-cross-session-reuse"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "protocol",
+            "trusted",
+            "source",
+            "hostInstanceNonce",
+            "profileId",
+            "connectionId",
+            "sessionId",
+            "runKind",
+            "cronRunId",
+            "toolName",
+            "turnId",
+            "toolCallId",
+            "callNonce"
+          ],
+          "properties": {
+            "protocol": {
+              "$ref": "#/$defs/ProtocolV1"
+            },
+            "trusted": {
+              "const": true
+            },
+            "source": {
+              "const": "trusted-tool-context-v1"
+            },
+            "hostInstanceNonce": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{43}$"
+            },
+            "profileId": {
+              "$ref": "#/$defs/TrustedIdV1"
+            },
+            "connectionId": {
+              "$ref": "#/$defs/TrustedIdV1"
+            },
+            "sessionId": {
+              "$ref": "#/$defs/TrustedIdV1"
+            },
+            "runKind": {
+              "enum": [
+                "interactive",
+                "cron",
+                "api",
+                "kanban"
+              ]
+            },
+            "cronRunId": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "#/$defs/TrustedIdV1"
+                }
+              ]
+            },
+            "toolName": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+            },
+            "turnId": {
+              "$ref": "#/$defs/TrustedIdV1"
+            },
+            "toolCallId": {
+              "$ref": "#/$defs/TrustedIdV1"
+            },
+            "callNonce": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "required": [
+                  "runKind"
+                ],
+                "properties": {
+                  "runKind": {
+                    "const": "cron"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "cronRunId"
+                ],
+                "properties": {
+                  "cronRunId": {
+                    "$ref": "#/$defs/TrustedIdV1"
+                  }
+                }
+              },
+              "else": {
+                "properties": {
+                  "cronRunId": {
+                    "type": "null"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "TrustedToolContextV1": {
+      "type": "object",
+      "additionalProperties": false,
+      "x-meta-key": "hermes.trustedToolContext/v1",
+      "x-transport": "reserved MCP request _meta, never tool arguments",
+      "description": "D31 core dependency: populated by core after model arguments, MAC'd with an ephemeral per-process key inherited at spawn. Absent, model-argument copies, bad MACs, stale nonces and cross-session reuse are rejected.",
+      "required": [
+        "hostInstanceNonce",
+        "profileId",
+        "connectionId",
+        "sessionId",
+        "runKind",
+        "cronRunId",
+        "toolName",
+        "turnId",
+        "toolCallId",
+        "callNonce",
+        "mac"
+      ],
+      "properties": {
+        "hostInstanceNonce": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{43}$"
+        },
+        "profileId": {
+          "$ref": "#/$defs/TrustedIdV1"
+        },
+        "connectionId": {
+          "$ref": "#/$defs/TrustedIdV1"
+        },
+        "sessionId": {
+          "$ref": "#/$defs/TrustedIdV1"
+        },
+        "runKind": {
+          "enum": [
+            "interactive",
+            "cron",
+            "api",
+            "kanban"
+          ]
+        },
+        "cronRunId": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/TrustedIdV1"
+            }
+          ]
+        },
+        "toolName": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]{0,63}$"
+        },
+        "turnId": {
+          "$ref": "#/$defs/TrustedIdV1"
+        },
+        "toolCallId": {
+          "$ref": "#/$defs/TrustedIdV1"
+        },
+        "callNonce": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "mac": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "runKind"
+            ],
+            "properties": {
+              "runKind": {
+                "const": "cron"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "cronRunId"
+            ],
+            "properties": {
+              "cronRunId": {
+                "$ref": "#/$defs/TrustedIdV1"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "cronRunId": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "HostCapabilitiesV1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol",
+        "hostVersion",
+        "hostVersionStatus",
+        "versionSource",
+        "capabilities"
+      ],
+      "description": "Supplied by the same running core process during initialize (§5.3). Importing another installation never satisfies it.",
+      "properties": {
+        "protocol": {
+          "$ref": "#/$defs/ProtocolV1"
+        },
+        "hostVersion": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][0-9A-Za-z.-]{1,32})?$"
+        },
+        "hostVersionStatus": {
+          "enum": [
+            "unknown",
+            "below-floor",
+            "at-or-above-floor"
+          ]
+        },
+        "versionSource": {
+          "const": "running-distribution-metadata"
+        },
+        "capabilities": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "trustedToolContextV1",
+            "onceOnlyElicitation",
+            "noWriteReplay",
+            "portableMcpOwnership",
+            "pluginBackendNamespace",
+            "profileScopedInterpolationFailClosed",
+            "gatewayMigration"
+          ],
+          "properties": {
+            "trustedToolContextV1": {
+              "type": "boolean"
+            },
+            "onceOnlyElicitation": {
+              "type": "boolean"
+            },
+            "noWriteReplay": {
+              "type": "boolean"
+            },
+            "portableMcpOwnership": {
+              "type": "boolean"
+            },
+            "pluginBackendNamespace": {
+              "type": "boolean"
+            },
+            "profileScopedInterpolationFailClosed": {
+              "type": "boolean"
+            },
+            "gatewayMigration": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "IpcMethodV1": {
+      "enum": [
+        "status.get",
+        "capabilities.list",
+        "balance.get",
+        "assets.list",
+        "assets.get",
+        "assets.resolveStream",
+        "assets.thumbnail",
+        "jobs.list",
+        "jobs.get",
+        "uploads.create",
+        "uploads.putChunk",
+        "uploads.complete",
+        "provenance.record",
+        "lineage.get",
+        "concepts.list",
+        "concepts.get",
+        "concepts.status",
+        "operations.quote",
+        "operations.get",
+        "scopePause.acknowledge"
+      ]
+    },
+    "IpcRequestV1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol",
+        "requestId",
+        "nonce",
+        "issuedAtMs",
+        "mac",
+        "method",
+        "params"
+      ],
+      "description": "Dashboard backend -> gateway over the package-local socket (§5.3). MAC over the canonical request with the boot capability; replayed nonces fail.",
+      "properties": {
+        "protocol": {
+          "$ref": "#/$defs/ProtocolV1"
+        },
+        "requestId": {
+          "type": "string",
+          "pattern": "^rq_[A-Za-z0-9_-]{22}$"
+        },
+        "nonce": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{43}$"
+        },
+        "issuedAtMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 253402300799999
+        },
+        "mac": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "method": {
+          "$ref": "#/$defs/IpcMethodV1"
+        },
+        "params": {
+          "type": "object",
+          "description": "Method parameters; typed by the owning slice's gateway/dashboard schema."
+        }
+      }
+    },
+    "IpcResponseV1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol",
+        "requestId",
+        "ok"
+      ],
+      "properties": {
+        "protocol": {
+          "$ref": "#/$defs/ProtocolV1"
+        },
+        "requestId": {
+          "type": "string",
+          "pattern": "^rq_[A-Za-z0-9_-]{22}$"
+        },
+        "ok": {
+          "type": "boolean"
+        },
+        "result": {
+          "type": "object"
+        },
+        "error": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "code",
+            "message"
+          ],
+          "properties": {
+            "code": {
+              "enum": [
+                "INCOMPATIBLE_PROTOCOL_VERSION",
+                "BAD_MAC",
+                "REPLAYED_NONCE",
+                "STALE_REQUEST",
+                "UNKNOWN_METHOD",
+                "SCOPE_MISMATCH",
+                "INVALID_PARAMS",
+                "UNAVAILABLE"
+              ]
+            },
+            "message": {
+              "$ref": "#/$defs/MediatedTextV1"
+            }
+          }
+        }
+      }
+    }
+  }
+}
