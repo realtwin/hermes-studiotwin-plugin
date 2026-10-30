@@ -9,6 +9,8 @@ S10 owns dispatch/reconciliation and verified evidence issuance, not this store.
 from __future__ import annotations
 
 from contextlib import contextmanager
+import hashlib
+import hmac
 import json
 import re
 import sqlite3
@@ -123,6 +125,33 @@ class PolicyStore:
         row = self._db.execute('SELECT scope_id,generation FROM policy_active WHERE slot=1').fetchone()
         if row != (scope_id,generation):
             raise BoundaryRefused()
+
+    def activate_scope(self, scope_tuple, *, scope_key, credential_epoch, handles=None):
+        """Trusted backend storage hook, not proof of the supplied principal.
+        D24 issuer must authenticate this tuple BEFORE calling; S09 authorization
+        independently requires that issuer. The keyed scope salt is backend-owned
+        and stable; credential_epoch is a keyed digest, never an API key. Raw
+        account/org/profile/endpoint values are not written to SQLite.
+        """
+        failed = False
+        material = None
+        try:
+            value = bounded_copy_v1(scope_tuple)
+            R._schema_validate('gateway#/$defs/ScopeTupleV1',value)
+            if type(scope_key) is not bytes or len(scope_key) < 32:
+                raise BoundaryRefused()
+            R._binding(credential_epoch,0)
+            registry = R._Sensitive(self._sensitive)
+            if any(registry.unsafe(v,secrets_only=True) for v in value.values()):
+                raise BoundaryRefused()
+            material = _json(value).encode()
+        except (ValueError,TypeError,AttributeError):
+            failed = True
+        if failed:
+            raise BoundaryRefused()
+        scope = hmac.new(scope_key,b'studiotwin-scope-v1\0'+material,hashlib.sha256).hexdigest()
+        identity = hmac.new(scope_key,b'studiotwin-generation-v1\0'+material+b'\0'+credential_epoch.encode(),hashlib.sha256).hexdigest()
+        return scope,self.activate(scope,identity,handles=handles)
 
     def activate(self, scope_id, identity_hash, *, handles=None):
         """Backend rotation hook AFTER fresh identity proof. identity_hash must
