@@ -117,6 +117,13 @@ def _get(value, path):
     if type(path) is not tuple or not path or len(path) > 16:
         raise BoundaryRefused()
     for part in path:
+        if type(value) is str:
+            # A reviewed path may traverse ONE bounded JSON container inside a
+            # text block/fence. Ambiguous multiple containers are never guessed.
+            containers=[parsed for _,_,parsed in embedded_json_v1(value) if type(parsed) in (dict,list)]
+            if len(containers)!=1:
+                return _MISSING
+            value=bounded_copy_v1(containers[0])
         if type(value) is dict and type(part) is str:
             value=value.get(part,_MISSING)
         elif type(value) is list and type(part) is int and 0 <= part < len(value):
@@ -252,10 +259,11 @@ class Mediator:
                     groups[0]['manifest']=dict(resourceId='res_'+secrets.token_hex(16),kind='manifest',assetId=None,
                         libraryState='not-in-library',mime='application/json',source={'kind':'handle','handle':item.handle},
                         contentRoute='/api/plugins/hermes-studiotwin/local/file?handle='+item.handle)
-                summary=_get(safe,policy.summary_path)
+                summary=_get(raw,policy.summary_path)
                 if summary is _MISSING or type(summary) is not str:
                     summary='Upstream result mediated.'
-                job_id=_get(safe,policy.job_path)
+                summary=redact_upstream_v1(summary,sensitive_values=registry)
+                job_id=_get(raw,policy.job_path)
                 if job_id is _MISSING:
                     job_id=None
                 candidate=dict(protocol='studiotwin.gateway.v1',tool=policy.tool,
