@@ -252,6 +252,27 @@ def test_extracted_ordinary_value_cannot_survive_in_summary(encode):
     assert encode(raw['structuredContent']['download']) not in json.dumps(result.to_json())
 
 
+def test_real_s02_upload_session_text_shape_is_extracted_without_leaking_fields():
+    sys.path.insert(0,str(ROOT/'tests/fixtures'))
+    try:
+        from fake_mcp.state import FakeStudioTwin
+        response=FakeStudioTwin()._t_upload_asset({})
+    finally:
+        sys.path.pop(0)
+    raw={'content':[{'type':'text','text':response.text}]}
+    pol=policy(resources=(),summary_path=None,job_path=None,
+               upload_path=('content',0,'text','preSignedPost'),upload_id_path=('content',0,'text','uuid'))
+    med,result=mediate(raw,pol)
+    token=result.to_json()['outputGroups'][0]['resource']['source']['handle']
+    row=med.handles.resolve(token,scope_id=A,generation=1,purpose='upload',operation='put')
+    original=json.loads(response.text)
+    assert row.target['uploadSessionId']==original['uuid']
+    assert dict(row.target['fields'])==original['preSignedPost']['fields']
+    serialized=json.dumps(result.to_json())
+    assert original['uuid'] not in serialized
+    assert all(v not in serialized for v in original['preSignedPost']['fields'].values())
+
+
 def test_upload_fields_registered_as_whole_and_individuals(monkeypatch):
     fields={'key':'ordinary-object-key','Policy':'ordinary-private-policy','X-Amz-Signature':'ordinary-private-signature'}
     raw={'structuredContent':{'session':{'url':'https://offline.invalid/post','fields':fields,'uploadSessionId':'private-session'}}}
