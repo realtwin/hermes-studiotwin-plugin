@@ -244,6 +244,7 @@ def test_provenance_internal_attribution_and_closed_merged_wire(tmp_path):
     p = P.ProvenanceStore(s)
     result = p.record(record_request(), scope_id=SCOPE,generation=1,concept_id=CONCEPT)
     assert result.to_json()['edgeCount'] == 2
+    assert s.get('provenance',JOB,scope_id=SCOPE,generation=1).to_json() == record_request()
     server = dict(contract=CONTRACT,root=B,nodes=[dict(kind='asset',id=A,depth=-2),dict(kind='job',id=JOB,depth=-1),dict(kind='asset',id=B,depth=0)],
                   edges=[dict(parent=A,child=JOB,relation='generated-from'),dict(parent=JOB,child=B,relation='output-of')],truncated=False)
     p.merge_server(server,scope_id=SCOPE,generation=1)
@@ -353,3 +354,32 @@ def test_proxy_does_not_fetch_upstream_targets_or_echo_failures(tmp_path,monkeyp
         p.prepare(handle=item.handle,scope_id=SCOPE,generation=1,session='session')
     assert e.value.__context__ is None and 'STCANARY' not in str(e.value)
     assert p.active_streams == 0
+
+
+def test_provenance_merge_rolls_back_edges_if_metadata_sink_refuses(tmp_path,monkeypatch):
+    P = importlib.import_module('s11_dashboard.provenance_store')
+    s,_,_ = make_store(tmp_path)
+    p = P.ProvenanceStore(s)
+    graph = dict(contract=CONTRACT,root=B,nodes=[dict(kind='asset',id=A,depth=-1),dict(kind='asset',id=B,depth=0)],
+                 edges=[dict(parent=A,child=B,relation='variant-of')],truncated=False)
+    before = list(s.connection.iterdump())
+    real = s.validate
+    calls = []
+    def sink(schema,value,*args):
+        if schema=='LineageV1':
+            calls.append(1)
+            if len(calls)>1: raise R.BoundaryRefused()
+        return real(schema,value,*args)
+    monkeypatch.setattr(s,'validate',sink)
+    with pytest.raises(R.BoundaryRefused): p.merge_server(graph,scope_id=SCOPE,generation=1)
+    assert list(s.connection.iterdump())==before
+    s.close()
+
+
+def test_provenance_safe_shape_registered_secret_is_not_persisted(tmp_path):
+    P = importlib.import_module('s11_dashboard.provenance_store')
+    s,_,_ = make_store(tmp_path,secrets=(HASH,))
+    before = list(s.connection.iterdump())
+    with pytest.raises(R.BoundaryRefused): P.ProvenanceStore(s).record(record_request(),scope_id=SCOPE,generation=1)
+    assert list(s.connection.iterdump())==before
+    s.close()
