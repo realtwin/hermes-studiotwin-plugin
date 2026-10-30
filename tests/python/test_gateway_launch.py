@@ -99,9 +99,10 @@ def test_bootstrap_only_inherited_private_pipe():
         startup.gate_from_fd(1)
 
 
+@pytest.mark.parametrize('handshake', ['signed', 'tampered', 'unsigned'])
 @pytest.mark.parametrize('authenticated', [False, True])
 @pytest.mark.parametrize('launcher', ['manifest', 'posix-fallback'])
-def test_launch_translated_manifest_real_stdio(tmp_path, authenticated, launcher):
+def test_launch_translated_manifest_real_stdio(tmp_path, authenticated, launcher, handshake):
     from hermes_cli.agent_plugins import load_agent_plugin
     from tools.mcp_tool_config import _build_safe_env
     package = load_agent_plugin(ROOT, tmp_path / 'data')
@@ -134,9 +135,23 @@ def test_launch_translated_manifest_real_stdio(tmp_path, authenticated, launcher
         line = process.stdout.readline()
         assert line, 'gateway exited before responding'
         return json.loads(line)
+    from s05_launch.capabilities import CAPABILITIES
+    import hashlib
+    import hmac
+    payload = dict(protocol='studiotwin.host-gateway.v1', hostVersion='0.22.3',
+        hostVersionStatus='at-or-above-floor', versionSource='running-distribution-metadata',
+        capabilities=dict.fromkeys(CAPABILITIES, True))
+    mac = hmac.new(b'k' * 32, b'host-capabilities-v1\0' +
+        json.dumps(payload, sort_keys=True, separators=(',', ':')).encode(), hashlib.sha256).hexdigest()
+    if handshake == 'tampered':
+        payload['hostVersion'] = '0.23.0'
+    extension = {'payload': payload, 'mac': mac}
+    if handshake == 'unsigned':
+        extension.pop('mac')
     try:
         send({'jsonrpc': '2.0', 'id': 1, 'method': 'initialize', 'params': {
             'protocolVersion': '2025-03-26', 'capabilities': {},
+            '_meta': {'hermes.hostCapabilities/v1': extension},
             'clientInfo': {'name': 's05-real-wire', 'version': '1'}}})
         assert receive()['result']['serverInfo']['name'] == 'hermes-studiotwin'
         send({'jsonrpc': '2.0', 'method': 'notifications/initialized'})
@@ -147,7 +162,13 @@ def test_launch_translated_manifest_real_stdio(tmp_path, authenticated, launcher
             'name': 'studiotwin_setup_status', 'arguments': {}}})
         result = receive()['result']
         assert not result.get('isError', False)
-        assert json.loads(result['content'][0]['text'])['publishedTiers'] == ['setup']
+        decision = json.loads(result['content'][0]['text'])
+        assert decision['publishedTiers'] == ['setup']
+        assert decision['principalIdentity'] == 'unproven'
+        host = decision['hostCapabilities']
+        trusted = authenticated and handshake == 'signed'
+        assert host['hostVersion'] == ('0.22.3' if trusted else None)
+        assert host['capabilities'] == dict.fromkeys(CAPABILITIES, trusted)
         send({'jsonrpc': '2.0', 'id': 4, 'method': 'tools/call', 'params': {
             'name': 'text-to-material', 'arguments': {}}})
         assert receive()['result']['isError'] is True
