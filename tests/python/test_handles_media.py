@@ -327,6 +327,59 @@ def test_put_ancestor_symlink_does_not_create_foreign_directories(cache,tmp_path
     assert list(foreign.iterdir())==[]
 
 
+def test_direct_handle_rotation_cannot_rebind_old_cache_file(cache):
+    item=put(cache)
+    cache.handles.rotate(A,2)
+    with pytest.raises(C.MediaRefused):
+        cache.open(item.path,scope_id=A,generation=2,mime='image/png',kind='image')
+
+
+def test_open_detects_swap_between_lstat_and_open(cache,monkeypatch):
+    item=put(cache)
+    original=cache._raw_open
+    held=[]
+    def swapped(path,stack,*,create=False):
+        if not create:
+            parked=path.with_name('parked.png')
+            path.rename(parked); held.append(parked)
+            path.write_bytes(PNG); path.chmod(0o600)
+        return original(path,stack,create=create)
+    monkeypatch.setattr(cache,'_raw_open',swapped)
+    with pytest.raises(C.MediaRefused):
+        cache.open(item.path,scope_id=A,generation=1,mime='image/png',kind='image')
+
+
+@pytest.mark.parametrize('fault',[None,'owner','reparse','acl'])
+def test_windows_seam_checks_exact_file_acl_and_reparse(tmp_path,fault):
+    from s07_gateway.ipc import WindowsFiles
+    class Api:
+        def __init__(self): self.fault=None; self.seen=[]
+        def open(self,path,*,directory=False,create=False,exclusive=False):
+            fd=os.open(path,(os.O_RDONLY|os.O_DIRECTORY if directory else os.O_RDWR)|os.O_NOFOLLOW|
+                       (os.O_CREAT if create else 0)|(os.O_EXCL if exclusive else 0),0o600)
+            self.seen.append((str(path),directory))
+            return fd
+        def inspect(self,fd):
+            directory=__import__('stat').S_ISDIR(os.fstat(fd).st_mode)
+            bad=self.fault if not directory else None
+            return dict(owner='other' if bad=='owner' else 'user',user='user',reparse=bad=='reparse',
+                        directory=directory,protected=True,entries=[('other' if bad=='acl' else 'user',0x1f01ff)])
+        def secure(self,fd): pass
+        def detach(self,fd): return fd
+        def close(self,fd): os.close(fd)
+    api=Api()
+    cache=C.MediaCache(tmp_path/'hermes-studiotwin',H.HandleStore(),windows_files=WindowsFiles(api=api))
+    item=put(cache)
+    api.fault=fault
+    if fault:
+        with pytest.raises(C.MediaRefused):
+            cache.open(item.path,scope_id=A,generation=1,mime='image/png',kind='image')
+    else:
+        with cache.open(item.path,scope_id=A,generation=1,mime='image/png',kind='image') as f:
+            assert f.read()==PNG
+    assert (item.path,False) in api.seen
+
+
 def test_restart_quota_preserves_pins_and_counts_old_files(cache):
     first=put(cache,pinned=True)
     restarted=C.MediaCache(cache.root,H.HandleStore(),quota=len(PNG))
