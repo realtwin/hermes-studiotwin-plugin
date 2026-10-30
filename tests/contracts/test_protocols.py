@@ -678,7 +678,7 @@ DESIGN_ROUTES = {
 MEDIA_SRC_ROUTES = {"/assets/{uuid}/content", "/assets/{uuid}/thumbnail", "/local/file"}
 # Read-only Concept routes: S15 owns dashboard/services/concepts.py but §5 lists no Concept read.
 S03_ADDED_ROUTES = {("get", "/concepts"), ("get", "/concepts/{conceptId}"), ("get", "/concepts/{conceptId}/status"),
-                    ("post", "/scope-pause/acknowledge")}
+                    ("post", "/scope-pause/acknowledge"), ("get", "/capabilities/{tool}/input-schema")}
 
 
 def _routes(doc):
@@ -934,6 +934,37 @@ def test_r1_b7_dashboard_acknowledgement_is_scoped_and_nonbilling(docs):
     # Runtime mismatch oracle refuses foreign scope and stale operation, not an acknowledgement.
     for expected_scope, expected_op in (("b" * 64, OP_ID), (SCOPE_ID, "op_" + "B" * 43)):
         assert not (req["scopeId"] == expected_scope and req["operationId"] == expected_op)
+
+
+def test_r1_b4_capture_driven_forms_use_classified_hash_bound_schema(docs):
+    assert "ToolInputSchemaV1" in docs["gateway"]["$defs"]
+    op = docs["dashboard"]["paths"]["/capabilities/{tool}/input-schema"]["get"]
+    assert op["x-studiotwin-owner"] == "S11" and op["x-billing"] == "nonbilling"
+    forms = []
+    for name in ("text-to-environment-map", "text-to-motion-edit", "tripo-retopology"):
+        tool = catalog.tool(name)
+        form = S.form_projection(tool)
+        envelope = {"contract": S.DASHBOARD_CONTRACT, "tool": name,
+                    "schemaHash": catalog.schema_hash(tool), "classification": "classified",
+                    "inputSchema": form}
+        assert S.errors("dashboard#/components/schemas/ToolInputSchemaResponseV1", envelope, docs) == []
+        # This consumer walks one normalized representation, not a second tool/field catalog.
+        fields = S.form_controls(form)
+        assert {p[0] for p in fields} == set(tool["inputSchema"]["properties"])
+        assert {p[0] for p in fields if p[2]} == set(tool["inputSchema"].get("required", []))
+        forms.append(fields)
+        assert S.form_binding(envelope, name, catalog.schema_hash(tool))
+        assert not S.form_binding(envelope, name, "0" * 64)
+        bad = {**envelope, "classification": "discovered_unclassified"}
+        assert not S.is_valid("dashboard#/components/schemas/ToolInputSchemaResponseV1", bad, docs)
+        assert not S.form_binding(bad, name, catalog.schema_hash(tool))
+    assert len({json.dumps(f) for f in forms}) == 3
+    # Nested animation object/frames array is represented, not flattened into opaque prose.
+    nested = S.form_projection(catalog.tool("text-to-motion-edit"))
+    animation = next(f for f in nested["fields"] if f["name"] == "animation")
+    assert animation["schema"]["kind"] == "object"
+    assert animation["schema"]["fields"][0]["schema"]["kind"] == "array"
+    assert not S.is_valid("gateway#/$defs/ToolInputSchemaV1", {"kind": "object", "rawSchema": {}}, docs)
 
 
 # ----------------------------------------------------------------------- S02 fixtures vs contracts
