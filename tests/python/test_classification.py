@@ -248,6 +248,32 @@ def trusted(name=NAME):
     return gate,context
 
 
+def test_verified_host_context_annotation_matches_receiver_representation():
+    import typing
+    assert C.VerifiedHostContext is types.MappingProxyType
+    assert C.GatewayCallContext.__annotations__['trusted_context'] == 'VerifiedHostContext'
+    assert typing.get_type_hints(C.GatewayCallContext)['trusted_context'] is C.VerifiedHostContext
+
+
+@pytest.mark.parametrize('origin', ['receiver', 'unowned_proxy', 'dict', 'other_receiver'])
+def test_verified_host_context_requires_exact_receiver_ownership(origin):
+    registry = C.GatewayRegistry(release())
+    gate, verified = trusted()
+    async def execute(inputs): return safe_result()
+    if origin == 'receiver':
+        assert isinstance(verified, types.MappingProxyType)
+        context = registry.context(NAME, gate=gate, trusted_context=verified, execute=execute, **BIND)
+        assert context.trusted_context is verified
+        return
+    claimed = dict(verified)
+    claimed['trusted'] = True
+    candidate = types.MappingProxyType(claimed) if origin == 'unowned_proxy' else claimed
+    if origin == 'other_receiver':
+        _, candidate = trusted()
+    assert not gate._owned(candidate)
+    refuse(lambda: registry.context(NAME, gate=gate, trusted_context=candidate, execute=execute, **BIND))
+
+
 def safe_result(tool=NAME,**binding):
     args={**BIND,**binding}
     return R.validate_mediated_v1('gateway#/$defs/GatewayResultV1',dict(protocol='studiotwin.gateway.v1',
