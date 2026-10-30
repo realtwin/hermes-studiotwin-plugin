@@ -237,8 +237,61 @@ def test_candidate_policy_is_backend_bound_exact_schema_not_arbitrary_input_auth
 def test_candidate_signed_url_guard_with_bound_permissive_field():
     schema = {'type':'object', 'additionalProperties':False, 'properties':{'image':{'type':'string'}}}
     with R.candidate_schema_v1('image-tool','b'*64,schema):
+        assert R.validate_candidate_inputs_v1('image-tool','b'*64, {'image':'safe'}, **BINDING).to_json() == {'image':'safe'}
         refused(lambda:R.validate_candidate_inputs_v1('image-tool','b'*64,
                 {'image':'https://objects.invalid/x?Signature=synthetic'}, **BINDING))
+
+
+@pytest.mark.parametrize('needle', NEEDLES, ids=[f'bound-needle-{i}' for i in range(len(NEEDLES))])
+def test_candidate_canaries_are_refused_with_valid_policy_not_masked_by_missing_binding(needle):
+    schema = {'type':'object','additionalProperties':False,'required':['prompt'],
+              'properties':{'prompt':{'type':'string'}}}
+    with R.candidate_schema_v1('text-to-environment-map','b'*64,schema):
+        assert R.validate_candidate_inputs_v1('text-to-environment-map','b'*64, {'prompt':'safe'}, **BINDING).values['prompt'] == 'safe'
+        refused(lambda:R.validate_candidate_inputs_v1('text-to-environment-map','b'*64, {'prompt':needle}, **BINDING))
+
+
+def test_actual_s02_result_and_notifications_terminate_before_sinks(caplog, capsys):
+    fixtures = types.ModuleType('s06_fake')
+    fixtures.__path__ = [str(ROOT / 'tests/fixtures/fake_mcp')]
+    sys.modules[fixtures.__name__] = fixtures
+    from s06_fake.state import FakeStudioTwin
+    from s06_fake.scenarios import Scenario
+    from s06_fake.server import to_wire
+    fake = FakeStudioTwin(Scenario(secret_channels=True, emit_progress=True, emit_logs=True))
+    response = fake.call('studiotwin_get_credit_balance', {})
+    wire = to_wire(response)
+    events = [wire]
+    events.extend({'method':'notifications/progress','params':{'message':message, 'progress':i}}
+                  for i,message in enumerate(response.progress))
+    events.extend({'method':'notifications/message','params':{'data':data}} for data in response.logs)
+    assert response.progress and response.logs and wire['_meta'] and wire['structuredContent']
+    assert any(n in json.dumps(events) for n in NEEDLES)
+    for event in events:
+        safe = R.redact_upstream_v1(event, sensitive_values=())
+        serialized = json.dumps(safe)
+        assert not any(n in serialized for n in NEEDLES)
+        assert 'STCANARY_' not in serialized
+    # Complete outbound validators gate all sink spies, not just payload fragments.
+    sink = []
+    for ref, good, path in envelopes():
+        for needle in NEEDLES:
+            try:
+                validated = R.validate_mediated_v1(ref, inject(good,path,needle), **BINDING)
+                sink.append(validated.to_json())
+            except R.BoundaryRefused:
+                pass
+    assert sink == []
+    assert not caplog.text and capsys.readouterr() == ('', '')
+
+
+def test_registered_secret_that_is_itself_json_is_not_lost_by_fragment_parsing():
+    secret = '{"ordinary":"registered material"}'
+    good = result()
+    good['summary'] = secret
+    assert S.is_valid(G, good)
+    refused(lambda:R.validate_mediated_v1(G, good, **{**BINDING, 'sensitive_values':{secret}}))
+    assert 'registered material' not in json.dumps(R.redact_upstream_v1({'text':secret}, sensitive_values={secret}))
 
 
 def test_safe_fallback_is_static_and_valid():
