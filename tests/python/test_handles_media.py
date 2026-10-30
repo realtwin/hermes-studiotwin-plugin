@@ -489,6 +489,60 @@ def test_sequence_manifest_is_backend_generated_not_upstream_json(cache):
     assert 'offline.invalid' not in json.dumps(payload)
 
 
+@pytest.mark.parametrize('encode', [lambda s:s, lambda s:s.replace('https:', 'HTTPS:'),
+    lambda s:quote(s,safe=''), lambda s:base64.b64encode(s.encode()).decode(),
+    lambda s:s.replace('/', r'\/'), lambda s:s.encode().hex(),
+    lambda s:''.join('\\u%04x'%ord(c) for c in s)])
+def test_unknown_channel_location_registers_query_secret(encode):
+    secret='ordinary-review-private-value'
+    raw=upstream()
+    raw['structuredContent']['summary']=secret
+    raw['_meta']={'diagnostic':encode('https://offline.invalid/file?signature='+secret)}
+    _,result=mediate(raw)
+    assert secret not in json.dumps(result.to_json())
+
+
+@pytest.mark.parametrize('known_size',[False,True])
+@pytest.mark.parametrize('pinned',[False,True])
+def test_current_result_media_survives_quota(tmp_path,known_size,pinned):
+    cache=C.MediaCache(tmp_path/'hermes-studiotwin',H.HandleStore(),quota=len(PNG)*(2 if pinned else 1))
+    prior=put(cache,pinned=True,scope_id=B) if pinned else None
+    before=set(cache.handles._rows)
+    med=M.Mediator(cache.handles,cache=cache,loader=lambda row:(PNG,'.png'))
+    rules=tuple(M.ResourceRule(path=('frames',i),kind='image',role='image',mime='image/png',
+        size=len(PNG) if known_size else None) for i in range(2))
+    pol=policy(resources=rules,group='image_sequence',summary_path=None,job_path=None)
+    try:
+        result=med.mediate({'frames':['https://offline.invalid/1','https://offline.invalid/2']},
+            scope_id=A,generation=1,policy=pol,live_schema_hash='c'*64)
+    except BoundaryRefused:
+        assert set(cache.handles._rows)==before
+        assert not list((cache.root/'scopes'/A/'media').glob('*'))
+    else:
+        for item in result.to_json()['media']:
+            assert Path(item['localPath']).is_file(), 'Successful envelope names evicted media'
+            with med.open_source(item['handle'],scope_id=A,generation=1) as f:
+                assert f.read()==PNG
+    if prior:
+        assert Path(prior.path).read_bytes()==PNG
+        assert resolve(cache.handles,prior.handle,scope_id=B).target['localPath']==prior.path
+    assert sum(p.stat().st_size for p in cache.root.glob('scopes/*/media/*'))<=cache.quota
+
+
+def test_rejected_result_rolls_back_local_handles(cache):
+    prior=put(cache,scope_id=B)
+    before=set(cache.handles._rows)
+    med=M.Mediator(cache.handles,cache=cache,loader=lambda row:(PNG,'.png'))
+    raw=upstream(); raw['structuredContent']['jobId']='invalid-id'
+    rule=M.ResourceRule(path=('structuredContent','download'),kind='image',role='image',mime='image/png')
+    with pytest.raises(BoundaryRefused):
+        med.mediate(raw,scope_id=A,generation=1,policy=policy(resources=(rule,)),live_schema_hash='c'*64)
+    assert set(cache.handles._rows)==before, 'Rejected result retains locally minted capabilities'
+    assert not list((cache.root/'scopes'/A/'media').glob('*'))
+    assert Path(prior.path).read_bytes()==PNG
+    assert resolve(cache.handles,prior.handle,scope_id=B).target['localPath']==prior.path
+
+
 CANARIES=json.loads((ROOT/'tests/fixtures/secret_channels/canaries.v1.json').read_text())['canaries']
 NEEDLES=[s for row in CANARIES for s in row['needles']]
 @pytest.mark.parametrize('needle',NEEDLES)
