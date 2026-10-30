@@ -205,6 +205,19 @@ def mediate(raw=None, pol=None, **changes):
     return med, med.mediate(raw or upstream(),**args)
 
 
+@pytest.mark.parametrize('wrapper',[lambda s:s, lambda s:'result ```json\n'+s+'\n```'])
+def test_classified_resources_in_text_json_preserve_extracted_safe_ids(wrapper):
+    content=wrapper(json.dumps(upstream()['structuredContent']))
+    raw={'content':[{'type':'text','text':content}]}
+    pol=policy(resources=(M.ResourceRule(path=('content',0,'text','download'),kind='image',role='image',mime='image/png',size=123),),
+               job_path=('content',0,'text','jobId'),summary_path=('content',0,'text','summary'))
+    _,result=mediate(raw,pol)
+    data=result.to_json()
+    assert data['jobId']==UUID and data['summary']=='done'
+    assert data['outputGroups'][0]['resource']['source']['kind']=='handle'
+    assert 'offline.invalid' not in json.dumps(data)
+
+
 def test_extract_register_then_redact_and_validate(monkeypatch):
     calls=[]
     real_redact=M.redact_upstream_v1
