@@ -568,6 +568,95 @@ def test_policy_database_uses_private_s05_storage(tmp_path):
     finally: s.close()
 
 
+@pytest.mark.parametrize('expired',[True,False],ids=['expired','timely'])
+def test_expiry_is_rechecked_after_waiting_for_sqlite_writer(catalog,store,tmp_path,monkeypatch,expired):
+    # Salt B1 reproduction: timely consent, real competing SQLite writer, then
+    # lock acquisition after expiry (or before expiry in the positive control).
+    import threading
+    import time
+    future_principal(monkeypatch)
+    gate,ctx,caps=host(); x=effective(catalog,store)
+    clock=lambda:int(time.time()*1000)
+    p=preview(now=clock())
+    p['previewExpiresAtMs']=clock()+(1000 if expired else 5000)
+    q=store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,now_ms=clock())
+    svc=service(catalog,store,gate,caps); svc._clock_ms=clock
+    locked=threading.Event(); start=threading.Event(); errors=[]
+    def writer():
+        try:
+            s=P.PolicyStore(tmp_path/'data')
+            try:
+                assert start.wait(5)
+                with s.transaction():
+                    locked.set()
+                    time.sleep(max(0,(p['previewExpiresAtMs']-clock()+150)/1000) if expired else 0.1)
+            finally: s.close()
+        except BaseException as exc:
+            errors.append(exc); locked.set()
+    thread=threading.Thread(target=writer); thread.start()
+    async def consent(request):
+        start.set(); assert locked.wait(5)
+        assert not errors and clock()<p['previewExpiresAtMs']
+        return await accept(request)
+    svc._elicit=consent
+    try:
+        if expired:
+            with pytest.raises(R.BoundaryRefused): asyncio.run(svc.authorize(x,ctx,q))
+        else:
+            auth=asyncio.run(svc.authorize(x,ctx,q)).to_json()
+            assert clock()<p['previewExpiresAtMs']
+            assert store.get_operation(auth['operationId'],binding(x,ctx))['state']=='RESERVED_UNSENT'
+    finally:
+        thread.join(5)
+        assert not thread.is_alive() and not errors
+        assert store.operation_count()==(0 if expired else 1)
+        consumed=store._db.execute('SELECT consumed_by FROM policy_quotes WHERE preview_id=?',(q,)).fetchone()[0]
+        assert (consumed is None)==expired
+
+
+@pytest.mark.parametrize('entry',['reserve','save_quote'])
+def test_transactional_expiry_uses_injected_post_lock_clock(catalog,store,tmp_path,monkeypatch,entry):
+    # Deterministic independent authorization expiry: preview remains valid.
+    # For quote insertion, expiry must also be checked after the write lock.
+    import threading
+    future_principal(monkeypatch)
+    gate,ctx,caps=host(); x=effective(catalog,store)
+    p=preview(); p['previewId']='pv_'+'b'*43
+    if entry=='reserve':
+        q=quote(store,x,ctx)
+        auth=asyncio.run(service(catalog,store,gate,caps).authorize(x,ctx,q)).to_json()
+        store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,now_ms=1000)
+        auth.update(operationId='op_'+'b'*43,previewId=p['previewId'],expiresAtMs=1050)
+    now=[1001]; clock=lambda:now[0]
+    locked=threading.Event(); attempted=threading.Event(); errors=[]
+    def writer():
+        try:
+            s=P.PolicyStore(tmp_path/'data')
+            try:
+                with s.transaction():
+                    locked.set()
+                    assert attempted.wait(5)
+                    now[0]=1050 if entry=='reserve' else 1100
+            finally: s.close()
+        except BaseException as exc:
+            errors.append(exc); locked.set()
+    thread=threading.Thread(target=writer); thread.start()
+    assert locked.wait(5) and not errors
+    store._db.set_trace_callback(lambda sql:attempted.set() if sql=='BEGIN IMMEDIATE' else None)
+    try:
+        with pytest.raises(R.BoundaryRefused):
+            if entry=='reserve': store.reserve(auth,binding(x,ctx),now_ms=clock())
+            else: store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,now_ms=clock())
+    finally:
+        store._db.set_trace_callback(None)
+        thread.join(5)
+        assert not thread.is_alive() and not errors
+        assert store.operation_count()==(1 if entry=='reserve' else 0)
+        if entry=='reserve':
+            assert store._db.execute('SELECT consumed_by FROM policy_quotes WHERE preview_id=?',(p['previewId'],)).fetchone()==(None,)
+        else: assert store.quote_count()==0
+
+
 if __name__=='__main__' and len(sys.argv)==3 and sys.argv[1]=='ledger-probe':
     payload=json.load(sys.stdin)
     s=P.PolicyStore(Path(sys.argv[2]))
