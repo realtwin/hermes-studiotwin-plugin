@@ -148,7 +148,9 @@ def test_crash_after_commit_before_rpc_never_replays(harness):
     build,store,_,_=harness
     fake,u,s,x,ctx,op,b=build()
     class Crash(BaseException): pass
-    async def crash(*args): raise Crash()
+    async def crash(tool, inputs, event):
+        if tool==H.NAME: raise Crash()
+        return await u(tool,inputs,event)
     s._transport=crash
     with pytest.raises(Crash): run(s.dispatch(x,ctx,op))
     assert store.get_operation(op,b)['state']=='DISPATCHING'
@@ -232,7 +234,7 @@ def test_all_channels_mediate_and_validate_no_persisted_secrets(harness,monkeypa
     monkeypatch.setattr(s.mediator,'mediate',mediate)
     r=run(s.dispatch(x,ctx,op)).to_json()
     assert len(seen)>=3
-    assert canaries.find(json.dumps(r))==[]
+    assert canaries.find(json.dumps(r))==set()
     persisted=' '.join(str(row) for row in store._db.iterdump())
-    assert canaries.find(persisted)==[]
+    assert canaries.find(persisted)==set()
     assert 'https://' not in persisted and 'structuredContent' not in persisted
