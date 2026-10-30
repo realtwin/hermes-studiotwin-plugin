@@ -415,6 +415,19 @@ def test_purge_closes_active_open_inode(cache):
     assert stream.closed
 
 
+def test_loader_exception_is_sanitized_and_no_handle_survives(cache):
+    secret='ordinary-private-loader-failure'
+    def loader(row):
+        raise RuntimeError(secret)
+    store=cache.handles
+    med=M.Mediator(store,cache=cache,loader=loader)
+    with pytest.raises(BoundaryRefused) as exc:
+        med.mediate(upstream(),scope_id=A,generation=1,policy=policy(),live_schema_hash='c'*64)
+    assert str(exc.value)=='UNSAFE_PAYLOAD'
+    assert exc.value.__context__ is None and exc.value.__cause__ is None
+    assert not store._rows
+
+
 def test_local_materialization_reaches_real_mediated_media_and_processor(cache):
     def loader(row):
         assert row.scope_id==A and row.target['location'].startswith('https://')
