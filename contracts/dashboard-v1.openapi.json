@@ -1189,9 +1189,12 @@
     "/concepts": {
       "get": {
         "summary": "Scoped Concept list (read-only).",
+        "description": "S15 maps opaque, scope/generation-bound local cursors to upstream offset pagination. Fetch limit+1 (or a bounded lookahead) to establish hasMore; never infer a total. Cursors expire on scope generation change; foreign/expired cursors return not-found. Concurrent upstream changes may shift pages; deduplicate by Concept ID without inventing snapshot revisions.",
         "x-studiotwin-owner": "S15",
         "x-billing": "nonbilling",
         "parameters": [
+          {"name": "cursor", "in": "query", "schema": {"$ref": "#/components/schemas/ConceptCursorV1"}},
+          {"name": "limit", "in": "query", "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 20}},
           {
             "$ref": "#/components/parameters/ContractHeaderV1"
           }
@@ -1234,9 +1237,12 @@
     "/concepts/{conceptId}": {
       "get": {
         "summary": "Concept detail (read-only).",
+        "description": "History is a bounded local window over mediated upstream asset/operation history. It preserves pending/failed attempts with null assetId. Missing timestamps sort first, then createdAt ascending, preserving upstream order on ties. S15 checks active markers against activeAssetId, sourceConceptId ownership/visibility, and generation-bound history cursors. An absent revision is null, never a fabricated zero. No arbitrary server metadata is forwarded.",
         "x-studiotwin-owner": "S15",
         "x-billing": "nonbilling",
         "parameters": [
+          {"name": "historyCursor", "in": "query", "schema": {"$ref": "#/components/schemas/ConceptHistoryCursorV1"}},
+          {"name": "historyLimit", "in": "query", "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 100}},
           {
             "$ref": "#/components/parameters/ContractHeaderV1"
           },
@@ -2543,6 +2549,30 @@
           }
         }
       },
+      "ConceptCursorV1": {"type": "string", "pattern": "^cc_[A-Za-z0-9_-]{43}$"},
+      "ConceptHistoryCursorV1": {"type": "string", "pattern": "^ch_[A-Za-z0-9_-]{43}$"},
+      "ConceptHistoryEntryV1": {
+        "type": "object", "additionalProperties": false,
+        "required": ["kind", "assetId", "jobId", "sourceAssetId", "state", "active", "createdAtMs", "createdAtRaw", "submittedAtMs", "reconciledAtMs", "failureMessage"],
+        "properties": {
+          "kind": {"enum": ["attach", "generate", "edit", "clone", "upscale", "unknown"]},
+          "assetId": {"anyOf": [{"type": "null"}, {"$ref": "#/components/schemas/UuidV1"}]},
+          "jobId": {"anyOf": [{"type": "null"}, {"$ref": "#/components/schemas/UuidV1"}]},
+          "sourceAssetId": {"anyOf": [{"type": "null"}, {"$ref": "#/components/schemas/UuidV1"}]},
+          "state": {"enum": ["pending", "completed", "failed", "unknown"]},
+          "active": {"type": "boolean"},
+          "createdAtMs": {"anyOf": [{"type": "null"}, {"$ref": "#/components/schemas/EpochMsV1"}]},
+          "createdAtRaw": {"anyOf": [{"type": "null"}, {"$ref": "#/components/schemas/MediatedTextV1"}]},
+          "submittedAtMs": {"anyOf": [{"type": "null"}, {"$ref": "#/components/schemas/EpochMsV1"}]},
+          "reconciledAtMs": {"anyOf": [{"type": "null"}, {"$ref": "#/components/schemas/EpochMsV1"}]},
+          "failureMessage": {"anyOf": [{"type": "null"}, {"$ref": "#/components/schemas/MediatedTextV1"}]}
+        },
+        "allOf": [
+          {"if": {"properties": {"active": {"const": true}}, "required": ["active"]},
+           "then": {"properties": {"assetId": {"$ref": "#/components/schemas/UuidV1"}, "state": {"const": "completed"}}}}
+        ],
+        "description": "Safe timeline metadata only. Upload operations normalize to attach. Unknown kind/state stays unknown. A null assetId is legitimate for pending and retained unsuccessful operations; never invent an asset. Raw times are bounded mediated text, never raw diagnostics. S15 checks chronological and active-asset relations at runtime."
+      },
       "ConceptV1": {
         "type": "object",
         "additionalProperties": false,
@@ -2590,8 +2620,13 @@
             ]
           },
           "revision": {
-            "type": "integer",
-            "minimum": 0
+            "type": ["integer", "null"],
+            "minimum": 0,
+            "description": "Only a server-supplied revision; null when not supplied. Never infer a revision from timestamps or list order."
+          },
+          "sourceConceptId": {
+            "anyOf": [{"type": "null"}, {"$ref": "#/components/schemas/UuidV1"}],
+            "description": "Verified visible same-scope fork origin, or null if unavailable. Not proof that the source still exists."
           },
           "updatedAtMs": {
             "anyOf": [
@@ -2608,11 +2643,15 @@
       "ConceptPageV1": {
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "contract",
-          "items"
-        ],
+        "required": ["contract", "items", "hasMore", "nextCursor"],
+        "allOf": [{
+          "if": {"properties": {"hasMore": {"const": true}}, "required": ["hasMore"]},
+          "then": {"properties": {"nextCursor": {"$ref": "#/components/schemas/ConceptCursorV1"}}},
+          "else": {"properties": {"nextCursor": {"type": "null"}}}
+        }],
         "properties": {
+          "hasMore": {"type": "boolean"},
+          "nextCursor": {"anyOf": [{"type": "null"}, {"$ref": "#/components/schemas/ConceptCursorV1"}]},
           "contract": {
             "const": "studiotwin.dashboard.v1"
           },
@@ -2628,12 +2667,16 @@
       "ConceptDetailV1": {
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "contract",
-          "concept",
-          "assetIds"
-        ],
+        "required": ["contract", "concept", "assetIds", "history", "historyHasMore", "historyNextCursor"],
+        "allOf": [{
+          "if": {"properties": {"historyHasMore": {"const": true}}, "required": ["historyHasMore"]},
+          "then": {"properties": {"historyNextCursor": {"$ref": "#/components/schemas/ConceptHistoryCursorV1"}}},
+          "else": {"properties": {"historyNextCursor": {"type": "null"}}}
+        }],
         "properties": {
+          "history": {"type": "array", "maxItems": 100, "items": {"$ref": "#/components/schemas/ConceptHistoryEntryV1"}},
+          "historyHasMore": {"type": "boolean"},
+          "historyNextCursor": {"anyOf": [{"type": "null"}, {"$ref": "#/components/schemas/ConceptHistoryCursorV1"}]},
           "contract": {
             "const": "studiotwin.dashboard.v1"
           },
