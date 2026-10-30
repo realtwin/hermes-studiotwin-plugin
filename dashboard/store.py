@@ -71,6 +71,10 @@ class DashboardStore:
         try:
             self.connection.execute('BEGIN IMMEDIATE')
             self.require_current(scope_id,generation)
+            # Enforce retention in long-running processes, not just at startup.
+            cutoff = self.now()-RETENTION
+            for table in ('s11_metadata','s11_provenance'):
+                self.connection.execute(f'DELETE FROM {table} WHERE seen<=?',(cutoff,))
             yield
             self.require_current(scope_id,generation)
             self.connection.commit()
@@ -112,6 +116,10 @@ class DashboardStore:
         """Private composition primitive; caller holds the checked transaction."""
         self._key(kind,identifier,scope_id,generation)
         safe = self.validate(SCHEMAS[kind],value,scope_id,generation)
+        data = safe.to_json()
+        id_field = {'asset':'assetId','job':'jobId','lineage':'root','provenance':'jobId'}.get(kind)
+        if (id_field and data[id_field]!=identifier) or ('scopeId' in data and data['scopeId']!=scope_id):
+            raise redaction.BoundaryRefused()
         self.connection.execute('INSERT OR REPLACE INTO s11_metadata VALUES (?,?,?,?,?,?)',
             (scope_id,generation,kind,identifier,json.dumps(safe.to_json(),allow_nan=False),self.now()))
         return safe
