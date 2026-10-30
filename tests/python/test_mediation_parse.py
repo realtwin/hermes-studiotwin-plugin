@@ -285,6 +285,19 @@ def test_actual_s02_result_and_notifications_terminate_before_sinks(caplog, caps
     assert not caplog.text and capsys.readouterr() == ('', '')
 
 
+def test_presigned_post_fields_are_removed_as_a_unit_not_only_known_credential_names():
+    raw = {'uploadSessionId':UUID, 'fields':{'key':'private-object-location', 'Policy':'ordinary-policy',
+           'X-Amz-Security-Token':'ordinary-token', 'success_action_status':'201'}, 'label':'safe'}
+    safe = R.redact_upstream_v1(raw, sensitive_values=())
+    assert safe['uploadSessionId'] == UUID and safe['label'] == 'safe'
+    assert 'private-object-location' not in json.dumps(safe)
+    assert 'fields' not in safe
+
+
+def test_contract_ref_fragment_must_match_its_real_document_location():
+    refused(lambda:R.validate_mediated_v1('gateway#/components/schemas/GatewayResultV1', result(), **BINDING))
+
+
 def test_registered_secret_that_is_itself_json_is_not_lost_by_fragment_parsing():
     secret = '{"ordinary":"registered material"}'
     good = result()
