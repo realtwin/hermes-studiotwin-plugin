@@ -186,6 +186,7 @@ class Reconciler:
                 if evidence is not None:
                     if value[field]['state']=='reported' and value[field]!=evidence: raise BoundaryRefused()
                     value[field]=evidence
+            was_overrun=value['state']=='SETTLED_OVERRUN'
             internal=None
             if value['finalDebit']['state']=='reported':
                 actual=value['finalDebit']['credits']
@@ -196,7 +197,7 @@ class Reconciler:
                 else:
                     overrun=actual>value['reservedCredits']
                     value.update(state='SETTLED_OVERRUN' if overrun else 'SETTLED',reservationHeld=False,scopePaused=overrun)
-                    if overrun:
+                    if overrun and not was_overrun:
                         a=self.store.get_operation(operation,binding)['authorization']
                         _pause_in_transaction(self.store,a,actual,now,binding['generation'])
             if value['refund']['state']=='reported' and record['status']=='cancelled' and internal is None and value['state']!='SETTLED_OVERRUN':

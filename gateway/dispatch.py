@@ -120,6 +120,9 @@ class DispatchService:
         if (a['previewPriceVersion']!=q[2] or a.get('serverQuoteToken')!=q[3] or
                 row['reservedCredits']!=a['maxCredits']): raise BoundaryRefused()
         self.charge_policy.require(a,binding)
+        if self.store._db.execute("SELECT 1 FROM policy_operations WHERE scope_id=? AND generation=? AND state='CAPABILITY_BREACH' LIMIT 1",
+                                  (binding['scope_id'],binding['generation'])).fetchone():
+            raise BoundaryRefused()
         pause=ScopePauseService(self.store,clock_ms=self.authorization._clock_ms).get(binding['scope_id'],binding['generation'])
         if pause is not None and pause.value['acknowledgedAtMs'] is None: raise BoundaryRefused()
         if self.store.guard_used(binding['scope_id'],binding['session_id'])>self.store.guard_limit(binding['scope_id'],binding['session_id']):

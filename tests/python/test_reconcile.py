@@ -220,3 +220,18 @@ def test_overrun_and_pause_rollback_together_on_sink_failure(harness,monkeypatch
     monkeypatch.setattr(s.reconciler,'_write',fail)
     with pytest.raises(H.R.BoundaryRefused): observe(s,op,b,job,finalDebitCredits=32,ledgerRef='fixture-ledger-'+job.uuid)
     assert list(store._db.iterdump())==before
+
+
+def test_fake_interim_price_change_real_poll_to_verified_overrun(harness):
+    build,store,_,_=harness
+    fake,u,s,x,ctx,op,b=build('price_change_interim')
+    run(s.dispatch(x,ctx,op))
+    assert s.reconciler.snapshot(op,b).value['submissionCost']['credits']==32
+    assert s.reconciler.snapshot(op,b).value['finalDebit']['state']=='unknown'
+    assert store.pause(H.SCOPE,1) is None
+    s.reconciler.ledger_verifier=ledger_verifier(fake)
+    for _ in range(3): r=run(s.poll(op,b)).to_json()
+    assert r['state']=='SETTLED_OVERRUN' and r['finalDebit']['credits']==32
+    assert store.pause(H.SCOPE,1).value['actualCredits']==32
+    run(s.dispatch(x,ctx,op))
+    assert u.paid_calls==1 and len(fake.jobs)==1

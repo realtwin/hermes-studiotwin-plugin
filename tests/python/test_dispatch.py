@@ -160,6 +160,29 @@ def test_crash_after_commit_before_rpc_never_replays(harness):
     assert u.paid_calls==0 and not fake.jobs
 
 
+def test_real_mcp_stream_submission_and_recovery(harness):
+    build,store,_,_=harness
+    fake,u,s,x,ctx,op,b=build('ambiguous_no_structured_content')
+    from mcp.client import Client
+    from tests.fixtures.fake_mcp import build_server
+    from tests.fixtures.test_fixture_foundation import Session
+    async def main():
+        async with Client(build_server(fake),mode='legacy') as client:
+            session=Session(client,fake)
+            async def transport(tool,inputs,event):
+                result=await session.call(tool,inputs)
+                return result.model_dump(by_alias=True,exclude_none=True)
+            s._transport=transport
+            await s.dispatch(x,ctx,op)
+            recovery=(await s.recover(op,b)).to_json()
+            await s.dispatch(x,ctx,op)
+            return recovery
+    r=run(main())
+    assert len(fake.jobs)==1
+    assert len([c for c in fake.calls if c['name']==H.NAME])==1
+    assert r['recovery']['state']=='matched' and r['operation']['reservationHeld']
+
+
 def test_server_max_price_change_rejects_before_debit(harness):
     build,store,_,_=harness
     fake,u,s,x,ctx,op,b=build('price_change_server_max','server-max-credits')
@@ -306,3 +329,52 @@ def test_release_requires_expected_unsent_state(harness):
     before=list(store._db.iterdump())
     with pytest.raises(H.R.BoundaryRefused): s.reconciler.release(op,b)
     assert list(store._db.iterdump())==before
+
+
+def test_actual_process_exit_after_durable_dispatch_and_new_process_no_replay(harness,tmp_path):
+    import os
+    import subprocess
+    build,store,path,_=harness
+    fake,u,s,x,ctx,op,b=build()
+    child='''
+import asyncio, json, os, sys, types
+from pathlib import Path
+for name,rel in [('tests','tests'),('tests.python','tests/python')]:
+    pkg=types.ModuleType(name);pkg.__path__=[str(Path.cwd()/rel)];sys.modules[name]=pkg
+from tests.python import test_authorization as H
+from s09_gateway import dispatch as D
+from s09_gateway.mediation import Mediator
+from s09_gateway.handles import HandleStore
+from tests.fixtures.fake_mcp import FakeStudioTwin
+from tests.fixtures.fake_mcp.server import to_wire
+path,op,now,phase,marker=sys.argv[1:]
+store=H.P.PolicyStore(path)
+catalog=H.C.Classification(H.TOOLS)
+gate,ctx,caps=H.host()
+x=H.effective(catalog,store)
+H.A._principal_scope=lambda *args:H.SCOPE
+H.A._mode_ready=lambda mode:True
+auth=H.service(catalog,store,gate,caps)
+auth._clock_ms=lambda:int(now)
+fake=FakeStudioTwin()
+async def transport(tool,inputs,event):
+    if phase=='restart': Path(marker).write_text('unexpected RPC')
+    if tool==H.NAME: os._exit(73)
+    return to_wire(fake.call(tool,inputs))
+s=D.DispatchService(auth,mediator=Mediator(HandleStore()),transport=transport,
+                    charge_policy=D.ChargePolicy(interim_risk_accepted=True))
+asyncio.run(s.dispatch(x,ctx,op))
+store.close()
+'''
+    marker=tmp_path/'unexpected-rpc'
+    env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')
+    def launch(phase):
+        return subprocess.run([sys.executable,'-c',child,str(path),op,str(fake.clock_ms),phase,str(marker)],
+                              cwd=H.ROOT,env=env,capture_output=True,text=True,timeout=30)
+    first=launch('crash')
+    assert first.returncode==73,first.stderr
+    assert store.get_operation(op,b)['state']=='DISPATCHING'
+    second=launch('restart')
+    assert second.returncode==0,second.stderr
+    assert not marker.exists()
+    assert store.guard_used(H.SCOPE,'chat')==20
