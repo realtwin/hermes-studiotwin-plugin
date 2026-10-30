@@ -1,8 +1,9 @@
 """Pre-integration startup. No router, leaf, hosted transport or D24 issuer.
 
-The spawn adapter is opt-in: only an inherited, private, owner-owned pipe may
-supply D31 bootstrap material. Tool/initialize JSON cannot construct a gate.
-The upstream sender does not yet exist; ordinary launches remain setup-only.
+The spawn adapter is opt-in: a private inherited POSIX pipe or consumed
+owner-ACL Windows bootstrap file supplies D31 material. Tool/initialize JSON
+cannot construct a gate. The upstream sender does not yet exist; ordinary
+launches remain setup-only.
 """
 from __future__ import annotations
 
@@ -110,19 +111,59 @@ def gate_from_fd(fd):
             wire.extend(chunk)
             if len(wire) > 16384:
                 raise ValueError('bootstrap too large')
-        from .ipc import decode
-        payload = decode(bytes(wire))
-        if set(payload) != {'key', 'hostInstanceNonce', 'profileId', 'connectionId'}:
-            raise ValueError('invalid bootstrap fields')
-        key = bytes.fromhex(payload['key'])
-        if len(key) != 32:
-            raise ValueError('invalid bootstrap key')
-        return ManagedHostGate(key=key, host_instance_nonce=payload['hostInstanceNonce'],
-            profile_id=payload['profileId'], connection_id=payload['connectionId'])
+        return _gate_from_wire(bytes(wire))
     except (OSError, TypeError, KeyError, ValueError):
         raise ValueError('invalid bootstrap') from None
     finally:
         os.close(fd)
+
+
+def _gate_from_wire(wire):
+    from .ipc import decode
+    if len(wire) > 16384:
+        raise ValueError('invalid bootstrap size')
+    payload = decode(wire)
+    if not isinstance(payload, dict) or set(payload) != {'key', 'hostInstanceNonce', 'profileId', 'connectionId'}:
+        raise ValueError('invalid bootstrap fields')
+    key = bytes.fromhex(payload['key'])
+    if len(key) != 32:
+        raise ValueError('invalid bootstrap key')
+    return ManagedHostGate(key=key, host_instance_nonce=payload['hostInstanceNonce'],
+        profile_id=payload['profileId'], connection_id=payload['connectionId'])
+
+
+def gate_from_file(path, *, windows=None):
+    """Consume a spawn-owned private regular file (Windows portable bootstrap).
+
+    The trusted parent writes a fresh owner-ACL file in its private directory,
+    closes it, and passes only its path in the spawn environment. No stdin/tool
+    field chooses provenance. The opened file is checked before bounded reading
+    and unlinked after consumption. This does not implement the absent D31 sender.
+    """
+    from .ipc import WindowsFiles
+    path = Path(path).absolute()
+    if windows is None and os.name == 'nt':
+        windows = WindowsFiles()
+    try:
+        if windows is not None:
+            with windows.directory(path.parent):
+                with os.fdopen(windows.open(path), 'rb') as stream:
+                    wire = stream.read(16385)
+                path.unlink()
+        else:
+            info = path.parent.lstat()
+            if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid() or info.st_mode & 0o077:
+                raise ValueError('invalid bootstrap directory')
+            fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+            with os.fdopen(fd, 'rb') as stream:
+                info = os.fstat(stream.fileno())
+                if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or info.st_mode & 0o077:
+                    raise ValueError('invalid bootstrap file')
+                wire = stream.read(16385)
+            path.unlink()
+        return _gate_from_wire(wire)
+    except (OSError, ValueError, TypeError, KeyError):
+        raise ValueError('invalid bootstrap') from None
 
 
 class Gateway:
@@ -156,16 +197,46 @@ class Gateway:
             self.gate.release(context)
 
 
-def open_database(data):
+class _PrivateConnection(sqlite3.Connection):
+    def close(self):
+        try:
+            super().close()
+        finally:
+            lock = getattr(self, '_directory_lock', None)
+            if lock is not None:
+                lock.__exit__(None, None, None)
+                self._directory_lock = None
+
+
+def open_database(data, *, windows=None):
     """Open private startup storage; S09 owns policy tables and migrations.
 
     No policy-table substitute is created and no hosted execution is possible.
     Refuse existing symlinks/non-private files rather than following them.
     """
     data = Path(data).absolute()
+    if windows is None and os.name == 'nt':
+        from .ipc import WindowsFiles
+        windows = WindowsFiles()
+    if windows is not None:
+        lock = windows.directory(data, tighten=True)
+        lock.__enter__()
+        connection = None
+        try:
+            # Check existing sidecars too: SQLite must not follow attacker files.
+            for name in ('studiotwin.sqlite3', 'studiotwin.sqlite3-wal', 'studiotwin.sqlite3-shm'):
+                os.close(windows.open(data / name, create=True))
+            connection = sqlite3.connect(data / 'studiotwin.sqlite3', factory=_PrivateConnection)
+            connection._directory_lock = lock
+            connection.execute('PRAGMA journal_mode=WAL')
+            return connection
+        except BaseException:
+            if connection is not None:
+                connection.close()
+            else:
+                lock.__exit__(None, None, None)
+            raise
     data.mkdir(mode=0o700, parents=True, exist_ok=True)
-    if os.name != 'posix':
-        raise ValueError('owner ACL adapter unavailable')
     directory_fd = os.open(data, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
     try:
         info = os.fstat(directory_fd)

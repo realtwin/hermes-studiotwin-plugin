@@ -187,6 +187,11 @@ def test_descriptor_permissions_no_symlink_and_real_local_server(tmp_path):
             frame = json.loads(line)
             ipc.validate('gateway', 'VersionRefusalV1', frame['envelope'])
             assert frame['mac'] == client._mac(frame['envelope'], 'response')
+            pending = copy.deepcopy(client.pending)
+            with pytest.raises(ipc.VersionRefused) as refusal:
+                client.accept_response(frame)
+            assert refusal.value.envelope == frame['envelope']
+            assert client.pending == pending
             writer.close()
             await writer.wait_closed()
             descriptor.chmod(0o644)
@@ -269,6 +274,9 @@ class WindowsApiFixture:
         self.protected = True
         self.entries = [('user', 0x1f01ff)]
 
+    def detach(self, fd):
+        return fd
+
     def close(self, fd):
         import os
         self.events.append(('close', fd))
@@ -310,6 +318,22 @@ def test_windows_descriptor_and_real_loopback_with_acl_seam(tmp_path):
         assert not (tmp_path / 'gateway-ipc.json').exists()
     asyncio.run(exercise())
     assert any(event[0] == 'inspect' for event in api.events)
+
+
+@pytest.mark.parametrize('change', ['owner', 'foreign', 'null', 'reparse'])
+def test_windows_file_acl_checked_before_detach(tmp_path, change):
+    api = WindowsApiFixture()
+    files = ipc.WindowsFiles(api=api)
+    path = tmp_path / 'private.json'
+    path.write_bytes(b'{}')
+    if change == 'owner': api.owner = 'other'
+    if change == 'foreign': api.entries.append(('other', 1))
+    if change == 'null': api.entries = None
+    if change == 'reparse': api.reparse = True
+    with pytest.raises(ipc.Refused, match='PRIVATE_STORAGE'):
+        files.open(path)
+    assert api.events[-1][0] == 'close'
+    assert path.read_bytes() == b'{}'
 
 
 def test_windows_database_and_consumed_private_bootstrap(tmp_path):

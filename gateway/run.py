@@ -18,7 +18,7 @@ if __package__ in (None, ''):
     sys.modules[package.__name__] = package
     __package__ = package.__name__
 
-from .startup import Gateway, gate_from_fd, open_database
+from .startup import Gateway, gate_from_fd, gate_from_file, open_database
 from .ipc import LocalServer
 
 
@@ -29,10 +29,14 @@ async def main():
 
     if sys.version_info < (3, 11):
         raise ValueError('Python 3.11 required')
-    # Only the descriptor number is in the spawn environment. Neither key nor
-    # peer identity can be selected by initialize or tool params.
+    # Only a descriptor number or private bootstrap path is in the spawn
+    # environment. Key/peer identity never comes from initialize or tool params.
     descriptor = os.environ.pop('STUDIOTWIN_HOST_BOOTSTRAP_FD', None)
-    gate = gate_from_fd(int(descriptor)) if descriptor is not None else None
+    bootstrap_file = os.environ.pop('STUDIOTWIN_HOST_BOOTSTRAP_FILE', None)
+    if descriptor is not None and bootstrap_file is not None:
+        raise ValueError('ambiguous bootstrap source')
+    gate = (gate_from_file(bootstrap_file) if bootstrap_file is not None else
+            gate_from_fd(int(descriptor)) if descriptor is not None else None)
     gateway = Gateway(gate=gate)
     data = os.environ.get('PLUGIN_DATA')
     if not data:

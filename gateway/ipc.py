@@ -8,10 +8,10 @@ Nonce is an unsigned 256-bit big-endian counter encoded as unpadded base64url
 (43 characters). One sender per boot; reconnect MUST retain the same Channel.
 No nonce eviction: rotate the boot secret when the channel is replaced.
 
-JSON Schema is the locked MCP 2.3.0 runtime's transitive dependency, not a live
-installation. This module does not import test conformance helpers. S06 owns
-value mediation: before it exists the real server emits ONLY static UNAVAILABLE
-errors; no generic handler or raw upstream-result forwarding is installed.
+JSON Schema is lazy-loaded only for IPC validation from the pinned MCP 2.3.0
+bundle; importing this module needs only stdlib. There is no live installation
+or test-helper import. S06 owns value mediation: before it exists the real
+server emits ONLY static UNAVAILABLE errors, never raw upstream results.
 """
 from __future__ import annotations
 
@@ -48,6 +48,189 @@ class VersionRefused(Refused):
             'received': received if isinstance(received, str) and
                 re.fullmatch(r'[A-Za-z0-9._-]{0,64}', received) else None,
             'message': 'Incompatible protocol version.'}}
+
+
+class WindowsFiles:
+    """Private storage policy over an injectable Win32 handle/ACL adapter.
+
+    Directory handles stay open without FILE_SHARE_DELETE during use. Files are
+    created with a protected owner-only DACL BEFORE any secret bytes are written.
+    Existing foreign-owned files, null/inherited/foreign ACLs and reparse points
+    fail closed. Only startup may tighten an owner-owned data directory.
+    """
+    def __init__(self, *, api=None):
+        self.api = api if api is not None else _WindowsApi()
+
+    @staticmethod
+    def _check(info, *, directory, tightening=False):
+        if (info['owner'] != info['user'] or info['reparse'] or
+                info['directory'] != directory):
+            raise Refused('PRIVATE_STORAGE_REQUIRED')
+        if not tightening and ((directory and not info['protected']) or not info['entries'] or
+                any(sid != info['user'] or mask != 0x1f01ff for sid, mask in info['entries'])):
+            raise Refused('PRIVATE_STORAGE_REQUIRED')
+
+    def directory(self, path, *, tighten=False):
+        from contextlib import contextmanager
+        @contextmanager
+        def locked():
+            handle = self.api.open(path, directory=True)
+            try:
+                self._check(self.api.inspect(handle), directory=True, tightening=tighten)
+                if tighten:
+                    self.api.secure(handle)
+                    self._check(self.api.inspect(handle), directory=True)
+                yield
+            finally:
+                self.api.close(handle)
+        return locked()
+
+    def open(self, path, *, create=False, exclusive=False):
+        handle = self.api.open(path, create=create, exclusive=exclusive)
+        try:
+            self._check(self.api.inspect(handle), directory=False)
+            fd = self.api.detach(handle)
+        except BaseException:
+            self.api.close(handle)
+            raise
+        return fd
+
+
+class _WindowsApi:
+    """Stdlib-only Win32 implementation; loaded only on a native Windows host.
+
+    Handle-based GetSecurityInfo, protected DACLs, current process token SID,
+    OPEN_REPARSE_POINT and non-delete-sharing locks (not chmod on Windows).
+    The injectable boundary is tested on Linux; native API execution is not.
+    """
+    def __init__(self):
+        import ctypes as c
+        from ctypes import wintypes as w
+        self.c, self.w = c, w
+        self.kernel = c.WinDLL('kernel32', use_last_error=True)
+        self.advapi = c.WinDLL('advapi32', use_last_error=True)
+        P, D, H, B = c.c_void_p, w.DWORD, w.HANDLE, w.BOOL
+        def bind(lib, name, result, *args):
+            fn = getattr(lib, name)
+            fn.restype, fn.argtypes = result, args
+            return fn
+        self.close = bind(self.kernel, 'CloseHandle', B, H)
+        self.free = bind(self.kernel, 'LocalFree', P, P)
+        current = bind(self.kernel, 'GetCurrentProcess', H)
+        token = H()
+        self._ok(bind(self.advapi, 'OpenProcessToken', B, H, D, c.POINTER(H))(
+            current(), 8, c.byref(token)))
+        try:
+            size = D()
+            get_token = bind(self.advapi, 'GetTokenInformation', B, H, c.c_int, P, D, c.POINTER(D))
+            get_token(token, 1, None, 0, c.byref(size))
+            buffer = c.create_string_buffer(size.value)
+            self._ok(get_token(token, 1, buffer, size, c.byref(size)))
+            self.sid_text = bind(self.advapi, 'ConvertSidToStringSidW', B, P, c.POINTER(P))
+            self.user = self._sid(c.cast(buffer, c.POINTER(P))[0])
+        finally:
+            self.close(token)
+        self.from_sddl = bind(self.advapi, 'ConvertStringSecurityDescriptorToSecurityDescriptorW',
+            B, w.LPCWSTR, D, c.POINTER(P), c.POINTER(D))
+        self.get_security = bind(self.advapi, 'GetSecurityInfo', D, H, c.c_int, D,
+            c.POINTER(P), c.POINTER(P), c.POINTER(P), c.POINTER(P), c.POINTER(P))
+        self.get_control = bind(self.advapi, 'GetSecurityDescriptorControl', B, P,
+            c.POINTER(w.WORD), c.POINTER(D))
+        self.get_ace = bind(self.advapi, 'GetAce', B, P, D, c.POINTER(P))
+        self.get_dacl = bind(self.advapi, 'GetSecurityDescriptorDacl', B, P,
+            c.POINTER(B), c.POINTER(P), c.POINTER(B))
+        self.set_security = bind(self.advapi, 'SetSecurityInfo', D, H, c.c_int, D, P, P, P, P)
+        self.create_file = bind(self.kernel, 'CreateFileW', H, w.LPCWSTR, D, D, P, D, D, H)
+        self.file_info = bind(self.kernel, 'GetFileInformationByHandle', B, H, P)
+
+    def _ok(self, result):
+        if not result:
+            raise Refused('PRIVATE_STORAGE_UNAVAILABLE')
+        return result
+
+    def _sid(self, pointer):
+        c = self.c
+        text = c.c_void_p()
+        self._ok(self.sid_text(pointer, c.byref(text)))
+        try:
+            return c.wstring_at(text)
+        finally:
+            self.free(text)
+
+    def _descriptor(self):
+        c = self.c
+        sd = c.c_void_p()
+        self._ok(self.from_sddl(f'O:{self.user}D:P(A;OICI;FA;;;{self.user})',
+            1, c.byref(sd), None))
+        return sd
+
+    def open(self, path, *, directory=False, create=False, exclusive=False):
+        c, w = self.c, self.w
+        class Attributes(c.Structure):
+            _fields_ = [('length', w.DWORD), ('descriptor', c.c_void_p), ('inherit', w.BOOL)]
+        # No secret exists yet. The owner-owned directory is locked, checked and
+        # tightened before creating any child; children inherit that private ACL.
+        if directory:
+            Path(path).mkdir(parents=True, exist_ok=True)
+        sd = self._descriptor()
+        attrs = Attributes(c.sizeof(Attributes), sd, False)
+        try:
+            handle = self.create_file(str(Path(path).absolute()),
+                0x60080 if directory else 0xc0000000 | 0x20000,
+                3, c.byref(attrs), 1 if exclusive else (4 if create else 3),
+                0x200000 | (0x2000000 if directory else 0), None)
+            if handle == c.c_void_p(-1).value:
+                raise Refused('PRIVATE_STORAGE_UNAVAILABLE')
+            return handle
+        finally:
+            self.free(sd)
+
+    def inspect(self, handle):
+        c, w = self.c, self.w
+        owner, acl, sd = c.c_void_p(), c.c_void_p(), c.c_void_p()
+        if self.get_security(handle, 1, 5, c.byref(owner), None, c.byref(acl), None, c.byref(sd)):
+            raise Refused('PRIVATE_STORAGE_UNAVAILABLE')
+        try:
+            control, revision = w.WORD(), w.DWORD()
+            self._ok(self.get_control(sd, c.byref(control), c.byref(revision)))
+            entries = None
+            if acl.value:
+                # ACL header: revision, reserved byte, size WORD, ACE count WORD.
+                count = c.c_ushort.from_address(acl.value + 4).value
+                entries = []
+                for index in range(count):
+                    ace = c.c_void_p()
+                    self._ok(self.get_ace(acl, index, c.byref(ace)))
+                    # Only ACCESS_ALLOWED_ACE, no inherited/conditional/object ACE.
+                    kind = c.c_ubyte.from_address(ace.value).value
+                    flags = c.c_ubyte.from_address(ace.value + 1).value
+                    mask = w.DWORD.from_address(ace.value + 4).value
+                    sid = self._sid(ace.value + 8) if kind == 0 else 'unsupported-ace'
+                    entries.append((sid if not flags & ~0x13 else 'unsupported-ace-flags', mask))
+            # BY_HANDLE_FILE_INFORMATION is thirteen DWORDs including FILETIMEs.
+            info = (w.DWORD * 13)()
+            self._ok(self.file_info(handle, info))
+            return dict(owner=self._sid(owner), user=self.user,
+                protected=bool(control.value & 0x1000), entries=entries,
+                reparse=bool(info[0] & 0x400), directory=bool(info[0] & 0x10),
+                size=(info[8] << 32) | info[9])
+        finally:
+            self.free(sd)
+
+    def secure(self, handle):
+        c, w = self.c, self.w
+        sd = self._descriptor()
+        try:
+            present, defaulted, acl = w.BOOL(), w.BOOL(), c.c_void_p()
+            self._ok(self.get_dacl(sd, c.byref(present), c.byref(acl), c.byref(defaulted)))
+            if self.set_security(handle, 1, 0x80000004, None, None, acl, None):
+                raise Refused('PRIVATE_STORAGE_UNAVAILABLE')
+        finally:
+            self.free(sd)
+
+    def detach(self, handle):
+        import msvcrt
+        return msvcrt.open_osfhandle(handle, os.O_RDWR | os.O_BINARY)
 
 
 def _pairs(items):
@@ -261,22 +444,29 @@ class Channel:
             self.pending.clear()  # NEVER reset sent/received counters
 
 
-def read_descriptor(path):
+def read_descriptor(path, *, windows=None):
     """Read the local backend bootstrap using open/fstat, never tool JSON."""
-    if os.name != 'posix':
-        raise Refused('OWNER_ACL_UNAVAILABLE')
+    if windows is None and os.name == 'nt':
+        windows = WindowsFiles()
     try:
         path = Path(path)
-        parent = path.parent.lstat()
-        if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.getuid() or parent.st_mode & 0o077:
-            raise Refused('INVALID_BOOTSTRAP')
-        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
-        with os.fdopen(fd, 'rb') as stream:
-            info = os.fstat(stream.fileno())
-            if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or
-                    info.st_mode & 0o077 or info.st_size > 4096):
+        if windows is not None:
+            with windows.directory(path.parent):
+                with os.fdopen(windows.open(path), 'rb') as stream:
+                    if os.fstat(stream.fileno()).st_size > 4096:
+                        raise Refused('INVALID_BOOTSTRAP')
+                    result = decode(stream.read(4097))
+        else:
+            parent = path.parent.lstat()
+            if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.getuid() or parent.st_mode & 0o077:
                 raise Refused('INVALID_BOOTSTRAP')
-            result = decode(stream.read(4097))
+            fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+            with os.fdopen(fd, 'rb') as stream:
+                info = os.fstat(stream.fileno())
+                if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid() or
+                        info.st_mode & 0o077 or info.st_size > 4096):
+                    raise Refused('INVALID_BOOTSTRAP')
+                result = decode(stream.read(4097))
         if (not isinstance(result, dict) or set(result) != {'host', 'port', 'key'} or
                 type(result['port']) is not int or not 1 <= result['port'] <= 65535 or
                 not isinstance(result['key'], str) or not re.fullmatch('[0-9a-f]{64}', result['key'])):
@@ -294,7 +484,9 @@ class LocalServer:
     all authenticated calls receive static closed UNAVAILABLE until S06/S11.
     Never follows redirects, resolves external hosts or logs payloads.
     """
-    def __init__(self, data):
+    def __init__(self, data, *, windows=None):
+        self.windows = windows if windows is not None else (WindowsFiles() if os.name == 'nt' else None)
+        self._directory_lock = None
         self.data = Path(data)
         self.channel = Channel(secrets.token_bytes(32), scope='setup', generation=0)
         self._active = set()
@@ -303,16 +495,21 @@ class LocalServer:
         self._descriptor_identity = None
 
     async def __aenter__(self):
-        if os.name != 'posix':
-            raise Refused('OWNER_ACL_UNAVAILABLE')
-        self.data.mkdir(mode=0o700, parents=True, exist_ok=True)
-        info = self.data.lstat()
-        if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid() or info.st_mode & 0o077:
-            raise Refused('INVALID_BOOTSTRAP')
-        self.server = await asyncio.start_server(self._serve, local_address('127.0.0.1'), 0, limit=MAX_BYTES + 1)
+        if self.windows is not None:
+            lock = self.windows.directory(self.data)
+            lock.__enter__()
+            self._directory_lock = lock
+        else:
+            self.data.mkdir(mode=0o700, parents=True, exist_ok=True)
+            info = self.data.lstat()
+            if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid() or info.st_mode & 0o077:
+                raise Refused('INVALID_BOOTSTRAP')
         try:
+            self.server = await asyncio.start_server(self._serve, local_address('127.0.0.1'), 0, limit=MAX_BYTES + 1)
             port = self.server.sockets[0].getsockname()[1]
-            fd = os.open(self.descriptor, os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW, 0o600)
+            fd = (self.windows.open(self.descriptor, create=True, exclusive=True)
+                  if self.windows is not None else
+                  os.open(self.descriptor, os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW, 0o600))
             with os.fdopen(fd, 'wb') as stream:
                 stream.write(encode({'host': '127.0.0.1', 'port': port, 'key': self.channel._key.hex()}))
                 stream.flush()
@@ -367,3 +564,6 @@ class LocalServer:
                     self.descriptor.unlink()
             except FileNotFoundError:
                 pass
+        if self._directory_lock is not None:
+            self._directory_lock.__exit__(None, None, None)
+            self._directory_lock = None
