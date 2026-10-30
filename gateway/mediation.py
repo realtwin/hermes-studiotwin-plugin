@@ -91,6 +91,15 @@ class SensitiveValueRegistry(Collection):
         parsed=urlsplit(value)
         for _, part in parse_qsl(parsed.query,keep_blank_values=False):
             self.register(part)
+        # Credential-labelled path segments are privileged too. Ordinary public
+        # path labels (e.g. /file) are not by themselves credential provenance.
+        parts=unquote(parsed.path).split('/')
+        for index, part in enumerate(parts):
+            if _BANNED_NAME.search(part):
+                if '=' in part:
+                    self.register(part.split('=',1)[1])
+                elif index+1<len(parts):
+                    self.register(parts[index+1])
         if parsed.scheme.lower()=='s3':
             self.register(unquote(parsed.netloc))
             if parsed.path.strip('/'):

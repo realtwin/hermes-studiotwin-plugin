@@ -283,7 +283,9 @@ class MediaCache:
                 result=CachedMedia(str(path),token,scope_id,generation,mime,kind,len(data))
                 if self._batch is not None:
                     self._batch.append(result)
-        except (OSError,ValueError,TypeError):
+        except Exception:
+            # A backend filesystem adapter can fail outside OSError/ValueError.
+            # No partial file may escape tracking merely due to exception type.
             failed=True
             if path is not None:
                 self._unlink(path)
