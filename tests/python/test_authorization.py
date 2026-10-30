@@ -314,3 +314,149 @@ def test_concurrent_guard_straddle_and_session_isolation(catalog,store,tmp_path,
     with pytest.raises(R.BoundaryRefused): store.set_guard_limit(SCOPE,'other',201)
     store.set_guard_limit(SCOPE,'other',250,explicit_user_setting=True)
     assert store.guard_limit(SCOPE,'other')==250
+
+
+@pytest.mark.parametrize('mode',['interim-local','server-max-credits'])
+def test_mode_proof_is_independent_of_principal(catalog,store,monkeypatch,mode):
+    monkeypatch.setattr(A,'_principal_scope',lambda *args:SCOPE)
+    gate,ctx,caps=host(); x=effective(catalog,store)
+    p=preview(mode=mode)
+    q=store.save_quote(p,binding(x,ctx),price_version='price-1',
+                       server_token='sqt_'+'s'*43 if mode=='server-max-credits' else None,now_ms=1000)
+    with pytest.raises(R.BoundaryRefused): asyncio.run(service(catalog,store,gate,caps).authorize(x,ctx,q))
+    assert store.operation_count()==0
+
+
+def test_server_maximum_not_estimate_and_token_binding(catalog,store,monkeypatch):
+    future_principal(monkeypatch)
+    gate,ctx,caps=host(); x=effective(catalog,store)
+    p=preview(mode='server-max-credits')
+    q=store.save_quote(p,binding(x,ctx),price_version='price-1',server_token='sqt_'+'s'*43,now_ms=1000)
+    a=asyncio.run(service(catalog,store,gate,caps).authorize(x,ctx,q)).to_json()
+    assert a['estimatedCredits']==20 and a['maxCredits']==25
+    assert a['serverQuoteToken']=='sqt_'+'s'*43
+    assert store.get_operation(a['operationId'],binding(x,ctx))['reservedCredits']==25
+    assert store.guard_used(SCOPE,'chat')==25
+
+
+@pytest.mark.parametrize('field,value',[
+ ('canonicalInputHash','f'*64),('schemaHash','f'*64),('trustedSessionId','other'),('runId','other'),
+ ('scopeId','c'*64),('tool','text-to-motion'),('previewId','pv_'+'b'*43),
+ ('previewExpiresAtMs',1200),('estimatedCredits',19),('maxCredits',19),
+ ('createdAtMs',1002),('createdAtMs',999),('expiresAtMs',1001),('expiresAtMs',1101),
+ ('enforcementMode','server-max-credits')])
+def test_complete_authorization_relations(catalog,store,monkeypatch,field,value):
+    future_principal(monkeypatch)
+    gate,ctx,caps=host(); x=effective(catalog,store); q=quote(store,x,ctx)
+    a=asyncio.run(service(catalog,store,gate,caps).authorize(x,ctx,q)).to_json()
+    # Independent complete-envelope relation checker, followed by real reserve
+    # probes in other tests. No JSON-schema equality claim.
+    a[field]=value
+    with pytest.raises(R.BoundaryRefused): P.check_authorization(a,preview(),binding(x,ctx),1001)
+
+
+def test_server_token_bound_to_exact_quote(catalog,store,monkeypatch):
+    future_principal(monkeypatch)
+    gate,ctx,caps=host(); x=effective(catalog,store)
+    q=quote(store,x,ctx)
+    a=asyncio.run(service(catalog,store,gate,caps).authorize(x,ctx,q)).to_json()
+    p=preview(mode='server-max-credits'); p['previewId']='pv_'+'b'*43
+    q2=store.save_quote(p,binding(x,ctx),price_version='price-2',server_token='sqt_'+'s'*43,now_ms=1000)
+    a.update(operationId='op_'+'b'*43,previewId=q2,enforcementMode='server-max-credits',maxCredits=25,
+             previewPriceVersion='price-2',serverQuoteToken='sqt_'+'t'*43)
+    with pytest.raises(R.BoundaryRefused): store.reserve(a,binding(x,ctx),now_ms=1001)
+    assert store.operation_count()==1
+
+
+def test_operation_id_cannot_be_reused_for_another_quote(catalog,store,monkeypatch):
+    future_principal(monkeypatch)
+    gate,ctx,caps=host(); x=effective(catalog,store); q=quote(store,x,ctx)
+    a=asyncio.run(service(catalog,store,gate,caps).authorize(x,ctx,q)).to_json()
+    p=preview(); p['previewId']='pv_'+'b'*43
+    q2=store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,now_ms=1000)
+    a['previewId']=q2
+    with pytest.raises(R.BoundaryRefused): store.reserve(a,binding(x,ctx),now_ms=1001)
+    assert store.operation_count()==1 and store.guard_used(SCOPE,'chat')==20
+
+
+def test_spend_guard_counts_settled_debits_without_double_count(catalog,store,monkeypatch):
+    future_principal(monkeypatch)
+    gate,ctx,caps=host(); x=effective(catalog,store); q=quote(store,x,ctx)
+    a=asyncio.run(service(catalog,store,gate,caps).authorize(x,ctx,q)).to_json()
+    # S10 owns certification/transition; seed a ledger row with explicit final
+    # evidence result to exercise S09's real aggregation SQL (not settlement proof).
+    with store.transaction():
+        store._db.execute("UPDATE policy_operations SET state='SETTLED',final_debit=30 WHERE scope_id=? AND operation_id=?",(SCOPE,a['operationId']))
+    assert store.guard_used(SCOPE,'chat')==30  # not estimate 20, not 20+30
+    store.set_guard_limit(SCOPE,'chat',40)
+    p=preview(); p['previewId']='pv_'+'b'*43
+    q2=store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,now_ms=1000)
+    with pytest.raises(R.BoundaryRefused): asyncio.run(service(catalog,store,gate,caps).authorize(x,ctx,q2))
+    assert store.operation_count()==1
+
+
+def test_n3_preflight_uses_tier_not_cost_class(catalog,store,monkeypatch):
+    future_principal(monkeypatch)
+    name='studiotwin_conceptlab_create'
+    gate,ctx,caps=host(name,run='kanban')
+    x=effective(catalog,store,name,dict(conceptType='object',name='draft'))
+    assert C.RELEASE['tools'][name]['costClass']=='free_read'
+    with pytest.raises(R.BoundaryRefused): service(catalog,store,gate,caps)._context(x,ctx)
+
+
+@pytest.mark.parametrize('field,value',[('turn_id','STCANARY_binding'),('schema_hash','not-a-hash'),
+                                       ('canonical_input_hash','not-a-hash'),('generation',True)])
+def test_unsafe_bindings_never_persist(catalog,store,field,value):
+    gate,ctx,caps=host(); x=effective(catalog,store)
+    b=binding(x,ctx); b[field]=value
+    with pytest.raises(R.BoundaryRefused): store.save_quote(preview(),b,price_version=None,server_token=None,now_ms=1000)
+    assert store.quote_count()==0
+
+
+def test_price_metadata_secret_never_persists(catalog,tmp_path):
+    s=P.PolicyStore(tmp_path/'secrets',sensitive_values=('ordinary-sensitive-value',))
+    try:
+        s.activate(SCOPE,'b'*64)
+        gate,ctx,caps=host(); x=effective(catalog,s)
+        with pytest.raises(R.BoundaryRefused):
+            s.save_quote(preview(),binding(x,ctx),price_version='ordinary-sensitive-value',server_token=None,now_ms=1000)
+        assert s.quote_count()==0
+    finally: s.close()
+
+
+def test_automatic_settings_cannot_raise_lowered_guard(store):
+    store.set_guard_limit(SCOPE,'chat',50)
+    with pytest.raises(R.BoundaryRefused): store.set_guard_limit(SCOPE,'chat',100)
+    assert store.guard_limit(SCOPE,'chat')==50
+
+
+def test_real_process_restart_and_concurrent_duplicate(catalog,store,tmp_path,monkeypatch):
+    import subprocess
+    future_principal(monkeypatch)
+    gate,ctx,caps=host(); x=effective(catalog,store); q=quote(store,x,ctx)
+    a=asyncio.run(service(catalog,store,gate,caps).authorize(x,ctx,q)).to_json()
+    p=preview(); p['previewId']='pv_'+'b'*43
+    q2=store.save_quote(p,binding(x,ctx),price_version=None,server_token=None,now_ms=1000)
+    a.update(operationId='op_'+'r'*43,previewId=q2)
+    payload=json.dumps(dict(auth=a,binding=binding(x,ctx)))
+    processes=[subprocess.Popen([sys.executable,__file__,'ledger-probe',str(tmp_path/'data')],
+                    stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True) for _ in range(2)]
+    results=[p.communicate(payload,timeout=30) for p in processes]
+    assert all(p.returncode==0 for p in processes),results
+    assert sorted(r[0].strip() for r in results)==['refused','reserved']
+    restarted=subprocess.run([sys.executable,__file__,'ledger-probe',str(tmp_path/'data')],
+                    input=payload,capture_output=True,text=True,timeout=30)
+    assert restarted.returncode==0 and restarted.stdout.strip()=='refused'
+    assert store.operation_count()==2 and store.guard_used(SCOPE,'chat')==40
+
+
+if __name__=='__main__' and len(sys.argv)==3 and sys.argv[1]=='ledger-probe':
+    payload=json.load(sys.stdin)
+    s=P.PolicyStore(Path(sys.argv[2]))
+    try:
+        try:
+            s.reserve(payload['auth'],payload['binding'],now_ms=1001)
+            print('reserved')
+        except R.BoundaryRefused:
+            print('refused')
+    finally: s.close()
