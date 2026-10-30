@@ -57,7 +57,9 @@ class DashboardIpcClient:
                 generation=generation)
             self._lock, self._timeout = asyncio.Lock(), timeout
             self._check_current()
-        except (ValueError,TypeError,OSError,KeyError):
+        except Exception:
+            # Callback, storage and transport failures are also secret-bearing
+            # channels. Raise only after leaving the handler, with no context.
             failed = True
         if failed:
             raise redaction.BoundaryRefused()
@@ -125,7 +127,7 @@ class DashboardIpcClient:
                     self._check_current()
                 finally:
                     self._channel.pending.pop(request['requestId'],None)
-        except (ValueError,TypeError,OSError,KeyError,asyncio.TimeoutError):
+        except Exception:
             failed = True
         if failed:
             raise redaction.BoundaryRefused()
