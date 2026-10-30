@@ -1488,6 +1488,433 @@
           ]
         }
       }
+    },
+    "ToolInputFieldV1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "required",
+        "schema"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "schema": {
+          "$ref": "#/$defs/ToolInputSchemaV1"
+        }
+      }
+    },
+    "ToolInputSchemaV1": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "const": "string"
+            },
+            "description": {
+              "$ref": "#/$defs/MediatedTextV1"
+            },
+            "choices": {
+              "type": "array",
+              "maxItems": 128,
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "$ref": "#/$defs/MediatedTextV1"
+                  }
+                ]
+              }
+            },
+            "defaultValue": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "$ref": "#/$defs/MediatedTextV1"
+                }
+              ]
+            },
+            "minLength": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4000
+            },
+            "maxLength": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4000
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "const": "number"
+            },
+            "description": {
+              "$ref": "#/$defs/MediatedTextV1"
+            },
+            "choices": {
+              "type": "array",
+              "maxItems": 128,
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "$ref": "#/$defs/MediatedTextV1"
+                  }
+                ]
+              }
+            },
+            "defaultValue": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "$ref": "#/$defs/MediatedTextV1"
+                }
+              ]
+            },
+            "minimum": {
+              "type": "number"
+            },
+            "maximum": {
+              "type": "number"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "const": "integer"
+            },
+            "description": {
+              "$ref": "#/$defs/MediatedTextV1"
+            },
+            "choices": {
+              "type": "array",
+              "maxItems": 128,
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "$ref": "#/$defs/MediatedTextV1"
+                  }
+                ]
+              }
+            },
+            "defaultValue": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "$ref": "#/$defs/MediatedTextV1"
+                }
+              ]
+            },
+            "minimum": {
+              "type": "number"
+            },
+            "maximum": {
+              "type": "number"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "const": "boolean"
+            },
+            "description": {
+              "$ref": "#/$defs/MediatedTextV1"
+            },
+            "choices": {
+              "type": "array",
+              "maxItems": 128,
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "$ref": "#/$defs/MediatedTextV1"
+                  }
+                ]
+              }
+            },
+            "defaultValue": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "$ref": "#/$defs/MediatedTextV1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "properties": {
+            "kind": {
+              "const": "null"
+            },
+            "description": {
+              "$ref": "#/$defs/MediatedTextV1"
+            },
+            "choices": {
+              "type": "array",
+              "maxItems": 128,
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "$ref": "#/$defs/MediatedTextV1"
+                  }
+                ]
+              }
+            },
+            "defaultValue": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "$ref": "#/$defs/MediatedTextV1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "fields"
+          ],
+          "properties": {
+            "kind": {
+              "const": "object"
+            },
+            "description": {
+              "$ref": "#/$defs/MediatedTextV1"
+            },
+            "choices": {
+              "type": "array",
+              "maxItems": 128,
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "$ref": "#/$defs/MediatedTextV1"
+                  }
+                ]
+              }
+            },
+            "defaultValue": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "$ref": "#/$defs/MediatedTextV1"
+                }
+              ]
+            },
+            "fields": {
+              "type": "array",
+              "maxItems": 64,
+              "items": {
+                "$ref": "#/$defs/ToolInputFieldV1"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "items"
+          ],
+          "properties": {
+            "kind": {
+              "const": "array"
+            },
+            "description": {
+              "$ref": "#/$defs/MediatedTextV1"
+            },
+            "choices": {
+              "type": "array",
+              "maxItems": 128,
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "$ref": "#/$defs/MediatedTextV1"
+                  }
+                ]
+              }
+            },
+            "defaultValue": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "$ref": "#/$defs/MediatedTextV1"
+                }
+              ]
+            },
+            "items": {
+              "$ref": "#/$defs/ToolInputSchemaV1"
+            },
+            "minItems": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4096
+            },
+            "maxItems": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4096
+            }
+          }
+        }
+      ],
+      "description": "Classified mediated form projection, not raw upstream JSON Schema. Recursive depth <=8, total nodes <=256 and encoded bytes <=65536 enforced by S08/S11 before serialization and S23 before rendering. Duplicate field names, invalid bounds/defaults/choices, secret-bearing names/text/defaults and unsupported upstream constructs cause SCHEMA_UNAVAILABLE and execution disabled; never silently replace an unsupported schema with an executable text box. S08 projects fields by reviewed classification from current tools/list, not a second catalog; raw additionalProperties is not permission to forward arbitrary extra inputs. Resources use reviewed safe asset/handle transforms. Descriptions are plain mediated text only; no HTML, external refs, remote fetches or executable expressions."
     }
   }
 }

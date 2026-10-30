@@ -1410,6 +1410,67 @@
         },
         "description": "S11 authenticates dashboard session and current scope/generation, then IPC to S10. scopeId is an equality assertion, not selected authority: foreign scope returns not-found. Atomically compare operationId to the current verified-overrun pause to refuse stale acknowledgement of a newer pause. Repeat of the same acknowledgement returns its original timestamp; absent/mismatched pause is not-found. Only acknowledged_at_ms changes; settlement/reservation/evidence/authorization and dispatch count remain unchanged. Fresh paid work still requires a new preview and once-only host consent. S10 and S11 must test this against their actual stores and dispatcher spies."
       }
+    },
+    "/capabilities/{tool}/input-schema": {
+      "get": {
+        "summary": "Get classified mediated input schema for a tool",
+        "x-studiotwin-owner": "S11",
+        "x-billing": "nonbilling",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContractHeaderV1"
+          },
+          {
+            "name": "tool",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ToolNameV1"
+            }
+          },
+          {
+            "name": "schemaHash",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/Sha256HexV1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Classified schema with matching requested hash",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ToolInputSchemaResponseV1"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Incompatible contract version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncompatibleContractV1"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorV1"
+                }
+              }
+            }
+          }
+        },
+        "x-studiotwin-origin": "S03 addition: S08 schema projection for S23 via S11 ctx.rest."
+      }
     }
   },
   "components": {
@@ -2864,6 +2925,35 @@
             "const": false
           }
         }
+      },
+      "ToolInputSchemaResponseV1": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract",
+          "tool",
+          "schemaHash",
+          "classification",
+          "inputSchema"
+        ],
+        "properties": {
+          "contract": {
+            "const": "studiotwin.dashboard.v1"
+          },
+          "tool": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ToolNameV1"
+          },
+          "schemaHash": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/Sha256HexV1"
+          },
+          "classification": {
+            "const": "classified"
+          },
+          "inputSchema": {
+            "$ref": "urn:hermes-studiotwin:contracts:gateway-v1#/$defs/ToolInputSchemaV1"
+          }
+        },
+        "description": "Returned only after S08 verifies exact live tool name/schemaHash against release classification. Hash is SHA256 of canonical {name,inputSchema,outputSchema} with sorted keys, compact separators and ensure_ascii=True (S02 catalog.schema_hash). It identifies upstream shape, not the lossy mediated projection and is not authority alone. Authenticated IPC and current scope/generation bind this response. S23 compares tool/schemaHash to current capability entry; invalidate on reconnect/drift. Unknown/drifted schemas return unavailable, remain visible in capabilities as disabled, and do not receive executable form schemas."
       }
     },
     "parameters": {

@@ -84,6 +84,42 @@ def scoped_media_candidate(path: str, scope_id: str, docs=None) -> bool:
             and f"/hermes-studiotwin/scopes/{scope_id}/media/" in path)
 
 
+def form_projection(tool):
+    """Capture-driven conformance fixture, not S08's reviewed classification implementation."""
+    def project(raw, depth=0):
+        if depth > 8:
+            raise ValueError("SCHEMA_UNAVAILABLE")
+        kind = raw["type"]
+        node = {"kind": kind}
+        if kind == "object":
+            node["fields"] = [{"name": name, "required": name in raw.get("required", []),
+                               "schema": project(schema, depth + 1)}
+                              for name, schema in raw.get("properties", {}).items()]
+        elif kind == "array":
+            node["items"] = project(raw["items"], depth + 1)
+        for source, target in (("enum", "choices"), ("default", "defaultValue"), ("minimum", "minimum"),
+                               ("maximum", "maximum"), ("minItems", "minItems"), ("maxItems", "maxItems")):
+            if source in raw:
+                node[target] = raw[source]
+        # Motion capture uses minLength/maxLength on arrays; represent those as item bounds.
+        for k in ("minLength", "maxLength"):
+            if k in raw:
+                node[k.replace("Length", "Items") if kind == "array" else k] = raw[k]
+        return node
+    return project(tool["inputSchema"])
+
+
+def form_controls(form):
+    return [(f["name"], f["schema"]["kind"], f["required"],
+             form_controls(f["schema"]) if f["schema"]["kind"] == "object" else [])
+            for f in form.get("fields", [])]
+
+
+def form_binding(envelope, tool, schema_hash):
+    return (envelope["tool"] == tool and envelope["schemaHash"] == schema_hash
+            and envelope["classification"] == "classified")
+
+
 # --------------------------------------------------------------------------- schema walking
 
 def walk(node: Any, path: str = "") -> Iterator[tuple[str, Any]]:
