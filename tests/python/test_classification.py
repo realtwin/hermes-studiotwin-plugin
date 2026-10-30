@@ -232,3 +232,97 @@ def test_policy_is_real_s07_type_and_bound_to_release():
 
 def test_context_cannot_be_built_from_model_boolean():
     refuse(lambda:C.GatewayCallContext(scope_id='a'*64,generation=1,trusted_context={'trusted':True},execute=lambda x:x))
+
+
+def trusted(name=NAME):
+    import hmac
+    from s08_gateway.host_context import HostContextGate, META_KEY
+    key=b'fixture-key-only-32-bytes-long!!!x'
+    gate=HostContextGate(key=key,host_instance_nonce='a'*43,profile_id='profile-a',connection_id='local')
+    body=dict(hostInstanceNonce='a'*43,profileId='profile-a',connectionId='local',sessionId='chat-a',
+              runKind='interactive',cronRunId=None,toolName=name,turnId='turn-1',toolCallId='call-1',callNonce=1)
+    data=json.dumps(body,sort_keys=True,separators=(',',':'),allow_nan=False).encode()
+    body['mac']=hmac.new(key,b'trusted-tool-context-v1\0'+data,hashlib.sha256).hexdigest()
+    context=gate.receive(arguments={},metadata={META_KEY:body})
+    assert gate._owned(context)
+    return gate,context
+
+
+def safe_result(tool=NAME,**binding):
+    args={**BIND,**binding}
+    return R.validate_mediated_v1('gateway#/$defs/GatewayResultV1',dict(protocol='studiotwin.gateway.v1',
+        tool=tool,status='ok',jobId=None,assetIds=[],media=[],summary='done',operation=None),**args)
+
+
+def test_registry_bound_execute_and_real_handler_output(monkeypatch):
+    catalog=release(); registry=C.GatewayRegistry(catalog); registry.add(NAME,good_handler)
+    gate,verified=trusted(); calls=[]
+    async def execute(inputs): calls.append(inputs); return safe_result()
+    context=registry.context(NAME,gate=gate,trusted_context=verified,execute=execute,**BIND)
+    value=catalog.candidate_inputs(NAME,digest(BY_NAME[NAME]),{'prompt':'study','seed':1},**BIND)
+    refuse(lambda:asyncio.run(context.execute(value)))
+    assert calls==[]  # unresolved D24/D31, even genuinely receiver-owned context
+    monkeypatch.setattr(CAP,'published_tools',lambda decision,hosted_tools:['studiotwin_setup_status',*hosted_tools])
+    output=asyncio.run(registry.invoke(NAME,context=context,inputs=value))
+    assert output.to_json()['summary']=='done' and calls==[value]
+    with pytest.raises((AttributeError,TypeError)):context.generation=2
+    for wrong in (value.to_json(),catalog.candidate_inputs(NAME,digest(BY_NAME[NAME]),
+            {'prompt':'study','seed':1},**{**BIND,'generation':2}),
+            catalog.candidate_inputs(NAME,digest(BY_NAME[NAME]),{'prompt':'study','seed':1},**{**BIND,'scope_id':'b'*64})):
+        refuse(lambda:asyncio.run(context.execute(wrong)))
+    assert calls==[value]
+    foreign=C.GatewayRegistry(catalog); foreign.add(NAME,good_handler)
+    refuse(lambda:asyncio.run(foreign.invoke(NAME,context=context,inputs=value)))
+    refuse(lambda:registry.context(NAME,gate=gate,trusted_context=dict(verified),execute=execute,**BIND))
+
+
+@pytest.mark.parametrize('bad_kind',['raw','wrong_tool','wrong_scope','wrong_contract','exception'])
+def test_registry_refuses_bad_handler_output_and_sanitizes(bad_kind,monkeypatch):
+    catalog=release();registry=C.GatewayRegistry(catalog)
+    gate,verified=trusted()
+    monkeypatch.setattr(CAP,'published_tools',lambda decision,hosted_tools:['studiotwin_setup_status',*hosted_tools])
+    async def execute(inputs):
+        if bad_kind=='raw':return safe_result().to_json()
+        if bad_kind=='wrong_tool':return safe_result('text-to-motion')
+        if bad_kind=='wrong_scope':return safe_result(scope_id='b'*64)
+        if bad_kind=='wrong_contract':return R.safe_error_v1()
+        raise RuntimeError('STCANARY_provider_diagnostic')
+    context=registry.context(NAME,gate=gate,trusted_context=verified,execute=execute,**BIND)
+    registry.add(NAME,good_handler)
+    value=catalog.candidate_inputs(NAME,digest(BY_NAME[NAME]),{'prompt':'study','seed':1},**BIND)
+    refuse(lambda:asyncio.run(registry.invoke(NAME,context=context,inputs=value)))
+
+
+def test_registration_refuses_wrong_or_missing_annotations():
+    async def wrong(*, context: dict, inputs: dict) -> dict: return {}
+    async def missing(*, context, inputs): return None
+    for handler in (wrong,missing):
+        refuse(lambda:C.GatewayRegistry(release()).add(NAME,handler))
+
+
+@pytest.mark.parametrize('tool',TOOLS,ids=lambda t:t['name'])
+def test_all_45_reviewed_form_schemas_are_retrievable(tool):
+    value=release().input_schema(tool['name'],digest(tool),request_id='rq_'+'a'*22,**BIND).to_json()
+    assert value['result']['payload']['schemaHash']==digest(tool)
+
+
+@pytest.mark.parametrize('value',['x'*36,'https://foreign.invalid/a','data:image/png;base64,AAAA','STCANARY_secret'])
+def test_reviewed_asset_inputs_not_arbitrary_text(value):
+    catalog=release();tool='image-to-3d-mesh'
+    refuse(lambda:catalog.candidate_inputs(tool,digest(BY_NAME[tool]),{'referenceImage':value,'seed':1},**BIND))
+
+
+def test_reviewed_safe_resource_projection_and_aliases():
+    catalog=release();tool='text-to-material'
+    value=catalog.candidate_inputs(tool,digest(BY_NAME[tool]),
+        {'resolution':1024,'textPrompt':'brass','maskAssetId':'12345678-1234-4234-8234-123456789abc'},**BIND)
+    assert value.values['maskAssetId']=='12345678-1234-4234-8234-123456789abc'
+    row=C.RELEASE['tools'][tool]
+    assert any(r.get('upstreamField')=='maskUrl' for r in row['inputReferences'])
+
+
+def test_unsupported_live_construct_never_becomes_a_textbox():
+    changed=copy.deepcopy(BY_NAME[NAME]);changed['inputSchema']['properties']['prompt']={'$ref':'https://foreign.invalid/schema'}
+    catalog=C.Classification([changed])
+    assert not catalog.is_classified(NAME)
+    refuse(lambda:catalog.input_schema(NAME,digest(changed),**BIND))
