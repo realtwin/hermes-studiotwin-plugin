@@ -146,10 +146,12 @@ class MediaCache:
         fd = os.open(path.anchor, os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
         stack.callback(os.close,fd)
         private = False
+        current = Path(path.anchor)
         for part in path.parent.parts[1:]:
+            current /= part
             fd = os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=fd)
             stack.callback(os.close,fd)
-            if Path(path.anchor,*path.parent.parts[1:path.parent.parts.index(part)+1]) == self.root:
+            if current == self.root:
                 private = True
             # The exact private subtree is also checked independently of names.
             info=os.fstat(fd)
@@ -236,7 +238,7 @@ class MediaCache:
         except (OSError,ValueError,TypeError):
             failed=True
             if path is not None:
-                path.unlink(missing_ok=True)
+                self._unlink(path)
         if failed:
             raise MediaRefused()
         return result
@@ -248,13 +250,53 @@ class MediaCache:
             pass
         return 'MEDIA:'+item.path
 
+    def _list(self, directory):
+        """Enumerate through a checked directory handle, never a followed link."""
+        failed=False
+        result=None
+        try:
+            with ExitStack() as stack:
+                if directory.resolve(strict=True) != directory:
+                    raise MediaRefused()
+                if self._windows is not None:
+                    current=self.root
+                    stack.enter_context(self._windows.directory(current))
+                    for part in directory.relative_to(self.root).parts:
+                        current /= part
+                        stack.enter_context(self._windows.directory(current))
+                    result=list(directory.iterdir())
+                else:
+                    fd=self._parent_fd(directory/'unused',stack)
+                    result=[directory/name for name in os.listdir(fd)]
+        except (OSError,ValueError):
+            failed=True
+        if failed:
+            raise MediaRefused()
+        return result
+
+    def _unlink(self, path):
+        with ExitStack() as stack:
+            if self._windows is not None:
+                current=self.root
+                stack.enter_context(self._windows.directory(current))
+                for part in path.parent.relative_to(self.root).parts:
+                    current /= part
+                    stack.enter_context(self._windows.directory(current))
+                path.unlink(missing_ok=True)
+            else:
+                fd=self._parent_fd(path,stack)
+                try:
+                    os.unlink(path.name,dir_fd=fd)
+                except FileNotFoundError:
+                    pass
+
     def evict(self, *, reserve=0):
         """No recursion through links. Unknown entries refuse, not invisible quota."""
         with self._lock:
             entries=[]
             scopes=self.root/'scopes'
             if scopes.exists():
-                for scope in scopes.iterdir():
+                for scope in self._list(scopes):
                     if not re.fullmatch('[0-9a-f]{64}',scope.name) or scope.is_symlink():
                         raise MediaRefused()
                     media=scope/'media'
@@ -262,7 +304,7 @@ class MediaCache:
                         continue
                     if media.is_symlink():
                         raise MediaRefused()
-                    for path in media.iterdir():
+                    for path in self._list(media):
                         info=path.lstat()
                         if (not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or
                                 not re.fullmatch(r'[pu]_[0-9a-f]{64}\.[a-z0-9]{2,5}',path.name)):
@@ -271,7 +313,7 @@ class MediaCache:
             total=sum(e[2] for e in entries)
             for modified,path,size,pinned,scope in sorted(entries):
                 if not pinned and (self.clock()-modified >= self.ttl or total+reserve > self.quota):
-                    path.unlink()
+                    self._unlink(path)
                     self.handles.invalidate_target(scope,str(path))
                     total-=size
             if total+reserve > self.quota:
@@ -288,10 +330,10 @@ class MediaCache:
                 return
             if media.is_symlink() or media.resolve(strict=True)!=media:
                 raise MediaRefused()
-            for path in media.iterdir():
+            for path in self._list(media):
                 if path.is_dir() and not path.is_symlink():
                     raise MediaRefused()
-                path.unlink()
+                self._unlink(path)
 
     def rotate(self, scope_id, generation):
         with self._lock:

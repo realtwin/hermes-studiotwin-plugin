@@ -108,6 +108,7 @@ class OutputPolicy:
     job_path: tuple | None = None
     upload_path: tuple | None = None
     fps: float | None = None
+    manifest: bool = False
 
 
 def _get(value, path):
@@ -170,7 +171,18 @@ class Mediator:
                     seen_paths.add(rule.path)
                     location=_get(raw,rule.path)
                     if location is _MISSING or location is None:
+                        if policy.group=='image_sequence':
+                            raise BoundaryRefused()
                         continue
+                    if policy.group=='material' and (rule.kind!='image' or not rule.mime.startswith('image/')):
+                        raise BoundaryRefused()
+                    if policy.group=='world' and ((rule.role=='worldMesh' and rule.kind!='model') or
+                            (rule.role=='skyMap' and rule.kind not in ('image','environment'))):
+                        raise BoundaryRefused()
+                    if policy.group=='image_sequence' and rule.role!='image':
+                        # Sequence manifests are generated locally below, not
+                        # trusted remote JSON (which may contain secret URLs).
+                        raise BoundaryRefused()
                     scheme=_location(location)
                     registry.location(location)
                     if rule.size is not None:
@@ -225,13 +237,29 @@ class Mediator:
                     resources.append(('upload',dict(resourceId='res_'+secrets.token_hex(16),kind='other',assetId=None,
                         libraryState='not-in-library',mime='application/json',source={'kind':'handle','handle':token},contentRoute=None)))
                 groups=self._groups(policy,resources)
+                if type(policy.manifest) is not bool:
+                    raise BoundaryRefused()
+                if policy.manifest:
+                    if policy.group!='image_sequence' or self.cache is None:
+                        raise BoundaryRefused()
+                    safe_group=validate_mediated_v1('gateway#/$defs/ResourceGroupV1',groups[0],
+                        scope_id=scope_id,generation=generation,sensitive_values=registry).to_json()
+                    payload=json.dumps({'fps':safe_group['fps'],'frames':safe_group['frames']},
+                        sort_keys=True,separators=(',',':')).encode()
+                    item=self.cache.put(scope_id=scope_id,generation=generation,data=payload,
+                        mime='application/json',kind='manifest',extension='.json')
+                    minted.append(item.handle)
+                    groups[0]['manifest']=dict(resourceId='res_'+secrets.token_hex(16),kind='manifest',assetId=None,
+                        libraryState='not-in-library',mime='application/json',source={'kind':'handle','handle':item.handle},
+                        contentRoute='/api/plugins/hermes-studiotwin/local/file?handle='+item.handle)
                 summary=_get(safe,policy.summary_path)
                 if summary is _MISSING or type(summary) is not str:
                     summary='Upstream result mediated.'
                 job_id=_get(safe,policy.job_path)
                 if job_id is _MISSING:
                     job_id=None
-                candidate=dict(protocol='studiotwin.gateway.v1',tool=policy.tool,status='ok',jobId=job_id,
+                candidate=dict(protocol='studiotwin.gateway.v1',tool=policy.tool,
+                    status='error' if type(raw) is dict and (raw.get('isError') is True or 'error' in raw) else 'ok',jobId=job_id,
                     assetIds=list(dict.fromkeys(d['assetId'] for _,d in resources if d['assetId'] is not None)),
                     media=media,summary=summary,operation=None,outputGroups=groups)
                 result=validate_mediated_v1('gateway#/$defs/GatewayResultV1',candidate,
