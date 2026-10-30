@@ -350,6 +350,7 @@ class GatewayRegistry:
             raise BoundaryRefused()
         self._classification = classification
         self._handlers = {}
+        self._contexts = {}
         self._lock = RLock()
 
     def add(self, name: str, handler: GatewayHandler) -> None:
@@ -363,6 +364,13 @@ class GatewayRegistry:
             if ([p.name for p in params] != ['context','inputs'] or
                     any(p.kind is not inspect.Parameter.KEYWORD_ONLY or p.default is not inspect.Parameter.empty for p in params)):
                 raise BoundaryRefused()
+            # Accept real identities or the exact canonical forward names; never
+            # eval arbitrary annotation expressions supplied by a leaf.
+            for actual,expected in ((params[0].annotation,GatewayCallContext),
+                                    (params[1].annotation,ValidatedCandidateInputs),
+                                    (signature.return_annotation,MediatedValue)):
+                if actual is not expected and actual != expected.__name__:
+                    raise BoundaryRefused()
         except (ValueError,TypeError):
             failed = True
         if failed:
@@ -402,5 +410,38 @@ class GatewayRegistry:
             if failed:
                 raise BoundaryRefused()
             return result
-        return GatewayCallContext(_factory=_FACTORY,scope_id=scope_id,generation=generation,
-                                   trusted_context=trusted_context,execute=bound)
+        context = GatewayCallContext(_factory=_FACTORY,scope_id=scope_id,generation=generation,
+                                      trusted_context=trusted_context,execute=bound)
+        with self._lock:
+            if len(self._contexts) >= 1024:
+                raise BoundaryRefused()
+            self._contexts[id(context)] = (name,context)
+        return context
+
+    async def invoke(self, name, *, context: GatewayCallContext,
+                     inputs: ValidatedCandidateInputs) -> MediatedValue:
+        row = self._classification._row(name)
+        with self._lock:
+            owned = self._contexts.get(id(context))
+            handler = self._handlers.get(name)
+        if (owned is None or owned[0] != name or owned[1] is not context or handler is None or
+                type(inputs) is not ValidatedCandidateInputs or inputs.tool != name or
+                inputs.schema_hash != row['schemaHash'] or inputs.scope_id != context.scope_id or
+                inputs.generation != context.generation or name not in capabilities.published_tools(None,[name])):
+            raise BoundaryRefused()
+        failed = False
+        result = None
+        try:
+            result = await handler(context=context,inputs=inputs)
+            if (type(result) is not MediatedValue or result.contract_ref != _RESULT_REF or
+                    result.scope_id != context.scope_id or result.generation != context.generation or
+                    result.value['tool'] != name):
+                raise BoundaryRefused()
+            result = redaction.validate_mediated_v1(_RESULT_REF,result.to_json(),
+                        scope_id=context.scope_id,generation=context.generation,
+                        sensitive_values=())  # bound execute already checked the current registry
+        except Exception:
+            failed = True
+        if failed:
+            raise BoundaryRefused()
+        return result
