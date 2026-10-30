@@ -863,9 +863,21 @@ def test_r1_q2_presentation_unknown_times_opus_and_quote_observation(docs):
         assert S.is_valid(ref, None, docs)
         assert S.is_valid(ref, "unparseable server timestamp", docs)
         assert not S.is_valid(ref, "https://private.invalid/t?X-Amz-Signature=fixture", docs)
-    ref = "dashboard#/components/schemas/AudioConvertRequestV1/properties/targetFormat"
+    ref = "dashboard#/components/schemas/LocalAudioConvertRequestV1/properties/targetFormat"
     assert S.is_valid(ref, "opus", docs)
     assert not S.is_valid(ref, "arbitrary-executable", docs)
+    asset = {"assetId": UUID, "category": "image", "name": "study", "mime": "image/png",
+             "source": "generated", "pinned": False, "createdAtMs": None,
+             "createdAtRaw": "unparseable server timestamp", "jobId": UUID,
+             "contentRoute": f"/api/plugins/hermes-studiotwin/assets/{UUID}/content",
+             "thumbnailRoute": f"/api/plugins/hermes-studiotwin/assets/{UUID}/thumbnail"}
+    job = {"jobId": UUID, "functionName": "text-to-environment-map", "status": "done",
+           "submittedAtMs": None, "submittedAtRaw": "unparseable server timestamp",
+           "terminalAtMs": None, "terminalAtRaw": None, "outputAssetIds": [UUID], "operationId": None}
+    assert S.errors("dashboard#/components/schemas/AssetV1", asset, docs) == []
+    assert S.errors("dashboard#/components/schemas/JobV1", job, docs) == []
+    conversion = {"contract": S.DASHBOARD_CONTRACT, "sourcePath": "/data/source.wav", "targetFormat": "opus"}
+    assert S.errors("dashboard#/components/schemas/LocalAudioConvertRequestV1", conversion, docs) == []
     ref = "dashboard#/components/schemas/QuotePreviewV1"
     assert S.errors(ref, quote_preview(observedAtMs=1793356500000), docs) == []
     assert not S.is_valid(ref, quote_preview(observedAtMs=-1), docs)
