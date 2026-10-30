@@ -102,6 +102,120 @@ def test_direct_submission_binding_survives_empty_or_multiple_recovery(harness):
     assert u.paid_calls==1
 
 
+@pytest.mark.parametrize('later',['multiple','not-visible'])
+@pytest.mark.parametrize('observation',['poll','observe'])
+def test_post_poll_provisional_recovery_refresh(harness,later,observation):
+    build,store,_,_=harness
+    fake,u,s,x,ctx,op,b=build('ambiguous_no_structured_content')
+    run(s.dispatch(x,ctx,op))
+    first=run(s.recover(op,b)).to_json()
+    job=fake.jobs[first['operation']['jobId']]
+    if observation=='poll':
+        run(s.poll(op,b))
+    else:
+        fake.clock_ms+=2000
+        observe(s,op,b,job)
+    assert store.get_operation(op,b)['state']=='AMBIGUOUS_UNRESOLVED'
+    if later=='multiple':
+        fake.call(H.NAME,x.to_json())
+        result=run(s.recover(op,b)).to_json()
+    else:
+        result=s.reconciler.recover(op,b,[]).to_json()
+    assert result['operation']['jobId'] is None
+    assert result['recovery']['state']==later
+    assert len(result['recovery']['candidates'])==(2 if later=='multiple' else 0)
+    assert result['recovery']['dispatchAllowed'] is False
+    assert store.get_operation(op,b)['state']=='AMBIGUOUS_UNRESOLVED'
+    assert result['operation']['reservationHeld'] is True
+    assert store.guard_used(H.SCOPE,'chat')==20
+    before=list(store._db.iterdump())
+    calls=sum(c['name']=='studiotwin_get_job_status' for c in fake.calls)
+    run(s.poll(op,b))
+    assert sum(c['name']=='studiotwin_get_job_status' for c in fake.calls)==calls
+    with pytest.raises(H.R.BoundaryRefused):
+        s.reconciler.observe(op,b,dict(jobId=job.uuid,status='done'))
+    assert list(store._db.iterdump())==before
+    for key in list(fake.jobs):
+        if key!=job.uuid: del fake.jobs[key]
+    restored=run(s.recover(op,b)).to_json()
+    assert restored['operation']['jobId']==job.uuid
+    assert restored['recovery']['state']=='matched'
+    run(s.poll(op,b)); run(s.dispatch(x,ctx,op))
+    assert sum(c['name']=='studiotwin_get_job_status' for c in fake.calls)==calls+1
+    assert u.paid_calls==1
+
+
+def test_legacy_post_poll_unknown_provisional_record_can_refresh(harness):
+    build,store,_,_=harness
+    fake,u,s,x,ctx,op,b=build('ambiguous_no_structured_content')
+    run(s.dispatch(x,ctx,op)); run(s.recover(op,b))
+    # Already persisted by pre-R2 observe(): provenance survives the lost state.
+    with store.transaction():
+        store._db.execute("UPDATE policy_operations SET state='UNKNOWN' WHERE operation_id=?",(op,))
+    result=s.reconciler.recover(op,b,[]).to_json()
+    assert result['operation']['jobId'] is None
+    assert result['recovery']['state']=='not-visible'
+    assert store.get_operation(op,b)['state']=='AMBIGUOUS_UNRESOLVED'
+
+
+def test_direct_submission_recovery_after_poll_is_unchanged(harness):
+    build,store,_,_=harness
+    fake,u,s,x,ctx,op,b=build()
+    job=run(s.dispatch(x,ctx,op)).to_json()['operation']['jobId']
+    run(s.poll(op,b))
+    before=s.reconciler.operation_state(op,b).to_json()
+    fake.call(H.NAME,x.to_json())
+    assert run(s.recover(op,b)).to_json()==before
+    assert s.reconciler.recover(op,b,[]).to_json()==before
+    assert s.reconciler.poll_target(op,b)==job
+    assert u.paid_calls==1
+
+
+@pytest.mark.parametrize('mode,actual,expected',[
+    ('interim-local',20,'SETTLED'),('interim-local',32,'SETTLED_OVERRUN'),
+    ('server-max-credits',32,'CAPABILITY_BREACH')])
+def test_provisional_verified_ledger_transition_stops_recovery(harness,mode,actual,expected):
+    build,store,_,_=harness
+    fake,u,s,x,ctx,op,b=build('ambiguous_no_structured_content',mode)
+    if mode=='server-max-credits': s.charge_policy.server_binding_verified=lambda *_:True
+    run(s.dispatch(x,ctx,op))
+    job=next(iter(fake.jobs.values()))
+    if mode=='server-max-credits':
+        # The fake persists injected max/token fields; recovery correlates the
+        # canonical effective inputs, not transport-only charge metadata.
+        s.reconciler.recover(op,b,[dict(uuid=job.uuid,functionName=x.tool,
+            inputs=x.to_json(),createdAt=job.created_ms)])
+    else:
+        run(s.recover(op,b))
+    run(s.poll(op,b))
+    job.cost=actual; fake.clock_ms+=2000
+    s.reconciler.ledger_verifier=ledger_verifier(fake)
+    result=observe(s,op,b,job,finalDebitCredits=actual,ledgerRef='fixture-ledger-'+job.uuid)
+    assert store.get_operation(op,b)['state']==expected
+    assert result['actualCost']['credits']==actual
+    assert result['reservationHeld']==(expected=='CAPABILITY_BREACH')
+    before=s.reconciler.operation_state(op,b).to_json()
+    assert s.reconciler.recover(op,b,[]).to_json()==before
+    assert run(s.recover(op,b)).to_json()==before
+    run(s.dispatch(x,ctx,op)); assert u.paid_calls==1
+
+
+def test_provisional_verified_refund_without_debit_remains_recoverable(harness):
+    build,store,_,_=harness
+    fake,u,s,x,ctx,op,b=build('ambiguous_no_structured_content')
+    run(s.dispatch(x,ctx,op)); run(s.recover(op,b))
+    job=next(iter(fake.jobs.values())); fake.clock_ms+=2000
+    fake._refund(job,job.cost); fake.clock_ms+=2000
+    s.reconciler.ledger_verifier=ledger_verifier(fake)
+    observe(s,op,b,job,status='queued',terminalAtMs=None)
+    result=observe(s,op,b,job,status='cancelled',refundedCredits=20,ledgerRef='fixture-ledger-'+job.uuid)
+    assert result['state']=='REFUNDED_VERIFIED' and result['reservationHeld']
+    assert result['finalDebit']=={'state':'unknown'}
+    assert store.get_operation(op,b)['state']=='AMBIGUOUS_UNRESOLVED'
+    assert s.reconciler.recover(op,b,[]).to_json()['operation']['jobId'] is None
+    assert u.paid_calls==1
+
+
 def ledger_verifier(fake):
     def verify(*,scope_id,generation,operation_id,job_id,kind,ref,credits):
         if scope_id!=H.SCOPE or generation!=1 or ref!='fixture-ledger-'+job_id: return False
