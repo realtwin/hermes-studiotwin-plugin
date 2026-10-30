@@ -1146,6 +1146,29 @@ def test_r1_q1_relational_invariants_have_concrete_negative_fixtures(docs):
     assert "overrun" in S.relational_violations(over)
 
 
+def test_r1_b4_form_mediation_checks_values_defaults_and_structural_limits(docs):
+    form = S.form_projection(catalog.tool("text-to-environment-map"))
+    good = {"contract": S.DASHBOARD_CONTRACT, "tool": "text-to-environment-map", "schemaHash": HASH,
+            "classification": "classified", "inputSchema": form}
+    ref = "dashboard#/components/schemas/ToolInputSchemaResponseV1"
+    assert S.validate_mediated_v1(ref, good, sensitive_values=frozenset(), docs=docs) == good
+    duplicate = copy.deepcopy(good)
+    duplicate["inputSchema"]["fields"].append(copy.deepcopy(form["fields"][0]))
+    wrong_default = copy.deepcopy(good)
+    next(f for f in wrong_default["inputSchema"]["fields"] if f["schema"]["kind"] == "string")["schema"]["defaultValue"] = 42
+    deep = {"kind": "string"}
+    for _ in range(10):
+        deep = {"kind": "array", "items": deep}
+    too_many = {"kind": "object", "fields": [
+        {"name": f"branch{i}", "required": False, "schema": {"kind": "object", "fields": [
+            {"name": f"leaf{j}", "required": False, "schema": {"kind": "string"}} for j in range(4)]}}
+        for i in range(64)]}
+    for bad in (duplicate, wrong_default, {**good, "inputSchema": deep}, {**good, "inputSchema": too_many}):
+        assert S.is_valid(ref, bad, docs)  # relations/whole-tree bounds need value-aware mediation
+        with pytest.raises(ValueError, match="^UNSAFE_PAYLOAD$"):
+            S.validate_mediated_v1(ref, bad, sensitive_values=frozenset(), docs=docs)
+
+
 # ----------------------------------------------------------------------- S02 fixtures vs contracts
 
 def _fixture(name):
