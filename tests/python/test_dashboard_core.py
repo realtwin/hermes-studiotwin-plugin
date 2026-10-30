@@ -395,3 +395,18 @@ def test_metadata_relational_id_and_scope_binding(tmp_path):
     with pytest.raises(R.BoundaryRefused): s.put('pause','current',pause,scope_id=SCOPE,generation=1)
     assert list(s.connection.iterdump())==before
     s.close()
+
+
+def test_rate_limiter_retires_idle_sessions_without_resetting_busy_budget():
+    P = importlib.import_module('s11_dashboard.proxy')
+    now = [0.0]
+    limits = P.SessionLimits(clock=lambda:now[0],capacity=1)
+    limits.acquire('old')
+    limits.release('old')
+    now[0]=61.0
+    limits.request('new')
+    assert 'old' not in limits.rows and 'new' in limits.rows
+    limits.acquire('new')
+    now[0]=122.0
+    with pytest.raises(P.ProxyRefused): limits.request('another')
+    limits.release('new')
