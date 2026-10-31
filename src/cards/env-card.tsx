@@ -23,9 +23,9 @@ export const cleanTool = (n: string) =>
     .replace(/_/g, "-");
 export const envTool = (n: string) => envTools.includes(cleanTool(n));
 export const nextEnvActions = [
-  ["Upscale Environment (10 cr)", "environment-map-upscale-cpu"],
-  ["Place Pano Stickers (15 cr)", "pano-sticker-placement"],
-  ["Composite Pano Stickers (20 cr)", "pano-stickers"],
+  ["Upscale Environment (estimate in chat)", "environment-map-upscale-cpu"],
+  ["Place Pano Stickers (1 cr)", "pano-sticker-placement"],
+  ["Composite Pano Stickers (estimate in chat)", "pano-stickers"],
   ["Generate 3D World (80 cr)", "environment-map-to-world"],
 ];
 export function workflowMessage(source: unknown, tool: string) {

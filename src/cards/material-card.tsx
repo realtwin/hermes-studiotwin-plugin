@@ -30,8 +30,8 @@ export const materialTools = [
 ];
 export const materialTool = (n: string) => materialTools.includes(cleanTool(n));
 export const nextMaterialActions = [
-  ["Extract PBR Maps from Texture (10 cr)", "texture-to-material"],
-  ["Generate Material Variation (10 cr)", "image-to-material"],
+  ["Extract PBR Maps from Texture (20 cr)", "texture-to-material"],
+  ["Generate Material Variation (estimate in chat)", "image-to-material"],
 ];
 export function parseMaterialMaps(value: unknown): MaterialMaps {
   const doc = resultObject(value),

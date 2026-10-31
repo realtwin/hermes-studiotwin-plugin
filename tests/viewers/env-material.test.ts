@@ -18,6 +18,7 @@ import {
   materialTool,
   registerMaterialCards,
   parseMaterialMaps,
+  nextMaterialActions,
 } from "../../src/cards/material-card.tsx";
 import { mapZip } from "../../src/viewers/material-download.ts";
 const fixture = (p: string) => readFileSync(resolve("tests/fixtures/media", p));
@@ -37,6 +38,33 @@ const sticker = {
   sourceAspect: 2,
 };
 describe("environment and material contracts", () => {
+  const costs = JSON.parse(readFileSync(resolve("plugin.json"), "utf8"))
+    .extensions["com.nousresearch.hermes"].servers.studiotwin.costs;
+  const tools = JSON.parse(
+    readFileSync(resolve("tests/fixtures/tools-list-2026-10-30.json"), "utf8"),
+  ).tools as { name: string; description: string }[];
+  const actions = [...nextEnvActions, ...nextMaterialActions];
+  it.each([
+    "pano-sticker-placement",
+    "texture-to-material",
+    "environment-map-to-world",
+  ])("grounds the fixed %s label in checked-in pricing", (tool) => {
+    const label = actions.find(([, name]) => name === tool)?.[0];
+    const description = tools.find(({ name }) => name === tool)?.description;
+    expect(typeof costs[tool]).toBe("number");
+    expect(description).toContain(`Costs ${costs[tool]} credits.`);
+    expect(label).toContain(`(${costs[tool]} cr)`);
+  });
+  it.each([
+    "environment-map-upscale-cpu",
+    "pano-stickers",
+    "image-to-material",
+  ])("requests an estimate instead of a flat price for %s", (tool) => {
+    const label = actions.find(([, name]) => name === tool)?.[0];
+    expect(costs[tool].note).toContain("Input-dependent");
+    expect(label).toContain("(estimate in chat)");
+    expect(label).not.toMatch(/\d+\s*(?:cr|credits)\b/i);
+  });
   it("decodes real Radiance and EXR pixels", async () => {
     for (const [file, width] of [
       ["equirect-64x32.hdr", 64],
@@ -332,12 +360,15 @@ it.skipIf(process.env.STUDIOTWIN_WEBGL_TEST !== "1")(
       await page.getByText("Next · review and approve in chat").click();
       await page
         .getByRole("button", {
-          name: "Upscale Environment (10 cr)",
+          name: "Upscale Environment (estimate in chat)",
           exact: true,
         })
         .click();
       expect(await page.evaluate(() => (window as any).prompts[0].id)).toBe(
         "origin",
+      );
+      expect(await page.evaluate(() => (window as any).prompts[0].text)).toContain(
+        "estimate the exact inputs and ask me to approve credits before submitting",
       );
       await page
         .getByRole("button", { name: "Load environment", exact: true })
