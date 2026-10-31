@@ -14,6 +14,7 @@
     "test:scaffold": "vitest run tests/scaffold/scaffold.test.ts --pool=forks --poolOptions.forks.singleFork=true"
   },
   "dependencies": {
+    "mp4box": "2.3.0",
     "three": "0.180.0"
   },
   "devDependencies": {
