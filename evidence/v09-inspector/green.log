@@ -1,0 +1,12 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v09
+
+ ✓ tests/visual/inspector-scroll.test.ts (2 tests) 6338ms
+   ✓ production bundle: wheel reaches inspector Next actions in light at 1000x700  3334ms
+   ✓ production bundle: wheel reaches inspector Next actions in dark at 1000x700  3001ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  15:46:33
+   Duration  7.00s (transform 90ms, setup 0ms, collect 390ms, tests 6.34s, environment 0ms, prepare 80ms)
+

@@ -230,8 +230,8 @@ export function AssetInspector({
         position: "fixed",
         inset: "4%",
         zIndex: 50,
-        overflow: "auto",
         ...cardShell,
+        overflow: "auto",
         padding: "clamp(16px, 3vw, 28px)",
         boxShadow: "var(--ui-shadow-dialog, 0 24px 80px var(--ui-stroke-secondary))",
       }}
