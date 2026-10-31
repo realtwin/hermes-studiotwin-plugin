@@ -25,17 +25,23 @@ export interface TaskCardProps {
   sessionId?: string | null
   fallback?: ReactNode
   pollInterval?: number
+  auto_rotate?: boolean
+  webgl_limit?: number
 }
 function CompletedMedia({
   ctx,
   info,
   scope,
   sessionId,
+  auto_rotate,
+  webgl_limit,
 }: {
   ctx: sdk.PluginContext
   info: Record<string, any>
   scope: MediaScope
   sessionId?: string | null
+  auto_rotate?: boolean
+  webgl_limit?: number
 }) {
   const output = object(info.outputs),
     history = conceptImages(info),
@@ -58,7 +64,7 @@ function CompletedMedia({
   if (output.videoUrl || (asset && ['video', 'image_sequence'].includes(type)))
     return <VideoCard ctx={ctx} scope={scope} source={asset ? { asset } : { url: output.videoUrl }} />
   if (asset && ['3d_model', 'animation'].includes(type))
-    return <ModelCard ctx={ctx} source={{ asset }} sessionId={sessionId} />
+    return <ModelCard ctx={ctx} source={{ asset }} sessionId={sessionId} auto_rotate={auto_rotate} webgl_limit={webgl_limit} />
   if (typeof output.audioClip === 'string' && /^https?:/.test(output.audioClip))
     return <audio aria-label="Completed audio" controls src={deliveryUrl(output.audioClip)} />
   const links = Object.entries(output).filter(
@@ -84,7 +90,7 @@ function CompletedMedia({
     </div>
   )
 }
-export function TaskCard({ ctx, id, kind = 'task', sessionId, fallback, pollInterval = 3000 }: TaskCardProps) {
+export function TaskCard({ ctx, id, kind = 'task', sessionId, fallback, pollInterval = 3000, auto_rotate, webgl_limit }: TaskCardProps) {
   const { scope, stale } = useMediaScope(ctx)
   const [failed, setFailed] = useState(false),
     [cancelled, setCancelled] = useState(false),
@@ -201,7 +207,7 @@ export function TaskCard({ ctx, id, kind = 'task', sessionId, fallback, pollInte
           Job failed. {typeof info?.error === 'string' ? info.error : 'Inspect the existing job before any paid retry.'}
         </p>
       )}
-      {done && info && <CompletedMedia ctx={ctx} info={info} scope={scope} sessionId={sessionId} />}
+      {done && info && <CompletedMedia ctx={ctx} info={info} scope={scope} sessionId={sessionId} auto_rotate={auto_rotate} webgl_limit={webgl_limit} />}
       {done && actions.data?.actions?.length ? (
         <details>
           <summary>Next · review and approve in chat</summary>

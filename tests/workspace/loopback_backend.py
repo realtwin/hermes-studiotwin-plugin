@@ -117,6 +117,12 @@ def main():
                 api._index().record(duplicate, asset=image['uuid'], kind='image')
                 return {'video': video['uuid'], 'image': image['uuid'], 'total': 209}
 
+            @app.post('/__test/completed-model/{kind}')
+            def completed_model(kind: str):
+                # Seed an existing terminal job; no generation or wallet operation.
+                fake.jobs[ids['done']].outputs = {'assetId': mesh, 'type': kind}
+                return {'id': ids['done']}
+
             @app.post('/__test/settings')
             async def update_settings(request: Request):
                 settings.update(await request.json())

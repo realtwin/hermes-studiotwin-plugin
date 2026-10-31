@@ -34,6 +34,19 @@ PYTHONPATH=/home/deploy/work/realtwin/hermes-studiotwin/reference/hermes-agent .
 git diff --exit-code c66dfcc HEAD -- tests/scaffold vite.config.ts vitest.config.ts src/sdk.d.ts package.json package-lock.json
 ```
 
+## Completed task/job remediation (t_093d28cc)
+
+Salt B1 correctly identified a missing nested path: `TaskCard` discarded the boundary's viewer options, and `CompletedMedia` created a model with defaults. Both now explicitly forward `auto_rotate` and `webgl_limit` into `ModelCard`, for both 3d_model and animation outputs. The viewer's existing per-instance manual override is unchanged.
+
+The byte-for-byte Desktop-bundle Chromium test now seeds a completed task/3d_model and job/animation through the existing loopback fixture (no generation submission). For each, it loads a direct companion model first, then mounts/loads the completed preview. It asserts configured rotation=false, one-context eviction in both directions, event-driven rotation=true, and manual rotation=false surviving subsequent false/true settings events. Disabling inline cards also removes the completed preview.
+
+- `completed-model-red.txt`: original bundle fails on completed preview rotation (expected false, received true).
+- `completed-model-mutation-limit.txt`: forwarding rotation but forcing the completed model limit to four fails because the companion is not evicted. Mutation reverted. Mounting the nested card only after the companion is live is important: simultaneous mounts can mask the wrong limit by effect ordering.
+- `completed-model-green.txt`: four bundle tests pass with the final source and rebuilt artifact; typecheck also passes.
+- Test config writes now wait for the preceding status refresh to settle, then verify the event-updated active query. This avoids rapid fixture writes racing an initial data-less in-flight query; no mocked settings/cache injection or production query bypass is used.
+
+Remediation exact-HEAD verification logs are generated after committing under ignored `.verification/v08b-remediation-*`, using the same commands above. Frozen paths remain unchanged. This remediation requires Salt review before approval.
+
 ## Limitations / next gate
 
 Chromium runs the real committed Desktop artifact against host SDK fixtures and a real loopback router/MCP/storage backend, not an installed live Desktop. Reference-host admission is not validation against current upstream main. No paid generation, authenticated cloud requests, live install, push, publish, merge or release authorization. Salt review t_33f9c62e is the next gate.

@@ -467,11 +467,15 @@ for (const legacy of [false, true])
       if (!legacy) {
         // Settings are changed in the real loopback host config, with the production event.
         const change = async (settings: Record<string, unknown>) => {
+          // Settle the preceding refresh before the next config write. Invalidating
+          // an initial (data-less) in-flight query cannot cancel its old response.
+          await h.page.waitForFunction(() => !(window as any).sdk.queryClient.getQueryCache().getAll().some((q:any)=>q.queryKey[2]==='/status' && q.state.fetchStatus==='fetching'));
           await h.page.evaluate(async settings => {
             const response = await fetch('/__test/settings', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(settings)});
             if (!response.ok) throw Error('settings failed');
             (window as any).emitEvent('plugin.hermes-studiotwin.settings.changed');
           }, settings);
+          await h.page.waitForFunction(settings => (window as any).sdk.queryClient.getQueryCache().getAll().filter((q:any)=>q.queryKey[2]==='/status' && q.getObserversCount()>0).every((q:any)=>q.state.fetchStatus==='idle' && Object.entries(settings).every(([key,value])=>q.state.data?.settings?.[key]===value)), settings);
         };
         await change({webgl_limit:1, auto_rotate:false});
         for (const kind of ['env','material']) {
@@ -517,6 +521,49 @@ for (const legacy of [false, true])
         // Already mounted rich viewers disappear without re-registration.
         await change({inline_cards:false});
         await browserExpect(h.page.getByText('model fallback',{exact:true})).toHaveCount(2);
+        await browserExpect(h.page.locator('canvas')).toHaveCount(0);
+        await change({inline_cards:true});
+        // Completed task/job previews must obey the same live settings as direct models.
+        for (const [kind, type] of [['task', '3d_model'], ['job', 'animation']]) {
+          await h.page.evaluate(async () => { (window as any).mount(null); await new Promise(requestAnimationFrame); });
+          await change({auto_rotate:false, webgl_limit:1});
+          await h.page.evaluate(async ({kind,type}) => {
+            const w=window as any, R=w.R;
+            const response=await fetch('/__test/completed-model/'+type,{method:'POST'});
+            if (!response.ok) throw Error('seed failed');
+            const {id}=await response.json();
+            const nested=w.registrations.find((r:any)=>r.data?.name==='studiotwin-'+kind).data.render;
+            const direct=w.registrations.find((r:any)=>r.data?.name==='studiotwin-model').data.render;
+            const companion=R.createElement('div',{key:'companion','data-companion-model':true},direct({attrs:{path:w.savedFixtures.model},streaming:false,source:'companion'}));
+            w.mountNested=()=>w.mount(R.createElement(R.Fragment,null,
+              R.createElement('div',{key:'nested','data-nested-model':kind},nested({attrs:{id},streaming:false,source:'nested '+kind,sessionId:'origin-chat'})),companion));
+            w.mount(R.createElement(R.Fragment,null,companion));
+          }, {kind,type});
+          const nested=h.page.locator('[data-nested-model]');
+          const companion=h.page.locator('[data-companion-model]');
+          await companion.getByRole('button',{name:'Click to load 3D',exact:true}).click();
+          await browserExpect(companion.locator('[data-model-stats]')).toContainText('triangles');
+          await h.page.evaluate(() => (window as any).mountNested());
+          // Loading nested second catches its default=4 resetting the shared context budget.
+          await nested.getByRole('button',{name:'Click to load 3D',exact:true}).click();
+          await browserExpect(nested.locator('[data-model-stats]')).toContainText('triangles');
+          const nestedSpin=nested.getByRole('button',{name:'Auto-rotate',exact:true});
+          await browserExpect(nestedSpin, kind+' initial configured rotation').toHaveAttribute('aria-pressed','false');
+          await browserExpect(companion.getByRole('button',{name:/Click to load 3D$/})).toHaveCount(1);
+          await browserExpect(h.page.locator('canvas')).toHaveCount(1);
+          await change({auto_rotate:true});
+          await browserExpect(nestedSpin).toHaveAttribute('aria-pressed','true');
+          await nestedSpin.click();
+          await change({auto_rotate:false});
+          await change({auto_rotate:true});
+          await browserExpect(nestedSpin, kind+' preserves manual override').toHaveAttribute('aria-pressed','false');
+          await companion.getByRole('button',{name:/Click to load 3D$/}).click();
+          await browserExpect(companion.locator('[data-model-stats]')).toContainText('triangles');
+          await browserExpect(nested.getByRole('button',{name:/Click to load 3D$/})).toHaveCount(1);
+          await browserExpect(h.page.locator('canvas')).toHaveCount(1);
+        }
+        await change({inline_cards:false});
+        await browserExpect(h.page.getByText('nested job',{exact:true})).toHaveCount(1);
         await browserExpect(h.page.locator('canvas')).toHaveCount(0);
         await h.page.evaluate(() => {
           const w = window as any, R=w.R;

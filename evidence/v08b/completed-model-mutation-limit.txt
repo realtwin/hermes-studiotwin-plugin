@@ -1,0 +1,56 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v08b
+
+ ❯ tests/bundle/plugin-bundle.test.ts (4 tests | 1 failed) 18218ms
+   ✓ ships a single compiled ESM artifact with only namespace SDK imports and allowed external modules  653ms
+   ✓ bundles the complete discoverable workflow skill and documents the manifest settings 3ms
+   × Chromium imports the committed bundle, registers and renders all surfaces (full SDK) 12780ms
+     → Error: expect(locator).toHaveCount(expected) failed
+
+Locator:  locator('[data-companion-model]').getByRole('button', { name: /Click to load 3D$/ })
+Expected: 1
+Received: 0
+Timeout:  5000ms
+
+Call log:
+  - Expect "toHaveCount" locator('[data-companion-model]').getByRole('button', { name: /Click to load 3D$/ }) with timeout 5000ms
+  - waiting for locator('[data-companion-model]').getByRole('button', { name: /Click to load 3D$/ })
+    14 × locator resolved to 0 elements
+       - unexpected value "0"
+
+Chromium errors: []
+   ✓ Chromium imports the committed bundle, registers and renders all surfaces (missing area/registration exports)  4780ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/bundle/plugin-bundle.test.ts > Chromium imports the committed bundle, registers and renders all surfaces (full SDK)
+Error: Error: expect(locator).toHaveCount(expected) failed
+
+Locator:  locator('[data-companion-model]').getByRole('button', { name: /Click to load 3D$/ })
+Expected: 1
+Received: 0
+Timeout:  5000ms
+
+Call log:
+  - Expect "toHaveCount" locator('[data-companion-model]').getByRole('button', { name: /Click to load 3D$/ }) with timeout 5000ms
+  - waiting for locator('[data-companion-model]').getByRole('button', { name: /Click to load 3D$/ })
+    14 × locator resolved to 0 elements
+       - unexpected value "0"
+
+Chromium errors: []
+ ❯ tests/bundle/plugin-bundle.test.ts:649:13
+    647|       expect(h.blocked).toEqual([]);
+    648|     } catch (error) {
+    649|       throw new Error(
+       |             ^
+    650|         String(error) + "\nChromium errors: " + JSON.stringify(h.error…
+    651|       );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  07:09:13
+   Duration  19.20s (transform 114ms, setup 0ms, collect 717ms, tests 18.22s, environment 0ms, prepare 73ms)
+
