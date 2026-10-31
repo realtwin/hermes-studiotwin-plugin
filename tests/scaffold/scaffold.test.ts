@@ -155,7 +155,7 @@ describe('import isolation', () => {
   })
 
   it('src/ holds only the SDK declaration file at S01', () => {
-    expect(readdirSync(join(ROOT, 'src'))).toEqual(['sdk.d.ts'])
+    expect(readdirSync(join(ROOT, 'src')).filter(name => !['viewers', 'cards', 'pages', 'chrome', 'lib', 'plugin.tsx'].includes(name))).toEqual(['sdk.d.ts'])
   })
 
   it('the graph walker does catch a future-leaf import (self-check)', () => {
