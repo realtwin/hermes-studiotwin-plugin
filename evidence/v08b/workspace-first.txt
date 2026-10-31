@@ -1,0 +1,52 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v08b
+
+ ❯ tests/workspace/workspace.test.ts (20 tests | 1 failed | 19 skipped) 12570ms
+   × Chromium: settings events change recent gallery page sizes, not complete-library paging or workspace previews 12569ms
+     → locator.click: Timeout 10000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: /Inspect.*character-mesh/ })
+
+   ↓ Chromium loopback backend: real router/MCP/storage, image decoding, local/cloud upload and pre-network validation
+   ↓ Chromium: registers the route, sidebar, six palette commands, and live credits/active-job chrome
+   ↓ Chromium: real library filters/search, model inspector, backend lineage and quoted Next actions address origin chat
+   ↓ Chromium: complete merged library beyond 100 rows supports late modality, search and inspection
+   ↓ Chromium: a failed later library page reports an error, not missing assets, and refresh retries all pages
+   ↓ Chromium: real job filters, queued-only cancellation and Inspect Output opens the real image viewer
+   ↓ Chromium: Concepts history/active badge and four composer-only workflows use the captured owner
+   ↓ Chromium: local selection and explicit cloud drop upload go through the real router without leaking presigned POST fields
+   ↓ Chromium: cached PBR, cloud HDR, rigged animation, audio and video open their real rich viewers
+   ↓ Chromium: every palette command and chip opens the requested registered workspace tab; settings toggle is live
+   ↓ Chromium: all four tabs inherit light/dark theme variables, with no hardcoded color styles
+   ↓ Chromium: profile switch permanently revokes captured workspace actions
+   ↓ Chromium: connectionId switch permanently revokes captured workspace actions
+   ↓ Chromium: pending upload cannot expose Use in Chat after profile changes away and back
+   ↓ Chromium: pending upload cannot expose Use in Chat after connectionId changes away and back
+   ↓ Chromium: file-read scope change refuses upload before network dispatch (profile)
+   ↓ Chromium: file-read scope change refuses upload before network dispatch (connectionId)
+   ↓ Chromium: missing key setup opens settings with optional settings door=true
+   ↓ Chromium: missing key setup opens settings with optional settings door=false
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workspace/workspace.test.ts > Chromium: settings events change recent gallery page sizes, not complete-library paging or workspace previews
+TimeoutError: locator.click: Timeout 10000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: /Inspect.*character-mesh/ })
+
+ ❯ tests/workspace/workspace.test.ts:59:67
+     57|   await page.getByRole('tab',{name:'Library',exact:true}).click();
+     58|   await page.waitForFunction(()=>(window as any).requests.some((r:any)…
+     59|   await page.getByRole('button',{name:/Inspect.*character-mesh/}).clic…
+       |                                                                   ^
+     60|   await page.getByRole('button',{name:'Click to load 3D',exact:true}).…
+     61|   const spin = page.getByRole('button',{name:'Auto-rotate',exact:true}…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 19 skipped (20)
+   Start at  06:41:37
+   Duration  13.21s (transform 114ms, setup 0ms, collect 401ms, tests 12.57s, environment 0ms, prepare 74ms)
+

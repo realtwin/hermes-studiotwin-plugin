@@ -1,4 +1,5 @@
 import * as sdk from "@hermes/plugin-sdk";
+import { connectSettings } from '../cards/settings.ts';
 import { useEffect, useState, type ReactNode } from "react";
 import { modelScopeKey } from "../viewers/model-source.ts";
 import { useMediaScope } from "../cards/next-actions.ts";
@@ -93,7 +94,9 @@ export function registerStatusbar(
     void sdk.queryClient.invalidateQueries({
       queryKey: ["studiotwin-workspace", modelScopeKey(sdk.host.state)],
     });
-  ctx.onEvent("plugin.hermes-studiotwin.settings.changed", refresh);
+  // Settings only change /status. Refetching asset detail here can replace an
+  // active cloud model source with its newly cached local path and dispose it.
+  connectSettings(ctx);
   ctx.onEvent("tool.complete", refresh);
   ctx.register({
     id: "studiotwin-credits",

@@ -34,6 +34,40 @@ afterEach(async () => {
   }
 });
 
+it('Chromium: settings events change recent gallery page sizes, not complete-library paging or workspace previews', async () => {
+  const {page} = await mount({tab:'Concepts'});
+  const change = async (settings: Record<string,unknown>) => {
+    await page.evaluate(async settings => {
+      await fetch('/__test/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(settings)});
+      (window as any).emitEvent('plugin.hermes-studiotwin.settings.changed');
+    },settings);
+  };
+  await page.waitForFunction(()=>(window as any).requests.some((r:any)=>r.path==='/concepts?limit=24&offset=0'));
+  await change({gallery_limit:1,inline_cards:false,auto_rotate:false,webgl_limit:1});
+  await page.waitForFunction(()=>(window as any).requests.some((r:any)=>r.path==='/concepts?limit=1&offset=0'));
+  await page.getByRole('tab',{name:'Jobs',exact:true}).click();
+  await page.waitForFunction(()=>(window as any).requests.some((r:any)=>r.path==='/jobs?limit=1&offset=0'));
+  await page.getByRole('button',{name:'Next jobs',exact:true}).click();
+  await browserExpect(page.getByText('Offset 1',{exact:true})).toBeVisible();
+  await change({gallery_limit:3});
+  await page.waitForFunction(()=>(window as any).requests.some((r:any)=>r.path==='/jobs?limit=3&offset=0'));
+  await browserExpect(page.getByText('Offset 0',{exact:true})).toBeVisible();
+  await page.getByRole('tab',{name:'Concepts',exact:true}).click();
+  await page.waitForFunction(()=>(window as any).requests.some((r:any)=>r.path==='/concepts?limit=3&offset=0'));
+  await page.getByRole('tab',{name:'Library',exact:true}).click();
+  await page.waitForFunction(()=>(window as any).requests.some((r:any)=>r.path.startsWith('/assets?') && r.path.includes('limit=100')));
+  await page.getByRole('button',{name:'crate.glb',exact:true}).click();
+  await page.getByRole('button',{name:'Click to load 3D',exact:true}).click();
+  const spin = page.getByRole('button',{name:'Auto-rotate',exact:true});
+  await browserExpect(spin).toHaveAttribute('aria-pressed','false');
+  await change({auto_rotate:true});
+  await browserExpect(spin).toHaveAttribute('aria-pressed','true');
+  await spin.click();
+  await change({auto_rotate:false});
+  await change({auto_rotate:true});
+  await browserExpect(spin).toHaveAttribute('aria-pressed','false');
+},60000);
+
 it("Chromium loopback backend: real router/MCP/storage, image decoding, local/cloud upload and pre-network validation", async () => {
   harness = await openWorkspace({ backendOnly: true });
   const { page } = harness;

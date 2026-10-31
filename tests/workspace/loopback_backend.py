@@ -62,7 +62,7 @@ def main():
             host_module('agent.secret_scope', get_secret=lambda name: remote.api_key if settings['configured'] else None)
             settings = {'configured': True, 'show_credits': True}
             host_module('hermes_cli.config', load_config_readonly=lambda: {'plugins': {'entries': {
-                'hermes-studiotwin': {'settings': {'api_base_url': remote.base, 'show_credits': settings['show_credits']}}}}})
+                'hermes-studiotwin': {'settings': {'api_base_url': remote.base, **settings}}}}})
             host_module('hermes_constants', get_hermes_home=lambda: home / '.hermes')
             spec = importlib.util.spec_from_file_location('workspace_plugin_api', ROOT / 'dashboard/plugin_api.py')
             api = importlib.util.module_from_spec(spec)
@@ -116,6 +116,11 @@ def main():
                 shutil.copyfile(local, duplicate)
                 api._index().record(duplicate, asset=image['uuid'], kind='image')
                 return {'video': video['uuid'], 'image': image['uuid'], 'total': 209}
+
+            @app.post('/__test/settings')
+            async def update_settings(request: Request):
+                settings.update(await request.json())
+                return settings
 
             @app.post('/__test/credits/{value}')
             def show_credits(value: str):

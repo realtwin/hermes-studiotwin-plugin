@@ -12,6 +12,7 @@ export interface ModelViewerProps {
   source: ModelSource
   height?: number | string
   webgl_limit?: number
+  auto_rotate?: boolean
   poster?: string
   fallback?: ReactNode
   onError?: (error: unknown) => void
@@ -24,6 +25,7 @@ export function ModelViewer({
   source,
   height = 320,
   webgl_limit = 4,
+  auto_rotate = true,
   poster,
   fallback,
   onError,
@@ -43,8 +45,9 @@ export function ModelViewer({
     [thumbnail, setThumbnail] = useState(poster)
   const [stats, setStats] = useState<ModelStats | null>(null),
     [mode, setMode] = useState<ShadingMode>('textured'),
-    [spin, setSpin] = useState(false),
+    [spinOverride, setSpin] = useState<boolean | null>(null),
     [grid, setGrid] = useState(true)
+  const spin = spinOverride ?? auto_rotate
   const [loadedAudit, setLoadedAudit] = useState<RigAudit | null>(null)
   const sourceKey = JSON.stringify(source)
   useEffect(() => setLoadedAudit(null), [sourceKey])

@@ -2,6 +2,7 @@
  * this module only contributes UI, using the active plugin backend via ctx.rest.
  */
 import * as sdk from '@hermes/plugin-sdk'
+import { inlineSettingsContext } from './cards/inline-settings.tsx'
 import { registerModelCards } from './cards/model-card.tsx'
 import { registerAudioCards } from './cards/audio-card.tsx'
 import { registerEnvCards } from './cards/env-card.tsx'
@@ -17,13 +18,14 @@ const plugin: sdk.HermesPlugin = {
   description: 'StudioTwin models, animation, environments, materials, images, audio and video in one creative workspace.',
   defaultEnabled: false,
   register(ctx) {
-    registerModelCards(ctx)
-    registerAudioCards(ctx)
-    registerEnvCards(ctx)
-    registerMaterialCards(ctx)
-    registerImageCards(ctx)
-    registerVideoCards(ctx)
-    registerTaskCards(ctx)
+    const cards = inlineSettingsContext(ctx)
+    registerModelCards(cards)
+    registerAudioCards(cards)
+    registerEnvCards(cards)
+    registerMaterialCards(cards)
+    registerImageCards(cards)
+    registerVideoCards(cards)
+    registerTaskCards(cards)
     registerWorkspaceAndChrome(ctx)
   },
 }

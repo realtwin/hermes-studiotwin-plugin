@@ -1,4 +1,5 @@
 import * as sdk from "@hermes/plugin-sdk";
+import { connectSettings, useStudioTwinSettings } from '../cards/settings.ts';
 import { useEffect, useState } from "react";
 import { useMediaScope } from "../cards/next-actions.ts";
 import { LibraryTab } from "./library-tab.tsx";
@@ -29,6 +30,8 @@ export function StudioTwinPage({
   navigation?: WorkspaceNavigation;
 }) {
   const { scope, stale } = useMediaScope(ctx);
+  useEffect(() => connectSettings(ctx), [ctx]);
+  const settings = useStudioTwinSettings(scope);
   const [tab, setTab] = useState<WorkspaceTab>(navigation?.get() ?? initialTab),
     [selected, setSelected] = useState<Row | null>(null);
   const [session] = useState(
@@ -164,7 +167,7 @@ export function StudioTwinPage({
           selected={selected}
           onClose={() => setSelected(null)}
           session={session}
-          limit={status.data?.settings?.webgl_limit}
+          limit={settings.webgl_limit}
         />
       )}
     </main>

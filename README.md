@@ -119,7 +119,7 @@ hermes config set plugins.entries.hermes-studiotwin.settings.webgl_limit 2
 hermes config set plugins.entries.hermes-studiotwin.settings.blender_handoff never
 ```
 
-The complete `plugin.json` configuration surface (declared defaults, not a claim that every viewer consumes every setting):
+The complete `plugin.json` configuration surface and manifest defaults:
 
 | Key | Type / default | Purpose / accepted values |
 |---|---|---|
@@ -133,7 +133,7 @@ The complete `plugin.json` configuration surface (declared defaults, not a claim
 | `blender_handoff` | str / `ask` | Offer new local Blender project: `ask`, `always`, `never` |
 | `blender_path` | str / empty | Full Blender executable path; empty finds it on PATH |
 
-Current settings boundary: `show_credits` is live in Desktop chrome; workspace inspection consumes `webgl_limit`, while inline viewers retain their four-context default. `inline_cards`, `auto_rotate` and `gallery_limit` are declared settings but are not yet wired across the assembled UI. Disable the Desktop half to suppress all custom cards; the library intentionally reads all pages so filtering is complete. Blender settings guide the workflow skill, not permission to overwrite a scene or decimate without an approved budget. There is no hidden model/audio-format/session-cap setting: per-call controls come from live MCP schemas.
+Current settings boundary: `show_credits` is live in Desktop chrome. Settings refresh from the scoped `/status` cache on the settings-changed event without reloading. `inline_cards=false` restores the host's tool-media fallback and plain directive text; the workspace, sidebar, palette and statusbar remain available. `auto_rotate` initializes inline and workspace model viewers; a viewer's manual toggle overrides it locally. `webgl_limit` (clamped 1–4) applies to inline model/environment/material viewers and workspace inspectors. `gallery_limit` (clamped 1–100) controls recent Concepts/Jobs page sizes, resetting their offset when changed; the library intentionally reads all 100-row pages so filtering stays complete, and the active-job chip still counts all pages. Missing or malformed settings use the manifest defaults. Blender settings guide the workflow skill, not permission to overwrite a scene or decimate without an approved budget. There is no hidden model/audio-format/session-cap setting: per-call controls come from live MCP schemas.
 
 ## Files, provenance and local helpers
 

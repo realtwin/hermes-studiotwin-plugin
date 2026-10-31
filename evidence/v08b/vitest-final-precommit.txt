@@ -1,0 +1,52 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v08b
+
+ ✓ tests/bundle/plugin-bundle.test.ts (4 tests) 12239ms
+   ✓ ships a single compiled ESM artifact with only namespace SDK imports and allowed external modules  699ms
+   ✓ Chromium imports the committed bundle, registers and renders all surfaces (full SDK)  7128ms
+   ✓ Chromium imports the committed bundle, registers and renders all surfaces (missing area/registration exports)  4406ms
+ ✓ tests/viewers/model-animation.test.ts (13 tests) 10205ms
+   ✓ mounted viewers enforce cap and animate through real WebGL  3206ms
+   ✓ standalone errors survive disposal and recover only on retry or source replacement  6962ms
+stderr | tests/viewers/env-material.test.ts > environment and material contracts > decodes real Radiance and EXR pixels
+RGBELoader has been deprecated. Please use HDRLoader instead.
+
+ ✓ tests/viewers/env-material.test.ts (13 tests) 5693ms
+   ✓ mounted real Chromium WebGL environment and five-map material, lifecycle and scoped cards  5677ms
+ ✓ tests/workspace/workspace.test.ts (20 tests) 51609ms
+   ✓ Chromium: settings events change recent gallery page sizes, not complete-library paging or workspace previews  2780ms
+   ✓ Chromium loopback backend: real router/MCP/storage, image decoding, local/cloud upload and pre-network validation  1427ms
+   ✓ Chromium: registers the route, sidebar, six palette commands, and live credits/active-job chrome  1980ms
+   ✓ Chromium: real library filters/search, model inspector, backend lineage and quoted Next actions address origin chat  3213ms
+   ✓ Chromium: complete merged library beyond 100 rows supports late modality, search and inspection  3794ms
+   ✓ Chromium: a failed later library page reports an error, not missing assets, and refresh retries all pages  2381ms
+   ✓ Chromium: real job filters, queued-only cancellation and Inspect Output opens the real image viewer  2582ms
+   ✓ Chromium: Concepts history/active badge and four composer-only workflows use the captured owner  2388ms
+   ✓ Chromium: local selection and explicit cloud drop upload go through the real router without leaking presigned POST fields  2443ms
+   ✓ Chromium: cached PBR, cloud HDR, rigged animation, audio and video open their real rich viewers  4303ms
+   ✓ Chromium: every palette command and chip opens the requested registered workspace tab; settings toggle is live  2798ms
+   ✓ Chromium: all four tabs inherit light/dark theme variables, with no hardcoded color styles  2377ms
+   ✓ Chromium: profile switch permanently revokes captured workspace actions  2593ms
+   ✓ Chromium: connectionId switch permanently revokes captured workspace actions  2605ms
+   ✓ Chromium: pending upload cannot expose Use in Chat after profile changes away and back  2172ms
+   ✓ Chromium: pending upload cannot expose Use in Chat after connectionId changes away and back  2293ms
+   ✓ Chromium: file-read scope change refuses upload before network dispatch (profile)  2286ms
+   ✓ Chromium: file-read scope change refuses upload before network dispatch (connectionId)  2346ms
+   ✓ Chromium: missing key setup opens settings with optional settings door=true  2477ms
+   ✓ Chromium: missing key setup opens settings with optional settings door=false  2369ms
+ ✓ tests/scaffold/scaffold.test.ts (19 tests) 3147ms
+   ✓ @hermes/plugin-sdk declarations > typechecks the declarations, configs and the SDK usage contract with the locked TypeScript  3135ms
+ ✓ tests/viewers/video-timing.test.ts (6 tests) 17ms
+ ✓ tests/viewers/settings.test.ts (2 tests) 1ms
+ ✓ tests/viewers/image-video-task.test.ts (17 tests) 8539ms
+   ✓ Chromium: registered and completed 6-fps video decoded steps, image inspection, sequence, jobs and invalidation  3990ms
+   ✓ Chromium: registered and completed 10-fps video decoded steps, image inspection, sequence, jobs and invalidation  3760ms
+ ✓ tests/viewers/audio.test.ts (20 tests) 2118ms
+   ✓ Chromium: real WAV/MP3 decode, canvas resize/theme, audition, seek, download and scope invalidation  1328ms
+ ✓ tests/viewers/catalog-routing.test.ts (33 tests) 90ms
+
+ Test Files  10 passed (10)
+      Tests  147 passed (147)
+   Start at  06:51:28
+   Duration  97.74s (transform 861ms, setup 0ms, collect 3.01s, tests 93.66s, environment 533ms, prepare 143ms)
+

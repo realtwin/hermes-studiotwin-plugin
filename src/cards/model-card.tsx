@@ -46,6 +46,7 @@ export interface ModelCardProps {
   fallback?: ReactNode
   title?: string
   webgl_limit?: number
+  auto_rotate?: boolean
   scopeState?: ModelScopeState
   audit?: RigAudit
   downloads?: { label: string; source: ModelSource }[]
@@ -57,6 +58,7 @@ export function ModelCard({
   fallback,
   title,
   webgl_limit,
+  auto_rotate,
   scopeState = sdk.host.state,
   audit,
   downloads
@@ -127,6 +129,7 @@ export function ModelCard({
           rest={scope.rest}
           source={source}
           webgl_limit={webgl_limit}
+          auto_rotate={auto_rotate}
           fallback={fallback}
           onError={fail}
           audit={audit}

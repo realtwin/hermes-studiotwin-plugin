@@ -1,5 +1,6 @@
 import * as sdk from "@hermes/plugin-sdk";
-import { useRef, useState } from "react";
+import { useStudioTwinSettings } from '../cards/settings.ts';
+import { useEffect, useRef, useState } from "react";
 import { jobStatus } from "../cards/task-card.tsx";
 import { object, type MediaScope } from "../cards/next-actions.ts";
 import {
@@ -32,9 +33,11 @@ export function JobsTab({
     [busy, setBusy] = useState(""),
     [error, setError] = useState("");
   const lock = useRef(false);
+  const { gallery_limit: limit } = useStudioTwinSettings(scope);
+  useEffect(() => setOffset(0), [limit]);
   const query = useWorkspaceQuery(
     scope,
-    `/jobs?limit=24&offset=${offset}`,
+    `/jobs?limit=${limit}&offset=${offset}`,
     configured,
     5000,
   );
@@ -187,14 +190,14 @@ export function JobsTab({
       <nav aria-label="Job pages" style={flow}>
         <sdk.Button
           disabled={offset === 0}
-          onClick={() => setOffset(Math.max(0, offset - 24))}
+          onClick={() => setOffset(Math.max(0, offset - limit))}
         >
           Previous jobs
         </sdk.Button>
         <span>Offset {offset}</span>
         <sdk.Button
-          disabled={rows.length < 24}
-          onClick={() => setOffset(offset + 24)}
+          disabled={rows.length < limit}
+          onClick={() => setOffset(offset + limit)}
         >
           Next jobs
         </sdk.Button>

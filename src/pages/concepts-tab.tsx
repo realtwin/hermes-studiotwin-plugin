@@ -1,5 +1,6 @@
 import * as sdk from "@hermes/plugin-sdk";
-import { useState } from "react";
+import { useStudioTwinSettings } from '../cards/settings.ts';
+import { useEffect, useState } from "react";
 import { conceptImages } from "../cards/image-card.tsx";
 import { ImageViewer } from "../viewers/image-viewer.tsx";
 import { object, type MediaScope } from "../cards/next-actions.ts";
@@ -91,9 +92,11 @@ export function ConceptsTab({
 }) {
   const [selected, setSelected] = useState<Row | null>(null),
     [offset, setOffset] = useState(0);
+  const { gallery_limit: limit } = useStudioTwinSettings(scope);
+  useEffect(() => setOffset(0), [limit]);
   const query = useWorkspaceQuery(
       scope,
-      `/concepts?limit=24&offset=${offset}`,
+      `/concepts?limit=${limit}&offset=${offset}`,
       configured,
     ),
     rows = list(query.data, "concepts");
@@ -132,13 +135,13 @@ export function ConceptsTab({
       <nav aria-label="Concept pages">
         <sdk.Button
           disabled={offset === 0}
-          onClick={() => setOffset(Math.max(0, offset - 24))}
+          onClick={() => setOffset(Math.max(0, offset - limit))}
         >
           Previous Concepts
         </sdk.Button>
         <sdk.Button
-          disabled={rows.length < 24}
-          onClick={() => setOffset(offset + 24)}
+          disabled={rows.length < limit}
+          onClick={() => setOffset(offset + limit)}
         >
           Next Concepts
         </sdk.Button>

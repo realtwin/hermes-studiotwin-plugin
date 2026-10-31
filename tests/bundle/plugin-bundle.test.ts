@@ -127,7 +127,7 @@ it("bundles the complete discoverable workflow skill and documents the manifest 
 // Supply host-owned modules separately. The production artifact is served byte-for-byte,
 // never transformed/rebundled against the SDK fixture: missing ESM exports must fail here.
 const hostSource = `
-export {createElement,useId,useState,useEffect,useRef,useSyncExternalStore} from 'react';
+export {createElement,cloneElement,isValidElement,useId,useState,useEffect,useRef,useSyncExternalStore} from 'react';
 export {jsx,jsxs,Fragment} from 'react/jsx-runtime';
 export {createRoot} from 'react-dom/client';
 export {QueryClient,QueryClientProvider,useQuery,useMutation,useQueryClient} from '@tanstack/react-query';
@@ -204,6 +204,9 @@ for (const legacy of [false, true])
         w.notifications = [];
         w.registrations = [];
         w.disposers = [];
+        w.events = {};
+        w.emitEvent = (type: string) => (w.events[type] || []).forEach((fn: any) => fn({type}));
+        w.savedFixtures = {};
         const ctx = {
           source: "bundle-test",
           register: (r: any) => {
@@ -211,7 +214,7 @@ for (const legacy of [false, true])
             return () => {};
           },
           onDispose: (f: any) => w.disposers.push(f),
-          onEvent: () => () => {},
+          onEvent: (type: string, fn: any) => { (w.events[type] ??= []).push(fn); return () => {}; },
           os: { openExternal: async () => true, revealPath: async () => true },
           rest: async (path: string, opts: any = {}) => {
             const response = await fetch(
@@ -356,6 +359,7 @@ for (const legacy of [false, true])
           },
         ).then((r: any) => r.json());
         expect(saved.path).toBeTruthy();
+        await h.page.evaluate(({kind,path}) => { (window as any).savedFixtures[kind] = path }, {kind,path:saved.path});
         for (const mode of legacy ? ["directive"] : ["directive", "media"]) {
           await h.page.evaluate(async () => {
             (window as any).mount(null);
@@ -429,6 +433,7 @@ for (const legacy of [false, true])
             await browserExpect(
               h.page.locator("[data-model-stats]"),
             ).toContainText("triangles");
+            await browserExpect(h.page.getByRole('button', {name:'Auto-rotate',exact:true})).toHaveAttribute('aria-pressed','true');
           } else if (kind === "image")
             await browserExpect(h.page.locator("img").first()).toBeVisible();
           else if (kind === "video")
@@ -458,6 +463,71 @@ for (const legacy of [false, true])
             h.page.getByText("unexpected media fallback", { exact: true }),
           ).toHaveCount(0);
         }
+      }
+      if (!legacy) {
+        // Settings are changed in the real loopback host config, with the production event.
+        const change = async (settings: Record<string, unknown>) => {
+          await h.page.evaluate(async settings => {
+            const response = await fetch('/__test/settings', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(settings)});
+            if (!response.ok) throw Error('settings failed');
+            (window as any).emitEvent('plugin.hermes-studiotwin.settings.changed');
+          }, settings);
+        };
+        await change({webgl_limit:1, auto_rotate:false});
+        for (const kind of ['env','material']) {
+          await h.page.evaluate(kind => {
+            const w=window as any, R=w.R, path=w.savedFixtures[kind];
+            const render=w.registrations.find((r:any)=>r.id==='studiotwin-'+kind+'-media').data.render;
+            w.mount(R.createElement(R.Fragment,null,...[0,1].map(i=>R.createElement('div',{key:kind+i},render({
+              toolName:kind==='env'?'mcp__studiotwin__text-to-environment-map':'mcp__studiotwin__text-to-material',
+              toolCallId:kind+i,file:{path,name:path.split('/').at(-1),kind:'image'},args:{},
+              result:kind==='material'?{maps:{albedo:{path}}}:{},fallback:R.createElement('p',null,'unexpected limited fallback')
+            })))));
+          },kind);
+          const load=h.page.getByRole('button',{name:kind==='env'?/Load environment$/:/Load material$/});
+          await load.first().click();
+          await browserExpect(h.page.getByRole('toolbar',{name:kind==='env'?'Environment controls':'Material controls'})).toHaveCount(1);
+          await load.click();
+          await browserExpect(load).toHaveCount(1);
+          await browserExpect(h.page.getByRole('toolbar',{name:kind==='env'?'Environment controls':'Material controls'})).toHaveCount(1);
+          await browserExpect(h.page.locator('canvas')).toHaveCount(1);
+          await browserExpect(h.page.getByText('unexpected limited fallback',{exact:true})).toHaveCount(0);
+        }
+        await h.page.evaluate(() => {
+          const w = window as any, R = w.R;
+          const render = w.registrations.find((r:any)=>r.id==='studiotwin-model-media').data.render;
+          w.mount(R.createElement(R.Fragment,null,...[0,1].map(i=>R.createElement('div',{key:i},render({
+            toolName:'mcp__studiotwin__image_to_3d_mesh', toolCallId:'pool-'+i,
+            file:{path:w.savedFixtures.model,name:'static-cube.glb',kind:'file'},args:{},result:{},fallback:R.createElement('p',null,'model fallback')
+          })))));
+        });
+        await h.page.getByRole('button',{name:'Click to load 3D',exact:true}).first().click();
+        await browserExpect(h.page.getByRole('button',{name:'Auto-rotate',exact:true})).toHaveAttribute('aria-pressed','false');
+        await h.page.getByRole('button',{name:'Click to load 3D',exact:true}).click();
+        await browserExpect(h.page.getByRole('button',{name:/Click to load 3D$/})).toHaveCount(1);
+        await browserExpect(h.page.locator('[data-model-stats]')).toHaveCount(1);
+        await browserExpect(h.page.locator('canvas')).toHaveCount(1);
+        await change({auto_rotate:true});
+        const spin = h.page.getByRole('button',{name:'Auto-rotate',exact:true});
+        await browserExpect(spin).toHaveAttribute('aria-pressed','true');
+        await spin.click();
+        await change({auto_rotate:false});
+        await change({auto_rotate:true});
+        await browserExpect(spin).toHaveAttribute('aria-pressed','false');
+        // Already mounted rich viewers disappear without re-registration.
+        await change({inline_cards:false});
+        await browserExpect(h.page.getByText('model fallback',{exact:true})).toHaveCount(2);
+        await browserExpect(h.page.locator('canvas')).toHaveCount(0);
+        await h.page.evaluate(() => {
+          const w = window as any, R=w.R;
+          w.mount(R.createElement(R.Fragment,null,...w.registrations.filter((r:any)=>r.data?.tools).map((r:any)=>
+            R.createElement('div',{key:r.id},r.data.render({toolName:r.data.tools[0],file:{path:w.savedFixtures.image,name:'image.png',kind:'image'},args:{},result:{},fallback:R.createElement('p',null,'disabled '+r.id)}))),
+            ...w.registrations.filter((r:any)=>r.data?.name?.startsWith('studiotwin-')).map((r:any)=>
+              R.createElement('div',{key:r.id},r.data.render({attrs:{path:w.savedFixtures.model},streaming:false,source:'plain '+r.data.name})))));
+        });
+        await browserExpect(h.page.getByText(/^disabled studiotwin-/)).toHaveCount(6);
+        await browserExpect(h.page.getByText(/^plain studiotwin-/)).toHaveCount(9);
+        await change({inline_cards:true,auto_rotate:true,webgl_limit:4});
       }
       const state = await h.state();
       for (const [kind, id] of [

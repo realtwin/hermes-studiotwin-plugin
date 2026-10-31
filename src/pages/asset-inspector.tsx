@@ -1,4 +1,5 @@
 import * as sdk from "@hermes/plugin-sdk";
+import { useStudioTwinSettings } from '../cards/settings.ts';
 import { useEffect, useRef, useState } from "react";
 import { ModelViewer } from "../viewers/model-viewer.tsx";
 import { AnimationViewer } from "../viewers/animation-viewer.tsx";
@@ -36,6 +37,7 @@ export function AssetPreview({
   session?: string | null;
   limit?: number;
 }) {
+  const settings = useStudioTwinSettings(scope);
   const source = assetSource(row),
     kind = modality(row),
     fallback = (
@@ -49,6 +51,7 @@ export function AssetPreview({
         rest={scope.rest}
         source={source}
         webgl_limit={limit}
+        auto_rotate={settings.auto_rotate}
         fallback={fallback}
       />
     );
@@ -58,6 +61,7 @@ export function AssetPreview({
         rest={scope.rest}
         source={source}
         webgl_limit={limit}
+        auto_rotate={settings.auto_rotate}
         fallback={fallback}
       />
     );

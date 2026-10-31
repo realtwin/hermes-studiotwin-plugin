@@ -49,7 +49,7 @@ See [README](README.md#files-provenance-and-local-helpers) and the [bundled skil
 
 ## Settings, failures and removal
 
-Current settings boundary: `show_credits` is live; workspace inspection uses `webgl_limit`, while inline viewers keep their four-context default. `inline_cards`, `auto_rotate` and `gallery_limit` are declared but not yet wired across the UI. Disable the Desktop half to suppress custom cards.
+Current settings boundary: `show_credits` is live. Settings refresh on the settings-changed event without reload. `inline_cards=false` restores tool-media fallbacks and plain directive text, without disabling workspace/navigation/chrome. `auto_rotate` initializes inline and workspace model viewers; a manual viewer toggle overrides it locally. Clamped `webgl_limit` applies to inline model/environment/material viewers and workspace inspectors. Clamped `gallery_limit` sets recent Concepts/Jobs page sizes (offset resets on change), not the library's complete-filter 100-row paging or the active-job count. Missing/malformed values use manifest defaults.
 
 Desktop settings include `api_key`, `api_base_url`, `show_credits`, `inline_cards`, `auto_rotate`, `webgl_limit` (1–4, default 4), `gallery_limit` (1–100, default 24), `blender_handoff` (ask/always/never, default ask) and `blender_path` (empty: PATH). Nonsecrets use `plugins.entries.hermes-studiotwin.settings.*`; the key maps to `STUDIOTWIN_API_KEY`. The [README settings table](README.md#settings) lists every default.
 
