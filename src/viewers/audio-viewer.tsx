@@ -87,6 +87,7 @@ export function AudioViewer({ ctx, source, scope, sessionId, dataUrl, prompt = '
         if (!live) return
         assertScope(scope)
         if (dataUrl) payload.bytes = atob(dataUrl.split(',')[1]).length
+        transport.load(buffer)
         setReady({ buffer, wave: peaks(buffer), payload })
       } catch { fail() }
     })()

@@ -4,7 +4,7 @@ import { readFileSync, existsSync } from 'node:fs'
 import { chromium } from '@playwright/test'
 import { execFileSync } from 'node:child_process'
 import { createElement } from 'react'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { PluginContext } from '@hermes/plugin-sdk'
 
 const owner = vi.hoisted(() => ({ profile: 'alpha', connection: 'local', listeners: new Set<() => void>(), submit: vi.fn((_session: string, _text: string) => true) }))
@@ -128,6 +128,25 @@ describe('scope and Next actions', () => {
 })
 
 describe('rendered audio card', () => {
+  it.each(['mouse', 'keyboard'])('honors cold %s seek visibly and on first playback without autoplay', async input => {
+    const create = vi.spyOn(TestContext.prototype, 'createBufferSource')
+    render(createElement(AudioCard, { ctx: context(), source: { path: '/cache/a.wav' }, sessionId: 's' }))
+    await screen.findByRole('button', { name: 'Play' })
+    const wave = screen.getByRole('slider')
+    expect(create).not.toHaveBeenCalled()
+    if (input === 'mouse') {
+      vi.spyOn(wave, 'getBoundingClientRect').mockReturnValue({ left: 10, width: 200 } as DOMRect)
+      fireEvent.click(wave, { clientX: 110 })
+    } else fireEvent.keyDown(wave, { key: 'ArrowRight' })
+    const percent = input === 'mouse' ? 50 : 5
+    const offset = .25 * percent / 100
+    await waitFor(() => expect(wave.getAttribute('aria-valuenow')).toBe(String(percent)))
+    expect(screen.getByText(`${offset.toFixed(2)} / 0.25 s`)).toBeTruthy()
+    expect(create).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { name: 'Play' }))
+    await screen.findByRole('button', { name: 'Pause' })
+    expect(create.mock.results[0].value.start).toHaveBeenCalledWith(0, offset)
+  })
   it('loads, draws a theme canvas, exposes badges, audition and format downloads', async () => {
     render(createElement(AudioCard, { ctx: context(), source: { path: '/cache/a.wav' }, sessionId: 's', fallback: 'fallback' }))
     await screen.findByRole('button', { name: 'Play' })
@@ -207,7 +226,9 @@ it.skipIf(!existsSync(systemChrome) && !existsSync(chromium.executablePath()))('
       import React from 'react'; import {createRoot} from 'react-dom/client';
       import {AudioCard} from './src/cards/audio-card.tsx';
       import {decodeAudio,peaks} from './src/viewers/audio-engine.ts';
-      window.decoded = [];
+      window.decoded = []; window.starts = [];
+      const start = AudioBufferSourceNode.prototype.start;
+      AudioBufferSourceNode.prototype.start = function(...args) { window.starts.push(args); return start.apply(this,args) };
       const a = new AudioContext();
       for (const url of window.urls) {
         const b = await decodeAudio(url,a); window.decoded.push({duration:b.duration, rate:b.sampleRate, peak:Math.max(...peaks(b))});
@@ -247,9 +268,21 @@ it.skipIf(!existsSync(systemChrome) && !existsSync(chromium.executablePath()))('
     const canvas = page.getByRole('slider')
     expect(await canvas.evaluate((c: HTMLCanvasElement) => c.width)).toBeGreaterThan(500)
     expect(await canvas.evaluate((c: HTMLCanvasElement) => Array.from(c.getContext('2d')!.getImageData(0, 0, c.width, c.height).data).some(n => n !== 0))).toBe(true)
+    // Both gestures run on a decoded, never-played card. Observe native start offsets too.
+    expect(await page.evaluate(() => (window as any).starts)).toEqual([])
+    await canvas.focus(); await page.keyboard.press('ArrowRight')
+    await page.waitForFunction(() => document.querySelector('canvas')!.getAttribute('aria-valuenow') === '5')
+    await page.getByText('0.01 / 0.25 s', { exact: true }).waitFor()
+    const bounds = (await canvas.boundingBox())!
+    await canvas.click({ position: { x: bounds.width / 2, y: 32 } })
+    await page.waitForFunction(() => document.querySelector('canvas')!.getAttribute('aria-valuenow') === '50')
+    expect(await page.evaluate(() => (window as any).starts)).toEqual([])
     await page.getByRole('button', { name: 'Loop audition' }).click()
     await page.getByRole('button', { name: 'Play', exact: true }).click()
     await page.getByRole('button', { name: 'Pause', exact: true }).waitFor()
+    const starts = await page.evaluate(() => (window as any).starts)
+    expect(starts).toHaveLength(1)
+    expect(starts[0][0]).toBe(0); expect(starts[0][1]).toBeCloseTo(.125, 4)
     await canvas.click({ position: { x: 100, y: 30 } })
     await page.getByRole('button', { name: 'Pause', exact: true }).click()
     await canvas.focus(); await page.keyboard.press('Home')

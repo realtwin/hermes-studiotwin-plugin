@@ -70,6 +70,12 @@ export class AudioPlayer {
   private disposed = false
   loop = false
   constructor(readonly context: AudioContext) {}
+  /** Initialize paused transport state as soon as decoding completes; never starts audio. */
+  load(buffer: AudioBuffer): void {
+    if (this.disposed) return
+    this.pause()
+    this.buffer = buffer; this.offset = 0
+  }
   get playing() { return this.source !== null }
   position(): number {
     if (!this.buffer) return 0
