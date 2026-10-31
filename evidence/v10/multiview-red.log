@@ -1,0 +1,1513 @@
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF                                          [100%]
+=================================== FAILURES ===================================
+_______________ test_real_multiview[textured-4-static-cube.glb] ________________
+
+tmp_path = PosixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_textured_40')
+model = 'static-cube.glb', views = 4, shading = 'textured'
+
+    @pytest.mark.parametrize('model', ['static-cube.glb', 'rigged-animated.glb'])
+    @pytest.mark.parametrize('views', [4, 6])
+    @pytest.mark.parametrize('shading', ['textured', 'clay', 'normals', 'wireframe'])
+    def test_real_multiview(tmp_path, model, views, shading):
+        assert shutil.which('node') and Path(CHROME).is_file()
+        source = MEDIA / model
+        original = source.read_bytes()
+        sheet = tmp_path / 'sheet.png'
+        split = tmp_path / 'tiles'
+>       result, data = run(source, '--out', sheet, '--split-dir', split, '--views', views,
+                           '--shading', shading, '--tile-size', 128, '--transparent', '--no-labels', '--chrome', CHROME)
+
+tests/python/test_multiview_script.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/static-cube.glb'), '...mes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_textured_40/tiles'), '--views', ...)
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+_____________ test_real_multiview[textured-4-rigged-animated.glb] ______________
+
+tmp_path = PosixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_textured_41')
+model = 'rigged-animated.glb', views = 4, shading = 'textured'
+
+    @pytest.mark.parametrize('model', ['static-cube.glb', 'rigged-animated.glb'])
+    @pytest.mark.parametrize('views', [4, 6])
+    @pytest.mark.parametrize('shading', ['textured', 'clay', 'normals', 'wireframe'])
+    def test_real_multiview(tmp_path, model, views, shading):
+        assert shutil.which('node') and Path(CHROME).is_file()
+        source = MEDIA / model
+        original = source.read_bytes()
+        sheet = tmp_path / 'sheet.png'
+        split = tmp_path / 'tiles'
+>       result, data = run(source, '--out', sheet, '--split-dir', split, '--views', views,
+                           '--shading', shading, '--tile-size', 128, '--transparent', '--no-labels', '--chrome', CHROME)
+
+tests/python/test_multiview_script.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/rigged-animated.glb'...mes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_textured_41/tiles'), '--views', ...)
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+_______________ test_real_multiview[textured-6-static-cube.glb] ________________
+
+tmp_path = PosixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_textured_60')
+model = 'static-cube.glb', views = 6, shading = 'textured'
+
+    @pytest.mark.parametrize('model', ['static-cube.glb', 'rigged-animated.glb'])
+    @pytest.mark.parametrize('views', [4, 6])
+    @pytest.mark.parametrize('shading', ['textured', 'clay', 'normals', 'wireframe'])
+    def test_real_multiview(tmp_path, model, views, shading):
+        assert shutil.which('node') and Path(CHROME).is_file()
+        source = MEDIA / model
+        original = source.read_bytes()
+        sheet = tmp_path / 'sheet.png'
+        split = tmp_path / 'tiles'
+>       result, data = run(source, '--out', sheet, '--split-dir', split, '--views', views,
+                           '--shading', shading, '--tile-size', 128, '--transparent', '--no-labels', '--chrome', CHROME)
+
+tests/python/test_multiview_script.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/static-cube.glb'), '...mes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_textured_60/tiles'), '--views', ...)
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+_____________ test_real_multiview[textured-6-rigged-animated.glb] ______________
+
+tmp_path = PosixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_textured_61')
+model = 'rigged-animated.glb', views = 6, shading = 'textured'
+
+    @pytest.mark.parametrize('model', ['static-cube.glb', 'rigged-animated.glb'])
+    @pytest.mark.parametrize('views', [4, 6])
+    @pytest.mark.parametrize('shading', ['textured', 'clay', 'normals', 'wireframe'])
+    def test_real_multiview(tmp_path, model, views, shading):
+        assert shutil.which('node') and Path(CHROME).is_file()
+        source = MEDIA / model
+        original = source.read_bytes()
+        sheet = tmp_path / 'sheet.png'
+        split = tmp_path / 'tiles'
+>       result, data = run(source, '--out', sheet, '--split-dir', split, '--views', views,
+                           '--shading', shading, '--tile-size', 128, '--transparent', '--no-labels', '--chrome', CHROME)
+
+tests/python/test_multiview_script.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/rigged-animated.glb'...mes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_textured_61/tiles'), '--views', ...)
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+_________________ test_real_multiview[clay-4-static-cube.glb] __________________
+
+tmp_path = PosixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_clay_4_sta0')
+model = 'static-cube.glb', views = 4, shading = 'clay'
+
+    @pytest.mark.parametrize('model', ['static-cube.glb', 'rigged-animated.glb'])
+    @pytest.mark.parametrize('views', [4, 6])
+    @pytest.mark.parametrize('shading', ['textured', 'clay', 'normals', 'wireframe'])
+    def test_real_multiview(tmp_path, model, views, shading):
+        assert shutil.which('node') and Path(CHROME).is_file()
+        source = MEDIA / model
+        original = source.read_bytes()
+        sheet = tmp_path / 'sheet.png'
+        split = tmp_path / 'tiles'
+>       result, data = run(source, '--out', sheet, '--split-dir', split, '--views', views,
+                           '--shading', shading, '--tile-size', 128, '--transparent', '--no-labels', '--chrome', CHROME)
+
+tests/python/test_multiview_script.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/static-cube.glb'), '...mes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_clay_4_sta0/tiles'), '--views', ...)
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+_______________ test_real_multiview[clay-4-rigged-animated.glb] ________________
+
+tmp_path = PosixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_clay_4_rig0')
+model = 'rigged-animated.glb', views = 4, shading = 'clay'
+
+    @pytest.mark.parametrize('model', ['static-cube.glb', 'rigged-animated.glb'])
+    @pytest.mark.parametrize('views', [4, 6])
+    @pytest.mark.parametrize('shading', ['textured', 'clay', 'normals', 'wireframe'])
+    def test_real_multiview(tmp_path, model, views, shading):
+        assert shutil.which('node') and Path(CHROME).is_file()
+        source = MEDIA / model
+        original = source.read_bytes()
+        sheet = tmp_path / 'sheet.png'
+        split = tmp_path / 'tiles'
+>       result, data = run(source, '--out', sheet, '--split-dir', split, '--views', views,
+                           '--shading', shading, '--tile-size', 128, '--transparent', '--no-labels', '--chrome', CHROME)
+
+tests/python/test_multiview_script.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/rigged-animated.glb'...mes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_clay_4_rig0/tiles'), '--views', ...)
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+_________________ test_real_multiview[clay-6-static-cube.glb] __________________
+
+tmp_path = PosixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_clay_6_sta0')
+model = 'static-cube.glb', views = 6, shading = 'clay'
+
+    @pytest.mark.parametrize('model', ['static-cube.glb', 'rigged-animated.glb'])
+    @pytest.mark.parametrize('views', [4, 6])
+    @pytest.mark.parametrize('shading', ['textured', 'clay', 'normals', 'wireframe'])
+    def test_real_multiview(tmp_path, model, views, shading):
+        assert shutil.which('node') and Path(CHROME).is_file()
+        source = MEDIA / model
+        original = source.read_bytes()
+        sheet = tmp_path / 'sheet.png'
+        split = tmp_path / 'tiles'
+>       result, data = run(source, '--out', sheet, '--split-dir', split, '--views', views,
+                           '--shading', shading, '--tile-size', 128, '--transparent', '--no-labels', '--chrome', CHROME)
+
+tests/python/test_multiview_script.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/static-cube.glb'), '...mes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_clay_6_sta0/tiles'), '--views', ...)
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+_______________ test_real_multiview[clay-6-rigged-animated.glb] ________________
+
+tmp_path = PosixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_clay_6_rig0')
+model = 'rigged-animated.glb', views = 6, shading = 'clay'
+
+    @pytest.mark.parametrize('model', ['static-cube.glb', 'rigged-animated.glb'])
+    @pytest.mark.parametrize('views', [4, 6])
+    @pytest.mark.parametrize('shading', ['textured', 'clay', 'normals', 'wireframe'])
+    def test_real_multiview(tmp_path, model, views, shading):
+        assert shutil.which('node') and Path(CHROME).is_file()
+        source = MEDIA / model
+        original = source.read_bytes()
+        sheet = tmp_path / 'sheet.png'
+        split = tmp_path / 'tiles'
+>       result, data = run(source, '--out', sheet, '--split-dir', split, '--views', views,
+                           '--shading', shading, '--tile-size', 128, '--transparent', '--no-labels', '--chrome', CHROME)
+
+tests/python/test_multiview_script.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/rigged-animated.glb'...mes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_clay_6_rig0/tiles'), '--views', ...)
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+________________ test_real_multiview[normals-4-static-cube.glb] ________________
+
+tmp_path = PosixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_normals_4_0')
+model = 'static-cube.glb', views = 4, shading = 'normals'
+
+    @pytest.mark.parametrize('model', ['static-cube.glb', 'rigged-animated.glb'])
+    @pytest.mark.parametrize('views', [4, 6])
+    @pytest.mark.parametrize('shading', ['textured', 'clay', 'normals', 'wireframe'])
+    def test_real_multiview(tmp_path, model, views, shading):
+        assert shutil.which('node') and Path(CHROME).is_file()
+        source = MEDIA / model
+        original = source.read_bytes()
+        sheet = tmp_path / 'sheet.png'
+        split = tmp_path / 'tiles'
+>       result, data = run(source, '--out', sheet, '--split-dir', split, '--views', views,
+                           '--shading', shading, '--tile-size', 128, '--transparent', '--no-labels', '--chrome', CHROME)
+
+tests/python/test_multiview_script.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/static-cube.glb'), '...mes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_normals_4_0/tiles'), '--views', ...)
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+______________ test_real_multiview[normals-4-rigged-animated.glb] ______________
+
+tmp_path = PosixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_normals_4_1')
+model = 'rigged-animated.glb', views = 4, shading = 'normals'
+
+    @pytest.mark.parametrize('model', ['static-cube.glb', 'rigged-animated.glb'])
+    @pytest.mark.parametrize('views', [4, 6])
+    @pytest.mark.parametrize('shading', ['textured', 'clay', 'normals', 'wireframe'])
+    def test_real_multiview(tmp_path, model, views, shading):
+        assert shutil.which('node') and Path(CHROME).is_file()
+        source = MEDIA / model
+        original = source.read_bytes()
+        sheet = tmp_path / 'sheet.png'
+        split = tmp_path / 'tiles'
+>       result, data = run(source, '--out', sheet, '--split-dir', split, '--views', views,
+                           '--shading', shading, '--tile-size', 128, '--transparent', '--no-labels', '--chrome', CHROME)
+
+tests/python/test_multiview_script.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/rigged-animated.glb'...mes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_normals_4_1/tiles'), '--views', ...)
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+________________ test_real_multiview[normals-6-static-cube.glb] ________________
+
+tmp_path = PosixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_normals_6_0')
+model = 'static-cube.glb', views = 6, shading = 'normals'
+
+    @pytest.mark.parametrize('model', ['static-cube.glb', 'rigged-animated.glb'])
+    @pytest.mark.parametrize('views', [4, 6])
+    @pytest.mark.parametrize('shading', ['textured', 'clay', 'normals', 'wireframe'])
+    def test_real_multiview(tmp_path, model, views, shading):
+        assert shutil.which('node') and Path(CHROME).is_file()
+        source = MEDIA / model
+        original = source.read_bytes()
+        sheet = tmp_path / 'sheet.png'
+        split = tmp_path / 'tiles'
+>       result, data = run(source, '--out', sheet, '--split-dir', split, '--views', views,
+                           '--shading', shading, '--tile-size', 128, '--transparent', '--no-labels', '--chrome', CHROME)
+
+tests/python/test_multiview_script.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/static-cube.glb'), '...mes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_normals_6_0/tiles'), '--views', ...)
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+______________ test_real_multiview[normals-6-rigged-animated.glb] ______________
+
+tmp_path = PosixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_normals_6_1')
+model = 'rigged-animated.glb', views = 6, shading = 'normals'
+
+    @pytest.mark.parametrize('model', ['static-cube.glb', 'rigged-animated.glb'])
+    @pytest.mark.parametrize('views', [4, 6])
+    @pytest.mark.parametrize('shading', ['textured', 'clay', 'normals', 'wireframe'])
+    def test_real_multiview(tmp_path, model, views, shading):
+        assert shutil.which('node') and Path(CHROME).is_file()
+        source = MEDIA / model
+        original = source.read_bytes()
+        sheet = tmp_path / 'sheet.png'
+        split = tmp_path / 'tiles'
+>       result, data = run(source, '--out', sheet, '--split-dir', split, '--views', views,
+                           '--shading', shading, '--tile-size', 128, '--transparent', '--no-labels', '--chrome', CHROME)
+
+tests/python/test_multiview_script.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/rigged-animated.glb'...mes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_normals_6_1/tiles'), '--views', ...)
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+_______________ test_real_multiview[wireframe-4-static-cube.glb] _______________
+
+tmp_path = PosixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_wireframe_0')
+model = 'static-cube.glb', views = 4, shading = 'wireframe'
+
+    @pytest.mark.parametrize('model', ['static-cube.glb', 'rigged-animated.glb'])
+    @pytest.mark.parametrize('views', [4, 6])
+    @pytest.mark.parametrize('shading', ['textured', 'clay', 'normals', 'wireframe'])
+    def test_real_multiview(tmp_path, model, views, shading):
+        assert shutil.which('node') and Path(CHROME).is_file()
+        source = MEDIA / model
+        original = source.read_bytes()
+        sheet = tmp_path / 'sheet.png'
+        split = tmp_path / 'tiles'
+>       result, data = run(source, '--out', sheet, '--split-dir', split, '--views', views,
+                           '--shading', shading, '--tile-size', 128, '--transparent', '--no-labels', '--chrome', CHROME)
+
+tests/python/test_multiview_script.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/static-cube.glb'), '...mes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_wireframe_0/tiles'), '--views', ...)
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+_____________ test_real_multiview[wireframe-4-rigged-animated.glb] _____________
+
+tmp_path = PosixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_wireframe_1')
+model = 'rigged-animated.glb', views = 4, shading = 'wireframe'
+
+    @pytest.mark.parametrize('model', ['static-cube.glb', 'rigged-animated.glb'])
+    @pytest.mark.parametrize('views', [4, 6])
+    @pytest.mark.parametrize('shading', ['textured', 'clay', 'normals', 'wireframe'])
+    def test_real_multiview(tmp_path, model, views, shading):
+        assert shutil.which('node') and Path(CHROME).is_file()
+        source = MEDIA / model
+        original = source.read_bytes()
+        sheet = tmp_path / 'sheet.png'
+        split = tmp_path / 'tiles'
+>       result, data = run(source, '--out', sheet, '--split-dir', split, '--views', views,
+                           '--shading', shading, '--tile-size', 128, '--transparent', '--no-labels', '--chrome', CHROME)
+
+tests/python/test_multiview_script.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/rigged-animated.glb'...mes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_wireframe_1/tiles'), '--views', ...)
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+_______________ test_real_multiview[wireframe-6-static-cube.glb] _______________
+
+tmp_path = PosixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_wireframe_2')
+model = 'static-cube.glb', views = 6, shading = 'wireframe'
+
+    @pytest.mark.parametrize('model', ['static-cube.glb', 'rigged-animated.glb'])
+    @pytest.mark.parametrize('views', [4, 6])
+    @pytest.mark.parametrize('shading', ['textured', 'clay', 'normals', 'wireframe'])
+    def test_real_multiview(tmp_path, model, views, shading):
+        assert shutil.which('node') and Path(CHROME).is_file()
+        source = MEDIA / model
+        original = source.read_bytes()
+        sheet = tmp_path / 'sheet.png'
+        split = tmp_path / 'tiles'
+>       result, data = run(source, '--out', sheet, '--split-dir', split, '--views', views,
+                           '--shading', shading, '--tile-size', 128, '--transparent', '--no-labels', '--chrome', CHROME)
+
+tests/python/test_multiview_script.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/static-cube.glb'), '...mes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_wireframe_2/tiles'), '--views', ...)
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+_____________ test_real_multiview[wireframe-6-rigged-animated.glb] _____________
+
+tmp_path = PosixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_wireframe_3')
+model = 'rigged-animated.glb', views = 6, shading = 'wireframe'
+
+    @pytest.mark.parametrize('model', ['static-cube.glb', 'rigged-animated.glb'])
+    @pytest.mark.parametrize('views', [4, 6])
+    @pytest.mark.parametrize('shading', ['textured', 'clay', 'normals', 'wireframe'])
+    def test_real_multiview(tmp_path, model, views, shading):
+        assert shutil.which('node') and Path(CHROME).is_file()
+        source = MEDIA / model
+        original = source.read_bytes()
+        sheet = tmp_path / 'sheet.png'
+        split = tmp_path / 'tiles'
+>       result, data = run(source, '--out', sheet, '--split-dir', split, '--views', views,
+                           '--shading', shading, '--tile-size', 128, '--transparent', '--no-labels', '--chrome', CHROME)
+
+tests/python/test_multiview_script.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/rigged-animated.glb'...mes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_real_multiview_wireframe_3/tiles'), '--views', ...)
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+________________________ test_invalid_arguments[args0] _________________________
+
+args = []
+
+    @pytest.mark.parametrize('args', [[], ['--views', '5'], ['--views', 'NaN'], ['--shading', 'bad'],
+        ['--tile-size', 'NaN'], ['--tile-size', '0'], ['--tile-size', '128.5'], ['--tile-size', '4096'],
+        ['--out', 'bad.jpg'], ['--unknown'], ['--out'], ['--views', '--transparent']])
+    def test_invalid_arguments(args):
+>       result, data = run(*([MEDIA/'static-cube.glb'] if args else []), *args)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/python/test_multiview_script.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = ()
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+________________________ test_invalid_arguments[args1] _________________________
+
+args = ['--views', '5']
+
+    @pytest.mark.parametrize('args', [[], ['--views', '5'], ['--views', 'NaN'], ['--shading', 'bad'],
+        ['--tile-size', 'NaN'], ['--tile-size', '0'], ['--tile-size', '128.5'], ['--tile-size', '4096'],
+        ['--out', 'bad.jpg'], ['--unknown'], ['--out'], ['--views', '--transparent']])
+    def test_invalid_arguments(args):
+>       result, data = run(*([MEDIA/'static-cube.glb'] if args else []), *args)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/python/test_multiview_script.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/static-cube.glb'), '--views', '5')
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+________________________ test_invalid_arguments[args2] _________________________
+
+args = ['--views', 'NaN']
+
+    @pytest.mark.parametrize('args', [[], ['--views', '5'], ['--views', 'NaN'], ['--shading', 'bad'],
+        ['--tile-size', 'NaN'], ['--tile-size', '0'], ['--tile-size', '128.5'], ['--tile-size', '4096'],
+        ['--out', 'bad.jpg'], ['--unknown'], ['--out'], ['--views', '--transparent']])
+    def test_invalid_arguments(args):
+>       result, data = run(*([MEDIA/'static-cube.glb'] if args else []), *args)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/python/test_multiview_script.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/static-cube.glb'), '--views', 'NaN')
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+________________________ test_invalid_arguments[args3] _________________________
+
+args = ['--shading', 'bad']
+
+    @pytest.mark.parametrize('args', [[], ['--views', '5'], ['--views', 'NaN'], ['--shading', 'bad'],
+        ['--tile-size', 'NaN'], ['--tile-size', '0'], ['--tile-size', '128.5'], ['--tile-size', '4096'],
+        ['--out', 'bad.jpg'], ['--unknown'], ['--out'], ['--views', '--transparent']])
+    def test_invalid_arguments(args):
+>       result, data = run(*([MEDIA/'static-cube.glb'] if args else []), *args)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/python/test_multiview_script.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/static-cube.glb'), '--shading', 'bad')
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+________________________ test_invalid_arguments[args4] _________________________
+
+args = ['--tile-size', 'NaN']
+
+    @pytest.mark.parametrize('args', [[], ['--views', '5'], ['--views', 'NaN'], ['--shading', 'bad'],
+        ['--tile-size', 'NaN'], ['--tile-size', '0'], ['--tile-size', '128.5'], ['--tile-size', '4096'],
+        ['--out', 'bad.jpg'], ['--unknown'], ['--out'], ['--views', '--transparent']])
+    def test_invalid_arguments(args):
+>       result, data = run(*([MEDIA/'static-cube.glb'] if args else []), *args)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/python/test_multiview_script.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/static-cube.glb'), '--tile-size', 'NaN')
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+________________________ test_invalid_arguments[args5] _________________________
+
+args = ['--tile-size', '0']
+
+    @pytest.mark.parametrize('args', [[], ['--views', '5'], ['--views', 'NaN'], ['--shading', 'bad'],
+        ['--tile-size', 'NaN'], ['--tile-size', '0'], ['--tile-size', '128.5'], ['--tile-size', '4096'],
+        ['--out', 'bad.jpg'], ['--unknown'], ['--out'], ['--views', '--transparent']])
+    def test_invalid_arguments(args):
+>       result, data = run(*([MEDIA/'static-cube.glb'] if args else []), *args)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/python/test_multiview_script.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/static-cube.glb'), '--tile-size', '0')
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+________________________ test_invalid_arguments[args6] _________________________
+
+args = ['--tile-size', '128.5']
+
+    @pytest.mark.parametrize('args', [[], ['--views', '5'], ['--views', 'NaN'], ['--shading', 'bad'],
+        ['--tile-size', 'NaN'], ['--tile-size', '0'], ['--tile-size', '128.5'], ['--tile-size', '4096'],
+        ['--out', 'bad.jpg'], ['--unknown'], ['--out'], ['--views', '--transparent']])
+    def test_invalid_arguments(args):
+>       result, data = run(*([MEDIA/'static-cube.glb'] if args else []), *args)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/python/test_multiview_script.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/static-cube.glb'), '--tile-size', '128.5')
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+________________________ test_invalid_arguments[args7] _________________________
+
+args = ['--tile-size', '4096']
+
+    @pytest.mark.parametrize('args', [[], ['--views', '5'], ['--views', 'NaN'], ['--shading', 'bad'],
+        ['--tile-size', 'NaN'], ['--tile-size', '0'], ['--tile-size', '128.5'], ['--tile-size', '4096'],
+        ['--out', 'bad.jpg'], ['--unknown'], ['--out'], ['--views', '--transparent']])
+    def test_invalid_arguments(args):
+>       result, data = run(*([MEDIA/'static-cube.glb'] if args else []), *args)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/python/test_multiview_script.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/static-cube.glb'), '--tile-size', '4096')
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+________________________ test_invalid_arguments[args8] _________________________
+
+args = ['--out', 'bad.jpg']
+
+    @pytest.mark.parametrize('args', [[], ['--views', '5'], ['--views', 'NaN'], ['--shading', 'bad'],
+        ['--tile-size', 'NaN'], ['--tile-size', '0'], ['--tile-size', '128.5'], ['--tile-size', '4096'],
+        ['--out', 'bad.jpg'], ['--unknown'], ['--out'], ['--views', '--transparent']])
+    def test_invalid_arguments(args):
+>       result, data = run(*([MEDIA/'static-cube.glb'] if args else []), *args)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/python/test_multiview_script.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/static-cube.glb'), '--out', 'bad.jpg')
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+________________________ test_invalid_arguments[args9] _________________________
+
+args = ['--unknown']
+
+    @pytest.mark.parametrize('args', [[], ['--views', '5'], ['--views', 'NaN'], ['--shading', 'bad'],
+        ['--tile-size', 'NaN'], ['--tile-size', '0'], ['--tile-size', '128.5'], ['--tile-size', '4096'],
+        ['--out', 'bad.jpg'], ['--unknown'], ['--out'], ['--views', '--transparent']])
+    def test_invalid_arguments(args):
+>       result, data = run(*([MEDIA/'static-cube.glb'] if args else []), *args)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/python/test_multiview_script.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/static-cube.glb'), '--unknown')
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+________________________ test_invalid_arguments[args10] ________________________
+
+args = ['--out']
+
+    @pytest.mark.parametrize('args', [[], ['--views', '5'], ['--views', 'NaN'], ['--shading', 'bad'],
+        ['--tile-size', 'NaN'], ['--tile-size', '0'], ['--tile-size', '128.5'], ['--tile-size', '4096'],
+        ['--out', 'bad.jpg'], ['--unknown'], ['--out'], ['--views', '--transparent']])
+    def test_invalid_arguments(args):
+>       result, data = run(*([MEDIA/'static-cube.glb'] if args else []), *args)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/python/test_multiview_script.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/static-cube.glb'), '--out')
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+________________________ test_invalid_arguments[args11] ________________________
+
+args = ['--views', '--transparent']
+
+    @pytest.mark.parametrize('args', [[], ['--views', '5'], ['--views', 'NaN'], ['--shading', 'bad'],
+        ['--tile-size', 'NaN'], ['--tile-size', '0'], ['--tile-size', '128.5'], ['--tile-size', '4096'],
+        ['--out', 'bad.jpg'], ['--unknown'], ['--out'], ['--views', '--transparent']])
+    def test_invalid_arguments(args):
+>       result, data = run(*([MEDIA/'static-cube.glb'] if args else []), *args)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/python/test_multiview_script.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/static-cube.glb'), '--views', '--transparent')
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+_______________________________ test_no_clobber ________________________________
+
+tmp_path = PosixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_no_clobber0')
+
+    def test_no_clobber(tmp_path):
+        source = tmp_path/'source.glb'
+        source.write_bytes((MEDIA/'static-cube.glb').read_bytes())
+        original = source.read_bytes()
+        for alias in [source, tmp_path/'hard.png', tmp_path/'sym.png']:
+            if alias.name == 'hard.png': os.link(source, alias)
+            if alias.name == 'sym.png': alias.symlink_to(source)
+>           result, data = run(source, '--out', alias)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/python/test_multiview_script.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_no_clobber0/source.gl...sixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_no_clobber0/source.glb'))
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+_________________________ test_labels_and_determinism __________________________
+
+tmp_path = PosixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-469/test_labels_and_determinism0')
+
+    def test_labels_and_determinism(tmp_path):
+        images = []
+        for name, flags in [('a', []), ('b', []), ('unlabelled', ['--no-labels'])]:
+            out = tmp_path/f'{name}.png'
+>           result, data = run(MEDIA/'static-cube.glb', '--out', out, '--tile-size', 128,
+                               '--views', 6, '--chrome', CHROME, *flags)
+
+tests/python/test_multiview_script.py:93: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/tests/fixtures/media/model/static-cube.glb'), '...ury/cache/scratch/pytest-of-deploy/pytest-469/test_labels_and_determinism0/a.png'), '--tile-size', 128, '--views', ...)
+
+    def run(*args):
+        result = subprocess.run(['node', str(SCRIPT), *map(str, args)], capture_output=True, text=True, timeout=180)
+>       assert len(result.stdout.splitlines()) == 1, result.stdout + result.stderr
+E       AssertionError: node:internal/modules/cjs/loader:1573
+E           throw err;
+E           ^
+E         
+E         Error: Cannot find module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+E             at Module._resolveFilename (node:internal/modules/cjs/loader:1569:15)
+E             at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+E             at defaultResolveImplForCJSLoading (node:internal/modules/cjs/loader:1147:10)
+E             at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+E             at Module._load (node:internal/modules/cjs/loader:1346:5)
+E             at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+E             at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+E             at node:internal/main/run_main_module:33:47 {
+E           code: 'MODULE_NOT_FOUND',
+E           requireStack: []
+E         }
+E         
+E         Node.js v26.7.0
+E         
+E       assert 0 == 1
+E        +  where 0 = len([])
+E        +    where [] = <built-in method splitlines of str object at 0x15fb958>()
+E        +      where <built-in method splitlines of str object at 0x15fb958> = ''.splitlines
+E        +        where '' = CompletedProcess(args=['node', '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/r...t node:internal/main/run_main_module:33:47 {\n  code: 'MODULE_NOT_FOUND',\n  requireStack: []\n}\n\nNode.js v26.7.0\n").stdout
+
+tests/python/test_multiview_script.py:20: AssertionError
+________________________ test_harness_security_contract ________________________
+
+    def test_harness_security_contract():
+>       source = SCRIPT.read_text()
+                 ^^^^^^^^^^^^^^^^^^
+
+tests/python/test_multiview_script.py:104: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/deploy/.hermes/tools/python-3.14.7+20260901-linux-x64/lib/python3.14/pathlib/__init__.py:787: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/skills/studiotwin/scripts/render_multiview.mjs'
+
+/home/deploy/.hermes/tools/python-3.14.7+20260901-linux-x64/lib/python3.14/pathlib/__init__.py:771: FileNotFoundError
+=========================== short test summary info ============================
+FAILED tests/python/test_multiview_script.py::test_real_multiview[textured-4-static-cube.glb]
+FAILED tests/python/test_multiview_script.py::test_real_multiview[textured-4-rigged-animated.glb]
+FAILED tests/python/test_multiview_script.py::test_real_multiview[textured-6-static-cube.glb]
+FAILED tests/python/test_multiview_script.py::test_real_multiview[textured-6-rigged-animated.glb]
+FAILED tests/python/test_multiview_script.py::test_real_multiview[clay-4-static-cube.glb]
+FAILED tests/python/test_multiview_script.py::test_real_multiview[clay-4-rigged-animated.glb]
+FAILED tests/python/test_multiview_script.py::test_real_multiview[clay-6-static-cube.glb]
+FAILED tests/python/test_multiview_script.py::test_real_multiview[clay-6-rigged-animated.glb]
+FAILED tests/python/test_multiview_script.py::test_real_multiview[normals-4-static-cube.glb]
+FAILED tests/python/test_multiview_script.py::test_real_multiview[normals-4-rigged-animated.glb]
+FAILED tests/python/test_multiview_script.py::test_real_multiview[normals-6-static-cube.glb]
+FAILED tests/python/test_multiview_script.py::test_real_multiview[normals-6-rigged-animated.glb]
+FAILED tests/python/test_multiview_script.py::test_real_multiview[wireframe-4-static-cube.glb]
+FAILED tests/python/test_multiview_script.py::test_real_multiview[wireframe-4-rigged-animated.glb]
+FAILED tests/python/test_multiview_script.py::test_real_multiview[wireframe-6-static-cube.glb]
+FAILED tests/python/test_multiview_script.py::test_real_multiview[wireframe-6-rigged-animated.glb]
+FAILED tests/python/test_multiview_script.py::test_invalid_arguments[args0]
+FAILED tests/python/test_multiview_script.py::test_invalid_arguments[args1]
+FAILED tests/python/test_multiview_script.py::test_invalid_arguments[args2]
+FAILED tests/python/test_multiview_script.py::test_invalid_arguments[args3]
+FAILED tests/python/test_multiview_script.py::test_invalid_arguments[args4]
+FAILED tests/python/test_multiview_script.py::test_invalid_arguments[args5]
+FAILED tests/python/test_multiview_script.py::test_invalid_arguments[args6]
+FAILED tests/python/test_multiview_script.py::test_invalid_arguments[args7]
+FAILED tests/python/test_multiview_script.py::test_invalid_arguments[args8]
+FAILED tests/python/test_multiview_script.py::test_invalid_arguments[args9]
+FAILED tests/python/test_multiview_script.py::test_invalid_arguments[args10]
+FAILED tests/python/test_multiview_script.py::test_invalid_arguments[args11]
+FAILED tests/python/test_multiview_script.py::test_no_clobber - AssertionErro...
+FAILED tests/python/test_multiview_script.py::test_labels_and_determinism - A...
+FAILED tests/python/test_multiview_script.py::test_harness_security_contract
+31 failed in 1.59s

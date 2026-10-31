@@ -72,6 +72,24 @@ A manually configured `mcp_servers.studiotwin` can override the bundled connecti
 
 **Next** actions submit a visible request to the originating chat for review/approval; they do not bypass the agent and start paid jobs from a card. A preview is not proof of target-engine compatibility, successful retargeting or artist approval.
 
+### Multiview references and 3D-to-3D reskin handoff
+
+Load a 3D model and use **Multiview** to capture four canonical front/right/back/left views as a 2×2 PNG, or six views (adding 3/4 and top) as a 3×2 PNG. Choose Clay (default), Normals, Textured or Wireframe. Capture preserves the live camera, current pose, shading, auto-rotate, grid and background, and provides a labeled contact sheet preview, individual view badges and **Download Sheet**.
+
+Desktop stages the sheet locally on the originating Hermes backend (`POST /upload`, `cloud:false`) and records **Made from** provenance referencing the source model and sheet path. The local provenance UUID is separate from any cloud asset UUID; local-file references are stored in the record's text, with a source asset UUID link when available. No cloud generation or cloud upload occurs when capturing. A staging/lineage error disables the reskin handoff but leaves a captured sheet downloadable.
+
+**Reskin 3D in Chat** submits a visible request to the originating composer: inspect the sheet, specify changes, edit the reference through ConceptLab / `openai-gpt-image-2-v4-fn`, review it, then reconstruct with `image-to-3d-mesh` or `tripo-image-to-3d-mesh`. This is a Forge-E style reference workflow, not an automatic paid pipeline. Each upload and paid stage needs its own authorization and exact credit estimate. Check live image-input compatibility rather than assuming a contact sheet is accepted directly. Reconstruction may change geometry, topology, rigs and animation; keep the source unchanged.
+
+The model asset inspector also offers **Environment IBL** when panorama assets are available. HDR/EXR or equirectangular PNG/JPG assets light the model; optionally show the panorama background or return to Studio lighting. Component integrations can provide `envSource` or an environment list. This is preview lighting, not a modification of the model.
+
+The same reference sheets can be rendered without Desktop:
+
+```sh
+node skills/studiotwin/scripts/render_multiview.mjs /absolute/model.glb --out /absolute/multiview-sheet.png --split-dir /absolute/views --views 6 --shading clay --tile-size 512
+```
+
+Options include `--views 4|6`, `--shading textured|clay|normals|wireframe`, `--tile-size` (64–2048, default 512), `--transparent`, `--no-labels` and `--chrome PATH`. Four 512px tiles produce 1024×1024; six produce 1536×1024. Default output is `<stem>-multiview.png` beside the model. Existing outputs are refused. JSON stdout reports `ok`, absolute `sheet`, ordered `views`, `split_files`, `shading`, `width`, `height` and `bytes`. Requires Node 22+, Chromium and three 0.180.0, using the same integrity-checked discovery/cache and anonymous debugging-pipe harness as the preview script; no ffmpeg, local server or paid call. See the [full multiview workflow](skills/studiotwin/SKILL.md#multiview-reference-sheets-and-forge-e-style-reskinning).
+
 ### Tools and schema drift
 
 The bundled [workflow skill](skills/studiotwin/SKILL.md#complete-captured-tool-catalog) lists **all 45 exact provider tool names** from the [captured tools/list](tests/fixtures/tools-list-2026-10-30.json), including ConceptLab. The live server can change independently of this package; discover and read its schemas before invoking. Hermes prefixes/sanitizes callable names; search results, not guessed prefixes, are authoritative.
@@ -151,7 +169,7 @@ The Desktop backend serves checked media paths from plugin data, active `<HERMES
 
 Provenance is not inferred from every remote call automatically. The skill documents how to record source IDs on submission and output IDs after completion using authenticated, plugin-scoped `POST /provenance` (full mount `/api/plugins/hermes-studiotwin/provenance`) and read it back. This is **not** a public StudioTwin endpoint. If an agent lacks a scoped backend adapter, it reports lineage in chat rather than pretending it persisted it. Prompt/session data in local provenance should be included in your retention/privacy planning.
 
-Four bundled scripts run locally, with no StudioTwin generation credits. Examples from the plugin root:
+Five bundled entry-point scripts run locally, with no StudioTwin generation credits. Examples from the plugin root:
 
 ```sh
 python3 skills/studiotwin/scripts/glb_stats.py /absolute/model.glb
@@ -165,6 +183,7 @@ python3 skills/studiotwin/scripts/sfx_tool.py loopcheck /absolute/loop.wav
 
 - `glb_stats.py`: stdlib, measured geometry, bound skins and animation clip names; no network.
 - `render_preview.mjs`: GLB turntable/clip **MP4**, not contact sheet. Spawns headless Chromium and ffmpeg. Uses bundled/development three 0.180.0 or downloads its integrity-checked tarball from `registry.npmjs.org` to `<HERMES_HOME>/cache/studiotwin-preview/`; default output is `cache/generated/videos/`. Rendering refuses external URLs inside the GLB and reports blocked resources.
+- `render_multiview.mjs`: deterministic 4/6-view labeled contact-sheet PNG plus optional split PNGs, all four shading passes and transparency. Uses the shared `render_harness.mjs` and headless Chromium; no ffmpeg or StudioTwin credit use.
 - `blender_handoff.py`: Blender 4.2+, new background factory-startup processes, new optimized blend/GLB/FBX exports and fresh-process verification. Optional triangle/texture/LOD reductions require agreed scope; no live-scene edits. Decimation is not retopology; rig/shape-key losses must be disclosed.
 - `sfx_tool.py`: Python stdlib + ffmpeg/ffprobe; probe/process/loopcheck/loopfix/pack. Writes chosen outputs and pack folder/manifest/zip, refuses existing outputs without `--force`. Never trim/fade a loop; check the delivered file's seam. Reports JSON measurements/errors.
 

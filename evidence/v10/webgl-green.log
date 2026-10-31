@@ -1,0 +1,42 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10
+
+▲ [WARNING] Import "registerPlugin" will always be undefined because there is no matching export in "tests/scaffold/sdk-stub.ts" [import-is-undefined]
+
+    desktop/plugin.js:43663:3:
+      43663 │ he.registerPlugin?.(EC);
+            ╵    ~~~~~~~~~~~~~~
+
+ ✓ tests/viewers/multiview-ibl.test.ts (26 tests) 29025ms
+   ✓ V10 real Chromium multiview + IBL > creates an actual WebGL context, not a canvas or renderer stand-in  1041ms
+   ✓ V10 real Chromium multiview + IBL > captures 4 canonical named PNG views and a nonblank correctly sized sheet  672ms
+   ✓ V10 real Chromium multiview + IBL > captures 6 canonical named PNG views and a nonblank correctly sized sheet  648ms
+   ✓ V10 real Chromium multiview + IBL > uses the actual canonical camera yaw and pitch, not merely distinct labels  500ms
+   ✓ V10 real Chromium multiview + IBL > production bundle stages an actual PNG through the real router and persists readable Made from lineage without spending  3862ms
+   ✓ V10 real Chromium multiview + IBL > defaults tileSize to 384 and supports both documented boundary sizes  1001ms
+   ✓ V10 real Chromium multiview + IBL > rejects invalid requests instead of allocating unbounded render targets and preserves the live stage  987ms
+   ✓ V10 real Chromium multiview + IBL > renders four distinct shading passes and transparent versus opaque studio backgrounds  759ms
+   ✓ V10 real Chromium multiview + IBL > captures a single paused animated pose deterministically and restores camera, shading, grid, canvas size and animation  964ms
+   ✓ V10 real Chromium multiview + IBL > restores the live stage even when canvas PNG encoding throws partway through capture  734ms
+   ✓ V10 real Chromium multiview + IBL > real HDR image-based lighting changes textured AND clay model pixels; clearing recovers the exact original snapshot  895ms
+   ✓ V10 real Chromium multiview + IBL > can show an HDR background, clear it via null, and survive malformed HDR without corrupting the stage  846ms
+   ✓ V10 real Chromium multiview + IBL > source: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG  1659ms
+   ✓ V10 real Chromium multiview + IBL > source: stages locally then records valid provenance before enabling a review-only reskin handoff  1098ms
+   ✓ V10 real Chromium multiview + IBL > source: /upload failure never enables reskin or sends a composer message  1064ms
+   ✓ V10 real Chromium multiview + IBL > source: /provenance failure never enables reskin or sends a composer message  1024ms
+   ✓ V10 real Chromium multiview + IBL > source: profile switch while upload is pending blocks late provenance and composer handoff  1180ms
+   ✓ V10 real Chromium multiview + IBL > source: connectionId switch while upload is pending blocks late provenance and composer handoff  1147ms
+   ✓ V10 real Chromium multiview + IBL > desktop: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG  1071ms
+   ✓ V10 real Chromium multiview + IBL > desktop: stages locally then records valid provenance before enabling a review-only reskin handoff  958ms
+   ✓ V10 real Chromium multiview + IBL > desktop: /upload failure never enables reskin or sends a composer message  1042ms
+   ✓ V10 real Chromium multiview + IBL > desktop: /provenance failure never enables reskin or sends a composer message  1048ms
+   ✓ V10 real Chromium multiview + IBL > desktop: profile switch while upload is pending blocks late provenance and composer handoff  1112ms
+   ✓ V10 real Chromium multiview + IBL > desktop: connectionId switch while upload is pending blocks late provenance and composer handoff  1134ms
+   ✓ V10 real Chromium multiview + IBL > source standalone ModelViewer supports multiview without a ModelCard or callbacks  920ms
+   ✓ V10 real Chromium multiview + IBL > source ModelCard forwards envSource and loads the HDR locally without a cloud or paid request  1150ms
+
+ Test Files  1 passed (1)
+      Tests  26 passed (26)
+   Start at  20:10:26
+   Duration  29.69s (transform 122ms, setup 0ms, collect 416ms, tests 29.02s, environment 0ms, prepare 70ms)
+

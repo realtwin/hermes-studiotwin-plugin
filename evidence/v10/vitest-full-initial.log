@@ -1,0 +1,272 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10
+
+ ✓ tests/workspace/workspace.test.ts (20 tests) 56023ms
+   ✓ Chromium: settings events change recent gallery page sizes, not complete-library paging or workspace previews  3475ms
+   ✓ Chromium loopback backend: real router/MCP/storage, image decoding, local/cloud upload and pre-network validation  1537ms
+   ✓ Chromium: registers the route, sidebar, six palette commands, and live credits/active-job chrome  2139ms
+   ✓ Chromium: real library filters/search, model inspector, backend lineage and quoted Next actions address origin chat  3445ms
+   ✓ Chromium: complete merged library beyond 100 rows supports late modality, search and inspection  3763ms
+   ✓ Chromium: a failed later library page reports an error, not missing assets, and refresh retries all pages  2625ms
+   ✓ Chromium: real job filters, queued-only cancellation and Inspect Output opens the real image viewer  2756ms
+   ✓ Chromium: Concepts history/active badge and four composer-only workflows use the captured owner  2664ms
+   ✓ Chromium: local selection and explicit cloud drop upload go through the real router without leaking presigned POST fields  2691ms
+   ✓ Chromium: cached PBR, cloud HDR, rigged animation, audio and video open their real rich viewers  4390ms
+   ✓ Chromium: every palette command and chip opens the requested registered workspace tab; settings toggle is live  3010ms
+   ✓ Chromium: all four tabs inherit light/dark theme variables, with no hardcoded color styles  2742ms
+   ✓ Chromium: profile switch permanently revokes captured workspace actions  2917ms
+   ✓ Chromium: connectionId switch permanently revokes captured workspace actions  2736ms
+   ✓ Chromium: pending upload cannot expose Use in Chat after profile changes away and back  2389ms
+   ✓ Chromium: pending upload cannot expose Use in Chat after connectionId changes away and back  2373ms
+   ✓ Chromium: file-read scope change refuses upload before network dispatch (profile)  2570ms
+   ✓ Chromium: file-read scope change refuses upload before network dispatch (connectionId)  2568ms
+   ✓ Chromium: missing key setup opens settings with optional settings door=true  2615ms
+   ✓ Chromium: missing key setup opens settings with optional settings door=false  2614ms
+ ❯ tests/visual/visual-qa.test.ts (1 test | 1 failed) 15610ms
+   × real Chromium: production bundle, eight viewers, four tabs, themes and mixed WebGL budget 15610ms
+     → expect(locator).toBeVisible() failed
+
+Locator: locator('[data-pool-slot="0"]').getByRole('toolbar')
+Expected: visible
+Error: strict mode violation: locator('[data-pool-slot="0"]').getByRole('toolbar') resolved to 2 elements:
+    1) <div role="toolbar" aria-label="Model controls">…</div> aka getByRole('toolbar', { name: 'Model controls' })
+    2) <div role="toolbar" aria-label="Multiview">…</div> aka getByRole('toolbar', { name: 'Multiview' })
+
+Call log:
+  - Expect "toBeVisible" locator('[data-pool-slot="0"]').getByRole('toolbar') with timeout 5000ms
+  - waiting for locator('[data-pool-slot="0"]').getByRole('toolbar')
+
+▲ [WARNING] Import "registerPlugin" will always be undefined because there is no matching export in "tests/scaffold/sdk-stub.ts" [import-is-undefined]
+
+    desktop/plugin.js:43663:3:
+      43663 │ he.registerPlugin?.(EC);
+            ╵    ~~~~~~~~~~~~~~
+
+ ✓ tests/viewers/multiview-ibl.test.ts (24 tests) 24993ms
+   ✓ V10 real Chromium multiview + IBL > creates an actual WebGL context, not a canvas or renderer stand-in  1079ms
+   ✓ V10 real Chromium multiview + IBL > captures 4 canonical named PNG views and a nonblank correctly sized sheet  721ms
+   ✓ V10 real Chromium multiview + IBL > captures 6 canonical named PNG views and a nonblank correctly sized sheet  636ms
+   ✓ V10 real Chromium multiview + IBL > defaults tileSize to 384 and supports both documented boundary sizes  992ms
+   ✓ V10 real Chromium multiview + IBL > rejects invalid requests instead of allocating unbounded render targets and preserves the live stage  938ms
+   ✓ V10 real Chromium multiview + IBL > renders four distinct shading passes and transparent versus opaque studio backgrounds  685ms
+   ✓ V10 real Chromium multiview + IBL > captures a single paused animated pose deterministically and restores camera, shading, grid, canvas size and animation  919ms
+   ✓ V10 real Chromium multiview + IBL > restores the live stage even when canvas PNG encoding throws partway through capture  775ms
+   ✓ V10 real Chromium multiview + IBL > real HDR image-based lighting changes textured AND clay model pixels; clearing recovers the exact original snapshot  908ms
+   ✓ V10 real Chromium multiview + IBL > can show an HDR background, clear it via null, and survive malformed HDR without corrupting the stage  948ms
+   ✓ V10 real Chromium multiview + IBL > source: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG  1827ms
+   ✓ V10 real Chromium multiview + IBL > source: stages locally then records valid provenance before enabling a review-only reskin handoff  1107ms
+   ✓ V10 real Chromium multiview + IBL > source: /upload failure never enables reskin or sends a composer message  1012ms
+   ✓ V10 real Chromium multiview + IBL > source: /provenance failure never enables reskin or sends a composer message  1003ms
+   ✓ V10 real Chromium multiview + IBL > source: profile switch while upload is pending blocks late provenance and composer handoff  1151ms
+   ✓ V10 real Chromium multiview + IBL > source: connectionId switch while upload is pending blocks late provenance and composer handoff  1126ms
+   ✓ V10 real Chromium multiview + IBL > desktop: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG  1116ms
+   ✓ V10 real Chromium multiview + IBL > desktop: stages locally then records valid provenance before enabling a review-only reskin handoff  972ms
+   ✓ V10 real Chromium multiview + IBL > desktop: /upload failure never enables reskin or sends a composer message  1048ms
+   ✓ V10 real Chromium multiview + IBL > desktop: /provenance failure never enables reskin or sends a composer message  1079ms
+   ✓ V10 real Chromium multiview + IBL > desktop: profile switch while upload is pending blocks late provenance and composer handoff  1247ms
+   ✓ V10 real Chromium multiview + IBL > desktop: connectionId switch while upload is pending blocks late provenance and composer handoff  1192ms
+   ✓ V10 real Chromium multiview + IBL > source standalone ModelViewer supports multiview without a ModelCard or callbacks  954ms
+   ✓ V10 real Chromium multiview + IBL > source ModelCard forwards envSource and loads the HDR locally without a cloud or paid request  1085ms
+ ✓ tests/bundle/plugin-bundle.test.ts (4 tests) 15684ms
+   ✓ ships a single compiled ESM artifact with only namespace SDK imports and allowed external modules  723ms
+   ✓ Chromium imports the committed bundle, registers and renders all surfaces (full SDK)  10686ms
+   ✓ Chromium imports the committed bundle, registers and renders all surfaces (missing area/registration exports)  4272ms
+ ✓ tests/viewers/model-animation.test.ts (13 tests) 12606ms
+   ✓ mounted viewers enforce cap and animate through real WebGL  4635ms
+   ✓ standalone errors survive disposal and recover only on retry or source replacement  7928ms
+stderr | tests/viewers/env-material.test.ts > environment and material contracts > decodes real Radiance and EXR pixels
+RGBELoader has been deprecated. Please use HDRLoader instead.
+
+ ❯ tests/viewers/env-material.test.ts (13 tests | 1 failed) 3658ms
+   ✓ environment and material contracts > grounds the fixed pano-sticker-placement label in checked-in pricing 1ms
+   ✓ environment and material contracts > grounds the fixed texture-to-material label in checked-in pricing 0ms
+   ✓ environment and material contracts > grounds the fixed environment-map-to-world label in checked-in pricing 0ms
+   ✓ environment and material contracts > requests an estimate instead of a flat price for environment-map-upscale-cpu 0ms
+   ✓ environment and material contracts > requests an estimate instead of a flat price for pano-stickers 0ms
+   ✓ environment and material contracts > requests an estimate instead of a flat price for image-to-material 0ms
+   ✓ environment and material contracts > decodes real Radiance and EXR pixels 9ms
+   ✓ environment and material contracts > validates camelCase placements and projects rolled spherical FOV boundaries 3ms
+   ✓ environment and material contracts > claims only its own tools, registers both surfaces, disposes and returns fallback for bad results 2ms
+   ✓ environment and material contracts > requires albedo but permits missing optional channels 1ms
+   ✓ environment and material contracts > uses host theme tokens for both viewer shells and cards 1ms
+   ✓ environment and material contracts > writes valid stored zip records 0ms
+   × mounted real Chromium WebGL environment and five-map material, lifecycle and scoped cards 3642ms
+     → locator.waitFor: Error: strict mode violation: locator('section').nth(6).getByRole('toolbar') resolved to 2 elements:
+    1) <div role="toolbar" aria-label="Model controls">…</div> aka getByRole('toolbar', { name: 'Model controls' })
+    2) <div role="toolbar" aria-label="Multiview">…</div> aka getByRole('toolbar', { name: 'Multiview' })
+
+Call log:
+  - waiting for locator('section').nth(6).getByRole('toolbar') to be visible
+
+ ✓ tests/viewers/rig-audit.test.ts (28 tests) 5237ms
+   ✓ production registrations load provider audits independently of the real WebGL preview  5232ms
+ ✓ tests/visual/inspector-scroll.test.ts (2 tests) 4796ms
+   ✓ production bundle: wheel reaches inspector Next actions in light at 1000x700  2455ms
+   ✓ production bundle: wheel reaches inspector Next actions in dark at 1000x700  2340ms
+ ✓ tests/visual/ui-polish.test.ts (2 tests) 4472ms
+   ✓ production bundle: active pills, channel/geometry controls, env reset, responsive concepts and raw filenames  4471ms
+ ✓ tests/scaffold/scaffold.test.ts (19 tests) 3979ms
+   ✓ @hermes/plugin-sdk declarations > typechecks the declarations, configs and the SDK usage contract with the locked TypeScript  3965ms
+ ✓ tests/viewers/video-timing.test.ts (6 tests) 22ms
+ ✓ tests/viewers/settings.test.ts (2 tests) 2ms
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/cards/image-card.tsx:62:47:
+      62 │ ...Own(sdk, 'Codicon') && <sdk.Codicon name="file-media" size={16}...
+         ╵                                ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/cards/video-card.tsx:27:47:
+      27 │ ...Own(sdk, 'Codicon') && <sdk.Codicon name="play-circle" size={16...
+         ╵                                ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/viewers/animation-viewer.tsx:66:13:
+      66 │         <sdk.Codicon name={state.playing ? 'debug-pause' : 'play'} />
+         ╵              ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/viewers/model-viewer.tsx:239:53:
+      239 │ ...filterPillStyle(true)}><sdk.Codicon name="play" />{error ? 'Pr...
+          ╵                                ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/viewers/env-viewer.tsx:80:87:
+      80 │ ...Own(sdk, 'Codicon') && <sdk.Codicon name="globe" size={16} />}{...
+         ╵                                ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/cards/env-card.tsx:118:11:
+      118 │       {sdk.Codicon && <sdk.Codicon name="globe" size={16} />}
+          ╵            ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/cards/model-card.tsx:165:13:
+      165 │         {sdk.Codicon && <sdk.Codicon name="symbol-misc" size={16}...
+          ╵              ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/cards/task-card.tsx:181:47:
+      181 │ ...hasOwn(sdk, 'Codicon') && <sdk.Codicon name="pulse" size={16} />}
+          ╵                                   ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/cards/image-card.tsx:62:47:
+      62 │ ...Own(sdk, 'Codicon') && <sdk.Codicon name="file-media" size={16}...
+         ╵                                ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/cards/video-card.tsx:27:47:
+      27 │ ...Own(sdk, 'Codicon') && <sdk.Codicon name="play-circle" size={16...
+         ╵                                ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/viewers/animation-viewer.tsx:66:13:
+      66 │         <sdk.Codicon name={state.playing ? 'debug-pause' : 'play'} />
+         ╵              ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/viewers/model-viewer.tsx:239:53:
+      239 │ ...filterPillStyle(true)}><sdk.Codicon name="play" />{error ? 'Pr...
+          ╵                                ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/viewers/env-viewer.tsx:80:87:
+      80 │ ...Own(sdk, 'Codicon') && <sdk.Codicon name="globe" size={16} />}{...
+         ╵                                ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/cards/env-card.tsx:118:11:
+      118 │       {sdk.Codicon && <sdk.Codicon name="globe" size={16} />}
+          ╵            ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/cards/model-card.tsx:165:13:
+      165 │         {sdk.Codicon && <sdk.Codicon name="symbol-misc" size={16}...
+          ╵              ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/cards/task-card.tsx:181:47:
+      181 │ ...hasOwn(sdk, 'Codicon') && <sdk.Codicon name="pulse" size={16} />}
+          ╵                                   ~~~~~~~
+
+ ✓ tests/viewers/image-video-task.test.ts (17 tests) 8970ms
+   ✓ Chromium: registered and completed 6-fps video decoded steps, image inspection, sequence, jobs and invalidation  4188ms
+   ✓ Chromium: registered and completed 10-fps video decoded steps, image inspection, sequence, jobs and invalidation  3870ms
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "host-shim:sdk" [import-is-undefined]
+
+    src/viewers/audio-viewer.tsx:117:45:
+      117 │ ...asOwn(sdk, 'Codicon') && <sdk.Codicon name="unmute" size={16} />}
+          ╵                                  ~~~~~~~
+
+ ✓ tests/viewers/audio.test.ts (20 tests) 2126ms
+   ✓ Chromium: real WAV/MP3 decode, canvas resize/theme, audition, seek, download and scope invalidation  1222ms
+ ✓ tests/viewers/catalog-routing.test.ts (33 tests) 80ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/viewers/env-material.test.ts > mounted real Chromium WebGL environment and five-map material, lifecycle and scoped cards
+Error: locator.waitFor: Error: strict mode violation: locator('section').nth(6).getByRole('toolbar') resolved to 2 elements:
+    1) <div role="toolbar" aria-label="Model controls">…</div> aka getByRole('toolbar', { name: 'Model controls' })
+    2) <div role="toolbar" aria-label="Multiview">…</div> aka getByRole('toolbar', { name: 'Multiview' })
+
+Call log:
+  - waiting for locator('section').nth(6).getByRole('toolbar') to be visible
+
+ ❯ tests/viewers/env-material.test.ts:243:49
+    241|           })
+    242|           .click();
+    243|         await views.nth(i).getByRole("toolbar").waitFor();
+       |                                                 ^
+    244|         expect(await page.locator("canvas").count()).toBeLessThanOrEqu…
+    245|       }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/visual/visual-qa.test.ts > real Chromium: production bundle, eight viewers, four tabs, themes and mixed WebGL budget
+Error: expect(locator).toBeVisible() failed
+
+Locator: locator('[data-pool-slot="0"]').getByRole('toolbar')
+Expected: visible
+Error: strict mode violation: locator('[data-pool-slot="0"]').getByRole('toolbar') resolved to 2 elements:
+    1) <div role="toolbar" aria-label="Model controls">…</div> aka getByRole('toolbar', { name: 'Model controls' })
+    2) <div role="toolbar" aria-label="Multiview">…</div> aka getByRole('toolbar', { name: 'Multiview' })
+
+Call log:
+  - Expect "toBeVisible" locator('[data-pool-slot="0"]').getByRole('toolbar') with timeout 5000ms
+  - waiting for locator('[data-pool-slot="0"]').getByRole('toolbar')
+
+ ❯ captureRawStack ../v09/node_modules/playwright/node_modules/playwright-core/lib/coreBundle.js:9282:17
+ ❯ callMatcherAsStep ../v09/node_modules/playwright/lib/matchers/expect.js:13316:57
+ ❯ Object.toBeVisible ../v09/node_modules/playwright/lib/matchers/expect.js:13308:23
+ ❯ tests/visual/visual-qa.test.ts:403:45
+    401|           .click();
+    402|         await pw(slot.locator("canvas")).toHaveCount(1);
+    403|         await pw(slot.getByRole("toolbar")).toBeVisible();
+       |                                             ^
+    404|       }
+    405|       await pw(page.locator("canvas")).toHaveCount(4);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 13 passed (15)
+      Tests  2 failed | 202 passed (204)
+   Start at  20:02:27
+   Duration  163.00s (transform 1.07s, setup 0ms, collect 3.44s, tests 158.26s, environment 755ms, prepare 136ms)
+

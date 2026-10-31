@@ -243,6 +243,28 @@ node skills/studiotwin/scripts/render_preview.mjs /absolute/rigged.glb --clip "W
 
 This renders a **turntable or animation MP4**, not a contact sheet. Node 22+ for the script (package development requires 24+), Chromium/Chrome and ffmpeg; ffprobe adds verification metadata. `--chrome PATH` overrides browser discovery. It uses three 0.180.0 from package dependencies or downloads the integrity-checked npm tarball into `<HERMES_HOME>/cache/studiotwin-preview/` on first use; extraction needs `tar`. Default output is a uniquely named MP4 under `cache/generated/videos/`; existing explicit outputs are refused. Read the JSON `ok`, `bytes`, `clip`, `probe`, and `blocked_urls`; embedded external resource URLs are not fetched. Rendering spawns headless Chromium and ffmpeg, not a persistent service.
 
+### Multiview reference sheets and Forge-E style reskinning
+
+```sh
+node skills/studiotwin/scripts/render_multiview.mjs /absolute/model.glb --out /absolute/multiview-sheet.png --split-dir /absolute/views --views 6 --shading clay --tile-size 512
+node skills/studiotwin/scripts/render_multiview.mjs /absolute/model.glb --out /absolute/normals.png --views 4 --shading normals --transparent --no-labels --chrome /absolute/chrome
+```
+
+Node 22+, Chrome/Chromium and three 0.180.0; no ffmpeg or Blender required. The helper shares the preview's verified Three.js discovery, integrity-checked first-run npm download and anonymous Chromium debugging pipe. It renders offline on `about:blank` with blob-imported modules and SwiftShader, refuses external GLB resources, and exits the browser after rendering. No local server or TCP IPC is created. Keep `render_harness.mjs` beside both render scripts when copying them.
+
+Options: `--views 4|6` (default 4), `--shading textured|clay|normals|wireframe` (default textured), `--tile-size` (integer 64–2048, default 512), `--transparent`, `--no-labels`, `--split-dir`, `--out`, `--chrome`. Default output is `<model-stem>-multiview.png` beside the source; explicit or default existing outputs and existing split tiles are refused, never overwritten. The rest pose is frozen and centered, with a bounding-sphere fit. Four views are front/right/back/left at yaw 0/90/180/270°, pitch 12°; six add 3/4 at yaw 35°, pitch 22° and top at yaw 0°, pitch 85°. Tiles are ordered row-major in a 2×2 or 3×2 sheet; split files are `front.png`, `right.png`, `back.png`, `left.png`, `three_quarter.png`, `top.png` as applicable. Read the single JSON stdout line: `ok`, absolute `sheet`, ordered `views`, `split_files`, `shading`, `width`, `height`, `bytes`. A four-view 512px render is 1024×1024; six-view is 1536×1024.
+
+In Desktop, load a model, choose 4/6 Views and the reference pass (Clay by default), then Capture Multiview. The live stage captures its current pose without advancing animation and restores the camera, shading, grid, background and auto-rotate state. It offers a labeled contact sheet preview, per-view badges and Download Sheet. It stages the sheet on the originating Hermes backend through `POST /upload` with `cloud:false`, filename `<stem>-multiview-<views>v-<shading>.png`. After staging, `POST /provenance` records a local UUID record with the sheet/source paths in the Made from prompt and source asset UUID when known. This local record is not a cloud asset or a claim of automatic cloud lineage; local-file links are textual, not cloud asset IDs. Staging/provenance failures leave Reskin disabled and do not start generation.
+
+Reskin 3D in Chat sends a visible request to the originating chat, not a paid job. Use it as a Forge-E style 3D-to-3D reference workflow:
+
+1. Inspect the saved sheet as pixels, ask for the intended style change and preserve silhouettes, view labels/layout and camera angles. A displayed viewer is not agent observation.
+2. Discover the live ConceptLab or `openai-gpt-image-2-v4-fn` edit schema; obtain approval before uploading local references. Estimate exact credits and obtain approval before the image edit. Use a durable Concept when iteration/history is wanted.
+3. Review the edited reference before discovering `image-to-3d-mesh` or `tripo-image-to-3d-mesh`. Choose a schema-compatible image or split view; do not assume a contact sheet is a supported multiview input. Estimate and approve this separate paid reconstruction stage.
+4. Inspect the returned mesh and keep the source unchanged. Image-to-3D reconstruction does not guarantee exact geometry, topology, rig or animation preservation. Do not describe this as an in-place material-only reskin.
+
+The model inspector offers Environment IBL when panorama assets are present; model components also accept an `envSource`. HDR/EXR and equirectangular PNG/JPG light the model through the same environment loader as the panorama viewer. Show environment background is optional; Studio lighting clears the environment. This changes local preview lighting, not the source asset or provider output.
+
 ### New Blender copy
 
 ```sh

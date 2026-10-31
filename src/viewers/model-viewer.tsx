@@ -7,6 +7,9 @@ import { createModelStage, type ModelStage, type ShadingMode } from './model-sta
 import { fetchModel, type ModelSource } from './model-source.ts'
 import type { ModelStats } from './model-data.ts'
 import { modelWebGLPool } from './webgl-pool.ts'
+import { bindModelScope } from './model-source.ts'
+import type { MultiviewCapture } from './model-stage.ts'
+import { multiviewFilename, stageMultiview, reskinPrompt } from './multiview-reference.ts'
 import { AnimationControls, parseRigAudit, type RigAudit } from './animation-viewer.tsx'
 export interface ModelViewerProps {
   rest: PluginContext['rest']
@@ -20,6 +23,11 @@ export interface ModelViewerProps {
   audit?: RigAudit
   downloads?: { label: string; source: ModelSource }[]
   onDownload?: (source: ModelSource) => Promise<void>
+  sessionId?: string | null
+  onReskin?: (prompt: string) => void
+  onMultiviewCaptured?: (capture: MultiviewCapture, source: ModelSource) => void | Promise<void>
+  envSource?: ModelSource
+  environments?: { label: string; source: ModelSource }[]
 }
 export function ModelViewer({
   rest,
@@ -32,7 +40,12 @@ export function ModelViewer({
   onError,
   audit,
   downloads,
-  onDownload
+  onDownload,
+  sessionId,
+  onReskin,
+  onMultiviewCaptured,
+  envSource,
+  environments
 }: ModelViewerProps) {
   const id = useId(),
     canvasHost = useRef<HTMLDivElement>(null),
@@ -51,6 +64,51 @@ export function ModelViewer({
   const spin = spinOverride ?? auto_rotate
   const [loadedAudit, setLoadedAudit] = useState<RigAudit | null>(null)
   const sourceKey = JSON.stringify(source)
+  const [views, setViews] = useState<4 | 6>(4), [pass, setPass] = useState<ShadingMode>('clay')
+  const [capture, setCapture] = useState<MultiviewCapture | null>(null)
+  const [sheetPath, setSheetPath] = useState(''), [captureError, setCaptureError] = useState(''), [capturing, setCapturing] = useState(false)
+  const captureLock = useRef(false), owner = useRef(0)
+  const [environmentChoice, setEnvironmentChoice] = useState<string | null>(null), [showEnvironment, setShowEnvironment] = useState(false)
+  const [environmentError, setEnvironmentError] = useState('')
+  const chosenEnvironment = environmentChoice === null ? envSource : environmentChoice === '' ? undefined : environments?.[Number(environmentChoice)]?.source
+  const envKey = JSON.stringify(chosenEnvironment)
+  useEffect(() => {
+    owner.current++
+    setCapture(null); setSheetPath(''); setCaptureError(''); setCapturing(false); captureLock.current = false
+    return () => { owner.current++ }
+  }, [rest, sourceKey])
+  useEffect(() => {
+    if (!ready || !stage.current) return
+    const local = stage.current, scope = bindModelScope(rest, sdk.host.state)
+    let active = true
+    setEnvironmentError('')
+    // Clear immediately so a superseded image decode cannot install its texture late.
+    local.clearEnvironment()
+    if (chosenEnvironment) void fetchModel(scope.rest, chosenEnvironment).then(async file => {
+      if (active) await local.setEnvironment(file.buffer, chosenEnvironment.name || file.name, showEnvironment)
+    }).catch(() => { if (active) setEnvironmentError('Environment could not be loaded. Choose another panorama.') })
+    return () => { active = false; local.clearEnvironment() }
+  }, [ready, rest, envKey, showEnvironment])
+  const captureReference = async () => {
+    const local = stage.current
+    if (!local || captureLock.current) return
+    const scope = bindModelScope(rest, sdk.host.state), generation = owner.current
+    const current = () => generation === owner.current && scope.current()
+    captureLock.current = true; setCapturing(true); setCaptureError(''); setSheetPath('')
+    try {
+      const result = await local.captureMultiview({ views, shading: pass })
+      if (!current()) return
+      setCapture(result)
+      const saved = await stageMultiview(scope.rest, source, result, sessionId)
+      if (!current()) return
+      await onMultiviewCaptured?.(result, source)
+      if (current()) setSheetPath(saved.path)
+    } catch {
+      if (current()) setCaptureError('Capture or local staging could not be confirmed. The sheet can still be downloaded if available. Nothing was generated in the cloud.')
+    } finally {
+      if (generation === owner.current) { captureLock.current = false; setCapturing(false) }
+    }
+  }
   useEffect(() => setLoadedAudit(null), [sourceKey])
   useEffect(() => {
     modelWebGLPool.setLimit(webgl_limit)
@@ -241,6 +299,36 @@ export function ModelViewer({
               </select>
             )}
           </div>
+          <div role="group" aria-label="Multiview" style={{ ...controlStrip, padding: 12, flexWrap: 'wrap' }}>
+            <strong>Multiview</strong>
+            <select aria-label="Multiview views" style={styledSelect} value={views} disabled={capturing} onChange={e => setViews(Number(e.target.value) as 4 | 6)}>
+              <option value="4">4 Views</option><option value="6">6 Views</option>
+            </select>
+            <select aria-label="Multiview pass" style={styledSelect} value={pass} disabled={capturing} onChange={e => setPass(e.target.value as ShadingMode)}>
+              {(['clay', 'normals', 'textured', 'wireframe'] as const).map(p => <option key={p} value={p}>{p[0].toUpperCase() + p.slice(1)}</option>)}
+            </select>
+            <Button size="sm" aria-label="Capture Multiview" disabled={capturing} onClick={() => void captureReference()}>{capturing ? 'Capturing / staging…' : 'Capture Multiview'}</Button>
+            <Button size="sm" disabled={!sheetPath || capturing || !onReskin} onClick={() => { if (sheetPath) onReskin?.(reskinPrompt(source, sheetPath)) }}>Reskin 3D in Chat</Button>
+          </div>
+          {(envSource || environments?.length) && <div style={{ ...controlStrip, padding: 12, flexWrap: 'wrap' }}>
+            <label>Environment IBL{' '}<select aria-label="Environment IBL" style={styledSelect} value={environmentChoice ?? (envSource ? 'provided' : '')} onChange={e => setEnvironmentChoice(e.target.value === 'provided' ? null : e.target.value)}>
+              <option value="">Studio lighting</option>
+              {envSource && <option value="provided">{envSource.name || 'Provided panorama'}</option>}
+              {environments?.map((env, i) => <option value={i} key={i}>{env.label}</option>)}
+            </select></label>
+            <label><input type="checkbox" checked={showEnvironment} onChange={e => setShowEnvironment(e.target.checked)} /> Show environment background</label>
+          </div>}
+          {environmentError && <p role="alert">{environmentError}</p>}
+          {capture && <section aria-label="Multiview Reference Preview" style={{ padding: 12 }}>
+            <img src={capture.sheetDataUrl} alt="Multiview Reference Preview" style={{ width: '100%', maxWidth: 440, maxHeight: 280, objectFit: 'contain' }} />
+            <div style={{ ...controlStrip, flexWrap: 'wrap' }}>{capture.views.map(v => <span key={v.name} style={glassStatsPill}>{v.label}</span>)}
+              <Button size="sm" onClick={() => {
+                const a = document.createElement('a'); a.href = capture.sheetDataUrl; a.download = multiviewFilename(source, capture); a.click()
+              }}>Download Sheet</Button>
+            </div>
+            {sheetPath && <p style={{ overflowWrap: 'anywhere', color: 'var(--ui-text-secondary)' }}>Locally staged · Made from this 3D model · {sheetPath}</p>}
+          </section>}
+          {captureError && <p role="alert" style={{ padding: 12 }}>{captureError}</p>}
           {stats && (
             <div data-model-stats style={{ ...glassStatsPill, margin: 12, lineHeight: 1.8 }}>
               {stats.vertices} vertices · {stats.triangles} triangles · {stats.meshes} meshes · {stats.bones}{' '}

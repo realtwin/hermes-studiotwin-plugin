@@ -9,6 +9,9 @@ import {
   GridHelper,
   Box3,
   Vector3,
+  Vector2,
+  Sphere,
+  type Texture,
   MeshNormalMaterial,
   MeshStandardMaterial,
   MeshBasicMaterial,
@@ -22,7 +25,30 @@ import {
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { parseModel, type ParsedModel } from './model-parse.ts'
 import { AnimationController, disposeModel, modelStats, parseMotion } from './model-data.ts'
+import { environmentTexture } from './env-stage.ts'
 export type ShadingMode = 'textured' | 'wireframe' | 'clay' | 'normals'
+export interface MultiviewOptions {
+  views?: 4 | 6
+  shading?: ShadingMode
+  tileSize?: number
+  background?: 'transparent' | 'studio'
+}
+export interface MultiviewCapture {
+  views: { name: string; label: string; dataUrl: string }[]
+  sheetDataUrl: string
+  width: number
+  height: number
+  shading: ShadingMode
+  tileSize: number
+}
+export const canonicalViews = [
+  { name: 'front', label: 'FRONT', yaw: 0, pitch: 12 },
+  { name: 'right', label: 'RIGHT', yaw: 90, pitch: 12 },
+  { name: 'back', label: 'BACK', yaw: 180, pitch: 12 },
+  { name: 'left', label: 'LEFT', yaw: 270, pitch: 12 },
+  { name: 'three_quarter', label: '3/4', yaw: 35, pitch: 22 },
+  { name: 'top', label: 'TOP', yaw: 0, pitch: 85 }
+] as const
 /** Let Canvas resolve CSS Color 4/color-mix theme values before handing linear RGB to Three. */
 function themeColor(value: string) {
   const swatch = document.createElement('canvas')
@@ -35,7 +61,7 @@ function themeColor(value: string) {
   return new Color().setRGB(r / 255, green / 255, b / 255, SRGBColorSpace)
 }
 export function createModelStage(host: HTMLElement) {
-  const renderer = new WebGLRenderer({ antialias: true, preserveDrawingBuffer: true })
+  const renderer = new WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true })
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2))
   renderer.outputColorSpace = SRGBColorSpace
   renderer.toneMapping = ACESFilmicToneMapping
@@ -46,6 +72,16 @@ export function createModelStage(host: HTMLElement) {
   const accent = css.getPropertyValue('--ui-text-secondary').trim()
   const scene = new Scene()
   scene.background = themeColor(bg)
+  const studioBackground = scene.background
+  let environment: Texture | null = null, environmentVersion = 0
+  const clearEnvironment = () => {
+    environmentVersion++
+    scene.environment = null
+    scene.background = studioBackground
+    environment?.dispose()
+    environment = null
+    dirty = true
+  }
   scene.add(new AmbientLight(0xffffff, 1.5))
   const light = new DirectionalLight(0xffffff, 3)
   light.position.set(3, 5, 4)
@@ -179,6 +215,95 @@ export function createModelStage(host: HTMLElement) {
       dirty = true
       return stats
     },
+    clearEnvironment,
+    async setEnvironment(buffer: ArrayBuffer | null, name = 'environment.hdr', showBackground = false) {
+      if (disposed) throw new Error('Viewer closed')
+      if (buffer === null) { clearEnvironment(); return }
+      const version = ++environmentVersion
+      const texture = await environmentTexture(buffer, name)
+      if (disposed || version !== environmentVersion) { texture.dispose(); return }
+      const previous = environment
+      environment = texture
+      scene.environment = texture
+      scene.background = showBackground ? texture : studioBackground
+      previous?.dispose()
+      dirty = true
+    },
+    async captureMultiview(opts: MultiviewOptions = {}): Promise<MultiviewCapture> {
+      if (disposed || !parsed) throw new Error('Load a model before capturing multiview')
+      const count = opts.views ?? 4, pass = opts.shading ?? mode
+      if (count !== 4 && count !== 6) throw new Error('Expected 4 or 6 views')
+      if (!['textured', 'clay', 'normals', 'wireframe'].includes(pass)) throw new Error('Invalid shading mode')
+      if (opts.background !== undefined && !['transparent', 'studio'].includes(opts.background)) throw new Error('Invalid background')
+      const size = Math.round(Math.min(1024, Math.max(128, Number.isFinite(opts.tileSize) ? opts.tileSize! : 384)))
+      const cols = count === 6 ? 3 : 2
+      const sheet = document.createElement('canvas')
+      sheet.width = cols * size; sheet.height = 2 * size
+      const g = sheet.getContext('2d')
+      if (!g) throw new Error('Canvas composition unavailable')
+      const saved = {
+        position: camera.position.clone(), quaternion: camera.quaternion.clone(), target: controls.target.clone(),
+        aspect: camera.aspect, near: camera.near, far: camera.far,
+        spin: controls.autoRotate, grid: grid.visible, background: scene.background,
+        pixelRatio: renderer.getPixelRatio(), size: renderer.getSize(new Vector2()), alpha: renderer.getClearAlpha()
+      }
+      const materials = new Map<Mesh, Material | Material[]>(), temporary: Material[] = []
+      // No await while changing the live stage: animation, controls and ResizeObserver cannot
+      // advance between tiles. Preserve the current posed model, including skinned meshes.
+      try {
+        controls.autoRotate = false
+        grid.visible = false
+        scene.background = opts.background === 'transparent' ? null : studioBackground
+        renderer.setClearAlpha(opts.background === 'transparent' ? 0 : 1)
+        renderer.setPixelRatio(1); renderer.setSize(size, size, false)
+        const sphere = new Box3().setFromObject(parsed.root).getBoundingSphere(new Sphere())
+        if (!Number.isFinite(sphere.radius)) throw new Error('Model has no finite bounds')
+        const radius = Math.max(sphere.radius, 0.001)
+        camera.aspect = 1; camera.near = radius / 100; camera.far = radius * 100
+        camera.updateProjectionMatrix()
+        const distance = radius / Math.sin(camera.fov * Math.PI / 360) * 1.08
+        for (const [mesh, original] of originals) {
+          materials.set(mesh, mesh.material)
+          if (pass === 'textured') mesh.material = original
+          else {
+            const material = pass === 'normals' ? new MeshNormalMaterial()
+              : pass === 'wireframe' ? new MeshBasicMaterial({ color: themeColor(accent), wireframe: true })
+              : new MeshStandardMaterial({ color: themeColor(accent), roughness: 0.8 })
+            temporary.push(material); mesh.material = material
+          }
+        }
+        const views: MultiviewCapture['views'] = []
+        canonicalViews.slice(0, count).forEach((view, i) => {
+          const yaw = view.yaw * Math.PI / 180, pitch = view.pitch * Math.PI / 180
+          camera.position.copy(sphere.center).add(new Vector3(
+            Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), Math.cos(yaw) * Math.cos(pitch)
+          ).multiplyScalar(distance))
+          camera.lookAt(sphere.center)
+          renderer.render(scene, camera)
+          const tile = document.createElement('canvas'); tile.width = tile.height = size
+          const ctx = tile.getContext('2d')!
+          ctx.drawImage(renderer.domElement, 0, 0)
+          const fontSize = Math.max(12, Math.round(size * 0.045))
+          ctx.font = `600 ${fontSize}px sans-serif`; ctx.textBaseline = 'top'
+          ctx.fillStyle = bg; ctx.fillRect(6, 6, ctx.measureText(view.label).width + 12, fontSize + 10)
+          ctx.fillStyle = accent; ctx.fillText(view.label, 12, 11)
+          views.push({ name: view.name, label: view.label, dataUrl: tile.toDataURL('image/png') })
+          g.drawImage(tile, (i % cols) * size, Math.floor(i / cols) * size)
+        })
+        return { views, sheetDataUrl: sheet.toDataURL('image/png'), width: sheet.width, height: sheet.height, shading: pass, tileSize: size }
+      } finally {
+        materials.forEach((material, mesh) => { mesh.material = material })
+        temporary.forEach((material) => material.dispose())
+        camera.position.copy(saved.position); camera.quaternion.copy(saved.quaternion)
+        controls.target.copy(saved.target); controls.autoRotate = saved.spin
+        camera.aspect = saved.aspect; camera.near = saved.near; camera.far = saved.far; camera.updateProjectionMatrix()
+        grid.visible = saved.grid; scene.background = saved.background
+        renderer.setClearAlpha(saved.alpha); renderer.setPixelRatio(saved.pixelRatio)
+        renderer.setSize(saved.size.x, saved.size.y, false)
+        dirty = true
+        renderer.render(scene, camera)
+      }
+    },
     animation: () => animation,
     setShading: shading,
     setAutoRotate(on: boolean) {
@@ -203,6 +328,7 @@ export function createModelStage(host: HTMLElement) {
     dispose() {
       if (disposed) return
       disposed = true
+      clearEnvironment()
       cancelAnimationFrame(frame)
       observer.disconnect()
       controls.removeEventListener('change', invalidate)

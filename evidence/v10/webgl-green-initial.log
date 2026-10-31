@@ -1,0 +1,40 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10
+
+▲ [WARNING] Import "registerPlugin" will always be undefined because there is no matching export in "tests/scaffold/sdk-stub.ts" [import-is-undefined]
+
+    desktop/plugin.js:43663:3:
+      43663 │ he.registerPlugin?.(EC);
+            ╵    ~~~~~~~~~~~~~~
+
+ ✓ tests/viewers/multiview-ibl.test.ts (24 tests) 24639ms
+   ✓ V10 real Chromium multiview + IBL > creates an actual WebGL context, not a canvas or renderer stand-in  1014ms
+   ✓ V10 real Chromium multiview + IBL > captures 4 canonical named PNG views and a nonblank correctly sized sheet  645ms
+   ✓ V10 real Chromium multiview + IBL > captures 6 canonical named PNG views and a nonblank correctly sized sheet  686ms
+   ✓ V10 real Chromium multiview + IBL > defaults tileSize to 384 and supports both documented boundary sizes  981ms
+   ✓ V10 real Chromium multiview + IBL > rejects invalid requests instead of allocating unbounded render targets and preserves the live stage  896ms
+   ✓ V10 real Chromium multiview + IBL > renders four distinct shading passes and transparent versus opaque studio backgrounds  793ms
+   ✓ V10 real Chromium multiview + IBL > captures a single paused animated pose deterministically and restores camera, shading, grid, canvas size and animation  917ms
+   ✓ V10 real Chromium multiview + IBL > restores the live stage even when canvas PNG encoding throws partway through capture  726ms
+   ✓ V10 real Chromium multiview + IBL > real HDR image-based lighting changes textured AND clay model pixels; clearing recovers the exact original snapshot  802ms
+   ✓ V10 real Chromium multiview + IBL > can show an HDR background, clear it via null, and survive malformed HDR without corrupting the stage  912ms
+   ✓ V10 real Chromium multiview + IBL > source: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG  1608ms
+   ✓ V10 real Chromium multiview + IBL > source: stages locally then records valid provenance before enabling a review-only reskin handoff  1004ms
+   ✓ V10 real Chromium multiview + IBL > source: /upload failure never enables reskin or sends a composer message  1069ms
+   ✓ V10 real Chromium multiview + IBL > source: /provenance failure never enables reskin or sends a composer message  1003ms
+   ✓ V10 real Chromium multiview + IBL > source: profile switch while upload is pending blocks late provenance and composer handoff  1090ms
+   ✓ V10 real Chromium multiview + IBL > source: connectionId switch while upload is pending blocks late provenance and composer handoff  1133ms
+   ✓ V10 real Chromium multiview + IBL > desktop: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG  1085ms
+   ✓ V10 real Chromium multiview + IBL > desktop: stages locally then records valid provenance before enabling a review-only reskin handoff  1092ms
+   ✓ V10 real Chromium multiview + IBL > desktop: /upload failure never enables reskin or sends a composer message  1051ms
+   ✓ V10 real Chromium multiview + IBL > desktop: /provenance failure never enables reskin or sends a composer message  1148ms
+   ✓ V10 real Chromium multiview + IBL > desktop: profile switch while upload is pending blocks late provenance and composer handoff  1220ms
+   ✓ V10 real Chromium multiview + IBL > desktop: connectionId switch while upload is pending blocks late provenance and composer handoff  1171ms
+   ✓ V10 real Chromium multiview + IBL > source standalone ModelViewer supports multiview without a ModelCard or callbacks  896ms
+   ✓ V10 real Chromium multiview + IBL > source ModelCard forwards envSource and loads the HDR locally without a cloud or paid request  1153ms
+
+ Test Files  1 passed (1)
+      Tests  24 passed (24)
+   Start at  19:58:57
+   Duration  25.29s (transform 113ms, setup 0ms, collect 388ms, tests 24.64s, environment 0ms, prepare 73ms)
+

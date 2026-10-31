@@ -76,6 +76,8 @@ export interface ModelCardProps {
   audit?: RigAudit
   auditSource?: unknown
   downloads?: { label: string; source: ModelSource }[]
+  envSource?: ModelSource
+  environments?: { label: string; source: ModelSource }[]
 }
 export function ModelCard({
   ctx,
@@ -88,7 +90,9 @@ export function ModelCard({
   scopeState = sdk.host.state,
   audit,
   auditSource,
-  downloads
+  downloads,
+  envSource,
+  environments
 }: ModelCardProps) {
   // Captured for this mounted card. Never silently rebind an old transcript card to a newly selected profile.
   const [scope] = useState(() => bindModelScope(ctx.rest, scopeState))
@@ -191,6 +195,10 @@ export function ModelCard({
           audit={currentAudit}
           downloads={rows}
           onDownload={download}
+          sessionId={sessionId}
+          onReskin={send}
+          envSource={envSource}
+          environments={environments}
         />
       )}
       {!stale && auditNotice && <p role="status">{auditNotice}</p>}

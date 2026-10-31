@@ -2,7 +2,8 @@ import * as sdk from "@hermes/plugin-sdk";
 import { useState } from "react";
 import type { MediaScope } from "../cards/next-actions.ts";
 import { cardShell, controlStrip, filterPillStyle, modalityLabel, cleanDisplayName, styledSelect } from "../lib/ui-tokens.ts";
-import { assetId, flow, list, modality, type Row } from "./workspace-data.ts";
+import { assetId, flow, modality, type Row } from "./workspace-data.ts";
+import { useAssetLibrary } from './asset-library.ts';
 const filters: [string, string[]][] = [
   ["All", []], ["3D & Rigged", ["3d_model", "animation"]], ["Audio SFX", ["audio"]],
   ["360° Env", ["environment"]], ["PBR Material", ["material"]],
@@ -11,22 +12,7 @@ const filters: [string, string[]][] = [
 export function LibraryTab({ scope, onInspect }: { scope: MediaScope; onInspect: (row: Row) => void }) {
   const [filter, setFilter] = useState("All"), [search, setSearch] = useState("");
   // Read every page before applying composite filters; partial results are not empty results.
-  const query = sdk.useQuery<Row[]>({
-    queryKey: ["studiotwin-workspace", scope.key, "complete-library"],
-    queryFn: async () => {
-      const rows = new Map<string, Row>();
-      let offset = 0;
-      for (;;) {
-        const page = await scope.rest<Row>(`/assets?limit=100&offset=${offset}`);
-        for (const row of list(page, "assets")) rows.set(assetId(row) ?? row.path, row);
-        if (page.next_offset === null) return [...rows.values()];
-        if (!Number.isInteger(page.next_offset) || page.next_offset <= offset)
-          throw Error("Invalid asset pagination; refresh the library to retry.");
-        offset = page.next_offset;
-      }
-    },
-    enabled: scope.current(), retry: false, refetchOnWindowFocus: false, refetchOnReconnect: false,
-  });
+  const query = useAssetLibrary(scope);
   const allowed = filters.find(([label]) => label === filter)![1];
   const rows = (query.data ?? []).filter((r) =>
     (!allowed.length || allowed.includes(modality(r))) &&

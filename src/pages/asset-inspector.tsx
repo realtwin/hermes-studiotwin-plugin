@@ -2,6 +2,8 @@ import * as sdk from "@hermes/plugin-sdk";
 import { cardShell, cardTitle, cardSubtitle, nextDrawerStyle, nextActionChipStyle } from "../lib/ui-tokens.ts";
 import { useStudioTwinSettings } from '../cards/settings.ts';
 import { useEffect, useRef, useState } from "react";
+import { useAssetLibrary } from './asset-library.ts';
+import { sourceValue } from '../cards/env-card.tsx';
 import { ModelViewer } from "../viewers/model-viewer.tsx";
 import { AnimationViewer } from "../viewers/animation-viewer.tsx";
 import { AudioCard } from "../cards/audio-card.tsx";
@@ -39,6 +41,8 @@ export function AssetPreview({
   limit?: number;
 }) {
   const settings = useStudioTwinSettings(scope);
+  const environmentAssets = useAssetLibrary(scope, modality(row) === '3d_model');
+  const environments = (environmentAssets.data ?? []).filter(r => modality(r) === 'environment').map(r => ({ label: r.name || assetId(r) || 'Panorama', source: assetSource(r) }));
   const source = assetSource(row),
     kind = modality(row),
     fallback = (
@@ -61,6 +65,10 @@ export function AssetPreview({
       <ModelViewer
         rest={scope.rest}
         source={source}
+        sessionId={session}
+        onReskin={text => compose(scope, session, { id: 'reskin', label: 'Reskin 3D in Chat', message: text })}
+        environments={environments}
+        envSource={sourceValue(row.envSource) ?? undefined}
         webgl_limit={limit}
         auto_rotate={settings.auto_rotate}
         fallback={fallback}
