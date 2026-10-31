@@ -97,7 +97,7 @@ export function registerStatusbar(
   ctx.onEvent("tool.complete", refresh);
   ctx.register({
     id: "studiotwin-credits",
-    area: sdk.STATUSBAR_AREAS.right,
+    area: sdk.STATUSBAR_AREAS?.right ?? 'statusBar.right',
     order: 80,
     render: () => (
       <ScopedChrome>
@@ -107,7 +107,7 @@ export function registerStatusbar(
   });
   ctx.register({
     id: "studiotwin-active-jobs",
-    area: sdk.STATUSBAR_AREAS.right,
+    area: sdk.STATUSBAR_AREAS?.right ?? 'statusBar.right',
     order: 81,
     render: () => (
       <ScopedChrome>

@@ -198,7 +198,7 @@ export function registerEnvCards(
   disposers.push(
     ctx.register({
       id: "studiotwin-env-directive",
-      area: sdk.TRANSCRIPT_DIRECTIVE_AREA,
+      area: sdk.TRANSCRIPT_DIRECTIVE_AREA ?? 'transcript.directives',
       data: {
         name: "studiotwin-env",
         render: (p: sdk.TranscriptDirectiveProps) => {

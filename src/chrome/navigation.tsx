@@ -31,13 +31,13 @@ export function registerWorkspaceAndChrome(ctx: sdk.PluginContext) {
   };
   ctx.register({
     id: "studiotwin-workspace",
-    area: sdk.ROUTES_AREA,
+    area: sdk.ROUTES_AREA ?? 'routes',
     data: { path: "/studiotwin" },
     render: () => <WorkspaceRoute />,
   });
   ctx.register({
     id: "studiotwin-navigation",
-    area: sdk.SIDEBAR_NAV_AREA,
+    area: sdk.SIDEBAR_NAV_AREA ?? 'sidebar.nav',
     data: {
       path: "/studiotwin",
       label: "StudioTwin",
@@ -59,7 +59,7 @@ export function registerWorkspaceAndChrome(ctx: sdk.PluginContext) {
   for (const [id, label, run] of commands)
     ctx.register({
       id: "studiotwin-" + id + "-command",
-      area: sdk.PALETTE_AREA,
+      area: sdk.PALETTE_AREA ?? 'palette',
       data: {
         id: "studiotwin." + id,
         label,

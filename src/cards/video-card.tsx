@@ -68,7 +68,7 @@ export function registerVideoCards(ctx: sdk.PluginContext) {
     })
   ctx.register({
     id: 'studiotwin-video-directive',
-    area: sdk.TRANSCRIPT_DIRECTIVE_AREA,
+    area: sdk.TRANSCRIPT_DIRECTIVE_AREA ?? 'transcript.directives',
     data: {
       name: 'studiotwin-video',
       render: (p: sdk.TranscriptDirectiveProps) => {

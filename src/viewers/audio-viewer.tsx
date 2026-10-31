@@ -1,6 +1,8 @@
 // Waveform/transport adapted from Nous Research elevenlabs-sound-effects src/ui.tsx (MIT).
 // Copyright (c) 2026 Nous Research. Canvas rendition and StudioTwin backend adapter are local.
-import { Badge, Button, host, type PluginContext } from '@hermes/plugin-sdk'
+import * as sdk from '@hermes/plugin-sdk'
+import type { PluginContext } from '@hermes/plugin-sdk'
+const { Badge, Button, host } = sdk
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   AUDIO_FORMATS, AudioPlayer, assertScope, decodeAudio, fetchAudio, nextActions, onScopeChange,

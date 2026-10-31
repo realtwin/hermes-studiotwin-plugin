@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Button } from '@hermes/plugin-sdk'
+import * as sdk from '@hermes/plugin-sdk'
+const { Button } = sdk
 import type { AnimationController } from './model-data.ts'
 import { ModelViewer, type ModelViewerProps } from './model-viewer.tsx'
 export interface RigAudit {

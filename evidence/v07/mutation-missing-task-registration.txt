@@ -1,0 +1,34 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v07
+
+ ❯ tests/bundle/plugin-bundle.test.ts (4 tests | 1 failed | 3 skipped) 1727ms
+   ↓ ships a single compiled ESM artifact with only namespace SDK imports and allowed external modules
+   ↓ bundles the complete discoverable workflow skill and documents the manifest settings
+   × Chromium imports the committed bundle, registers and renders all surfaces (full SDK) 1726ms
+     → AssertionError: expected [ 'studiotwin-audio', …(5) ] to deeply equal [ 'studiotwin-audio', …(8) ]
+Chromium errors: []
+   ↓ Chromium imports the committed bundle, registers and renders all surfaces (missing area/registration exports)
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 skipped (4)
+   Start at  06:03:51
+   Duration  2.67s (transform 98ms, setup 0ms, collect 682ms, tests 1.73s, environment 0ms, prepare 75ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/bundle/plugin-bundle.test.ts > Chromium imports the committed bundle, registers and renders all surfaces (full SDK)
+Error: AssertionError: expected [ 'studiotwin-audio', …(5) ] to deeply equal [ 'studiotwin-audio', …(8) ]
+Chromium errors: []
+ ❯ tests/bundle/plugin-bundle.test.ts:189:11
+    187|     expect(h.blocked).toEqual([])
+    188|   } catch (error) {
+    189|     throw new Error(String(error) + '\nChromium errors: ' + JSON.strin…
+       |           ^
+    190|   } finally { await h.close() }
+    191| }, 120000)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+exit_code=1

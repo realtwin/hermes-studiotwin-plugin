@@ -226,10 +226,10 @@ export function TaskCard({ ctx, id, kind = 'task', sessionId, fallback, pollInte
   )
 }
 export function registerTaskCards(ctx: sdk.PluginContext) {
-  for (const kind of ['task', 'job'] as const)
+  for (const kind of ['task', 'job', 'concept'] as const)
     ctx.register({
       id: `studiotwin-${kind}-directive`,
-      area: sdk.TRANSCRIPT_DIRECTIVE_AREA,
+      area: sdk.TRANSCRIPT_DIRECTIVE_AREA ?? 'transcript.directives',
       data: {
         name: `studiotwin-${kind}`,
         render: (p: sdk.TranscriptDirectiveProps) =>

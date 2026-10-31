@@ -1,5 +1,7 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
-import { Button, type PluginContext } from '@hermes/plugin-sdk'
+import * as sdk from '@hermes/plugin-sdk'
+import type { PluginContext } from '@hermes/plugin-sdk'
+const { Button } = sdk
 import { createModelStage, type ModelStage, type ShadingMode } from './model-stage.ts'
 import { fetchModel, type ModelSource } from './model-source.ts'
 import type { ModelStats } from './model-data.ts'

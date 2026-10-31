@@ -181,6 +181,7 @@ it('registers explicit image tools (bare and canonical), directives and no termi
     'studiotwin-video',
     'studiotwin-task',
     'studiotwin-job',
+    'studiotwin-concept',
   ])
   const tools = (rows[0].data as any).tools
   expect(tools).toContain('openai-gpt-image-1-v1-fn')

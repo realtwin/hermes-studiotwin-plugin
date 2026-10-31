@@ -1,4 +1,5 @@
-import { Button } from '@hermes/plugin-sdk'
+import * as sdk from '@hermes/plugin-sdk'
+const { Button } = sdk
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { MediaScope, MediaSource } from '../cards/next-actions.ts'
 import { imageFile } from '../cards/next-actions.ts'

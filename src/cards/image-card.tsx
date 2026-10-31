@@ -179,7 +179,7 @@ export function registerImageCards(ctx: sdk.PluginContext) {
     })
   ctx.register({
     id: 'studiotwin-image-directive',
-    area: sdk.TRANSCRIPT_DIRECTIVE_AREA,
+    area: sdk.TRANSCRIPT_DIRECTIVE_AREA ?? 'transcript.directives',
     data: {
       name: 'studiotwin-image',
       render: (p: sdk.TranscriptDirectiveProps) => {

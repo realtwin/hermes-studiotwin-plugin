@@ -1,4 +1,5 @@
-import { Button } from '@hermes/plugin-sdk'
+import * as sdk from '@hermes/plugin-sdk'
+const { Button } = sdk
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { PluginContext } from '@hermes/plugin-sdk'
 import { adjacentFrame, loadVideoTiming } from './video-timing.ts'

@@ -1,0 +1,37 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v07
+
+ ❯ tests/bundle/plugin-bundle.test.ts (4 tests | 1 failed | 3 skipped) 16ms
+   × ships a single compiled ESM artifact with only namespace SDK imports and allowed external modules 14ms
+     → build and commit desktop/plugin.js: expected false to be true // Object.is equality
+   ↓ bundles the complete discoverable workflow skill and documents the manifest settings
+   ↓ Chromium imports the committed bundle, registers and renders all surfaces (full SDK)
+   ↓ Chromium imports the committed bundle, registers and renders all surfaces (missing area/registration exports)
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/bundle/plugin-bundle.test.ts > ships a single compiled ESM artifact with only namespace SDK imports and allowed external modules
+AssertionError: build and commit desktop/plugin.js: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/bundle/plugin-bundle.test.ts:19:70
+     17| }
+     18| it('ships a single compiled ESM artifact with only namespace SDK impor…
+     19|   expect(existsSync(artifact), 'build and commit desktop/plugin.js').t…
+       |                                                                      ^
+     20|   const text = readFileSync(artifact, 'utf8')
+     21|   const file = ts.createSourceFile('plugin.js', text, ts.ScriptTarget.…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 skipped (4)
+   Start at  05:55:42
+   Duration  985ms (transform 106ms, setup 0ms, collect 707ms, tests 16ms, environment 0ms, prepare 79ms)
+

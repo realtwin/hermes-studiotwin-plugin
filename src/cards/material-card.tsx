@@ -174,7 +174,7 @@ export function registerMaterialCards(
   disposers.push(
     ctx.register({
       id: "studiotwin-material-directive",
-      area: sdk.TRANSCRIPT_DIRECTIVE_AREA,
+      area: sdk.TRANSCRIPT_DIRECTIVE_AREA ?? 'transcript.directives',
       data: {
         name: "studiotwin-material",
         render: (p: sdk.TranscriptDirectiveProps) => {

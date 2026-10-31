@@ -1,6 +1,8 @@
 // Adapted from Nous Research elevenlabs-sound-effects src/audio.ts + sound.ts (MIT).
 // Copyright (c) 2026 Nous Research. No provider credentials or local filesystem access in the UI.
-import { host, type PluginContext } from '@hermes/plugin-sdk'
+import * as sdk from '@hermes/plugin-sdk'
+import type { PluginContext } from '@hermes/plugin-sdk'
+const { host } = sdk
 
 export type AudioSource = { path: string; asset?: never } | { asset: string; path?: never }
 export interface AudioPayload { name: string; mime: string; bytes: number; dataUrl: string }

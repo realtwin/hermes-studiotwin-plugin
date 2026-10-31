@@ -179,7 +179,7 @@ export function registerModelCards(ctx: sdk.PluginContext, options: { webgl_limi
   disposers.push(
     ctx.register({
       id: 'studiotwin-model-directive',
-      area: sdk.TRANSCRIPT_DIRECTIVE_AREA,
+      area: sdk.TRANSCRIPT_DIRECTIVE_AREA ?? 'transcript.directives',
       data: {
         name: 'studiotwin-model',
         render: (props: sdk.TranscriptDirectiveProps) => {

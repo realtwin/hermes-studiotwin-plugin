@@ -44,7 +44,7 @@ export function registerAudioCards(ctx: PluginContext): void {
     id: 'studiotwin-audio-media', area: sdk.TOOL_MEDIA_RENDERER_AREA,
     data: { tools: AUDIO_TOOLS, render: (media: ToolMediaRendererProps) => <ToolMediaAudioCard key={`${media.toolCallId}:${media.file.path}`} ctx={ctx} media={media} /> }
   })
-  ctx.register({ id: 'studiotwin-audio-directive', area: sdk.TRANSCRIPT_DIRECTIVE_AREA,
+  ctx.register({ id: 'studiotwin-audio-directive', area: sdk.TRANSCRIPT_DIRECTIVE_AREA ?? 'transcript.directives',
     data: { name: 'studiotwin-audio', render: (directive: TranscriptDirectiveProps) => <DirectiveAudioCard ctx={ctx} directive={directive} /> }
   })
 }
