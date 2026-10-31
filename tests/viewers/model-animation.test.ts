@@ -209,6 +209,101 @@ it.skipIf(process.env.STUDIOTWIN_WEBGL_TEST !== '1')(
   60_000
 )
 
+it.skipIf(process.env.STUDIOTWIN_WEBGL_TEST !== '1')(
+  'standalone errors survive disposal and recover only on retry or source replacement',
+  async () => {
+    const bundled = await build({
+      stdin: {
+        contents: `
+          import React from 'react'; import {createRoot} from 'react-dom/client';
+          import {ModelViewer} from './src/viewers/model-viewer.tsx';
+          import {AnimationViewer} from './src/viewers/animation-viewer.tsx';
+          import {modelWebGLPool} from './src/viewers/webgl-pool.ts';
+          const root=createRoot(document.getElementById('root'));
+          const good=${JSON.stringify({ name: 'rig.glb', dataUrl: 'data:model/gltf-binary;base64,' + fixture('model/rigged-animated.glb').toString('base64') })};
+          let failure='rest', source='/first.glb', fallback=true, animation=false, mount=0;
+          window.failures=0; window.calls=0; window.pool=modelWebGLPool;
+          const rest=async()=>{window.calls++; if(failure==='rest') throw Error('REST rejected');
+            return failure==='decode'?{name:'bad.glb',dataUrl:'data:,bad'}:good};
+          const render=()=>root.render(React.createElement(animation?AnimationViewer:ModelViewer,{
+            key:mount,rest,source:{path:source},fallback:fallback?React.createElement('p',{'data-fallback':true},'Standalone fallback'):undefined,
+            onError:()=>window.failures++}));
+          window.configure=(kind,withFallback,isAnimation)=>{mount++;window.failures=0;failure=kind;fallback=withFallback;animation=isAnimation;source='/first.glb';render()};
+          window.succeed=()=>{failure='none'};
+          window.replaceSource=()=>{failure='none';source='/replacement.glb';render()};
+          window.unmount=()=>root.unmount();
+        `,
+        resolveDir: process.cwd(), loader: 'tsx'
+      },
+      bundle: true, write: false, format: 'iife',
+      alias: { '@hermes/plugin-sdk': resolve('tests/scaffold/sdk-stub.ts') },
+      define: { 'process.env.NODE_ENV': '"production"' }
+    })
+    const browser = await chromium.launch({
+      executablePath: process.env.STUDIOTWIN_CHROME || chromium.executablePath(),
+      args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-sandbox']
+    })
+    try {
+      const page = await browser.newPage()
+      const errors: string[] = []
+      page.on('pageerror', (e) => errors.push(e.message))
+      await page.setContent('<div id="root" style="width:600px"></div>')
+      await page.addScriptTag({ content: bundled.outputFiles[0].text })
+      // A task plus two animation frames lets passive effects and their state updates settle.
+      const settle = () => page.evaluate(() => new Promise<void>((done) => {
+        setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(() => done())), 50)
+      }))
+      for (const animation of [false, true]) {
+        for (const failure of ['rest', 'decode']) {
+          for (const fallback of [true, false]) {
+            await page.evaluate(({ failure, fallback, animation }) => {
+              ;(window as any).configure(failure, fallback, animation)
+            }, { failure, fallback, animation })
+            await page.getByRole('button', { name: 'Click to load 3D' }).click()
+            await page.waitForFunction(() => (window as any).pool.size === 0 && (window as any).failures > 0)
+            await settle()
+            expect(await page.locator('canvas').count()).toBe(0)
+            expect(await page.locator('[data-fallback]').count()).toBe(fallback ? 1 : 0)
+            if (!fallback) {
+              const retry = page.getByRole('button', { name: 'Preview failed. Retry 3D' })
+              expect(await retry.count()).toBe(1)
+              const calls = await page.evaluate(() => (window as any).calls)
+              await page.evaluate(() => { (window as any).succeed() })
+              await retry.click()
+              await page.locator('[data-model-stats]').waitFor()
+              await settle()
+              expect(await page.evaluate(() => (window as any).calls)).toBe(calls + 1)
+              expect(await page.locator('canvas').count()).toBe(1)
+              expect(await page.getByRole('button', { name: 'Preview failed. Retry 3D' }).count()).toBe(0)
+              // Start another failed attempt, then replace its source without remounting below.
+              await page.evaluate(({ failure, animation }) => { (window as any).configure(failure, false, animation) }, { failure, animation })
+              await page.getByRole('button', { name: 'Click to load 3D' }).click()
+              await retry.waitFor()
+              await settle()
+            }
+            // Same component identity and REST function: only the source changes.
+            await page.evaluate(() => { (window as any).replaceSource() })
+            await page.getByRole('button', { name: 'Click to load 3D' }).waitFor()
+            expect(await page.locator('[data-fallback]').count()).toBe(0)
+            await page.getByRole('button', { name: 'Click to load 3D' }).click()
+            await page.locator('[data-model-stats]').waitFor()
+            await settle()
+            expect(await page.locator('canvas').count()).toBe(1)
+            expect(await page.evaluate(() => (window as any).pool.size)).toBe(1)
+          }
+        }
+      }
+      await page.evaluate(() => { (window as any).unmount() })
+      expect(await page.locator('canvas').count()).toBe(0)
+      expect(await page.evaluate(() => (window as any).pool.size)).toBe(0)
+      expect(errors).toEqual([])
+    } finally {
+      await browser.close()
+    }
+  },
+  60_000
+)
+
 describe('GPU ownership', () => {
   it('caps four contexts, evicts LRU synchronously before allocation, releases exactly once', () => {
     const p = new WebGLPool(4)

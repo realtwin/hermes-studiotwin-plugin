@@ -56,8 +56,10 @@ export function ModelViewer({
     o.observe(el)
     return () => o.disconnect()
   }, [id])
+  // Disposal changes live, not the outcome of the last attempt. Only a new
+  // source/backend or an explicit retry should clear a failed preview.
+  useEffect(() => setError(false), [rest, sourceKey])
   useEffect(() => {
-    setError(false)
     setReady(false)
     setStats(null)
     if (!live || !canvasHost.current) return
@@ -164,7 +166,10 @@ export function ModelViewer({
         {!live && (
           <button
             type="button"
-            onClick={() => setLive(true)}
+            onClick={() => {
+              setError(false)
+              setLive(true)
+            }}
             style={{
               position: 'absolute',
               inset: 0,
