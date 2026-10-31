@@ -39,6 +39,41 @@ def api(tmp_path, monkeypatch):
             yield client, mod, h, settings
 
 
+def test_assets_pages_merge_before_slice_and_keep_provider_schema(api, monkeypatch):
+    c, mod, h, _ = api
+    h.fake.assets.clear()
+    for i in range(205):
+        h.fake._new_asset(f'image-{i}.png', 'image', 'user', media_rel='image/concept-64.png')
+    late = h.fake._new_asset('late.mp4', 'video', 'user', media_rel='video/testsrc-32.mp4')
+    local = Path.home() / 'local.mp4'
+    local.write_bytes((ROOT / 'tests/fixtures/media/video/testsrc-32.mp4').read_bytes())
+    mod._index().record(local, kind='video')
+    cached = Path.home() / 'cached.png'
+    cached.write_bytes((ROOT / 'tests/fixtures/media/image/concept-64.png').read_bytes())
+    duplicate = next(iter(h.fake.assets))
+    mod._index().record(cached, asset=duplicate, kind='image')
+    pages = [c.get('/assets', params={'limit':100,'offset':offset}).json() for offset in (0,100,200,300)]
+    assert [len(p['assets']) for p in pages] == [100,100,7,0]
+    assert [p['next_offset'] for p in pages] == [100,200,None,None]
+    assert all(p['total'] == 207 for p in pages)
+    rows = [r for p in pages for r in p['assets']]
+    assert len({r.get('uuid') or r['path'] for r in rows}) == 207
+    assert next(r for r in rows if r.get('uuid') == duplicate)['local_path'] == str(cached)
+    filtered = [c.get('/assets', params={'type':'video','limit':1,'offset':i}).json() for i in (0,1,2)]
+    assert [p['next_offset'] for p in filtered] == [1,None,None]
+    assert filtered[0]['assets'][0]['uuid'] == late['uuid']
+    assert filtered[1]['assets'][0]['path'] == str(local)
+    assert all(p['total'] == 2 for p in filtered)
+    assert c.get('/assets?offset=-1').status_code == 422
+    assert c.get('/assets?limit=101').status_code == 422
+    calls = [call for call in h.fake.calls if call['name'] == 'studiotwin_list_my_assets']
+    assert [call['args'] for call in calls] == [{}, {}, {}, {}, {'type':'video'}, {'type':'video'}, {'type':'video'}]
+    monkeypatch.setattr(mod, '_api_key', lambda: None)
+    page = c.get('/assets?limit=1&offset=1').json()
+    assert not page['configured'] and page['total'] == 2 and page['next_offset'] is None
+    assert page['assets'][0]['path'] == str(cached)
+
+
 @pytest.mark.parametrize('raw', [False, True])
 def test_account_credentials_json_is_not_media(api, raw):
     c, _, _, _ = api

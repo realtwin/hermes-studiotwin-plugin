@@ -101,6 +101,22 @@ def main():
                         'upload_count': len(fake.uploads), 'balance': fake.balance,
                         'ledger': fake.ledger, 'submissions': fake.vp_submissions}
 
+            @app.post('/__test/large-library')
+            def large_library():
+                fake.assets.clear()
+                for i in range(205):
+                    fake._new_asset(f'prefix-{i}.png', 'image', 'user', media_rel='image/concept-64.png')
+                video = fake._new_asset('late-video.mp4', 'video', 'user', media_rel='video/testsrc-32.mp4')
+                image = fake._new_asset('late-cloud.png', 'image', 'user', media_rel='image/concept-64.png')
+                local = cached / 'late-local.png'
+                shutil.copyfile(ROOT / 'tests/fixtures/media/image/concept-64.png', local)
+                api._index().record(local, kind='image')
+                # A cached cloud duplicate must merge, not consume a second row.
+                duplicate = cached / 'cached-cloud.png'
+                shutil.copyfile(local, duplicate)
+                api._index().record(duplicate, asset=image['uuid'], kind='image')
+                return {'video': video['uuid'], 'image': image['uuid'], 'total': 209}
+
             @app.post('/__test/credits/{value}')
             def show_credits(value: str):
                 settings['show_credits'] = value == 'true'

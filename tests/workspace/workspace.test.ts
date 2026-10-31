@@ -199,6 +199,56 @@ it("Chromium: real library filters/search, model inspector, backend lineage and 
   await browserExpect(dialog).toHaveCount(0);
 }, 60000);
 
+it("Chromium: complete merged library beyond 100 rows supports late modality, search and inspection", async () => {
+  const { page, url } = await mount({ largeLibrary: true });
+  const all = page.getByRole("region", { name: "Asset Library" });
+  await browserExpect(all.locator("article")).toHaveCount(209);
+  await page.getByRole("button", { name: "Video", exact: true }).click();
+  await page.getByRole("button", { name: "late-video.mp4", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "Asset inspection" });
+  await browserExpect(dialog.locator("video")).toBeVisible();
+  await page.waitForFunction(() => document.querySelector("video")!.readyState >= 2);
+  await dialog.getByRole("button", { name: "Close asset inspection", exact: true }).click();
+  await page.getByRole("button", { name: "Image & Concept", exact: true }).click();
+  await page.getByLabel("Search assets").fill("late-local");
+  await browserExpect(all.locator("article")).toHaveCount(1);
+  await page.getByRole("button", { name: "late-local.png", exact: true }).click();
+  await browserExpect(dialog.getByAltText("StudioTwin image")).toBeVisible();
+  await dialog.getByRole("button", { name: "Close asset inspection", exact: true }).click();
+  await page.getByLabel("Search assets").fill("cached-cloud");
+  await browserExpect(all.locator("article")).toHaveCount(1);
+  await page.getByRole("button", { name: "cached-cloud.png", exact: true }).click();
+  await browserExpect(dialog.getByAltText("StudioTwin image")).toBeVisible();
+  await dialog.getByRole("button", { name: "Close asset inspection", exact: true }).click();
+  await page.getByLabel("Search assets").fill("");
+  await page.getByRole("button", { name: "All", exact: true }).click();
+  await browserExpect(all.locator("article")).toHaveCount(209);
+  const state = await harness!.state();
+  const lists = state.calls.filter((c: any) => c.name === "studiotwin_list_my_assets");
+  expect(lists.length).toBeGreaterThanOrEqual(3);
+  // Paging is plugin-owned, never invented as provider tool arguments.
+  expect(lists.every((c: any) => Object.keys(c.arguments ?? c.args ?? {}).length === 0)).toBe(true);
+  const pages = await Promise.all([0, 100, 200, 300].map(offset =>
+    fetch(url + `/api/plugins/hermes-studiotwin/assets?limit=100&offset=${offset}`).then(r => r.json())));
+  expect(pages.map(p => p.assets.length)).toEqual([100, 100, 9, 0]);
+  expect(pages.map(p => p.next_offset)).toEqual([100, 200, null, null]);
+  expect(pages.every(p => p.total === 209)).toBe(true);
+  expect(new Set(pages.flatMap(p => p.assets.map((a: any) => a.uuid ?? a.path))).size).toBe(209);
+}, 60000);
+
+it("Chromium: a failed later library page reports an error, not missing assets, and refresh retries all pages", async () => {
+  const { page } = await mount({ tab: "Jobs", largeLibrary: true });
+  await page.route("**/api/plugins/hermes-studiotwin/assets?limit=100&offset=100", route => route.abort("failed"));
+  await page.getByRole("tab", { name: "Library", exact: true }).click();
+  await page.getByRole("button", { name: "Video", exact: true }).click();
+  await browserExpect(page.getByRole("alert")).toContainText("Asset library unavailable");
+  await browserExpect(page.getByText(/No matching assets/)).toHaveCount(0);
+  await page.unroute("**/api/plugins/hermes-studiotwin/assets?limit=100&offset=100");
+  await page.getByRole("button", { name: "Refresh library", exact: true }).click();
+  await browserExpect(page.getByRole("button", { name: "late-video.mp4", exact: true })).toBeVisible();
+  await browserExpect(page.getByRole("alert")).toHaveCount(0);
+}, 60000);
+
 it("Chromium: real job filters, queued-only cancellation and Inspect Output opens the real image viewer", async () => {
   const { page, state } = await mount({ tab: "Jobs" });
   for (const filter of ["All", "Active", "Completed", "Failed", "Cancelled"])

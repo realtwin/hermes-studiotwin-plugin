@@ -160,7 +160,7 @@ def status():
 
 
 @router.get('/assets')
-def assets(type: str = '', limit: int | None = Query(None,ge=1,le=100)):
+def assets(type: str = '', limit: int | None = Query(None,ge=1,le=100), offset: int = Query(0,ge=0)):
     if type and type not in TYPES:
         raise HTTPException(400,'unsupported asset type')
     limit = limit or _settings()['gallery_limit']
@@ -176,7 +176,11 @@ def assets(type: str = '', limit: int | None = Query(None,ge=1,le=100)):
             continue
         row['made_from'] = _provenance().details(row.get('uuid') or row.get('task') or '')['made_from']
         visible.append(row)
-    return {'configured':bool(_api_key()),'assets':visible[:limit]}
+    # The provider returns a complete assets array, not a paged tool response.
+    # Page only after merging/deduplicating and filtering cloud + local rows.
+    page = visible[offset:offset+limit]
+    return {'configured':bool(_api_key()),'assets':page,'total':len(visible),
+            'next_offset':offset+len(page) if offset+len(page) < len(visible) else None}
 
 
 @router.get('/assets/{uuid}')

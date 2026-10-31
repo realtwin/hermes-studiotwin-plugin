@@ -7,7 +7,6 @@ import {
   list,
   modality,
   panel,
-  useWorkspaceQuery,
   type Row,
 } from "./workspace-data.ts";
 const filters: [string, string[]][] = [
@@ -28,11 +27,30 @@ export function LibraryTab({
 }) {
   const [filter, setFilter] = useState("All"),
     [search, setSearch] = useState("");
-  // Composite modalities (3D + animation, image + HDR) cannot be expressed by the backend's single type enum.
-  const type = filter === "Audio SFX" ? "audio" : "";
-  const query = useWorkspaceQuery(scope, `/assets?type=${type}&limit=100`);
+  // Load the entire merged library before client-side composite modality/search
+  // predicates run. A failed later page fails the read, never a false empty result.
+  const query = sdk.useQuery<Row[]>({
+    queryKey: ["studiotwin-workspace", scope.key, "complete-library"],
+    queryFn: async () => {
+      const rows = new Map<string, Row>();
+      let offset = 0;
+      for (;;) {
+        const page = await scope.rest<Row>(`/assets?limit=100&offset=${offset}`);
+        for (const row of list(page, "assets"))
+          rows.set(assetId(row) ?? row.path, row);
+        if (page.next_offset === null) return [...rows.values()];
+        if (!Number.isInteger(page.next_offset) || page.next_offset <= offset)
+          throw Error("Invalid asset pagination; refresh the library to retry.");
+        offset = page.next_offset;
+      }
+    },
+    enabled: scope.current(),
+    retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
   const allowed = filters.find(([label]) => label === filter)![1];
-  const rows = list(query.data, "assets").filter(
+  const rows = (query.data ?? []).filter(
     (r) =>
       (!allowed.length || allowed.includes(modality(r))) &&
       `${r.name ?? ""} ${r.prompt ?? ""} ${assetId(r) ?? ""}`

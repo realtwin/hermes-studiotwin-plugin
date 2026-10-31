@@ -19,6 +19,7 @@ export async function openWorkspace(
     configured?: boolean;
     settingsDoor?: boolean;
     backendOnly?: boolean;
+    largeLibrary?: boolean;
   } = {},
 ): Promise<WorkspaceHarness> {
   const root = process.cwd();
@@ -68,6 +69,8 @@ export async function openWorkspace(
       if (i === 100) throw Error("Backend not healthy");
       await new Promise((resolve) => setTimeout(resolve, 50));
     }
+    if (options.largeLibrary)
+      await fetch(url + "/__test/large-library", { method: "POST" });
     if (options.configured === false)
       await fetch(url + "/__test/configured/false", { method: "POST" });
     const bundle = options.backendOnly
