@@ -171,7 +171,7 @@ Directive attributes below come from `src/cards/`, not remote MCP schemas. Subst
 
 | Directive | Actual attributes |
 |---|---|
-| `studiotwin-model` | Exactly one `path` or `asset`; optional `name`, `title`. No remote `url` input. |
+| `studiotwin-model` | Exactly one `path` or `asset`; optional `name`, `title`, `audit` (local audit JSON path or audit asset UUID). No remote `url` input. |
 | `studiotwin-audio` | Exactly one `path` or `asset`; optional `prompt`. |
 | `studiotwin-env` | Exactly one `path` or `asset`; optional `name`, JSON-string `stickers`. |
 | `studiotwin-material` | JSON-string `maps`; channel values are path strings or objects with exactly one `path`/`asset`, optional `name`; `albedo` required, `normal`, `roughness`, `metalness`, `heightmap` optional. |
@@ -182,7 +182,7 @@ Directive attributes below come from `src/cards/`, not remote MCP schemas. Subst
 | `studiotwin-concept` | Required `id` (Concept UUID); Concept polling. |
 
 ```text
-::studiotwin-model{path="/absolute/model.glb" title="Approved character"}
+::studiotwin-model{path="/absolute/model.glb" audit="/absolute/rig-audit.json" title="Approved character"}
 ::studiotwin-audio{asset="<asset-uuid>" prompt="Rain ambience"}
 ::studiotwin-env{path="/absolute/environment.hdr"}
 ::studiotwin-material{maps='{"albedo":{"path":"/absolute/albedo.png"},"normal":{"path":"/absolute/normal.png"}}'}
@@ -195,6 +195,10 @@ Directive attributes below come from `src/cards/`, not remote MCP schemas. Subst
 ```
 
 Environment sticker JSON uses `assetId`, numeric `yawDeg`, `pitchDeg`, `rollDeg`, `hFovDeg`, optional positive `sourceAspect`. Its overlay shows a placement boundary, not proof the provider composited the image. For material/env/model sources, resolve cloud URIs to asset UUIDs or download locally; those cards do not take arbitrary `s3://` paths. Image/video URL acceptance in the directive does not guarantee backend/network support: download or resolve an asset when necessary.
+
+For a provider rig verdict, preserve the separate `blender-auto-rig` `audit` output (or `tripo-auto-rig` audit when supplied), save that JSON locally on the backend or resolve its asset UUID, then pass it as `audit=` alongside the mesh. The JSON must contain boolean `riggable`, nonnegative integer `joints`, and a string-array `warnings`. A valid audit alone supplies “Rig audit: passed / needs attention”; warnings remain visible. Missing audit sources produce no badge; supplied but malformed/unloadable data shows an unavailable notice without breaking the preview. “Rig inspection (local)” reports only parsed model joints, skinned meshes and clips, never a provider verdict.
+
+Tool-media cards read the producing tool's result, including Hermes's `{result: ...}` / `structuredContent` envelope; they do not receive a filename-to-output-field mapping for sibling attachments. A local/asset `audit` reference is loaded through the bound-scope `/file` route. An HTTPS-only audit says “provided separately” and is not fetched by the renderer. MCP resource links remain links (not automatically downloaded), and binary embedded resources produce a saved-resource notice rather than rewriting `audit` to a local path. Thus downloading files in a separate tool does not automatically attach the provider audit to a model card: use the explicit directive with the saved audit reference.
 
 ## Made from provenance
 

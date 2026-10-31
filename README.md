@@ -93,7 +93,7 @@ The agent submits once and polls the original job/Concept. A timeout does not pr
 With the Desktop half enabled, standalone directives render existing assets or progress. Examples (replace placeholders with actual IDs/host paths):
 
 ```text
-::studiotwin-model{path="/absolute/model.glb" title="Character"}
+::studiotwin-model{path="/absolute/model.glb" audit="/absolute/rig-audit.json" title="Character"}
 ::studiotwin-audio{asset="<asset-uuid>"}
 ::studiotwin-env{path="/absolute/environment.hdr"}
 ::studiotwin-material{maps='{"albedo":{"path":"/absolute/albedo.png"},"normal":{"path":"/absolute/normal.png"}}'}
@@ -105,6 +105,8 @@ With the Desktop half enabled, standalone directives render existing assets or p
 ```
 
 [Exact attributes and sequence/sticker examples](skills/studiotwin/SKILL.md#delivery-by-surface-and-desktop-directives) are in the skill. Model/audio/environment cards use a local `path` or asset UUID, not arbitrary cloud URLs. Material maps need resolved/downloaded channel sources. A task/job card uses `id`, not `task`. Cards are scoped to their original profile/connection; reopening after a switch avoids retargeting old media to a different account. At most four live 3D WebGL viewers are allowed, configurable down to one; off-screen/context-limited cards can fall back until reopened.
+
+The model directive's optional `audit=` is the separate provider audit JSON from `blender-auto-rig` (or `tripo-auto-rig` when present), saved to a backend-local path or referenced by asset UUID. Only validated provider data supplies a rig-audit verdict; invalid/unloadable audits show an unavailable notice while the mesh still previews. Local skeleton counts appear separately as “Rig inspection (local)”, not a passing audit. Tool-media cards use a local/asset `audit` in the producing result; HTTPS-only audit URLs are “provided separately”, never fetched from the renderer. The host passes the producing result and one MEDIA file at a time, not a mapping of sibling output files: use `audit=` after separately downloading a provider audit.
 
 **Telegram, Discord, Slack and WhatsApp:** long mesh, rig, pano-stickers and world jobs need a real notification-capable background poller. The skill supplies a host-aware Python adapter using the shipped direct MCP client to poll `studiotwin_get_job_status`, launched through `terminal(background=True, notify=True)`, exiting 0 on completion. A shell cannot invoke a model tool by typing its name, and no `studiotwin` CLI/poller executable is bundled. The host interpreter, active-profile secret resolver and plugin path must be checked before arming it. Without that wake, the agent must not promise future delivery. Desktop polling updates the visible card only; it does not wake the agent or execute a paid chain.
 

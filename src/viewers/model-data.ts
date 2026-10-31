@@ -10,6 +10,7 @@ import {
   SkeletonHelper,
   type Object3D,
   type Mesh,
+  type SkinnedMesh,
   type Material,
   type AnimationAction
 } from 'three'
@@ -18,16 +19,18 @@ export function modelStats(p: ParsedModel) {
   let vertices = 0,
     triangles = 0,
     meshes = 0,
-    bones = 0
+    bones = 0,
+    skinnedMeshes = 0
   p.root.traverse((n) => {
     if ((n as Bone).isBone) bones++
     const m = n as Mesh
     if (!m.isMesh) return
     meshes++
+    if ((m as SkinnedMesh).isSkinnedMesh) skinnedMeshes++
     vertices += m.geometry.getAttribute('position')?.count ?? 0
     triangles += (m.geometry.index?.count ?? m.geometry.getAttribute('position')?.count ?? 0) / 3
   })
-  return { vertices, triangles, meshes, bones, clips: p.clips.map((c, i) => c.name || `Clip ${i + 1}`) }
+  return { vertices, triangles, meshes, bones, skinnedMeshes, clips: p.clips.map((c, i) => c.name || `Clip ${i + 1}`) }
 }
 export type ModelStats = ReturnType<typeof modelStats>
 export function disposeModel(root: Object3D) {
