@@ -11,7 +11,7 @@ const owner = vi.hoisted(() => ({
   profile: 'alpha',
   connection: null as string | null,
   listeners: new Set<() => void>(),
-  submit: vi.fn(() => true),
+  submit: vi.fn((_session: string, _message: string) => true),
 }))
 vi.mock('@hermes/plugin-sdk', async () => {
   const query = await import('@tanstack/react-query')
@@ -109,7 +109,8 @@ it('loads image metadata, provenance, comparison, zoom lightbox and owner-chat N
   fireEvent.change(screen.getByRole('slider', { name: 'Zoom' }), { target: { value: '2' } })
   fireEvent.click(screen.getByRole('button', { name: 'Close inspection' }))
   fireEvent.click(screen.getByRole('button', { name: /Edit Concept Image/ }))
-  expect(owner.submit).toHaveBeenCalledWith('owner', expect.stringContaining('5 credits'))
+  expect(owner.submit).toHaveBeenCalledWith('owner', expect.stringContaining('estimate first'))
+  expect(owner.submit.mock.calls[0][1]).not.toMatch(/\d+ credits/)
   switchScope()
   await screen.findByText('Image fallback')
 })
@@ -185,9 +186,13 @@ it('registers explicit image tools (bare and canonical), directives and no termi
   ])
   const tools = (rows[0].data as any).tools
   expect(tools).toContain('openai-gpt-image-1-v1-fn')
+  expect(tools).toContain('openai-gpt-image-2-v4-fn')
   expect(tools).toContain('mcp__studiotwin__studiotwin_conceptlab_edit')
   expect(tools).not.toContain('terminal')
-  expect(imageActions({ asset: 'a' }).map((a) => a.cost)).toEqual([5, 30, 20, 10, 10])
+  expect(imageActions({ asset: 'a' }).map((a) => a.cost)).toEqual([null, 25, null, 25, null])
+  expect(imageActions({ asset: 'a' }).map((a) => a.cost_label)).toEqual([
+    'estimate in chat', '25 cr', 'estimate in chat', '25 cr', 'estimate in chat',
+  ])
 })
 it('renders video controls, handles decode failure with persistent fallback', async () => {
   render(createElement(VideoCard, { ctx: ctx(), source: { path: '/v.mp4' }, fallback: 'Video fallback' }))

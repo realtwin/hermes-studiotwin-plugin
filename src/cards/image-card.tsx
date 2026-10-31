@@ -1,4 +1,5 @@
 import * as sdk from '@hermes/plugin-sdk'
+import { studiotwinToolAliases } from './tool-names.ts'
 import { useEffect, useState, type ReactNode } from 'react'
 import { ImageViewer } from '../viewers/image-viewer.tsx'
 import {
@@ -112,6 +113,7 @@ export function ImageCard(props: ImageCardProps) {
   )
 }
 const NAMES = [
+  'openai-gpt-image-2-v4-fn',
   'openai-gpt-image-1-v1-fn',
   'concept-lab-img-fn',
   'studiotwin_conceptlab_create_and_generate',
@@ -120,16 +122,7 @@ const NAMES = [
   'studiotwin_conceptlab_get',
   'studiotwin_conceptlab_get_status',
 ]
-export const IMAGE_TOOLS = [
-  ...new Set(
-    NAMES.flatMap((n) => [
-      n,
-      `mcp__studiotwin__${n}`,
-      `mcp__studiotwin__${n.replace(/-/g, '_')}`,
-      `mcp_studiotwin_${n.replace(/-/g, '_')}`,
-    ]),
-  ),
-]
+export const IMAGE_TOOLS = studiotwinToolAliases(NAMES)
 export function conceptImages(value: unknown) {
   const row = object(value),
     concept = object(row.concept ?? row)

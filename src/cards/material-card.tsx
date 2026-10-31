@@ -1,4 +1,6 @@
 import * as sdk from "@hermes/plugin-sdk";
+import { studiotwinToolAliases } from './tool-names.ts';
+import { costLabel } from './action-costs.ts';
 import { useState, type ReactNode } from "react";
 import { MaterialViewer } from "../viewers/material-viewer.tsx";
 import {
@@ -30,9 +32,9 @@ export const materialTools = [
 ];
 export const materialTool = (n: string) => materialTools.includes(cleanTool(n));
 export const nextMaterialActions = [
-  ["Extract PBR Maps from Texture (20 cr)", "texture-to-material"],
-  ["Generate Material Variation (estimate in chat)", "image-to-material"],
-];
+  [`Extract PBR Maps from Texture (${costLabel('texture-to-material')})`, "texture-to-material"],
+  [`Generate Material Variation (${costLabel('image-to-material')})`, "image-to-material"],
+] as const;
 export function parseMaterialMaps(value: unknown): MaterialMaps {
   const doc = resultObject(value),
     maps: MaterialMaps = {};
@@ -145,12 +147,9 @@ export function registerMaterialCards(
         id: "studiotwin-material-media",
         area: sdk.TOOL_MEDIA_RENDERER_AREA,
         data: {
-          tools: [
-            ...materialTools,
-            ...materialTools.map((n) => "mcp__studiotwin__" + n),
-          ],
+          tools: studiotwinToolAliases(materialTools),
           render: (p: sdk.ToolMediaRendererProps) => {
-            if (!materialTool(p.toolName)) return p.fallback;
+            if (!materialTool(p.toolName) || !(p.file.kind === 'image' || (p.file.kind === 'file' && /\.(json|zip)$/i.test(p.file.name)))) return p.fallback;
             try {
               const r = resultObject(p.result);
               const maps = parseMaterialMaps(r.maps ?? r);

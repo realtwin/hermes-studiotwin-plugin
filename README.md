@@ -76,7 +76,7 @@ A manually configured `mcp_servers.studiotwin` can override the bundled connecti
 
 The bundled [workflow skill](skills/studiotwin/SKILL.md#complete-captured-tool-catalog) lists **all 45 exact provider tool names** from the [captured tools/list](tests/fixtures/tools-list-2026-10-30.json), including ConceptLab. The live server can change independently of this package; discover and read its schemas before invoking. Hermes prefixes/sanitizes callable names; search results, not guessed prefixes, are authoritative.
 
-Image routing has an intentional warning: legacy viewer code names `openai-gpt-image-1-v1-fn`, while the captured server exposes `openai-gpt-image-2-v4-fn` plus `concept-lab-img-fn`. Do not call the old identifier merely because a renderer recognizes it. `pano-sticker-placement` chooses placement parameters; the separate `pano-stickers` function composites the panorama with camelCase sticker inputs. See the skill for the captured `sourceAspect` schema discrepancy and safe pass-through policy.
+Image-name drift warning: the viewer recognizes both current `openai-gpt-image-2-v4-fn` and legacy `openai-gpt-image-1-v1-fn` for old transcripts, plus `concept-lab-img-fn`. The captured server exposes the current name, not the legacy identifier. Discover the live tool; do not call the legacy identifier merely because a renderer recognizes it. `pano-sticker-placement` chooses placement parameters; the separate `pano-stickers` function composites the panorama with camelCase sticker inputs. See the skill for the captured `sourceAspect` schema discrepancy and safe pass-through policy.
 
 ## Credits and approval
 

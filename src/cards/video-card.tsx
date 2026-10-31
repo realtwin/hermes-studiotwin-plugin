@@ -1,4 +1,5 @@
 import * as sdk from '@hermes/plugin-sdk'
+import { studiotwinToolAliases } from './tool-names.ts'
 import { useState, type ReactNode } from 'react'
 import { VideoViewer } from '../viewers/video-viewer.tsx'
 import { object, useMediaScope, type MediaScope, type MediaSource } from './next-actions.ts'
@@ -33,15 +34,15 @@ export function VideoCard(props: VideoCardProps) {
   )
 }
 // Claim only package producing tools. Terminal render_preview outputs are opened by directive, not hijacked.
-export const VIDEO_TOOLS = [
-  'image_to_3d_mesh',
-  'tripo_image_to_3d_mesh',
-  'text_to_motion',
-  'text_to_motion_kimodo',
-  'text_to_motion_edit',
-  'text_to_motion_control',
-  'environment_map_to_world',
-].flatMap((n) => [n.replace(/_/g, '-'), `mcp__studiotwin__${n}`, `mcp_studiotwin_${n}`])
+export const VIDEO_TOOLS = studiotwinToolAliases([
+  'image-to-3d-mesh',
+  'tripo-image-to-3d-mesh',
+  'text-to-motion',
+  'text-to-motion-kimodo',
+  'text-to-motion-edit',
+  'text-to-motion-control',
+  'environment-map-to-world',
+])
 export function registerVideoCards(ctx: sdk.PluginContext) {
   if (typeof sdk.TOOL_MEDIA_RENDERER_AREA === 'string')
     ctx.register({

@@ -160,6 +160,7 @@ export function registerModelCards(ctx: sdk.PluginContext, options: { webgl_limi
           render: (props: sdk.ToolMediaRendererProps) => {
             if (
               !modelTool(props.toolName) ||
+              props.file.kind !== 'file' ||
               !(canRender(props.file.name) || props.file.name.toLowerCase().endsWith('.json'))
             )
               return props.fallback

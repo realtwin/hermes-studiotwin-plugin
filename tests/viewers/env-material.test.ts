@@ -368,7 +368,7 @@ it.skipIf(process.env.STUDIOTWIN_WEBGL_TEST !== "1")(
         "origin",
       );
       expect(await page.evaluate(() => (window as any).prompts[0].text)).toContain(
-        "estimate the exact inputs and ask me to approve credits before submitting",
+        "estimate the exact inputs with studiotwin_estimate_cost and ask me to approve credits before submitting",
       );
       await page
         .getByRole("button", { name: "Load environment", exact: true })

@@ -39,7 +39,7 @@ RED: `bundle-red.txt` shows the compiled-artifact test failing before `desktop/p
 Follow-up triage: `t_9408178b` (Tris).
 
 - `src/cards/next-actions.ts` has stale illustrative image workflow prices. V07 does not claim these are live estimates; the skill requires estimation/approval. They need a narrow follow-up.
-- Captured current `openai-gpt-image-2-v4-fn` differs from legacy `openai-gpt-image-1-v1-fn` viewer routing; the docs preserve and distinguish both identifiers instead of guessing compatibility. Provider naming/ownership needs a follow-up audit.
+- V07 originally recognized only legacy `openai-gpt-image-1-v1-fn`. V08a now recognizes both that name for old transcripts and captured current `openai-gpt-image-2-v4-fn`. Discover the live schema and do not call the legacy identifier. See `evidence/v08a/README.md` for catalog/ownership verification.
 - `inline_cards`, `auto_rotate`, `gallery_limit` remain declared but not wired across the UI. Workspace inspectors use configured `webgl_limit`; inline viewers retain the four-context default. Docs disclose this rather than falsely claiming live support. Settings wiring is separate from this assembly/import audit.
 - `npm audit` reports three inherited development-tool findings: one moderate, two critical, in the frozen Vitest/mocker/tinypool graph. These packages are not shipped in the production bundle. Existing Tris disposition in `t_d6dee7c0` and `t_28a28cfe` is not reopened; no dependency/scaffold migration was performed.
 

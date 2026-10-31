@@ -399,7 +399,9 @@ for (const legacy of [false, true])
                         ? "audio"
                         : kind === "video"
                           ? "video"
-                          : "image",
+                          : kind === "model"
+                            ? "file"
+                            : "image",
                   },
                   args: {},
                   result:

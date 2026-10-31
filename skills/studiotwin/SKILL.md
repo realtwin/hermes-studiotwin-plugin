@@ -70,7 +70,7 @@ Source: `tests/fixtures/tools-list-2026-10-30.json`, server version 1.2.4. Requi
 | `openai-gpt-image-2-v4-fn` | `mode`, `prompt` | One-shot image generate/edit; variable |
 | `concept-lab-img-fn` | `conceptType`, `mode`, `prompt` | Typed concept-image guidance, not a durable Concept; variable |
 
-**Image-name drift:** `openai-gpt-image-1-v1-fn` occurs in legacy viewer routing, but is **not** in this captured tool list. Discover the live tool instead of calling the old name. The snapshot exposes `openai-gpt-image-2-v4-fn`; do not rename either token or assume they are interchangeable.
+**Image-name drift:** the viewer recognizes both `openai-gpt-image-2-v4-fn` and legacy `openai-gpt-image-1-v1-fn` so old transcripts still render. The legacy identifier is **not** in this captured tool list: discover the live tool and do not call the legacy identifier. The snapshot exposes `openai-gpt-image-2-v4-fn`; do not rename either token or assume they are interchangeable.
 
 ### Wallet, jobs and assets
 

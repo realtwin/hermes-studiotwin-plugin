@@ -1,4 +1,6 @@
 import * as sdk from "@hermes/plugin-sdk";
+import { cleanToolName, studiotwinToolAliases } from './tool-names.ts';
+import { costLabel, costHint, type NextActionTool } from './action-costs.ts';
 import { useEffect, useState, type ReactNode } from "react";
 import { EnvViewer } from "../viewers/env-viewer.tsx";
 import {
@@ -15,21 +17,16 @@ export const envTools = [
   "pano-sticker-placement",
   "pano-stickers",
 ];
-export const cleanTool = (n: string) =>
-  n
-    .replace(/^mcp__studiotwin__/, "")
-    .replace(/^mcp_studiotwin_/, "")
-    .replace(/^studiotwin_/, "")
-    .replace(/_/g, "-");
+export const cleanTool = cleanToolName;
 export const envTool = (n: string) => envTools.includes(cleanTool(n));
 export const nextEnvActions = [
-  ["Upscale Environment (estimate in chat)", "environment-map-upscale-cpu"],
-  ["Place Pano Stickers (1 cr)", "pano-sticker-placement"],
-  ["Composite Pano Stickers (estimate in chat)", "pano-stickers"],
-  ["Generate 3D World (80 cr)", "environment-map-to-world"],
-];
-export function workflowMessage(source: unknown, tool: string) {
-  return `Use ${tool} with StudioTwin source ${JSON.stringify(source)}. Read the live schema, verify compatibility, estimate the exact inputs and ask me to approve credits before submitting. Ask before uploading any local file.`;
+  [`Upscale Environment (${costLabel('environment-map-upscale-cpu')})`, "environment-map-upscale-cpu"],
+  [`Place Pano Stickers (${costLabel('pano-sticker-placement')})`, "pano-sticker-placement"],
+  [`Composite Pano Stickers (${costLabel('pano-stickers')})`, "pano-stickers"],
+  [`Generate 3D World (${costLabel('environment-map-to-world')})`, "environment-map-to-world"],
+] as const;
+export function workflowMessage(source: unknown, tool: NextActionTool) {
+  return `Use ${tool} with StudioTwin source ${JSON.stringify(source)} (${costHint(tool)}). Read the live schema, verify compatibility, estimate the exact inputs with studiotwin_estimate_cost and ask me to approve credits before submitting. Ask before uploading any local file.`;
 }
 export function useCardScope(
   ctx: sdk.PluginContext,
@@ -167,9 +164,9 @@ export function registerEnvCards(
         id: "studiotwin-env-media",
         area: sdk.TOOL_MEDIA_RENDERER_AREA,
         data: {
-          tools: [...envTools, ...envTools.map((n) => "mcp__studiotwin__" + n)],
+          tools: studiotwinToolAliases(envTools),
           render: (p: sdk.ToolMediaRendererProps) => {
-            if (!envTool(p.toolName)) return p.fallback;
+            if (!envTool(p.toolName) || !(p.file.kind === 'image' || (p.file.kind === 'file' && /\.(hdr|exr|json)$/i.test(p.file.name)))) return p.fallback;
             try {
               const r = resultObject(p.result),
                 stickers =
