@@ -1,4 +1,5 @@
 import * as sdk from '@hermes/plugin-sdk'
+import { cardShell, cardHeader, cardTitle, cardSubtitle, cleanDisplayName, creditBadgeStyle, nextDrawerStyle, nextSummaryStyle, nextActionChipStyle } from '../lib/ui-tokens'
 import { useEffect, useState, type ReactNode } from 'react'
 import { ModelViewer } from '../viewers/model-viewer.tsx'
 import { bindModelScope, fetchModel, type ModelSource, type ModelScopeState } from '../viewers/model-source.ts'
@@ -154,17 +155,14 @@ export function ModelCard({
   return (
     <article
       data-studiotwin-model-card
-      style={{
-        maxWidth: 720,
-        padding: 8,
-        border: '1px solid var(--ui-stroke-secondary)',
-        borderRadius: 10,
-        color: 'var(--ui-text)',
-        margin: '6px 0'
-      }}
+      style={{ ...cardShell, maxWidth: 720, margin: '6px 0' }}
     >
-      <header style={{ display: 'flex', gap: 8, alignItems: 'center', paddingBottom: 8 }}>
-        <strong style={{ flex: 1 }}>{title || source.name || 'StudioTwin 3D / Motion'}</strong>
+      <header style={cardHeader}>
+        {sdk.Codicon && <sdk.Codicon name="symbol-misc" size={16} />}
+        <div style={cardTitle}><strong>{cleanDisplayName(title || source.name || 'StudioTwin 3D / Motion').title}</strong>
+          {cleanDisplayName(title || source.name || '').shortId && <div style={cardSubtitle}>{title || source.name}</div>}
+        </div>
+        <span style={creditBadgeStyle}>3D / Motion</span>
         <sdk.Button size="sm" disabled={stale} onClick={() => void download(source).catch(fail)}>
           Download
         </sdk.Button>
@@ -196,12 +194,13 @@ export function ModelCard({
         />
       )}
       {!stale && auditNotice && <p role="status">{auditNotice}</p>}
-      <details>
-        <summary>Next · review and approve in chat</summary>
+      <details style={nextDrawerStyle}>
+        <summary style={nextSummaryStyle}>Next · review and approve in chat</summary>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, paddingTop: 8 }}>
           {nextModelActions(source).map((a) => (
-            <sdk.Button key={a.label} size="sm" disabled={stale} onClick={() => send(a.message)}>
+            <sdk.Button style={nextActionChipStyle} key={a.label} size="sm" disabled={stale} onClick={() => send(a.message)}>
               {a.label}
+              <span aria-hidden="true" style={creditBadgeStyle}>est. in chat</span>
             </sdk.Button>
           ))}
         </div>

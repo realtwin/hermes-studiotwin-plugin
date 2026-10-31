@@ -268,12 +268,32 @@ export function createEnvStage(
     update();
   };
   const el = renderer.domElement;
+  let spinFrame = 0, spinning = false, previousTime = 0;
+  const rotate = (now: number) => {
+    if (disposed || !spinning) return;
+    if (!drag && previousTime) yaw += Math.min(now - previousTime, 100) * 0.006;
+    previousTime = now;
+    update();
+    spinFrame = requestAnimationFrame(rotate);
+  };
   el.addEventListener("pointerdown", down);
   el.addEventListener("pointermove", move);
   el.addEventListener("pointerup", up);
   el.addEventListener("wheel", wheel, { passive: false });
   return {
     ...base,
+    autoRotate(enabled: boolean) {
+      cancelAnimationFrame(spinFrame);
+      spinning = enabled;
+      previousTime = 0;
+      if (enabled && !disposed) spinFrame = requestAnimationFrame(rotate);
+    },
+    reset() {
+      yaw = pitch = 0;
+      camera.fov = 65;
+      camera.updateProjectionMatrix();
+      update();
+    },
     select(assetId: string) {
       group.children.forEach((o) => {
         if (o instanceof T.Mesh)
@@ -303,6 +323,8 @@ export function createEnvStage(
     dispose() {
       disposed = true;
       texture?.dispose();
+      spinning = false;
+      cancelAnimationFrame(spinFrame);
       scene.traverse((o) => {
         const m = o as T.Mesh;
         if (m.geometry) m.geometry.dispose();

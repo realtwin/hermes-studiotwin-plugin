@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import * as sdk from '@hermes/plugin-sdk'
+import { glassToolbar, glassStatsPill, controlStrip, styledSelect, styledRange, filterPillStyle } from '../lib/ui-tokens'
 const { Button } = sdk
 import type { AnimationController } from './model-data.ts'
 import { ModelViewer, type ModelViewerProps } from './model-viewer.tsx'
@@ -40,17 +41,9 @@ export function AnimationControls({
   }
   return (
     <div
-      style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: 8,
-        alignItems: 'center',
-        color: 'var(--ui-text-secondary)',
-        background: 'var(--ui-bg-secondary)',
-        padding: 8
-      }}
+      style={glassToolbar}
     >
-      <label>
+      <label style={controlStrip}>
         Clip{' '}
         <select
           aria-label="Animation clip"
@@ -60,7 +53,7 @@ export function AnimationControls({
               controller.select(Number(e.target.value))
             })
           }
-          style={{ color: 'var(--ui-text)', background: 'var(--ui-bg-secondary)' }}
+          style={styledSelect}
         >
           {controller.clips.map((c, i) => (
             <option key={i} value={i}>
@@ -69,16 +62,17 @@ export function AnimationControls({
           ))}
         </select>
       </label>
-      <Button size="sm" onClick={() => change(() => controller.setPlaying(!controller.state().playing))}>
+      <Button size="sm" style={filterPillStyle(state.playing)} onClick={() => change(() => controller.setPlaying(!controller.state().playing))}>
+        <sdk.Codicon name={state.playing ? 'debug-pause' : 'play'} />
         {state.playing ? 'Pause' : 'Play'}
       </Button>
-      <label>
+      <label style={controlStrip}>
         Speed{' '}
         <select
           aria-label="Playback speed"
           value={state.speed}
           onChange={(e) => change(() => controller.setSpeed(Number(e.target.value)))}
-          style={{ color: 'var(--ui-text)', background: 'var(--ui-bg-secondary)' }}
+          style={styledSelect}
         >
           {[0.25, 0.5, 1, 2].map((n) => (
             <option key={n} value={n}>
@@ -87,9 +81,10 @@ export function AnimationControls({
           ))}
         </select>
       </label>
-      <label>
+      <label style={{ ...controlStrip, ...filterPillStyle(state.loop) }}>
         <input
           type="checkbox"
+          style={{ accentColor: 'var(--ui-accent)' }}
           checked={state.loop}
           onChange={(e) => change(() => controller.setLoop(e.target.checked))}
         />{' '}
@@ -103,13 +98,13 @@ export function AnimationControls({
         step={0.001}
         value={state.time}
         onChange={(e) => change(() => controller.seek(Number(e.target.value)))}
-        style={{ flex: 1, minWidth: 100, accentColor: 'var(--ui-accent)' }}
+        style={{ ...styledRange, flex: 1, minWidth: 120 }}
       />
-      <output>
+      <output style={{ ...glassStatsPill, fontVariantNumeric: 'tabular-nums' }}>
         {state.time.toFixed(2)} / {state.duration.toFixed(2)} s
       </output>
       {audit && (
-        <span>
+        <span style={glassStatsPill}>
           Rig audit: {audit.riggable ? 'passed' : 'needs attention'} · {audit.joints} joints
           {audit.warnings.length ? ` · ${audit.warnings.length} warnings` : ''}
           {audit.warnings.map((w, i) => <span key={i} style={{ display: 'block' }}>{w}</span>)}

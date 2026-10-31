@@ -1,4 +1,5 @@
 import * as sdk from "@hermes/plugin-sdk";
+import { creditBadgeStyle } from "../lib/ui-tokens.ts";
 import { connectSettings } from '../cards/settings.ts';
 import { useEffect, useState, type ReactNode } from "react";
 import { modelScopeKey } from "../viewers/model-source.ts";
@@ -17,13 +18,17 @@ function ScopedChrome({ children }: { children: ReactNode }) {
 import { useWorkspaceQuery } from "../pages/workspace-data.ts";
 import { normalizedJobs } from "../pages/jobs-tab.tsx";
 const chip = {
-  border: 0,
-  background: "transparent",
-  color: "var(--ui-text-secondary)",
+  ...creditBadgeStyle,
+  border: "1px solid var(--ui-stroke-secondary)",
+  background: "var(--ui-bg-card)",
+  color: "var(--ui-text-primary)",
+  borderRadius: 999,
+  padding: "3px 9px",
+  fontSize: 11,
   font: "inherit",
   cursor: "pointer",
   display: "inline-flex",
-  gap: 4,
+  gap: 6,
   alignItems: "center",
 };
 export function CreditsChip({

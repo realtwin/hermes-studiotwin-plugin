@@ -1,4 +1,5 @@
 import * as sdk from "@hermes/plugin-sdk";
+import { creditBadgeStyle, statusBadgeStyle, tabButtonStyle } from "../lib/ui-tokens.ts";
 import { connectSettings, useStudioTwinSettings } from '../cards/settings.ts';
 import { useEffect, useState } from "react";
 import { useMediaScope } from "../cards/next-actions.ts";
@@ -54,22 +55,29 @@ export function StudioTwinPage({
   return (
     <main
       style={{
-        padding: 20,
+        padding: "24px clamp(16px, 3vw, 40px)",
+        boxSizing: "border-box",
         height: "100%",
         overflowY: "auto",
         color: "var(--ui-text-primary)",
       }}
     >
-      <header style={{ ...flow, justifyContent: "space-between" }}>
+      <header style={{ ...flow, justifyContent: "space-between", gap: 20 }}>
         <div>
-          <h1>StudioTwin</h1>
-          <p style={{ color: "var(--ui-text-secondary)" }}>
+          <h1 style={{ margin: "0 0 8px", fontSize: 28, letterSpacing: "-0.04em" }}>StudioTwin</h1>
+          <p style={{ color: "var(--ui-text-secondary)", margin: 0, fontSize: 13 }}>
             Your creative workspace · inspect, trace and continue
           </p>
         </div>
-        <sdk.Button onClick={() => openSettings(ctx)}>
-          Plugin Settings
-        </sdk.Button>
+        <div style={{ ...flow, gap: 10 }}>
+          <span style={statusBadgeStyle(configured ? "completed" : "unknown")}>
+            <span aria-hidden="true">● </span>{configured ? "Connected" : status.isLoading ? "Connecting…" : "Local workspace"}
+          </span>
+          {configured && status.data?.settings?.show_credits !== false && typeof status.data?.balance === "number" && (
+            <span style={creditBadgeStyle}>{status.data.balance.toLocaleString()} credits</span>
+          )}
+          <sdk.Button onClick={() => openSettings(ctx)}>Plugin Settings</sdk.Button>
+        </div>
       </header>
       {status.data?.configured === false && (
         <section aria-label="StudioTwin setup" style={panel}>
@@ -95,13 +103,14 @@ export function StudioTwinPage({
       <nav
         role="tablist"
         aria-label="StudioTwin workspace"
-        style={{ ...flow, margin: "20px 0" }}
+        style={{ ...flow, gap: 4, margin: "24px 0", padding: 5, border: "1px solid var(--ui-stroke-secondary)", borderRadius: 12, background: "var(--ui-bg-card)", width: "fit-content", maxWidth: "100%" }}
       >
         {tabs.map((label) => (
           <sdk.Button
             key={label}
             role="tab"
             aria-selected={tab === label}
+            style={tabButtonStyle(tab === label)}
             id={"studiotwin-tab-" + label}
             aria-controls="studiotwin-panel"
             onClick={() => {

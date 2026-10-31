@@ -1,6 +1,7 @@
 // Progress-card shape adapted from Nous Research meshy/src/task-card.tsx (MIT).
 // Polling uses the host's shared Query client; no parallel job ledger or generation retry.
 import * as sdk from '@hermes/plugin-sdk'
+import { cardShell, cardHeader, cardTitle, cardSubtitle, statusBadgeStyle, creditBadgeStyle, nextDrawerStyle, nextSummaryStyle, nextActionChipStyle } from '../lib/ui-tokens'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { ImageCard, conceptImages } from './image-card.tsx'
 import { VideoCard } from './video-card.tsx'
@@ -174,16 +175,11 @@ export function TaskCard({ ctx, id, kind = 'task', sessionId, fallback, pollInte
   return (
     <article
       data-studiotwin-task={status}
-      style={{
-        maxWidth: 720,
-        padding: 10,
-        border: '1px solid var(--ui-stroke-secondary)',
-        borderRadius: 10,
-        color: 'var(--ui-text-primary)',
-      }}
+      style={{ ...cardShell, maxWidth: 720, color: 'var(--ui-text-primary)' }}
     >
-      <header>
-        <strong>StudioTwin {kind}</strong> · <span role="status">{status}</span> · <span>{elapsed} s elapsed</span>
+      <header style={cardHeader}>
+        {Object.hasOwn(sdk, 'Codicon') && <sdk.Codicon name="pulse" size={16} />}
+        <strong style={cardTitle}>StudioTwin {kind}</strong> · <span style={statusBadgeStyle(status)} role="status">{status}</span> · <span style={cardSubtitle}>{elapsed} s elapsed</span>
       </header>
       {!terminal(status) && (
         <>
@@ -191,9 +187,9 @@ export function TaskCard({ ctx, id, kind = 'task', sessionId, fallback, pollInte
             aria-label="Job progress"
             max="100"
             value={pct}
-            style={{ width: '100%', accentColor: 'var(--ui-accent)' }}
+            style={{ width: 'calc(100% - 28px)', margin: '14px 14px 8px', height: 8, borderRadius: 999, overflow: 'hidden', accentColor: 'var(--ui-accent)', transition: 'all .3s ease' }}
           />
-          {pct !== undefined ? <small>{pct}%</small> : <small>Progress not reported</small>}
+          {pct !== undefined ? <small style={{ ...cardSubtitle, padding: 14 }}>{pct}%</small> : <small style={{ ...cardSubtitle, padding: 14 }}>Progress not reported</small>}
         </>
       )}
       {status === 'queued' && kind !== 'concept' && (
@@ -209,11 +205,12 @@ export function TaskCard({ ctx, id, kind = 'task', sessionId, fallback, pollInte
       )}
       {done && info && <CompletedMedia ctx={ctx} info={info} scope={scope} sessionId={sessionId} auto_rotate={auto_rotate} webgl_limit={webgl_limit} />}
       {done && actions.data?.actions?.length ? (
-        <details>
-          <summary>Next · review and approve in chat</summary>
+        <details style={nextDrawerStyle}>
+          <summary style={nextSummaryStyle}>Next · review and approve in chat</summary>
           {actions.data.actions.map((a) => (
             <sdk.Button
               key={a.id}
+              style={nextActionChipStyle}
               onClick={() => {
                 try {
                   submitNext(scope, sessionId, a)
@@ -222,7 +219,7 @@ export function TaskCard({ ctx, id, kind = 'task', sessionId, fallback, pollInte
                 }
               }}
             >
-              {a.label} · {a.cost_label ?? (a.cost == null ? 'estimate first' : `${a.cost} cr`)}
+              {a.label} · <span style={creditBadgeStyle}>{a.cost_label ?? (a.cost == null ? 'estimate first' : `${a.cost} cr`)}</span>
             </sdk.Button>
           ))}
         </details>

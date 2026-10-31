@@ -1,4 +1,5 @@
 import * as sdk from "@hermes/plugin-sdk";
+import { cardShell, cardHeader, cardTitle, creditBadgeStyle, nextDrawerStyle, nextSummaryStyle, nextActionChipStyle } from '../lib/ui-tokens';
 import { studiotwinToolAliases } from './tool-names.ts';
 import { costLabel } from './action-costs.ts';
 import { useState, type ReactNode } from "react";
@@ -98,14 +99,18 @@ export function MaterialCard({
     saveBytes(mapZip(files), "studiotwin-material.zip");
   };
   return (
-    <article style={{ color: "var(--ui-text)", padding: 8 }}>
-      <strong>StudioTwin PBR Material</strong>{" "}
+    <article style={{ ...cardShell, color: 'var(--ui-text)' }}>
+      <header style={cardHeader}>
+      {sdk.Codicon && <sdk.Codicon name="paintcan" size={16} />}
+      <strong style={cardTitle}>StudioTwin PBR Material</strong>{" "}
+      <span style={creditBadgeStyle}>PBR Material</span>
       <sdk.Button
         disabled={stale}
         onClick={() => void download("zip").catch(() => setFailed(true))}
       >
         Download zip
       </sdk.Button>
+      </header>
       {stale ? (
         <p role="status">
           Reopen this card in its originating profile and connection.
@@ -121,15 +126,16 @@ export function MaterialCard({
           onError={() => setFailed(true)}
         />
       )}
-      <details>
-        <summary>Next · review and approve in chat</summary>
+      <details style={nextDrawerStyle}>
+        <summary style={nextSummaryStyle}>Next · review and approve in chat</summary>
         {nextMaterialActions.map(([label, tool]) => (
           <sdk.Button
             key={tool}
+            style={nextActionChipStyle}
             disabled={stale}
             onClick={() => send(sessionId, workflowMessage(maps, tool))}
           >
-            {label}
+            <span>{label}</span><span aria-hidden="true" style={creditBadgeStyle}>{costLabel(tool)}</span>
           </sdk.Button>
         ))}
       </details>

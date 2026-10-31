@@ -1,0 +1,11 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v09
+
+ ✓ tests/visual/ui-polish.test.ts (2 tests) 4355ms
+   ✓ production bundle: active pills, channel/geometry controls, env reset, responsive concepts and raw filenames  4348ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  15:15:09
+   Duration  4.99s (transform 93ms, setup 0ms, collect 389ms, tests 4.35s, environment 0ms, prepare 57ms)
+

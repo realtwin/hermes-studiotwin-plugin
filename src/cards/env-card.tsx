@@ -1,4 +1,5 @@
 import * as sdk from "@hermes/plugin-sdk";
+import { cardShell, cardHeader, cardTitle, creditBadgeStyle, nextDrawerStyle, nextSummaryStyle, nextActionChipStyle } from '../lib/ui-tokens';
 import { cleanToolName, studiotwinToolAliases } from './tool-names.ts';
 import { costLabel, costHint, type NextActionTool } from './action-costs.ts';
 import { useEffect, useState, type ReactNode } from "react";
@@ -112,8 +113,11 @@ export function EnvCard({
       </>
     );
   return (
-    <article style={{ color: "var(--ui-text)", padding: 8 }}>
-      <strong>StudioTwin Environment</strong>{" "}
+    <article style={{ ...cardShell, color: 'var(--ui-text)' }}>
+      <header style={cardHeader}>
+      {sdk.Codicon && <sdk.Codicon name="globe" size={16} />}
+      <strong style={cardTitle}>StudioTwin Environment</strong>{" "}
+      <span style={creditBadgeStyle}>360° Env</span>
       <sdk.Button
         disabled={stale}
         onClick={() =>
@@ -124,6 +128,7 @@ export function EnvCard({
       >
         Download
       </sdk.Button>
+      </header>
       {stale ? (
         <p role="status">
           Reopen this card in its originating profile and connection.
@@ -138,15 +143,16 @@ export function EnvCard({
           onError={() => setFailed(true)}
         />
       )}
-      <details>
-        <summary>Next · review and approve in chat</summary>
+      <details style={nextDrawerStyle}>
+        <summary style={nextSummaryStyle}>Next · review and approve in chat</summary>
         {nextEnvActions.map(([label, tool]) => (
           <sdk.Button
             key={tool}
+            style={nextActionChipStyle}
             disabled={stale}
             onClick={() => send(sessionId, workflowMessage(source, tool))}
           >
-            {label}
+            <span>{label}</span><span aria-hidden="true" style={creditBadgeStyle}>{costLabel(tool)}</span>
           </sdk.Button>
         ))}
       </details>

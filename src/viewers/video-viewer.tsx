@@ -1,4 +1,5 @@
 import * as sdk from '@hermes/plugin-sdk'
+import { stageShell, glassToolbar, glassStatsPill, controlStrip, styledSelect, styledRange, filterPillStyle } from '../lib/ui-tokens'
 const { Button } = sdk
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { PluginContext } from '@hermes/plugin-sdk'
@@ -171,14 +172,14 @@ export function VideoViewer({ scope, source, frames, fps, resolveUrl, fallback, 
   }
   if (failed || !scope.current()) return <>{fallback ?? <p role="alert">Video preview unavailable.</p>}</>
   return (
-    <section style={{ color: 'var(--ui-text-primary)' }}>
+    <section style={stageShell}>
       {urls.length ? (
         <img
           ref={frameImage}
           alt={`Frame ${frameIndex + 1}`}
           src={urls[frameIndex]}
           onError={fail}
-          style={{ width: '100%', maxHeight: 440, objectFit: 'contain' }}
+          style={{ display: 'block', width: '100%', maxHeight: 440, objectFit: 'contain', background: 'var(--ui-bg-secondary)' }}
         />
       ) : url ? (
         <video
@@ -196,22 +197,23 @@ export function VideoViewer({ scope, source, frames, fps, resolveUrl, fallback, 
             setDuration(Number.isFinite(e.currentTarget.duration) ? e.currentTarget.duration : 0)
           }
           onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
-          style={{ width: '100%', maxHeight: 440 }}
+          style={{ display: 'block', width: '100%', maxHeight: 440, background: 'var(--ui-bg-secondary)' }}
         />
       ) : (
         <p role="status">Loading video…</p>
       )}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-        <Button disabled={!!frames?.length && !sequenceRate} onClick={() => void toggle()}>{playing ? 'Pause' : 'Play'}</Button>
-        <Button disabled={!canStep} onClick={() => step(-1)}>-1f</Button>
-        <Button disabled={!canStep} onClick={() => step(1)}>+1f</Button>
-        <Button aria-pressed={loop} onClick={() => setLoop(!loop)}>
+      <div style={glassToolbar}>
+        <Button style={filterPillStyle(playing)} disabled={!!frames?.length && !sequenceRate} onClick={() => void toggle()}>{playing ? 'Pause' : 'Play'}</Button>
+        <Button style={filterPillStyle(false)} disabled={!canStep} onClick={() => step(-1)}>-1f</Button>
+        <Button style={filterPillStyle(false)} disabled={!canStep} onClick={() => step(1)}>+1f</Button>
+        <Button style={filterPillStyle(loop)} aria-pressed={loop} onClick={() => setLoop(!loop)}>
           Loop
         </Button>
-        <label>
+        <label style={controlStrip}>
           Playback rate{' '}
           <select
             aria-label="Playback rate"
+            style={styledSelect}
             value={rate}
             onChange={(e) => {
               const next = Number(e.target.value)
@@ -226,7 +228,7 @@ export function VideoViewer({ scope, source, frames, fps, resolveUrl, fallback, 
             ))}
           </select>
         </label>
-        <Button onClick={capture}>Capture PNG</Button>
+        <Button style={filterPillStyle(false)} onClick={capture}>Capture PNG</Button>
       </div>
       <input
         aria-label="Timeline"
@@ -237,9 +239,9 @@ export function VideoViewer({ scope, source, frames, fps, resolveUrl, fallback, 
         step={urls.length && sequenceRate ? 1 / sequenceRate : 'any'}
         value={time}
         onChange={(e) => seek(Number(e.target.value))}
-        style={{ width: '100%', accentColor: 'var(--ui-accent)' }}
+        style={{ ...styledRange, display: 'block', width: 'calc(100% - 32px)', margin: '16px' }}
       />
-      <small>
+      <small style={{ ...glassStatsPill, display: 'block', margin: '0 16px 16px', fontVariantNumeric: 'tabular-nums', lineHeight: 1.7 }}>
         {time.toFixed(2)} / {duration.toFixed(2)} s
         {urls.length && sequenceRate ? ` · ${sequenceRate} fps (sequence timing) · ${urls.length} frames` :
           times ? ` · ${times.length} frames · source presentation timestamps` :

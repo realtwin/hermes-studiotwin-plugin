@@ -41,10 +41,10 @@
       "fg": "rgb(23, 32, 51)",
       "canvases": [
         {
-          "width": 1280,
-          "height": 128,
-          "cssWidth": 640,
-          "cssHeight": 64
+          "width": 1180,
+          "height": 176,
+          "cssWidth": 590,
+          "cssHeight": 88
         }
       ]
     },
@@ -57,9 +57,9 @@
       "fg": "rgb(23, 32, 51)",
       "canvases": [
         {
-          "width": 2684,
+          "width": 2712,
           "height": 640,
-          "cssWidth": 1342,
+          "cssWidth": 1356,
           "cssHeight": 320
         }
       ]
@@ -73,9 +73,9 @@
       "fg": "rgb(23, 32, 51)",
       "canvases": [
         {
-          "width": 2684,
+          "width": 2712,
           "height": 640,
-          "cssWidth": 1342,
+          "cssWidth": 1356,
           "cssHeight": 320
         }
       ]
@@ -170,27 +170,27 @@
       "fg": "rgb(23, 32, 51)",
       "canvases": [
         {
-          "width": 854,
+          "width": 882,
           "height": 640,
-          "cssWidth": 427,
+          "cssWidth": 441,
           "cssHeight": 320
         },
         {
-          "width": 850,
+          "width": 882,
           "height": 640,
-          "cssWidth": 425,
+          "cssWidth": 441,
           "cssHeight": 320
         },
         {
-          "width": 854,
+          "width": 882,
           "height": 640,
-          "cssWidth": 427,
+          "cssWidth": 441,
           "cssHeight": 320
         },
         {
-          "width": 854,
+          "width": 882,
           "height": 640,
-          "cssWidth": 427,
+          "cssWidth": 441,
           "cssHeight": 320
         }
       ]
@@ -236,10 +236,10 @@
       "fg": "rgb(227, 233, 244)",
       "canvases": [
         {
-          "width": 1280,
-          "height": 128,
-          "cssWidth": 640,
-          "cssHeight": 64
+          "width": 1180,
+          "height": 176,
+          "cssWidth": 590,
+          "cssHeight": 88
         }
       ]
     },
@@ -252,9 +252,9 @@
       "fg": "rgb(227, 233, 244)",
       "canvases": [
         {
-          "width": 2684,
+          "width": 2712,
           "height": 640,
-          "cssWidth": 1342,
+          "cssWidth": 1356,
           "cssHeight": 320
         }
       ]
@@ -268,9 +268,9 @@
       "fg": "rgb(227, 233, 244)",
       "canvases": [
         {
-          "width": 2684,
+          "width": 2712,
           "height": 640,
-          "cssWidth": 1342,
+          "cssWidth": 1356,
           "cssHeight": 320
         }
       ]
@@ -365,27 +365,27 @@
       "fg": "rgb(227, 233, 244)",
       "canvases": [
         {
-          "width": 854,
+          "width": 882,
           "height": 640,
-          "cssWidth": 427,
+          "cssWidth": 441,
           "cssHeight": 320
         },
         {
-          "width": 850,
+          "width": 882,
           "height": 640,
-          "cssWidth": 425,
+          "cssWidth": 441,
           "cssHeight": 320
         },
         {
-          "width": 854,
+          "width": 882,
           "height": 640,
-          "cssWidth": 427,
+          "cssWidth": 441,
           "cssHeight": 320
         },
         {
-          "width": 854,
+          "width": 882,
           "height": 640,
-          "cssWidth": 427,
+          "cssWidth": 441,
           "cssHeight": 320
         }
       ]

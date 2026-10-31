@@ -1,4 +1,5 @@
 import * as sdk from '@hermes/plugin-sdk'
+import { cardShell, cardHeader, cardTitle, creditBadgeStyle, filterPillStyle, nextDrawerStyle, nextSummaryStyle, nextActionChipStyle } from '../lib/ui-tokens'
 import { studiotwinToolAliases } from './tool-names.ts'
 import { useEffect, useState, type ReactNode } from 'react'
 import { ImageViewer } from '../viewers/image-viewer.tsx'
@@ -55,18 +56,14 @@ export function ImageCard(props: ImageCardProps) {
     )
   return (
     <article
-      style={{
-        border: '1px solid var(--ui-stroke-secondary)',
-        borderRadius: 10,
-        padding: 8,
-        maxWidth: 720,
-        color: 'var(--ui-text-primary)',
-      }}
+      style={{ ...cardShell, maxWidth: 720, color: 'var(--ui-text-primary)' }}
     >
-      <header>
-        <strong>{props.title ?? 'StudioTwin Image / Concept'}</strong>{' '}
+      <header style={cardHeader}>
+        {Object.hasOwn(sdk, 'Codicon') && <sdk.Codicon name="file-media" size={16} />}
+        <strong style={cardTitle}>{props.title ?? 'StudioTwin Image / Concept'}</strong>{' '}
+        <span style={creditBadgeStyle}>Image / Concept</span>
         {(lineage.label || lineage.parents.length > 0) && (
-          <span title={JSON.stringify(lineage.parents)}>
+          <span style={creditBadgeStyle} title={JSON.stringify(lineage.parents)}>
             {lineage.label || `Made from · ${lineage.parents.length} sources`}
           </span>
         )}
@@ -74,7 +71,7 @@ export function ImageCard(props: ImageCardProps) {
       {props.history && props.history.length > 0 && (
         <nav aria-label="Concept versions">
           {props.history.map((item, i) => (
-            <sdk.Button key={i} aria-pressed={version === i} onClick={() => setVersion(i)}>
+            <sdk.Button style={filterPillStyle(version === i)} key={i} aria-pressed={version === i} onClick={() => setVersion(i)}>
               Version {i + 1}
               {item.active ? ' · Active asset' : ''}
             </sdk.Button>
@@ -91,11 +88,12 @@ export function ImageCard(props: ImageCardProps) {
         onError={() => setFailed(true)}
       />
       {props.actions?.length !== 0 && (
-        <details>
-          <summary>Next · review and approve in chat</summary>
+        <details style={nextDrawerStyle}>
+          <summary style={nextSummaryStyle}>Next · review and approve in chat</summary>
           {(props.actions ?? imageActions(source)).map((a) => (
             <sdk.Button
               key={a.id}
+              style={nextActionChipStyle}
               onClick={() => {
                 try {
                   submitNext(scope, props.sessionId, a)
@@ -104,7 +102,7 @@ export function ImageCard(props: ImageCardProps) {
                 }
               }}
             >
-              {a.label} · {a.cost_label ?? (a.cost == null ? 'estimate first' : `${a.cost} cr`)}
+              {a.label} · <span style={creditBadgeStyle}>{a.cost_label ?? (a.cost == null ? 'estimate first' : `${a.cost} cr`)}</span>
             </sdk.Button>
           ))}
         </details>

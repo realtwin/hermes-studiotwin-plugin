@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import type { PluginContext } from "@hermes/plugin-sdk";
+import * as sdk from '@hermes/plugin-sdk';
 import {
   createMaterialStage,
   channels,
@@ -7,7 +8,8 @@ import {
   type Geometry,
   type MaterialMaps,
 } from "./material-stage.ts";
-import { usePooledStage, panelStyle, controlStyle } from "./env-lifecycle.ts";
+import { usePooledStage } from "./env-lifecycle.ts";
+import { stageShell, glassToolbar, controlStrip, styledSelect, styledRange, posterTile, filterPillStyle } from '../lib/ui-tokens';
 export interface MaterialViewerProps {
   rest: PluginContext["rest"];
   maps: MaterialMaps;
@@ -59,7 +61,7 @@ export function MaterialViewer({
     <section
       ref={v.setContainer}
       data-studiotwin-material-viewer
-      style={panelStyle}
+      style={{ ...stageShell, color: 'var(--ui-text)' }}
       onPointerDown={v.touch}
     >
       <div style={{ height, position: "relative" }}>
@@ -67,7 +69,7 @@ export function MaterialViewer({
         {!v.live && (
           <button
             style={{
-              ...controlStyle,
+              ...posterTile,
               position: "absolute",
               inset: 0,
               width: "100%",
@@ -81,7 +83,7 @@ export function MaterialViewer({
                 style={{ width: "100%", height: "80%", objectFit: "contain" }}
               />
             )}
-            {v.error ? "Preview failed. Retry material" : "Load material"}
+            <span style={filterPillStyle(true)}>{Object.hasOwn(sdk, 'Codicon') && <sdk.Codicon name="paintcan" size={16} />}{v.error ? "Preview failed. Retry material" : "Load material"}</span>
           </button>
         )}
         {v.live && !v.ready && <span role="status">Loading material…</span>}
@@ -90,12 +92,20 @@ export function MaterialViewer({
         <div
           role="toolbar"
           aria-label="Material controls"
-          style={{ display: "flex", flexWrap: "wrap", gap: 8, padding: 8 }}
+          style={glassToolbar}
         >
-          <label>
+          <div style={controlStrip}>
             Channel{" "}
+            <span style={{ display: 'inline-flex', flexWrap: 'wrap', gap: 4 }}>
+              {(['Combined PBR', ...channels] as const).map(c => (
+                <button key={c} type="button" style={{ ...filterPillStyle(channel === c), opacity: c !== 'Combined PBR' && !maps[c] ? .45 : 1 }}
+                  aria-pressed={channel === c} disabled={c !== 'Combined PBR' && !maps[c]} onClick={() => setChannel(c)}>
+                  {c === 'Combined PBR' ? c : c.charAt(0).toUpperCase() + c.slice(1)}
+                </button>
+              ))}
+            </span>
             <select
-              style={controlStyle}
+              style={styledSelect}
               aria-label="Map channel"
               value={channel}
               onChange={(e) => setChannel(e.target.value as typeof channel)}
@@ -108,11 +118,16 @@ export function MaterialViewer({
                 </option>
               ))}
             </select>
-          </label>
-          <label>
+          </div>
+          <div style={controlStrip}>
             Geometry{" "}
+            <span style={{ display: 'inline-flex', flexWrap: 'wrap', gap: 4 }}>
+              {(['Sphere', 'Cube', 'Rounded Plane'] as const).map(g => (
+                <button key={g} type="button" style={filterPillStyle(geometry === g)} aria-pressed={geometry === g} onClick={() => setGeometry(g)}>{g === 'Rounded Plane' ? 'Plane' : g}</button>
+              ))}
+            </span>
             <select
-              style={controlStyle}
+              style={styledSelect}
               aria-label="Geometry"
               value={geometry}
               onChange={(e) => setGeometry(e.target.value as Geometry)}
@@ -121,11 +136,11 @@ export function MaterialViewer({
                 <option key={g}>{g}</option>
               ))}
             </select>
-          </label>
-          <label>
+          </div>
+          <label style={controlStrip}>
             UV tiling{" "}
             <select
-              style={controlStyle}
+              style={styledSelect}
               aria-label="UV tiling"
               value={repeat}
               onChange={(e) => setRepeat(+e.target.value)}
@@ -137,10 +152,11 @@ export function MaterialViewer({
               ))}
             </select>
           </label>
-          <label>
+          <label style={controlStrip}>
             Displacement{" "}
             <input
               aria-label="Displacement scale"
+              style={styledRange}
               type="range"
               min="0"
               max=".3"
@@ -150,10 +166,11 @@ export function MaterialViewer({
               onChange={(e) => setScale(+e.target.value)}
             />
           </label>
-          <label>
+          <label style={controlStrip}>
             Light rig{" "}
             <input
               aria-label="Light rig rotation"
+              style={styledRange}
               type="range"
               min="0"
               max="360"
@@ -162,7 +179,7 @@ export function MaterialViewer({
             />
           </label>
           <button
-            style={controlStyle}
+            style={filterPillStyle(swatch)}
             aria-pressed={swatch}
             onClick={() => setSwatch(!swatch)}
           >
@@ -170,7 +187,7 @@ export function MaterialViewer({
           </button>
           {onDownload && (
             <select
-              style={controlStyle}
+              style={styledSelect}
               aria-label="Download maps"
               defaultValue=""
               onChange={(e) => {

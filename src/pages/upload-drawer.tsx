@@ -1,7 +1,8 @@
 import * as sdk from "@hermes/plugin-sdk";
+import { cardShell, cardTitle, cardSubtitle, controlStrip, tabButtonStyle, filterPillStyle } from "../lib/ui-tokens.ts";
 import { useRef, useState } from "react";
 import { object, type MediaScope } from "../cards/next-actions.ts";
-import { compose, panel, type Row } from "./workspace-data.ts";
+import { compose, type Row } from "./workspace-data.ts";
 export async function uploadReference(
   scope: MediaScope,
   file: File,
@@ -102,13 +103,18 @@ export function UploadDrawer({
     }
   };
   return (
-    <section aria-label="Upload reference" style={panel}>
-      <h2>Upload a reference</h2>
-      <p>
+    <section aria-label="Upload reference" style={{ ...cardShell, padding: 24, maxWidth: 920, margin: "0 auto" }}>
+      <h2 style={{ ...cardTitle, margin: "0 0 10px" }}>Upload a reference</h2>
+      <p style={{ ...cardSubtitle, lineHeight: 1.6, marginBottom: 20 }}>
         Stage on the connected Hermes host, or explicitly send the file to
         StudioTwin. No generation is submitted.
       </p>
-      <label>
+      <div style={{ ...controlStrip, justifyContent: "space-between", gap: 12 }}>
+        <div style={{ display: "flex", gap: 4, padding: 4, background: "var(--ui-bg-primary)", borderRadius: 10 }}>
+          <sdk.Button style={tabButtonStyle(!cloud)} aria-pressed={!cloud} disabled={busy} onClick={() => setCloud(false)}>Local</sdk.Button>
+          <sdk.Button style={tabButtonStyle(cloud)} aria-pressed={cloud} disabled={busy || !configured} onClick={() => setCloud(true)}>Cloud</sdk.Button>
+        </div>
+      <label style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--ui-text-secondary)" }}>
         <input
           type="checkbox"
           checked={cloud}
@@ -117,6 +123,7 @@ export function UploadDrawer({
         />
         Cloud upload
       </label>
+      </div>
       <div
         aria-label="Drop reference asset"
         onDragOver={(e) => e.preventDefault()}
@@ -125,16 +132,20 @@ export function UploadDrawer({
           void upload(e.dataTransfer.files[0]);
         }}
         style={{
-          padding: 24,
-          marginTop: 16,
+          padding: "48px 20px",
+          marginTop: 20,
           border: "2px dashed var(--ui-stroke-secondary)",
-          borderRadius: 12,
+          borderRadius: 16,
+          textAlign: "center",
+          background: "var(--ui-bg-primary)",
         }}
       >
-        <p>Drop a reference here or choose a file</p>
+        <span style={{ display: "inline-flex", padding: 18, background: "var(--ui-bg-card)", borderRadius: 18, color: "var(--ui-accent)" }}><sdk.Codicon name="cloud-upload" size={40} /></span>
+        <p style={{ fontSize: 16, fontWeight: 600, margin: "20px 0 16px" }}>Drop a reference here or choose a file</p>
         <input
           type="file"
           aria-label="Reference file"
+          style={{ maxWidth: "100%", fontSize: 12, color: "var(--ui-text-secondary)" }}
           disabled={busy}
           accept=".glb,.fbx,.obj,.hdr,.exr,.png,.jpg,.jpeg,.webp,.wav,.mp3,.ogg,.opus,.flac,.mp4,.tar,.json"
           onChange={(e) => {
@@ -142,11 +153,15 @@ export function UploadDrawer({
             e.target.value = "";
           }}
         />
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 6, marginTop: 24 }}>
+          {["GLB · FBX · OBJ", "HDR · EXR", "PNG · JPG · WEBP", "WAV · MP3 · OGG · OPUS · FLAC", "MP4", "TAR · JSON"].map((format) => <span key={format} style={{ ...filterPillStyle(false), fontSize: 10, cursor: "default" }}>{format}</span>)}
+        </div>
+        <p style={{ ...cardSubtitle, margin: "16px 0 0", fontSize: 11 }}>Up to 50 MiB · {cloud ? "StudioTwin cloud" : "Connected Hermes host"}</p>
       </div>
       {busy && <p role="status">Uploading reference…</p>}
       {error && <p role="alert">{error}</p>}
       {result && (
-        <div>
+        <div style={{ ...cardShell, padding: 16, marginTop: 20 }}>
           <p>
             {result.name} ·{" "}
             {result.cloud ? "Cloud assetId" : "Local staging path"}

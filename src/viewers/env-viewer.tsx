@@ -1,8 +1,11 @@
 import { useEffect, useState, type ReactNode } from "react";
 import type { PluginContext } from "@hermes/plugin-sdk";
+import * as sdk from '@hermes/plugin-sdk';
 import { fetchModel, type ModelSource } from "./model-source.ts";
 import { createEnvStage, parseStickers, type Sticker } from "./env-stage.ts";
-import { usePooledStage, panelStyle, controlStyle } from "./env-lifecycle.ts";
+import { usePooledStage } from "./env-lifecycle.ts";
+import { stageShell, glassToolbar, glassStatsPill, controlStrip, styledRange, posterTile, filterPillStyle } from '../lib/ui-tokens';
+
 export interface EnvViewerProps {
   rest: PluginContext["rest"];
   source: ModelSource;
@@ -22,6 +25,7 @@ export function EnvViewer({
   onError,
 }: EnvViewerProps) {
   const [ev, setEV] = useState(0),
+    [spin, setSpin] = useState(false),
     [flat, setFlat] = useState(false),
     [lighting, setLighting] = useState(false),
     [overlay, setOverlay] = useState(true),
@@ -41,6 +45,9 @@ export function EnvViewer({
     v.stage.current?.settings(ev, flat, lighting, overlay);
   }, [ev, flat, lighting, overlay, v.ready]);
   useEffect(() => {
+    v.stage.current?.autoRotate(spin);
+  }, [spin, v.ready]);
+  useEffect(() => {
     v.stage.current?.select(selected);
   }, [selected, v.ready]);
   if (v.error && fallback !== undefined) return <>{fallback}</>;
@@ -48,7 +55,7 @@ export function EnvViewer({
     <section
       ref={v.setContainer}
       data-studiotwin-env-viewer
-      style={panelStyle}
+      style={{ ...stageShell, color: 'var(--ui-text)' }}
       onPointerDown={v.touch}
     >
       <div style={{ height, position: "relative" }}>
@@ -56,7 +63,7 @@ export function EnvViewer({
         {!v.live && (
           <button
             style={{
-              ...controlStyle,
+              ...posterTile,
               position: "absolute",
               inset: 0,
               width: "100%",
@@ -70,7 +77,7 @@ export function EnvViewer({
                 style={{ width: "100%", height: "80%", objectFit: "contain" }}
               />
             )}
-            {v.error ? "Preview failed. Retry environment" : "Load environment"}
+            <span style={filterPillStyle(true)}>{Object.hasOwn(sdk, 'Codicon') && <sdk.Codicon name="globe" size={16} />}{v.error ? "Preview failed. Retry environment" : "Load environment"}</span>
           </button>
         )}
         {v.live && !v.ready && <span role="status">Loading environment…</span>}
@@ -79,12 +86,15 @@ export function EnvViewer({
         <div
           role="toolbar"
           aria-label="Environment controls"
-          style={{ display: "flex", flexWrap: "wrap", gap: 8, padding: 8 }}
+          style={glassToolbar}
         >
-          <label>
+          <button type="button" style={filterPillStyle(spin)} aria-pressed={spin} onClick={() => setSpin(!spin)}>Auto-rotate</button>
+          <button type="button" style={filterPillStyle(false)} onClick={() => { setSpin(false); v.stage.current?.reset(); }}>Reset view</button>
+          <label style={controlStrip}>
             Exposure EV{" "}
             <input
               aria-label="Exposure EV"
+              style={styledRange}
               type="range"
               min="-5"
               max="5"
@@ -92,24 +102,24 @@ export function EnvViewer({
               value={ev}
               onChange={(e) => setEV(+e.target.value)}
             />
-            <output>{ev}</output>
+            <output style={glassStatsPill}>{ev}</output>
           </label>
           <button
-            style={controlStyle}
+            style={filterPillStyle(flat)}
             aria-pressed={flat}
             onClick={() => setFlat(!flat)}
           >
             Flat 2:1
           </button>
           <button
-            style={controlStyle}
+            style={filterPillStyle(lighting)}
             aria-pressed={lighting}
             onClick={() => setLighting(!lighting)}
           >
             Chrome / matte preview
           </button>
           <button
-            style={controlStyle}
+            style={filterPillStyle(overlay)}
             aria-pressed={overlay}
             onClick={() => setOverlay(!overlay)}
           >
@@ -119,15 +129,16 @@ export function EnvViewer({
             stickers.map((s, i) => (
               <button
                 key={i}
-                style={controlStyle}
+                style={filterPillStyle(selected === s.assetId)}
                 aria-pressed={selected === s.assetId}
                 onClick={() => setSelected(s.assetId)}
               >
-                Sticker {s.assetId}
+                <span>Sticker {s.assetId}</span>
+                <span aria-hidden="true" style={{ ...glassStatsPill, fontSize: 10 }}>{s.hFovDeg}°</span>
               </button>
             ))}
           {selected && (
-            <output aria-label="Selected sticker">{selected}</output>
+            <output style={{ ...glassStatsPill, overflowWrap: "anywhere" }} aria-label="Selected sticker">{selected}</output>
           )}
         </div>
       )}

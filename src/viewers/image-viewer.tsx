@@ -1,4 +1,5 @@
 import * as sdk from '@hermes/plugin-sdk'
+import { stageShell, glassToolbar, glassStatsPill, controlStrip, styledRange, filterPillStyle } from '../lib/ui-tokens'
 const { Button } = sdk
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { MediaScope, MediaSource } from '../cards/next-actions.ts'
@@ -72,7 +73,7 @@ export function ImageViewer({
   if (failed || !scope.current()) return <>{fallback ?? <p role="alert">Image preview unavailable.</p>}</>
   if (!file) return <p role="status">Loading image…</p>
   const picture = (
-    <div style={{ position: 'relative', width: '100%' }}>
+    <div style={{ position: 'relative', width: '100%', background: 'var(--ui-bg-secondary)' }}>
       <img
         src={file.dataUrl}
         alt={title}
@@ -98,13 +99,14 @@ export function ImageViewer({
     </div>
   )
   return (
-    <section style={{ color: 'var(--ui-text-primary)' }}>
+    <section style={stageShell}>
       {picture}
       {parent && (
-        <label>
+        <label style={{ ...glassToolbar, ...controlStrip, flexWrap: 'wrap' }}>
           Before / after{' '}
           <input
             aria-label="Before / after"
+            style={{ ...styledRange, flex: 1, minWidth: 120 }}
             type="range"
             min="0"
             max="100"
@@ -113,12 +115,12 @@ export function ImageViewer({
           />
         </label>
       )}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: 6, color: 'var(--ui-text-secondary)' }}>
-        <span>
+      <div style={glassToolbar}>
+        <span style={{ ...glassStatsPill, overflowWrap: 'anywhere' }}>
           {size[0]} × {size[1]} · {size[1] ? (size[0] / size[1]).toFixed(2) : '?'}:1 ·{' '}
           {file.bytes === undefined ? 'size not reported' : `${file.bytes} bytes`}
         </span>
-        <Button ref={inspect} onClick={() => setOpen(true)}>
+        <Button style={filterPillStyle(false)} ref={inspect} onClick={() => setOpen(true)}>
           Inspect image
         </Button>
       </div>
@@ -142,6 +144,7 @@ export function ImageViewer({
             }
           }}
           style={{
+            ...stageShell,
             position: 'fixed',
             inset: '5%',
             zIndex: 1000,
@@ -150,16 +153,19 @@ export function ImageViewer({
             border: '1px solid var(--ui-stroke-secondary)',
             display: 'flex',
             flexDirection: 'column',
+            boxShadow: 'var(--ui-shadow-dialog, 0 24px 80px var(--ui-stroke-secondary))',
           }}
         >
-          <div>
-            <Button autoFocus onClick={closeInspection}>
+          <div style={glassToolbar}>
+            <Button style={filterPillStyle(false)} autoFocus onClick={closeInspection}>
               Close inspection
             </Button>{' '}
-            <label>
+            {[1, 2, 4].map(value => <Button key={value} style={filterPillStyle(zoom === value)} aria-pressed={zoom === value} onClick={() => setZoom(value)}>{value}×</Button>)}
+            <label style={controlStrip}>
               Zoom{' '}
               <input
                 aria-label="Zoom"
+                style={styledRange}
                 type="range"
                 min="1"
                 max="8"
@@ -168,13 +174,14 @@ export function ImageViewer({
                 onChange={(e) => setZoom(Number(e.target.value))}
               />
             </label>{' '}
-            <span>{zoom.toFixed(1)}× · drag to pan</span>
+            <span style={glassStatsPill}>{zoom.toFixed(1)}× · drag to pan</span>
+            <span style={{ fontSize: 11, color: 'var(--ui-text-secondary)' }}>Pan · drag canvas</span>
           </div>
           <div
             ref={viewport}
             tabIndex={0}
             aria-label="Pan image"
-            style={{ overflow: 'auto', flex: 1, cursor: 'grab', touchAction: 'none' }}
+            style={{ overflow: 'auto', flex: 1, minHeight: 0, cursor: 'grab', touchAction: 'none', borderRadius: 12, background: 'var(--ui-bg-secondary)' }}
             onPointerDown={(e) => {
               const el = e.currentTarget
               el.setPointerCapture(e.pointerId)

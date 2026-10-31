@@ -1,4 +1,5 @@
 import * as sdk from "@hermes/plugin-sdk";
+import { cardShell, cardTitle, cardSubtitle, nextDrawerStyle, nextActionChipStyle } from "../lib/ui-tokens.ts";
 import { useStudioTwinSettings } from '../cards/settings.ts';
 import { useEffect, useRef, useState } from "react";
 import { ModelViewer } from "../viewers/model-viewer.tsx";
@@ -20,7 +21,7 @@ import {
   compose,
   flow,
   modality,
-  panel,
+
   useWorkspaceQuery,
   type Row,
 } from "./workspace-data.ts";
@@ -227,15 +228,16 @@ export function AssetInspector({
       }}
       style={{
         position: "fixed",
-        inset: "5%",
+        inset: "4%",
         zIndex: 50,
         overflow: "auto",
-        ...panel,
-        boxShadow: "0 12px 48px var(--ui-stroke-secondary)",
+        ...cardShell,
+        padding: "clamp(16px, 3vw, 28px)",
+        boxShadow: "var(--ui-shadow-dialog, 0 24px 80px var(--ui-stroke-secondary))",
       }}
     >
-      <header style={{ ...flow, justifyContent: "space-between" }}>
-        <h2>{row.name ?? id ?? "StudioTwin output"}</h2>
+      <header style={{ ...flow, justifyContent: "space-between", gap: 16, marginBottom: 20 }}>
+        <h2 style={{ ...cardTitle, overflowWrap: "anywhere", minWidth: 0, flex: "1 1 240px" }}>{row.name ?? id ?? "StudioTwin output"}</h2>
         <sdk.Button onClick={onClose}>Close asset inspection</sdk.Button>
       </header>
       <AssetPreview
@@ -251,8 +253,8 @@ export function AssetInspector({
           Download original
         </a>
       )}
-      <section aria-label="Made from" style={{ ...panel, marginTop: 12 }}>
-        <h3>Made from</h3>
+      <section aria-label="Made from" style={{ ...cardShell, padding: 18, marginTop: 18, overflowWrap: "anywhere" }}>
+        <h3 style={cardTitle}>Made from</h3>
         {!id ? (
           <p>No cloud lineage for this local file.</p>
         ) : lineage.isError ? (
@@ -283,13 +285,13 @@ export function AssetInspector({
         )}
         {error && <p role="alert">{error}</p>}
       </section>
-      <section aria-label="Next" style={{ marginTop: 12 }}>
-        <h3>Next</h3>
-        <p>
+      <section aria-label="Next" style={{ ...nextDrawerStyle, padding: 18, marginTop: 18 }}>
+        <h3 style={cardTitle}>Next</h3>
+        <p style={cardSubtitle}>
           Composer handoff only. Review compatibility and approve cost in chat.
         </p>
         {actions.data?.actions.map((a) => (
-          <sdk.Button key={a.id} onClick={() => compose(scope, session, a)}>
+          <sdk.Button style={{ ...nextActionChipStyle, margin: "8px 8px 0 0", whiteSpace: "normal", textAlign: "left" }} key={a.id} onClick={() => compose(scope, session, a)}>
             {a.label} ·{" "}
             {a.cost_label ?? "input-dependent credits; estimate first"}
           </sdk.Button>

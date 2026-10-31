@@ -1,4 +1,5 @@
 import * as sdk from "@hermes/plugin-sdk";
+import { cardShell, controlStrip, filterPillStyle, statusBadgeStyle, creditBadgeStyle } from "../lib/ui-tokens.ts";
 import { useStudioTwinSettings } from '../cards/settings.ts';
 import { useEffect, useRef, useState } from "react";
 import { jobStatus } from "../cards/task-card.tsx";
@@ -6,7 +7,7 @@ import { object, type MediaScope } from "../cards/next-actions.ts";
 import {
   flow,
   list,
-  panel,
+
   useWorkspaceQuery,
   type Row,
 } from "./workspace-data.ts";
@@ -109,11 +110,12 @@ export function JobsTab({
   };
   return (
     <section aria-label="StudioTwin jobs">
-      <div style={flow}>
+      <div style={{ ...controlStrip, gap: 8 }}>
         {["All", "Active", "Completed", "Failed", "Cancelled"].map((label) => (
           <sdk.Button
             key={label}
             aria-pressed={label === filter}
+            style={filterPillStyle(label === filter)}
             onClick={() => setFilter(label)}
           >
             {label}
@@ -134,16 +136,17 @@ export function JobsTab({
             ? Math.max(0, Math.min(100, row.progress))
             : undefined;
         return (
-          <article key={id} style={{ ...panel, marginTop: 12 }}>
-            <header style={flow}>
+          <article key={id} style={{ ...cardShell, marginTop: 12, padding: 18, display: "flex", flexWrap: "wrap", alignItems: "center", gap: 16 }}>
+            <div style={{ flex: "1 1 320px", minWidth: 0 }}>
+            <header style={{ ...flow, gap: 12, marginBottom: 10 }}>
               <strong>
                 {row.tool ??
                   row.functionName ??
                   row.function_name ??
                   "StudioTwin job"}
               </strong>
-              <sdk.Badge>{row.status}</sdk.Badge>
-              <span>
+              <sdk.Badge style={statusBadgeStyle(row.status)}>{row.status}</sdk.Badge>
+              <span style={creditBadgeStyle}>
                 {row.cost ??
                   row.creditCost ??
                   row.credits ??
@@ -152,7 +155,7 @@ export function JobsTab({
                 credits
               </span>
             </header>
-            <code>{id}</code>
+            <code style={{ fontSize: 11, color: "var(--ui-text-secondary)", overflowWrap: "anywhere" }}>{id}</code>
             {["queued", "running"].includes(row.status) && (
               <>
                 <progress
@@ -168,6 +171,8 @@ export function JobsTab({
                 )}
               </>
             )}
+            </div>
+            <div style={{ ...flow, marginLeft: "auto", gap: 8 }}>
             {row.status === "queued" && (
               <sdk.Button
                 disabled={Boolean(busy)}
@@ -181,13 +186,14 @@ export function JobsTab({
                 Inspect Output
               </sdk.Button>
             )}
+            </div>
           </article>
         );
       })}
       {!query.isLoading && configured && !shown.length && (
         <p>No matching jobs on this page.</p>
       )}
-      <nav aria-label="Job pages" style={flow}>
+      <nav aria-label="Job pages" style={{ ...flow, marginTop: 20, gap: 12 }}>
         <sdk.Button
           disabled={offset === 0}
           onClick={() => setOffset(Math.max(0, offset - limit))}

@@ -1,0 +1,34 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v09
+
+ ❯ tests/visual/ui-polish.test.ts (2 tests | 1 failed) 13253ms
+   ✓ cleans only complete cache prefixes, preserving ordinary names and short IDs 4ms
+   × production bundle: active pills, channel/geometry controls, env reset, responsive concepts and raw filenames 13248ms
+     → locator.click: Timeout 10000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Cube', exact: true })
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/visual/ui-polish.test.ts > production bundle: active pills, channel/geometry controls, env reset, responsive concepts and raw filenames
+TimeoutError: locator.click: Timeout 10000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Cube', exact: true })
+
+ ❯ tests/visual/ui-polish.test.ts:45:16
+     43|     await page.getByRole('button', { name:'Load material', exact:true …
+     44|     const cube = page.getByRole('button', { name:'Cube', exact:true })
+     45|     await cube.click()
+       |                ^
+     46|     await pw(cube).toHaveAttribute('aria-pressed', 'true')
+     47|     await pw(page.getByLabel('Geometry', { exact:true })).toHaveValue(…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  15:14:00
+   Duration  13.93s (transform 106ms, setup 0ms, collect 414ms, tests 13.25s, environment 0ms, prepare 68ms)
+

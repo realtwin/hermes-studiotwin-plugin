@@ -1,5 +1,7 @@
 # V08 — Visual QA and host compatibility evidence
 
+Current screenshots, contact sheets and visual manifests were refreshed by V09. See `../v09/README.md` for the design-system changes, current test counts and review scope. The remainder of this report records the original V08 verification.
+
 V08 implementation and integration gates pass. Salt-approved V08c commit `fc014aa9d0d0eb113401e6f797a2bf4af17107d1` was merged into `feat/v08-visual-qa-host-compat`. The previous missing rig-audit acceptance failure is resolved through production code, not test-injected UI. Final independent review belongs to existing child `t_7b4f6945`; this report is not release approval.
 
 ## What was exercised

@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import * as sdk from '@hermes/plugin-sdk'
+import { stageShell, glassToolbar, glassStatsPill, controlStrip, styledSelect, posterTile, filterPillStyle } from '../lib/ui-tokens'
 import type { PluginContext } from '@hermes/plugin-sdk'
 const { Button } = sdk
 import { createModelStage, type ModelStage, type ShadingMode } from './model-stage.ts'
@@ -154,13 +155,7 @@ export function ModelViewer({
     <section
       ref={setContainer}
       data-studiotwin-model-viewer
-      style={{
-        border: '1px solid var(--ui-stroke-secondary)',
-        borderRadius: 8,
-        overflow: 'hidden',
-        color: 'var(--ui-text)',
-        background: 'var(--ui-bg-secondary)'
-      }}
+      style={stageShell}
       onPointerDown={() => modelWebGLPool.touch(id)}
     >
       <div style={{ position: 'relative', height }}>
@@ -173,19 +168,17 @@ export function ModelViewer({
               setLive(true)
             }}
             style={{
+              ...posterTile,
               position: 'absolute',
               inset: 0,
               width: '100%',
-              border: 0,
-              background: 'var(--ui-bg-secondary)',
-              color: 'var(--ui-text-secondary)',
               cursor: 'pointer'
             }}
           >
             {thumbnail && (
               <img src={thumbnail} alt="Model preview" style={{ width: '100%', height: '80%', objectFit: 'contain' }} />
             )}
-            <span>{error ? 'Preview failed. Retry 3D' : 'Click to load 3D'}</span>
+            <span style={filterPillStyle(true)}><sdk.Codicon name="play" />{error ? 'Preview failed. Retry 3D' : 'Click to load 3D'}</span>
           </button>
         )}
         {live && !ready && (
@@ -199,34 +192,29 @@ export function ModelViewer({
           <div
             role="toolbar"
             aria-label="Model controls"
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 8,
-              padding: 8,
-              borderTop: '1px solid var(--ui-stroke-secondary)'
-            }}
+            style={glassToolbar}
           >
-            <label>
+            <label style={controlStrip}>
               Shading{' '}
               <select
                 aria-label="Shading mode"
                 value={mode}
                 onChange={(e) => setMode(e.target.value as ShadingMode)}
-                style={{ color: 'var(--ui-text)', background: 'var(--ui-bg-secondary)' }}
+                style={styledSelect}
               >
                 {(['textured', 'wireframe', 'clay', 'normals'] as const).map((m) => (
                   <option key={m}>{m}</option>
                 ))}
               </select>
             </label>
-            <Button size="sm" aria-pressed={spin} onClick={() => setSpin(!spin)}>
+            <Button size="sm" style={filterPillStyle(spin)} aria-pressed={spin} onClick={() => setSpin(!spin)}>
               Auto-rotate
             </Button>
-            <Button size="sm" aria-pressed={grid} onClick={() => setGrid(!grid)}>
+            <Button size="sm" style={filterPillStyle(grid)} aria-pressed={grid} onClick={() => setGrid(!grid)}>
               Grid
             </Button>
-            <Button size="sm" onClick={() => stage.current?.reset()}>
+            <Button size="sm" style={filterPillStyle(false)} onClick={() => stage.current?.reset()}>
+              <sdk.Codicon name="refresh" />
               Reset camera
             </Button>
             {onDownload && (
@@ -242,7 +230,7 @@ export function ModelViewer({
                     })
                   e.target.value = ''
                 }}
-                style={{ color: 'var(--ui-text)', background: 'var(--ui-bg-secondary)' }}
+                style={styledSelect}
               >
                 <option value="">Download…</option>
                 {downloads?.map((d, i) => (
@@ -254,7 +242,7 @@ export function ModelViewer({
             )}
           </div>
           {stats && (
-            <div data-model-stats style={{ padding: 8, fontSize: 12, color: 'var(--ui-text-secondary)' }}>
+            <div data-model-stats style={{ ...glassStatsPill, margin: 12, lineHeight: 1.8 }}>
               {stats.vertices} vertices · {stats.triangles} triangles · {stats.meshes} meshes · {stats.bones}{' '}
               bones/joints · {stats.clips.length} clips
               {stats.bones > 0 && (

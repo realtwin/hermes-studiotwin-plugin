@@ -1,4 +1,5 @@
 import * as sdk from '@hermes/plugin-sdk'
+import { cardShell, cardHeader, cardTitle, creditBadgeStyle } from '../lib/ui-tokens'
 import { studiotwinToolAliases } from './tool-names.ts'
 import { useState, type ReactNode } from 'react'
 import { VideoViewer } from '../viewers/video-viewer.tsx'
@@ -20,15 +21,13 @@ export function VideoCard(props: VideoCardProps) {
     return <>{props.fallback ?? <p>Video unavailable. Reopen in the originating profile and connection.</p>}</>
   return (
     <article
-      style={{
-        padding: 8,
-        maxWidth: 720,
-        border: '1px solid var(--ui-stroke-secondary)',
-        borderRadius: 10,
-        color: 'var(--ui-text-primary)',
-      }}
+      style={{ ...cardShell, maxWidth: 720, color: 'var(--ui-text-primary)' }}
     >
-      <strong>StudioTwin Video / Sequence</strong>
+      <header style={cardHeader}>
+        {Object.hasOwn(sdk, 'Codicon') && <sdk.Codicon name="play-circle" size={16} />}
+        <strong style={cardTitle}>StudioTwin Video / Sequence</strong>
+        <span style={creditBadgeStyle}>Video</span>
+      </header>
       <VideoViewer {...props} scope={scope} onError={() => setFailed(true)} />
     </article>
   )

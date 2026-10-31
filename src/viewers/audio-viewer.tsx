@@ -1,6 +1,7 @@
 // Waveform/transport adapted from Nous Research elevenlabs-sound-effects src/ui.tsx (MIT).
 // Copyright (c) 2026 Nous Research. Canvas rendition and StudioTwin backend adapter are local.
 import * as sdk from '@hermes/plugin-sdk'
+import { cardShell, cardHeader, cardTitle, cleanDisplayName, nextDrawerStyle, nextSummaryStyle, nextActionChipStyle, creditBadgeStyle, glassToolbar, glassStatsPill, controlStrip, cardSubtitle, filterPillStyle } from '../lib/ui-tokens'
 import type { PluginContext } from '@hermes/plugin-sdk'
 const { Badge, Button, host } = sdk
 import { useEffect, useRef, useState, type ReactNode } from 'react'
@@ -40,7 +41,7 @@ export function Waveform({ data, progress, onSeek }: { data: number[]; progress:
   }, [data, progress])
   return <canvas ref={canvasRef} role="slider" tabIndex={0} aria-label="Waveform; click or use arrow keys to seek"
     aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress * 100)}
-    style={{ display: 'block', width: '100%', height: 64, cursor: 'pointer', touchAction: 'manipulation' }}
+    style={{ display: 'block', width: '100%', height: 88, cursor: 'pointer', touchAction: 'manipulation', borderRadius: 6 }}
     onClick={event => {
       const r = event.currentTarget.getBoundingClientRect()
       if (r.width > 0) onSeek(Math.min(1, Math.max(0, (event.clientX - r.left) / r.width)))
@@ -111,26 +112,34 @@ export function AudioViewer({ ctx, source, scope, sessionId, dataUrl, prompt = '
     try { assertScope(scope); await fn() } catch { setError(true); player.current?.dispose() }
     tick(t => t + 1)
   }
-  return <section aria-label="StudioTwin sound effect" style={{ padding: 12, borderRadius: 12, border: '1px solid var(--ui-stroke-secondary)', background: 'var(--ui-bg-card)', color: 'var(--ui-text-primary)', maxWidth: 640 }}>
-    <div style={{ fontWeight: 500, overflowWrap: 'anywhere' }}>{prompt || ready.payload.name}</div>
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, color: 'var(--ui-text-secondary)', marginTop: 8 }}>
+  return <section aria-label="StudioTwin sound effect" style={{ ...cardShell, maxWidth: 640 }}>
+    <header style={cardHeader}>
+      {Object.hasOwn(sdk, 'Codicon') && <sdk.Codicon name="unmute" size={16} />}
+      <strong style={cardTitle}>{cleanDisplayName(prompt || ready.payload.name).title}</strong>
+      <span style={creditBadgeStyle}>Audio SFX</span>
+    </header>
+    <div style={{ padding: '0 14px 14px' }}>
+    {cleanDisplayName(prompt || ready.payload.name).shortId && <div style={{ ...cardSubtitle, marginTop: 10 }}>{ready.payload.name}</div>}
+    <div style={{ ...controlStrip, flexWrap: 'wrap', marginTop: 12 }}>
       <Badge>{ready.buffer.duration.toFixed(3)} s</Badge>
       <Badge>{ready.payload.mime.replace('audio/', '').toUpperCase()}</Badge>
       <Badge title="Decoded playback sample rate; Web Audio may resample the source">{ready.buffer.sampleRate} Hz</Badge>
       <Badge>{ready.payload.bytes.toLocaleString()} B</Badge>
     </div>
-    <Waveform data={ready.wave} progress={progress} onSeek={f => void guarded(() => player.current?.seek(f * ready.buffer.duration) ?? Promise.resolve())} />
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
-      <Button size="sm" aria-label={playing ? 'Pause' : 'Play'} onClick={() => void guarded(async () => {
+    <div style={{ padding: 10, borderRadius: 10, margin: '16px 0', border: '1px solid var(--ui-stroke-secondary)', background: 'color-mix(in srgb, var(--ui-bg) 70%, var(--ui-bg-secondary))' }}>
+      <Waveform data={ready.wave} progress={progress} onSeek={f => void guarded(() => player.current?.seek(f * ready.buffer.duration) ?? Promise.resolve())} />
+    </div>
+    <div style={glassToolbar}>
+      <Button size="sm" style={filterPillStyle(playing)} aria-label={playing ? 'Pause' : 'Play'} onClick={() => void guarded(async () => {
         if (player.current?.playing) player.current.pause()
         else await player.current?.play(ready.buffer, loop, player.current.position())
       })}>{playing ? 'Pause' : 'Play'}</Button>
-      <Button size="sm" variant="outline" aria-label="Loop audition" aria-pressed={loop} onClick={() => {
+      <Button size="sm" style={filterPillStyle(loop)} variant="outline" aria-label="Loop audition" aria-pressed={loop} onClick={() => {
         if (!scopeMatches(scope)) { setError(true); return }
         player.current?.setLoop(!loop); setLoop(!loop)
       }}>Loop</Button>
-      <span style={{ color: 'var(--ui-text-tertiary)', fontVariantNumeric: 'tabular-nums' }}>{position.toFixed(2)} / {ready.buffer.duration.toFixed(2)} s</span>
-      <details><summary>Download / Convert</summary><div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+      <span style={{ ...glassStatsPill, fontVariantNumeric: 'tabular-nums' }}>{position.toFixed(2)} / {ready.buffer.duration.toFixed(2)} s</span>
+      <details><summary style={{ ...filterPillStyle(false), cursor: 'pointer' }}>Download / Convert</summary><div style={{ ...controlStrip, flexWrap: 'wrap', marginTop: 8 }}>
         {AUDIO_FORMATS.map(format => <Button key={format} size="sm" variant="outline" disabled={busy} aria-label={`Download ${format.toUpperCase()}`} onClick={() => {
           setBusy(true)
           void guarded(async () => {
@@ -139,12 +148,13 @@ export function AudioViewer({ ctx, source, scope, sessionId, dataUrl, prompt = '
           }).finally(() => setBusy(false))
         }}>{format === 'original' ? 'Original' : `.${format}`}</Button>)}
       </div></details>
-      <details><summary>Next</summary><div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        {nextActions(source, prompt).map(action => <Button key={action.id} size="sm" variant="ghost" title={action.message} onClick={() => {
-          if (!submitNext(scope, sessionId, action)) host.notify({ kind: 'warning', message: 'Open the originating chat and profile/connection to use this action.' })
-        }}>{action.label} · {action.cost}</Button>)}
-      </div></details>
     </div>
-    <p style={{ marginBottom: 0, color: 'var(--ui-text-tertiary)', fontSize: 12 }}>Gapless loop audition · WAV/OGG recommended for engine loops</p>
+    <details style={{ ...nextDrawerStyle, margin: '10px 0' }}><summary style={nextSummaryStyle}>Next</summary><div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
+      {nextActions(source, prompt).map(action => <Button style={nextActionChipStyle} key={action.id} size="sm" variant="ghost" title={action.message} onClick={() => {
+        if (!submitNext(scope, sessionId, action)) host.notify({ kind: 'warning', message: 'Open the originating chat and profile/connection to use this action.' })
+      }}>{action.label} · <span style={creditBadgeStyle}>{action.cost}</span></Button>)}
+    </div></details>
+    <p style={{ ...cardSubtitle, marginBottom: 0 }}>Gapless loop audition · WAV/OGG recommended for engine loops</p>
+    </div>
   </section>
 }
