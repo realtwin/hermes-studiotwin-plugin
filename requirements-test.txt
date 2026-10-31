@@ -1,0 +1,12 @@
+# Test-only dependencies. Runtime declarations deliberately remain [project] only.
+httpx==0.28.1
+mcp==2.3.0
+pytest==9.1.1
+fastapi==0.133.1
+uvicorn==0.54.0
+python-multipart==0.0.32
+ruamel.yaml==0.18.16
+jsonschema==4.26.0
+requests==2.34.2
+psutil==7.2.2
+python-dotenv==1.2.4

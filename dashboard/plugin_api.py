@@ -1,419 +1,481 @@
-"""StudioTwin's non-authorizing Desktop backend (S11).
+"""StudioTwin Desktop backend, loaded by the host at /api/plugins/hermes-studiotwin.
 
-Guard patterns adapted from meshy/dashboard/plugin_api.py @1e326ddd (MIT).
-Copyright (c) 2025 Nous Research
-
-Core loads this file by path, not as a package. No profile, credential, socket
-or database is opened at import. S28 supplies a per-profile Backend resolver
-using configure(), or app.state.studiotwin for an isolated host. Until that
-trusted lifecycle is bound, all routes fail closed; no hosted fallback exists.
+The host owns authentication and profile context. Settings, secrets and storage roots
+are resolved per request. This router only reads, uploads, cancels and records lineage;
+paid generation stays on the remote MCP server behind Hermes's native approval UI.
+File/range patterns adapted from Nous Research's Meshy and ElevenLabs SFX (MIT).
+Copyright (c) 2025 Nous Research (Meshy).
+Copyright (c) 2026 Nous Research (ElevenLabs SFX).
 """
 from __future__ import annotations
 
-import hashlib
-import hmac
+import base64
 import importlib
-import inspect
-import ipaddress
-from pathlib import Path
+import io
+import json
+import os
 import re
-import struct
+import shutil
+import subprocess
 import sys
-import time
+import tempfile
 import types
+import uuid
+from email.parser import BytesParser
+from email.policy import default as email_policy
+from pathlib import Path
 
-from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse, StreamingResponse
-from fastapi.routing import APIRoute
-from starlette.background import BackgroundTask
+from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi.concurrency import run_in_threadpool
 
-# Match core's spec_from_file_location loading without changing global sys.path.
+# The host imports plugin_api.py by file path, without a package. Give sibling
+# helpers an install-specific namespace; never alter global sys.path.
 if not __package__:
-    name = '_hermes_studiotwin_dashboard_v1'
-    root = Path(__file__).resolve().parent
+    import hashlib
+    name = '_hermes_studiotwin_' + hashlib.sha256(str(Path(__file__).resolve().parent).encode()).hexdigest()[:12]
     if name not in sys.modules:
-        pkg = types.ModuleType(name); pkg.__path__ = [str(root)]; sys.modules[name] = pkg
-    elif list(sys.modules[name].__path__) != [str(root)]:
-        raise ImportError('StudioTwin package identity mismatch.')
+        pkg = types.ModuleType(name)
+        pkg.__path__ = [str(Path(__file__).resolve().parent)]
+        sys.modules[name] = pkg
     __package__ = name
-ipc_module = importlib.import_module(__package__+'.ipc_client')
-redaction, classification = ipc_module.redaction, ipc_module.classification
-ProvenanceStore = importlib.import_module(__package__+'.provenance_store').ProvenanceStore
-proxy_module = importlib.import_module(__package__+'.proxy')
-CONTRACT = 'studiotwin.dashboard.v1'
-MAX_JSON = 1048576
-_resolver = None
+
+client_module = importlib.import_module(__package__ + '.studiotwin_client')
+sandbox = importlib.import_module(__package__ + '.sandbox')
+store = importlib.import_module(__package__ + '.store')
+proxy = importlib.import_module(__package__ + '.proxy')
+ProvenanceStore = importlib.import_module(__package__ + '.provenance_store').ProvenanceStore
+router = APIRouter()
+KEY_ENV = 'STUDIOTWIN_API_KEY'
+DEFAULTS = {'api_base_url':'https://api.studiotwin.ai', 'show_credits':True, 'inline_cards':True,
+            'auto_rotate':True, 'webgl_limit':4, 'gallery_limit':24, 'blender_handoff':'ask', 'blender_path':''}
+TYPES = {'image','image_sequence','3d_model','animation','audio','video','unknown','jpg','png'}
+CONVERSIONS = {'mp3':['-c:a','libmp3lame','-b:a','192k'], 'wav':['-c:a','pcm_s16le'],
+               'ogg':['-c:a','libvorbis','-q:a','5'], 'flac':['-c:a','flac']}
+AUDIO = {'.wav','.mp3','.ogg','.opus','.flac'}
 
 
-class Refused(ValueError):
-    def __init__(self, status=400, code='INVALID_REQUEST', headers=None):
-        super().__init__('Request unavailable.')
-        self.status,self.code,self.headers = status,code,headers or {}
+def _settings():
+    from hermes_cli.config import load_config_readonly
+    saved = (((load_config_readonly() or {}).get('plugins') or {}).get('entries') or {}).get('hermes-studiotwin') or {}
+    saved = saved.get('settings') if isinstance(saved, dict) else {}
+    saved = saved if isinstance(saved, dict) else {}
+    out = {k:saved.get(k, v) if type(saved.get(k,v)) is type(v) else v for k,v in DEFAULTS.items()}
+    out['api_base_url'] = client_module.validate_base(out['api_base_url'])
+    out['webgl_limit'] = max(1,min(4,out['webgl_limit']))
+    out['gallery_limit'] = max(1,min(100,out['gallery_limit']))
+    if out['blender_handoff'] not in ('ask','always','never'):
+        out['blender_handoff'] = 'ask'
+    return out
 
 
-def configure(resolver):
-    """Trusted host lifecycle hook; resolver(request) returns current Backend.
-
-    A resolver must use host-authenticated profile context, never browser scope
-    parameters. No default profile/environment lookup is safe across requests.
-    """
-    global _resolver
-    if not callable(resolver): raise ValueError('Backend resolver required.')
-    _resolver = resolver
+def _api_key():
+    from agent.secret_scope import get_secret
+    return get_secret(KEY_ENV)
 
 
-def _validated(schema, value, binding, sensitive=()):
-    return redaction.validate_mediated_v1('dashboard#/components/schemas/'+schema,value,
-        scope_id=binding[0],generation=binding[1],sensitive_values=sensitive).to_json()
+def _client():
+    return client_module.StudioTwinClient(_settings()['api_base_url'], _api_key())
 
 
-def _json(schema, value, binding, sensitive=(), *, status=200, headers=None):
-    safe = _validated(schema,value,binding,sensitive)
-    return JSONResponse(safe,status_code=status,headers={'X-StudioTwin-Contract':CONTRACT,
-        'X-Content-Type-Options':'nosniff','Cache-Control':'no-store',**(headers or {})})
+def _call(tool, args=None):
+    with _client() as client:
+        return client.call(tool, args)
 
 
-def _error(error, binding=('0'*64,0)):
-    # Static output only. A failed/secret-bearing binding or registry cannot
-    # prevent a closed static fallback, and no raw header/exception is echoed.
-    value = dict(contract=CONTRACT,code=error.code,message='Request unavailable.')
-    schema = 'ErrorV1'
-    if error.status==412:
-        schema = 'IncompatibleContractV1'
-        value.update(code='INCOMPATIBLE_PROTOCOL_VERSION',supported=[CONTRACT],received=None)
-    try:
-        return _json(schema,value,binding,status=error.status,headers=error.headers)
-    except Exception:
-        return _json('ErrorV1',dict(contract=CONTRACT,code='UNAVAILABLE',message='Request unavailable.'),
-                     ('0'*64,0),status=503)
+def _data_root():
+    from hermes_constants import get_hermes_home
+    base = get_hermes_home() / 'plugin-data'
+    found = sorted(base.glob('agent-plugin-hermes-studiotwin-*')) if base.is_dir() else []
+    return found[0] if found else base / 'agent-plugin-hermes-studiotwin'
 
 
-class GuardedRoute(APIRoute):
-    def get_route_handler(self):
-        original = super().get_route_handler()
-        async def guarded(request):
-            binding = ('0'*64,0)
-            try:
-                backend = _resolver(request) if _resolver else getattr(request.app.state,'studiotwin',None)
-                if type(backend) is not Backend: raise Refused(503,'UNAVAILABLE')
-                binding,session = await backend.guard(request)
-                request.state.studiotwin_context = (backend,binding,session)
-                result = await original(request)
-                backend.check(binding)
-                return result
-            except Refused as e:
-                return _error(e,binding)
-            except proxy_module.ProxyRefused as e:
-                code = {400:'INVALID_REQUEST',416:'INVALID_REQUEST',429:'RATE_LIMITED',415:'UNSUPPORTED_MEDIA'}.get(e.status,'NOT_FOUND')
-                return _error(Refused(e.status,code,e.headers),binding)
-            except Exception:
-                return _error(Refused(503,'UNAVAILABLE'),binding)
-        return guarded
+def _allowed_roots():
+    from hermes_constants import get_hermes_home
+    return [_data_root(), get_hermes_home() / 'cache/generated', Path.home()]
 
 
-class Backend:
-    def __init__(self, ipc, store, proxy, *, current_binding, sensitive_values,
-                 authenticate, allowed_hosts, allowed_origins, catalog=None, clock=None):
-        self.ipc,self.store,self.proxy = ipc,store,proxy
-        self._current,self._sensitive,self.authenticate = current_binding,sensitive_values,authenticate
-        self.allowed_hosts,self.allowed_origins = frozenset(allowed_hosts),frozenset(allowed_origins)
-        if not self.allowed_hosts or not self.allowed_origins or not callable(authenticate):
-            raise ValueError('Explicit host authentication and origins required.')
-        self.catalog = catalog
-        self.limits = proxy_module.SessionLimits(clock=clock or time.monotonic)
-        self.provenance = ProvenanceStore(store)
-        self._memo = {}
+def _id(value):
+    if not isinstance(value,str) or not re.fullmatch(r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}',value):
+        raise HTTPException(400, 'a UUID is required')
+    return value
 
-    def __repr__(self): return '<StudioTwinBackend>'
 
-    def check(self, binding):
-        if self._current() != binding: raise Refused(404,'NOT_FOUND')
-        self.store.require_current(*binding)
+def _index():
+    return store.AssetIndex(_data_root())
 
-    def validate(self, schema, value, binding):
-        return _validated(schema,value,binding,tuple(self._sensitive()))
 
-    async def guard(self, request):
-        for header in ('host','origin','x-studiotwin-contract','x-studiotwin-csrf','content-length','content-type','range'):
-            if len(request.headers.getlist(header))>1: raise Refused()
-        # Core's HTTP host and isolated child connect locally. Forwarded peer
-        # headers are never evidence; remote access must terminate at core.
-        if request.client is None or not ipaddress.ip_address(request.client.host).is_loopback:
-            raise Refused(403)
-        if request.headers.get('host') not in self.allowed_hosts: raise Refused(403)
-        # Host admission is an injected trusted adapter, not a browser boolean.
-        identity = self.authenticate(request)
-        if inspect.isawaitable(identity): identity = await identity
-        if type(identity) is not tuple or len(identity)!=2: raise Refused(401)
-        session,csrf = identity
-        binding = self._current()
-        redaction._binding(*binding)
-        self.check(binding)
-        self.validate('LocalIdV1',session,binding)
-        origin = request.headers.get('origin')
-        if origin is not None and origin not in self.allowed_origins: raise Refused(403)
-        # Native host requests may omit Origin; mutation still needs the
-        # independently host-issued CSRF secret. Media tags may omit version.
-        if request.method not in ('GET','HEAD'):
-            supplied = request.headers.get('x-studiotwin-csrf','')
-            if type(csrf) is not str or len(csrf)<16 or not hmac.compare_digest(supplied.encode(),csrf.encode()):
-                raise Refused(403)
-        media = request.url.path.endswith('/local/file') and request.method=='GET'
-        version = request.headers.get('x-studiotwin-contract')
-        if version != CONTRACT and not (media and version is None): raise Refused(412)
-        self.limits.request((*binding,session))
-        return binding,session
+def _provenance():
+    return ProvenanceStore(_data_root())
 
-    async def body(self, request, schema, binding):
-        if request.headers.get('content-type','').split(';')[0].strip().lower()!='application/json': raise Refused(415,'UNSUPPORTED_MEDIA')
-        length = request.headers.get('content-length')
-        if length is not None:
-            if not re.fullmatch(r'[0-9]{1,12}',length): raise Refused()
-            if int(length)>MAX_JSON: raise Refused(413,'TOO_LARGE')
-        data = bytearray()
-        async for chunk in request.stream():
-            if len(data)+len(chunk)>MAX_JSON: raise Refused(413,'TOO_LARGE')
-            data.extend(chunk)
+
+def _kind(path):
+    ext = path.suffix.lower()
+    if ext in AUDIO:
+        return 'audio'
+    if ext in ('.hdr','.exr','.png','.jpg','.jpeg','.webp'):
+        return 'image'
+    return {'.mp4':'video','.tar':'image_sequence','.json':'animation'}.get(ext,'3d_model')
+
+
+def _local_rows():
+    rows = _index().rows()
+    known = {r['path'] for r in rows}
+    cache = _data_root() / 'studio_cache'
+    if cache.is_dir() and not cache.is_symlink():
+        rows += [{'path':str(p)} for p in cache.iterdir() if str(p) not in known]
+    result = []
+    for row in rows:
         try:
-            value = ipc_module.ipc.decode(bytes(data))
-            return self.validate(schema,value,binding)
-        except Exception:
-            pass
-        raise Refused()
-
-    def response(self, schema, value, binding):
-        return _json(schema,value,binding,tuple(self._sensitive()))
-
-    async def call(self, method, params, schema, binding):
-        self.check(binding)
-        envelope = (await self.ipc.request(method,params)).to_json()
-        self.check(binding)
-        if not envelope['ok']:
-            code = envelope['error']['code']
-            raise Refused(503,'SCHEMA_UNAVAILABLE' if code=='SCHEMA_UNAVAILABLE' else 'UNAVAILABLE')
-        if envelope['result']['method']!=method: raise Refused(503,'UNAVAILABLE')
-        value = self.validate(schema,envelope['result']['payload'],binding)
-        if method=='capabilities.inputSchema':
-            classification.validate_input_schema_response_v1(envelope,wrapped=True,
-                scope_id=binding[0],generation=binding[1],sensitive_values=tuple(self._sensitive()))
-            if value['tool']!=params['tool'] or value['schemaHash']!=params['schemaHash']: raise Refused(503,'SCHEMA_UNAVAILABLE')
-        return value
-
-    async def cached_read(self, method, schema, kind, ttl, binding):
-        key = (binding,method)
-        now = self.limits.clock()
-        if key in self._memo and now-self._memo[key][0]<ttl:
-            return self.validate(schema,self._memo[key][1],binding)
-        value = await self.call(method,{},schema,binding)
-        self.store.put(kind,'current',value,scope_id=binding[0],generation=binding[1])
-        # Reconnect/rotation creates a new Backend. No old-scope memo survives.
-        self._memo = {k:v for k,v in self._memo.items() if k[0]==binding}
-        self._memo[key] = (now,value)
-        return value
-
-    async def source(self, value, binding, session):
-        path,handle = value.get('sourcePath'),None
-        if 'source' in value:
-            source = value['source']
-            if source['kind']=='handle': handle = source['handle']
-            else:
-                descriptor = (await self.ipc.request('resources.resolveStream',{'source':source})).to_json()
-                self.check(binding)
-                if not descriptor['ok']: raise Refused(404,'NOT_FOUND')
-                handle = descriptor['result']['payload']['handle']
-            self.proxy.handles.resolve(handle,scope_id=binding[0],generation=binding[1],purpose='resource',operation='process',consume=False)
-        lease = self.proxy.prepare(path=path,handle=handle,scope_id=binding[0],generation=binding[1],session=session)
-        if lease.headers['Content-Type']!='model/gltf-binary':
-            lease.close(); raise Refused(415,'UNSUPPORTED_MEDIA')
-        return lease
+            p = sandbox.readable(row['path'],_allowed_roots())
+            st = p.stat()
+        except (HTTPException,OSError):
+            continue
+        result.append({**row,'path':str(p),'local_path':str(p),'name':p.name,
+                       'bytes':st.st_size,'mtime':int(st.st_mtime*1000),'type':row.get('type') or _kind(p)})
+    return result
 
 
-router = APIRouter(route_class=GuardedRoute)
-_services = set()
-
-
-def register_service(service_id, router):
-    """S28 calls once per frozen backend leaf before mounting on core."""
-    if type(service_id) is not str or not re.fullmatch(r'[a-z][a-z0-9_]{0,31}',service_id) or service_id in _services:
-        raise ValueError('Invalid or duplicate service.')
-    if not isinstance(router,APIRouter): raise ValueError('Router required.')
-    target = globals()['router']
-    existing = {(r.path,m) for r in target.routes for m in r.methods}
-    proposed = {(r.path,m) for r in router.routes for m in r.methods}
-    if existing & proposed: raise ValueError('Duplicate route.')
-    # Include copied leaf routes under the same security wrapper, never mutate
-    # a leaf's own router. Shared router.py remains entirely S28-owned.
-    for route in router.routes:
-        target.add_api_route(route.path,route.endpoint,methods=list(route.methods),response_model=route.response_model)
-    _services.add(service_id)
-
-
-def context(request): return request.state.studiotwin_context
-
-
-def query(request, allowed):
-    if any(k not in allowed or len(request.query_params.getlist(k))!=1 for k in request.query_params): raise Refused()
-    return dict(request.query_params)
+def _cached(asset):
+    return next((r['path'] for r in _local_rows() if r.get('uuid') == asset), None)
 
 
 @router.get('/status')
-async def status(request: Request):
-    b,binding,_ = context(request); query(request,set())
-    return b.response('StatusV1',await b.cached_read('status.get','StatusV1','status',15,binding),binding)
+def status():
+    settings, key = _settings(), _api_key()
+    ffmpeg = bool(shutil.which('ffmpeg'))
+    out = {'configured':bool(key),'key_env':KEY_ENV,'settings':settings,'balance':None,
+           'host':{'ffmpeg':ffmpeg,'conversions':sorted(CONVERSIONS) if ffmpeg else []}}
+    if key:
+        try:
+            with client_module.StudioTwinClient(settings['api_base_url'],key) as client:
+                out['balance'] = client.call('studiotwin_get_credit_balance').get('balance')
+        except HTTPException as exc:
+            out['error'] = exc.detail
+    return out
 
 
-@router.get('/capabilities')
-async def capabilities(request: Request):
-    b,binding,_ = context(request); query(request,set())
-    value = await b.cached_read('capabilities.list','CapabilitiesV1','capabilities',60,binding)
-    return b.response('CapabilitiesV1',value,binding)
+@router.get('/assets')
+def assets(type: str = '', limit: int | None = Query(None,ge=1,le=100)):
+    if type and type not in TYPES:
+        raise HTTPException(400,'unsupported asset type')
+    limit = limit or _settings()['gallery_limit']
+    local = _local_rows()
+    cloud = _call('studiotwin_list_my_assets',{'type':type} if type else {}).get('assets',[]) if _api_key() else []
+    merged = {r['uuid']:dict(r) for r in cloud}
+    for row in local:
+        key = row.get('uuid') or row['path']
+        merged[key] = {**merged.get(key,{}),**row}
+    visible = []
+    for row in merged.values():
+        if type and (row.get('type') != type if type not in ('jpg','png') else not row.get('name','').lower().endswith('.'+type)):
+            continue
+        row['made_from'] = _provenance().details(row.get('uuid') or row.get('task') or '')['made_from']
+        visible.append(row)
+    return {'configured':bool(_api_key()),'assets':visible[:limit]}
 
 
-@router.get('/capabilities/{tool}/input-schema')
-async def input_schema(request: Request):
-    b,binding,_ = context(request)
-    params = query(request,{'schemaHash'})
-    params['tool'] = request.path_params['tool']
-    if 'schemaHash' not in params: raise Refused()
-    return b.response('ToolInputSchemaResponseV1',await b.call('capabilities.inputSchema',params,'ToolInputSchemaResponseV1',binding),binding)
+@router.get('/assets/{uuid}')
+def asset_detail(uuid: str):
+    _id(uuid)
+    row = _call('studiotwin_resolve_asset',{'assetId':uuid})
+    return {**row,'local_path':_cached(uuid),'made_from':_provenance().details(uuid)['made_from']}
+
+
+def _download_asset(aid):
+    _id(aid)
+    with store.STATE_LOCK:
+        if cached := _cached(aid):
+            return cached
+        folder = sandbox.local_folder(_data_root(),'studio_cache')
+        with _client() as client:
+            row = client.call('studiotwin_resolve_asset',{'assetId':aid})
+            ext = Path(row.get('name','')).suffix.lower()
+            if ext not in sandbox.MIME:
+                raise HTTPException(415,'unsupported asset extension')
+            _, data = client.request('GET',row.get('downloadUrl',''),storage=True,cap=sandbox.MAX_BYTES)
+        dest = folder / f'{aid}-{uuid.uuid4().hex}{ext}'
+        with dest.open('xb') as out:
+            out.write(data)
+        _index().record(dest,asset=aid,kind=row.get('type'))
+        return str(dest)
+
+
+def _convert(data, fmt):
+    ffmpeg = shutil.which('ffmpeg')
+    if not ffmpeg:
+        raise HTTPException(409,'ffmpeg is not installed on this host')
+    folder = sandbox.local_folder(_data_root(),'conversions')
+    fd, name = tempfile.mkstemp(suffix='.'+fmt,dir=folder)
+    os.close(fd)
+    try:
+        result = subprocess.run([ffmpeg,'-nostdin','-hide_banner','-loglevel','error','-y',
+            '-protocol_whitelist','pipe','-i','pipe:0','-vn',*CONVERSIONS[fmt],
+            '-fs',str(sandbox.MAX_BYTES+1),name], input=data,capture_output=True,timeout=45,check=False)
+        if result.returncode:
+            raise HTTPException(502,'ffmpeg could not convert the audio')
+        if Path(name).stat().st_size > sandbox.MAX_BYTES:
+            raise HTTPException(413,'converted audio exceeds the media limit')
+        return Path(name).read_bytes()
+    except subprocess.TimeoutExpired:
+        raise HTTPException(504,'audio conversion exceeded 45 seconds') from None
+    except OSError:
+        raise HTTPException(502,'audio conversion could not run') from None
+    finally:
+        Path(name).unlink(missing_ok=True)
+
+
+@router.get('/file')
+def file(request: Request, path: str = '', asset: str = '', task: str = '', format: str = 'original', raw: bool = False):
+    if format not in ('original',*CONVERSIONS):
+        raise HTTPException(400,'format must be original, mp3, wav, ogg or flac')
+    if path:
+        sandbox.readable(path,_allowed_roots())  # preflight BEFORE an asset lookup
+    if asset:
+        _id(asset)
+    if task:
+        _id(task)
+    if bool(path) == bool(asset):
+        raise HTTPException(400,'provide exactly one of path or asset')
+    path = path or _download_asset(asset)
+    with sandbox.open_media(path,_allowed_roots()) as (target,source,st):
+        mime = sandbox.MIME[target.suffix.lower()]
+        name = target.name
+        size = st.st_size
+        if format != 'original' and '.'+format != target.suffix.lower():
+            if target.suffix.lower() not in AUDIO:
+                raise HTTPException(415,'only audio can be converted')
+            data = _convert(source.read(),format)
+            source = io.BytesIO(data)
+            name, size, mime = target.stem+'.'+format,len(data),sandbox.MIME['.'+format]
+        _index().record(target,asset=asset or None,task=task or None)
+        if raw or request.headers.get('range') is not None:
+            return proxy.binary_response(source,size,mime,request.headers.get('range'))
+        data = source.read()
+        return {'name':name,'bytes':len(data),'mtime':int(st.st_mtime*1000),'mime':mime,
+                'dataUrl':f'data:{mime};base64,'+base64.b64encode(data).decode('ascii')}
+
+
+@router.get('/jobs')
+def jobs(limit: int = Query(24,ge=1,le=100),offset: int = Query(0,ge=0)):
+    return {'jobs':_call('studiotwin_list_my_jobs',{'limit':limit,'offset':offset})}
+
+
+def _job(jid):
+    _id(jid)
+    row = _call('studiotwin_get_job_status',{'jobId':jid})
+    state = str(row.get('status','')).lower()
+    # No invented intermediate percentage: None explicitly means not reported.
+    progress = row.get('progress',100 if state in ('done','complete','completed','succeeded') else None)
+    return {**row,'id':jid,'progress':progress}
+
+
+@router.get('/jobs/{job_id}')
+def job(job_id: str):
+    return _job(job_id)
+
+
+@router.get('/task')
+def task(id: str):
+    return _job(id)
+
+
+@router.get('/active')
+def active(tasks: str = ''):
+    wanted = list(dict.fromkeys(filter(None,tasks.split(','))))
+    if len(wanted)>16:
+        raise HTTPException(400,'at most 16 tasks')
+    for jid in wanted:
+        _id(jid)
+    running,done,missing,failed = [],[],[],[]
+    for jid in wanted:
+        try:
+            row = _job(jid)
+        except HTTPException as exc:
+            (missing if exc.status_code == 404 else failed).append(jid)
+            continue
+        if str(row.get('status','')).lower() in ('submitted','queued','running','pending','in_progress'):
+            running.append(row)
+        else:
+            done.append(jid)
+    return {'configured':bool(_api_key()),'tasks':running,'done':done,'missing':missing,'failed':failed}
+
+
+@router.post('/jobs/{job_id}/cancel')
+def cancel_job(job_id: str):
+    return _call('studiotwin_cancel_job',{'jobId':_id(job_id)})
+
+
+@router.post('/cancel')
+def cancel(body: dict):
+    return cancel_job(body.get('id') or body.get('jobId') or '')
+
+
+@router.get('/concepts')
+def concepts(limit: int = Query(24,ge=1,le=100),offset: int = Query(0,ge=0)):
+    return _call('studiotwin_conceptlab_list',{'limit':limit,'offset':offset})
+
+
+@router.get('/concepts/{concept_id}')
+def concept(concept_id: str):
+    return _call('studiotwin_conceptlab_get',{'conceptId':_id(concept_id)})
+
+
+@router.get('/concepts/{concept_id}/status')
+def concept_status(concept_id: str):
+    return _call('studiotwin_conceptlab_get_status',{'conceptId':_id(concept_id)})
+
+
+def _upload(filename, data, cloud, entries=None):
+    if not isinstance(filename,str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._ -]{0,119}',filename) or '..' in filename:
+        raise HTTPException(400,'filename must be a plain file name')
+    ext = Path(filename).suffix.lower()
+    if ext not in sandbox.MIME:
+        raise HTTPException(415,'unsupported media extension')
+    if not data or len(data)>sandbox.MAX_BYTES:
+        raise HTTPException(413,'empty or oversized upload')
+    if ext == '.tar' and cloud:
+        import tarfile
+        from pathlib import PurePosixPath
+        try:
+            with tarfile.open(fileobj=io.BytesIO(data), mode='r:') as archive:
+                derived = []
+                for member in archive:
+                    name = PurePosixPath(member.name)
+                    if (name.is_absolute() or '..' in name.parts or '\\' in member.name
+                            or member.issym() or member.islnk() or member.size > sandbox.MAX_BYTES):
+                        raise ValueError
+                    if member.isfile():
+                        derived.append({'name':member.name,'offset':member.offset,'size':member.size})
+                    if len(derived)>10000:
+                        raise ValueError
+                if not derived or (entries is not None and entries != derived):
+                    raise ValueError
+                entries = derived
+        except (tarfile.TarError,ValueError):
+            raise HTTPException(400,'invalid or unsafe image-sequence archive') from None
+    folder = sandbox.local_folder(_data_root(),'uploads')
+    dest = folder / f'{uuid.uuid4().hex}-{filename}'
+    with dest.open('xb') as out:
+        out.write(data)
+    _index().record(dest)
+    result = {'path':str(dest),'name':filename,'bytes':len(data)}
+    if not cloud:
+        return result
+    with _client() as client:
+        upload = client.call('studiotwin_upload_asset')
+        post = upload.get('preSignedPost',{})
+        fields = post.get('fields',{})
+        if not isinstance(fields,dict) or not all(isinstance(v,str) for v in fields.values()):
+            raise HTTPException(502,'invalid StudioTwin upload session')
+        fields = {k:v.replace('${filename}',filename) for k,v in fields.items()}
+        client.request('POST',post.get('url',''),storage=True,data=fields,files={'file':(filename,data,sandbox.MIME[ext])})
+        args = {'uploadSessionId':upload['uuid']}
+        if entries is not None:
+            args['entries'] = entries
+        completed = client.call('studiotwin_complete_asset_upload',args)
+    # Do not project the upload session: only final asset metadata is public.
+    assets = completed.get('assets',[])
+    if assets:
+        _index().record(dest,asset=assets[0].get('uuid'),kind=assets[0].get('type'))
+    return {**result,'uuid':completed.get('uuid'),'assetIds':completed.get('assetIds',[]),'assets':assets}
+
+
+@router.post('/upload')
+@router.post('/uploads')
+async def upload(request: Request, cloud: bool = False):
+    cap = sandbox.MAX_BYTES * 4 // 3 + 65536
+    data = bytearray()
+    async for chunk in request.stream():
+        if len(data)+len(chunk)>cap:
+            raise HTTPException(413,'upload body exceeds the media limit')
+        data.extend(chunk)
+    entries = None
+    try:
+        content_type = request.headers.get('content-type','')
+        if content_type.startswith('multipart/form-data'):
+            message = BytesParser(policy=email_policy).parsebytes(('Content-Type: '+content_type+'\r\nMIME-Version: 1.0\r\n\r\n').encode()+data)
+            parts = [p for p in message.iter_parts() if p.get_filename() is not None]
+            if len(parts)!=1:
+                raise ValueError
+            filename, payload = parts[0].get_filename(), parts[0].get_payload(decode=True)
+        else:
+            body = json.loads(data)
+            filename,payload = body['filename'],base64.b64decode(body['data'],validate=True)
+            cloud = cloud or body.get('cloud') is True
+            entries = body.get('entries')
+    except (ValueError,KeyError,TypeError):
+        raise HTTPException(400,'no file in the request (or invalid file encoding)') from None
+    return await run_in_threadpool(_upload,filename,payload,cloud or request.url.path.endswith('/uploads'),entries)
 
 
 @router.post('/provenance')
-async def provenance(request: Request):
-    b,binding,_ = context(request); query(request,set())
-    value = await b.body(request,'ProvenanceRecordRequestV1',binding)
-    return b.response('ProvenanceRecordedV1',b.provenance.record(value,scope_id=binding[0],generation=binding[1]).to_json(),binding)
+def provenance(body: dict):
+    identifier = _id(body.get('id') or body.get('jobId') or body.get('task_id') or '')
+    record = {}
+    for key in ('sourceAssetIds','outputAssetIds'):
+        if key in body:
+            if not isinstance(body[key],list) or len(body[key])>100:
+                raise HTTPException(400,'asset ids must be a list of up to 100 UUIDs')
+            record[key] = list(dict.fromkeys(_id(a) for a in body[key]))
+    for key in ('conceptId','jobId'):
+        if key in body:
+            record[key] = _id(body[key])
+    for key in ('prompt','tool','session_id'):
+        if key in body:
+            if not isinstance(body[key],str) or len(body[key])>8000:
+                raise HTTPException(400,'invalid provenance text')
+            record[key] = body[key]
+    _provenance().record(identifier,record)
+    return {'ok':True,'id':identifier}
 
 
-@router.get('/lineage/{asset}')
-async def lineage(request: Request):
-    b,binding,_ = context(request); query(request,set())
-    asset = request.path_params['asset']
-    try: b.validate('UuidV1',asset,binding)
-    except Exception: raise Refused() from None
-    try:
-        value = await b.call('lineage.get',{'assetId':asset},'LineageV1',binding)
-    except Refused as e:
-        if e.status!=503: raise
-    else:
-        if value['root']!=asset: raise Refused(503,'UNAVAILABLE')
-        b.provenance.merge_server(value,scope_id=binding[0],generation=binding[1])
-    value = b.provenance.lineage(asset,scope_id=binding[0],generation=binding[1]).to_json()
-    return b.response('LineageV1',value,binding)
+@router.get('/provenance')
+@router.get('/details')
+def details(id: str):
+    return _provenance().details(_id(id))
 
 
-@router.get('/local/file')
-async def local_file(request: Request):
-    b,binding,session = context(request)
-    params = query(request,{'path','handle'})
-    lease = b.proxy.prepare(**params,scope_id=binding[0],generation=binding[1],session=session,range_header=request.headers.get('range'))
-    async def chunks():
-        try:
-            for chunk in lease.chunks(): yield chunk
-        finally:
-            lease.close()
-    return StreamingResponse(chunks(),status_code=lease.status,headers={**lease.headers,'X-StudioTwin-Contract':CONTRACT},background=BackgroundTask(lease.close))
+# Follow-up buttons only compose visible messages; this route never submits a job.
+# Prices are fixed values from the captured definitions. Input-dependent tools
+# require a fresh estimate in the composed instruction, not a fabricated quote.
+ACTION_TABLE = {
+    'image':[('mesh','Create 3D mesh','image-to-3d-mesh',25)],
+    '3d_model':[('retopo','Retopologize','tripo-retopology',None),('rig','Auto-rig','blender-auto-rig',15)],
+    'animation':[('motion','Generate motion','text-to-motion',None)],
+    'environment':[('world','Build world','environment-map-to-world',80),('upscale','Upscale','environment-map-upscale-cpu',None)],
+    'texture':[('material','Create PBR material','texture-to-material',20)],
+    'audio':[], 'video':[], 'image_sequence':[]}
 
 
-@router.post('/operations/quote')
-async def quote(request: Request):
-    b,binding,_ = context(request); query(request,set())
-    value = await b.body(request,'QuoteRequestV1',binding)
-    try:
-        if b.catalog is None: raise Refused()
-        b.catalog.candidate_inputs(value['tool'],value['schemaHash'],value['inputs'],scope_id=binding[0],generation=binding[1],sensitive_values=tuple(b._sensitive()))
-    except Exception:
-        raise Refused() from None
-    return b.response('QuotePreviewV1',await b.call('operations.quote',value,'QuotePreviewV1',binding),binding)
-
-
-@router.get('/operations/{operationId}')
-async def operation(request: Request):
-    b,binding,_ = context(request); query(request,set())
-    identifier = request.path_params['operationId']
-    redaction.validate_mediated_v1('gateway#/$defs/OperationIdV1',identifier,scope_id=binding[0],generation=binding[1],sensitive_values=tuple(b._sensitive()))
-    value = await b.call('operations.get',{'operationId':identifier},'OperationStateV1',binding)
-    if value['operation']['operationId']!=identifier or value['operation']['scopeId']!=binding[0]: raise Refused(404,'NOT_FOUND')
-    return b.response('OperationStateV1',value,binding)
-
-
-@router.post('/scope-pause/acknowledge')
-async def acknowledge(request: Request):
-    b,binding,_ = context(request); query(request,set())
-    value = await b.body(request,'ScopePauseAcknowledgeRequestV1',binding)
-    if value['scopeId']!=binding[0]: raise Refused(404,'NOT_FOUND')
-    result = await b.call('scopePause.acknowledge',value,'ScopePauseAcknowledgedV1',binding)
-    if any(result[k]!=value[k] for k in ('scopeId','operationId')): raise Refused(503,'UNAVAILABLE')
-    # The gateway's S10 atomic service is authoritative, not a local pause copy.
-    return b.response('ScopePauseAcknowledgedV1',result,binding)
-
-
-def glb_stats(stream):
-    size = __import__('os').fstat(stream.fileno()).st_size
-    stream.seek(0)
-    head = stream.read(20)
-    if len(head)!=20: raise Refused(415,'UNSUPPORTED_MEDIA')
-    magic,version,total,length,kind = struct.unpack('<4sIIII',head)
-    if magic!=b'glTF' or version!=2 or total!=size or kind!=0x4e4f534a or length>MAX_JSON or length+20>size or length%4:
-        raise Refused(415,'UNSUPPORTED_MEDIA')
-    model = ipc_module.ipc.decode(stream.read(length))
-    if type(model) is not dict or model.get('asset',{}).get('version')!='2.0': raise Refused(415,'UNSUPPORTED_MEDIA')
-    meshes,accessors = model.get('meshes',[]),model.get('accessors',[])
-    vertices = triangles = 0
-    for mesh in meshes:
-        for primitive in mesh.get('primitives',[]):
-            index = primitive.get('attributes',{}).get('POSITION')
-            count = accessors[index]['count'] if type(index) is int and 0<=index<len(accessors) else 0
-            indices = primitive.get('indices')
-            elements = accessors[indices]['count'] if type(indices) is int and 0<=indices<len(accessors) else count
-            if type(count) is not int or type(elements) is not int or min(count,elements)<0: raise Refused(415,'UNSUPPORTED_MEDIA')
-            vertices += count
-            mode = primitive.get('mode',4)
-            if mode==4: triangles += elements//3
-            elif mode in (5,6): triangles += max(0,elements-2)
-    return dict(contract=CONTRACT,format='glb',bytes=size,meshes=len(meshes),vertices=vertices,triangles=triangles,
-                materials=len(model.get('materials',[])),animations=len(model.get('animations',[])))
-
-
-@router.post('/local/model/stats')
-async def model_stats(request: Request):
-    b,binding,session = context(request); query(request,set())
-    value = await b.body(request,'LocalModelStatsRequestV1',binding)
-    key = (*binding,session)
-    b.limits.acquire(key,'processor',2)
-    lease = None
-    try:
-        lease = await b.source(value,binding,session)
-        result = glb_stats(lease.stream)
-        b.check(binding)
-        return b.response('ModelStatsV1',result,binding)
-    finally:
-        if lease: lease.close()
-        b.limits.release(key,'processor')
-
-
-@router.post('/handoff/blender/plan')
-async def blender_plan(request: Request):
-    b,binding,session = context(request); query(request,set())
-    value = await b.body(request,'BlenderPlanRequestV1',binding)
-    output = Path(value['outputDir'])
-    if not output.is_absolute() or not output.is_dir() or output.resolve(strict=True)!=output or not any(output.is_relative_to(r) for r in b.proxy.sandbox._roots):
-        raise Refused(400,'SANDBOX_REFUSED')
-    key = (*binding,session)
-    b.limits.acquire(key,'blender',1)
-    lease = None
-    try:
-        lease = await b.source(value,binding,session)
-        glb_stats(lease.stream)
-        digest = hashlib.sha256(); lease.stream.seek(0)
-        while True:
-            b.check(binding)
-            chunk = lease.stream.read(proxy_module.CHUNK)
-            if not chunk: break
-            digest.update(chunk)
-        result = dict(contract=CONTRACT,executes=False,mutatesOpenScene=False,writesNewFiles=True,requiresSeparateConsent=True,
-            sourceSha256=digest.hexdigest(),steps=['Verify unchanged source digest.','Request separate explicit consent.','Import into a new Blender scene and write new files without overwriting.'])
-        return b.response('BlenderPlanV1',result,binding)
-    finally:
-        if lease: lease.close()
-        b.limits.release(key,'blender')
+@router.get('/actions')
+def actions(id: str, type: str = ''):
+    _id(id)
+    if not type or type == 'job':
+        row = None
+        if not type:
+            try:
+                row = _call('studiotwin_resolve_asset',{'assetId':id})
+            except HTTPException as exc:
+                if exc.status_code != 404:
+                    raise
+        if row is not None:
+            type = 'environment' if Path(row.get('name','')).suffix.lower() in ('.hdr','.exr') else row.get('type','unknown')
+        else:
+            row = _job(id)
+            if str(row.get('status','')).lower() not in ('done','complete','completed','succeeded'):
+                return {'id':id,'type':'job','actions':[]}
+            outputs = row.get('outputs') or {}
+            type = next((kind for keys,kind in [
+                (('environmentHDR','panoramaHDR'),'environment'), (('mesh','worldMesh'),'3d_model'),
+                (('imageUrl',),'image'), (('audioClip',),'audio')]
+                if any(key in outputs for key in keys)), 'unknown')
+    if type not in ACTION_TABLE:
+        return {'id':id,'type':type,'actions':[]}
+    out = []
+    for aid,label,tool,cost in ACTION_TABLE[type]:
+        price = f'{cost} credits' if cost is not None else 'input-dependent credits; estimate first'
+        out.append({'id':aid,'label':label,'tool':tool,'cost':cost,'cost_label':price,
+            'message':f'StudioTwin asset {id}: {label} using {tool} ({price}). '
+                       'Read the live tool schema, check compatibility, estimate the exact inputs with '
+                       'studiotwin_estimate_cost, and ask me to approve the cost before submitting.'})
+    return {'id':id,'type':type,'actions':out}

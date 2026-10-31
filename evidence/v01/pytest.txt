@@ -1,0 +1,6 @@
+$ /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v01/.venv/bin/python -B -m pytest -q --tb=short
+........................................................................ [ 68%]
+.................................                                        [100%]
+105 passed in 17.28s
+
+exit_code=0

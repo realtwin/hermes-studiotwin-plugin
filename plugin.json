@@ -1,129 +1,59 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "hermes-studiotwin",
-  "version": "0.1.0",
-  "description": "StudioTwin creative suite for Hermes: images, environment maps, worlds, PBR materials, meshes, rigs, motion, audio and Concepts, powered only by StudioTwin. A bundled local gateway mediates every hosted result and keeps a single-use operation ledger before any paid call. In Hermes Desktop: a StudioTwin page (Library, Jobs, Concepts, Create), inline asset cards, credit and active-job chips.",
-  "author": {
-    "name": "RealTwin"
-  },
-  "keywords": [
-    "studiotwin",
-    "3d",
-    "image-to-3d",
-    "environment-map",
-    "pbr-material",
-    "rigging",
-    "motion",
-    "sound-effects",
-    "concepts",
-    "mcp"
-  ],
+  "version": "0.2.0",
+  "description": "StudioTwin remote MCP for images, environments, materials, meshes, rigs, motion, audio and Concepts, with a Desktop media backend. Paid tools use Hermes native approval. Variable costs require a fresh StudioTwin estimate; there is no plugin session spend cap.",
+  "author": {"name": "RealTwin"},
+  "license": "MIT",
+  "keywords": ["studiotwin", "3d", "audio", "environments", "materials", "concepts", "mcp"],
   "extensions": {
     "com.nousresearch.hermes": {
       "servers": {
         "studiotwin": {
           "trust": "untrusted",
-          "timeout": 300
+          "timeout": 1500,
+          "cost_unit": "credits",
+          "costs": {
+            "text-to-motion-edit": 5,
+            "text-to-motion": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "text-to-motion-kimodo": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "text-to-motion-control": 5,
+            "motion-stitch-single": 5,
+            "text-to-environment-map": 20,
+            "image-to-environment-map": 25,
+            "environment-map-to-world": 80,
+            "environment-map-upscale-cpu": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "pano-sticker-placement": 1,
+            "pano-stickers": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "text-to-material": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "texture-to-material": 20,
+            "image-to-material": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "image-to-3d-mesh": 25,
+            "tripo-image-to-3d-mesh": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "tripo-rig-check": 0,
+            "blender-auto-rig": 15,
+            "tripo-auto-rig": 45,
+            "tripo-retopology": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "text-to-sound-effect": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "prompt-to-dart-translation": 1,
+            "openai-gpt-image-2-v4-fn": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "concept-lab-img-fn": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "studiotwin_conceptlab_create_and_generate": {"credits": [1, 74], "note": "Approximate range from the tool description; obtain a fresh estimate for the selected quality and resolution."},
+            "studiotwin_conceptlab_generate": {"credits": [1, 74], "note": "Approximate range from the tool description; obtain a fresh estimate for the selected quality and resolution."},
+            "studiotwin_conceptlab_edit": {"credits": [3, 74], "note": "Approximate range from the tool description, includes source image; obtain a fresh estimate."}
+          }
         }
       },
       "config_schema": {
-        "api_key": {
-          "type": "secret",
-          "env": "STUDIOTWIN_API_KEY",
-          "label": "StudioTwin API key",
-          "description": "Used only by the local StudioTwin gateway and Desktop backend; never shown to the model or the browser. Saving it restarts the StudioTwin tools."
-        },
-        "endpoint": {
-          "type": "str",
-          "choices": [
-            "staging",
-            "production",
-            "expert"
-          ],
-          "default": "staging",
-          "label": "StudioTwin environment",
-          "description": "Staging is the development default. Production stays disabled until it is certified. Expert uses the URL and separate key below."
-        },
-        "expert_url": {
-          "type": "str",
-          "default": "",
-          "label": "Expert endpoint URL",
-          "description": "HTTPS only, used when the environment is Expert. It never receives the staging or production key."
-        },
-        "expert_url_confirmed": {
-          "type": "bool",
-          "default": false,
-          "label": "I confirm this expert endpoint",
-          "description": "The gateway refuses an expert endpoint until you confirm it here."
-        },
-        "expert_api_key": {
-          "type": "secret",
-          "env": "STUDIOTWIN_EXPERT_API_KEY",
-          "label": "Expert endpoint API key",
-          "description": "Separate credential for the expert endpoint. It is never filled in from the main API key."
-        },
-        "spend_guard_credits": {
-          "type": "int",
-          "default": 200,
-          "label": "Spend guard per chat (credits)",
-          "description": "Estimated credits one chat may reserve before the gateway stops paid calls. This is a local guard on estimates, not a server-enforced maximum."
-        },
-        "unattended_max_credits": {
-          "type": "int",
-          "default": 0,
-          "label": "Unattended spend (credits)",
-          "description": "Cron and other headless runs. Zero means no paid StudioTwin calls without you present."
-        },
-        "poll_cadence": {
-          "type": "str",
-          "choices": [
-            "standard",
-            "relaxed"
-          ],
-          "default": "standard",
-          "label": "Job refresh cadence",
-          "description": "Standard refreshes active jobs at 3 s, then 10 s, then 30 s. Relaxed refreshes less often."
-        },
-        "inline_cards": {
-          "type": "bool",
-          "default": true,
-          "label": "Inline asset cards in chat",
-          "description": "Desktop: render StudioTwin results as interactive cards. Off keeps the built-in players."
-        },
-        "webgl_limit": {
-          "type": "int",
-          "default": 4,
-          "label": "Live 3D viewers",
-          "description": "Desktop: most WebGL viewers kept live at once. Others show thumbnails."
-        },
-        "blender_handoff": {
-          "type": "str",
-          "choices": [
-            "ask",
-            "never"
-          ],
-          "default": "ask",
-          "label": "Blender hand-off",
-          "description": "Ask before writing a new Blender file from a StudioTwin asset; it never edits an open scene. Never hides the offer."
-        },
-        "blender_path": {
-          "type": "str",
-          "default": "",
-          "label": "Blender executable",
-          "description": "Full path to Blender. Empty finds it on PATH or in the usual install folders."
-        },
-        "local_import_roots": {
-          "type": "list",
-          "default": [],
-          "label": "Project folders",
-          "description": "Absolute folders the backend may read local media from, in addition to its own data folder."
-        },
-        "cache_quota_mb": {
-          "type": "int",
-          "default": 2048,
-          "label": "Media cache size (MB)",
-          "description": "Unpinned downloaded media beyond this size, or older than 30 days, is removed first."
-        }
+        "api_key": {"type": "secret", "env": "STUDIOTWIN_API_KEY", "label": "StudioTwin API key", "description": "Profile-scoped key used by the remote MCP connection and Desktop backend. Never sent to the browser."},
+        "api_base_url": {"type": "str", "default": "https://api.studiotwin.ai", "label": "Desktop API endpoint", "description": "HTTPS StudioTwin API base URL. HTTP is allowed only for localhost or 127.0.0.1 test servers. The agent MCP declaration connects directly to production."},
+        "show_credits": {"type": "bool", "default": true, "label": "Show credits", "description": "Show the credit balance in Desktop."},
+        "inline_cards": {"type": "bool", "default": true, "label": "Inline cards", "description": "Show StudioTwin media cards in chat."},
+        "auto_rotate": {"type": "bool", "default": true, "label": "Auto-rotate", "description": "Rotate models in Desktop viewers."},
+        "webgl_limit": {"type": "int", "default": 4, "label": "Live 3D viewers", "description": "Maximum live WebGL viewers (1-4)."},
+        "gallery_limit": {"type": "int", "default": 24, "label": "Gallery size", "description": "Recent assets shown (1-100)."},
+        "blender_handoff": {"type": "str", "choices": ["ask", "always", "never"], "default": "ask", "label": "Blender handoff", "description": "Offer a new local Blender project after downloading an asset."},
+        "blender_path": {"type": "str", "default": "", "label": "Blender executable", "description": "Full Blender executable path; empty finds it on PATH."}
       }
     }
   }

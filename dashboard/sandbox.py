@@ -1,106 +1,79 @@
-"""Descriptor-safe reads under explicit plugin/generated/project grants (D10).
-
-No implicit HOME grant, tilde expansion, percent decoding or path reopening.
-Windows uses S05's owner-ACL/reparse policy, not chmod as ACL. MIME/signature
-checks reuse S07's actual finite media policy; full decoder validation belongs
-in the consuming processor. Callers must keep using the returned opened fd.
-"""
+"""Local media path checks. No process or authority sandbox is implied."""
 from __future__ import annotations
 
-from contextlib import ExitStack
 import os
-from pathlib import Path
 import stat
+from contextlib import contextmanager
+from pathlib import Path
 
-from .ipc_client import ipc, redaction
-import importlib
-media_cache = importlib.import_module(ipc.__package__ + '.media_cache')
+from fastapi import HTTPException
+
+MIME = {'.glb':'model/gltf-binary', '.gltf':'model/gltf+json', '.fbx':'application/octet-stream',
+        '.obj':'model/obj', '.mtl':'text/plain', '.stl':'model/stl', '.usdz':'model/vnd.usdz+zip',
+        '.hdr':'image/vnd.radiance', '.exr':'image/x-exr', '.png':'image/png', '.jpg':'image/jpeg',
+        '.jpeg':'image/jpeg', '.webp':'image/webp', '.wav':'audio/wav', '.mp3':'audio/mpeg',
+        '.ogg':'audio/ogg', '.opus':'audio/ogg', '.flac':'audio/flac', '.mp4':'video/mp4',
+        '.json':'application/json', '.tar':'application/x-tar'}
+MAX_BYTES = 128 * 1024 * 1024
 
 
-class SandboxRefused(ValueError):
-    def __init__(self):
-        super().__init__('Local media unavailable.')
-
-
-def validate_path_syntax(raw):
-    failed = False
+def readable(raw: str, roots) -> Path:
+    if not raw or '\x00' in raw or '..' in raw.replace('\\','/').split('/'):
+        raise HTTPException(400, 'an absolute non-traversing path is required')
+    path = Path(raw).expanduser()
+    if not path.is_absolute():
+        raise HTTPException(400, 'path must be absolute')
+    if path.suffix.lower() not in MIME:
+        raise HTTPException(415, 'unsupported media extension')
+    if any(p.is_symlink() for p in (path, *path.parents)):
+        raise HTTPException(403, 'symbolic links are not served')
+    if not any(path.is_relative_to(Path(r).resolve()) for r in roots):
+        raise HTTPException(403, 'outside allowed media folders')
     try:
-        if type(raw) is not str or '\x00' in raw or '..' in raw.replace('\\','/').split('/'):
-            raise ValueError
-        ipc.validate('dashboard','LocalPathV1',raw)
-    except (ValueError,TypeError,OSError):
-        failed = True
-    if failed:
-        raise SandboxRefused()
-    return raw
+        st = path.stat()
+    except OSError:
+        raise HTTPException(404, 'file not found') from None
+    if not stat.S_ISREG(st.st_mode):
+        raise HTTPException(404, 'file not found')
+    if st.st_size > MAX_BYTES:
+        raise HTTPException(413, 'media exceeds 128 MiB')
+    return path
 
 
-class FileSandbox:
-    def __init__(self, *, plugin_root, generated_roots=(), project_roots=(), windows_files=None):
-        failed = False
-        try:
-            self._roots = tuple(Path(validate_path_syntax(str(root))) for root in
-                (plugin_root,*generated_roots,*project_roots))
-            self._windows = windows_files
-            if os.name == 'nt' and self._windows is None:
-                self._windows = ipc.WindowsFiles()
-            for root in self._roots:
-                if not root.is_absolute() or root.resolve(strict=True) != root or not root.is_dir():
-                    raise ValueError
-        except (ValueError,TypeError,OSError,RuntimeError):
-            failed = True
-        if failed:
-            raise SandboxRefused()
+@contextmanager
+def open_media(raw, roots):
+    path = readable(raw, roots)
+    # Walk from the filesystem root using no-follow descriptors on POSIX, preventing
+    # a link swap between validation and reading. Hold the final descriptor throughout.
+    fd = None
+    try:
+        if os.name == 'posix':
+            fd = os.open(path.anchor, os.O_RDONLY | os.O_DIRECTORY)
+            for part in path.parts[1:-1]:
+                new = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+                os.close(fd)
+                fd = new
+            new = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=fd)
+            os.close(fd)
+            fd = new
+        else:
+            fd = os.open(path, os.O_RDONLY | getattr(os, 'O_BINARY', 0))
+        st = os.fstat(fd)
+        if not stat.S_ISREG(st.st_mode) or st.st_size > MAX_BYTES:
+            raise HTTPException(413, 'invalid or oversized media')
+        with os.fdopen(fd, 'rb') as source:
+            fd = None
+            yield path, source, st
+    except OSError:
+        raise HTTPException(403, 'media could not be opened safely') from None
+    finally:
+        if fd is not None:
+            os.close(fd)
 
-    def open(self, raw, *, mime, kind, max_bytes=None):
-        failed = False
-        result = None
-        try:
-            path = Path(validate_path_syntax(raw))
-            root = next((r for r in self._roots if path.is_relative_to(r)),None)
-            if root is None or not path.is_absolute() or path.resolve(strict=True) != path:
-                raise SandboxRefused()
-            media_cache._format(path.suffix.lower(),mime,kind)
-            cap = media_cache.CATEGORY_CAPS[kind]
-            if max_bytes is not None:
-                if type(max_bytes) is not int or max_bytes <= 0:
-                    raise SandboxRefused()
-                cap = min(cap,max_bytes)
-            before = path.lstat()
-            with ExitStack() as stack:
-                if self._windows is not None:
-                    # Lock every ancestor against reparse/rename until the
-                    # opened-file ACL and fstat validation complete.
-                    # S05's private ACL policy applies to the granted tree,
-                    # not OS-owned ancestors such as a Windows drive root.
-                    for parent in reversed(path.parents):
-                        if parent.is_relative_to(root):
-                            stack.enter_context(self._windows.directory(parent))
-                    fd = self._windows.open(path)
-                else:
-                    parent_fd = os.open(path.anchor,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_NONBLOCK)
-                    stack.callback(os.close,parent_fd)
-                    current = Path(path.anchor)
-                    for part in path.parent.parts[1:]:
-                        current /= part
-                        parent_fd = os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_NONBLOCK,dir_fd=parent_fd)
-                        stack.callback(os.close,parent_fd)
-                        info = os.fstat(parent_fd)
-                        if current.is_relative_to(root) and (info.st_uid != os.getuid() or info.st_mode & 0o022):
-                            raise SandboxRefused()
-                    fd = os.open(path.name,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK,dir_fd=parent_fd)
-                stack.callback(os.close,fd)
-                info = os.fstat(fd)
-                if (not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or
-                        info.st_size <= 0 or info.st_size > cap or
-                        (info.st_dev,info.st_ino) != (before.st_dev,before.st_ino) or
-                        (self._windows is None and (info.st_uid != os.getuid() or info.st_mode & 0o022))):
-                    raise SandboxRefused()
-                media_cache._sniff(os.read(fd,512),path.suffix.lower())
-                os.lseek(fd,0,os.SEEK_SET)
-                result = os.fdopen(os.dup(fd),'rb')
-        except (ValueError,TypeError,OSError,RuntimeError,StopIteration,KeyError):
-            failed = True
-        if failed:
-            raise SandboxRefused()
-        return result
+
+def local_folder(root: Path, child: str) -> Path:
+    folder = root / child
+    if any(p.is_symlink() for p in (folder, *folder.parents)):
+        raise HTTPException(403, 'storage folder must not be a symbolic link')
+    folder.mkdir(parents=True, exist_ok=True)
+    return folder
