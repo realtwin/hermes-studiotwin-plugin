@@ -1,0 +1,136 @@
+import { useEffect, useState, type ReactNode } from "react";
+import type { PluginContext } from "@hermes/plugin-sdk";
+import { fetchModel, type ModelSource } from "./model-source.ts";
+import { createEnvStage, parseStickers, type Sticker } from "./env-stage.ts";
+import { usePooledStage, panelStyle, controlStyle } from "./env-lifecycle.ts";
+export interface EnvViewerProps {
+  rest: PluginContext["rest"];
+  source: ModelSource;
+  stickers?: Sticker[];
+  height?: number;
+  webgl_limit?: number;
+  fallback?: ReactNode;
+  onError?: (e: unknown) => void;
+}
+export function EnvViewer({
+  rest,
+  source,
+  stickers = [],
+  height = 320,
+  webgl_limit = 4,
+  fallback,
+  onError,
+}: EnvViewerProps) {
+  const [ev, setEV] = useState(0),
+    [flat, setFlat] = useState(false),
+    [lighting, setLighting] = useState(false),
+    [overlay, setOverlay] = useState(true),
+    [selected, setSelected] = useState("");
+  const v = usePooledStage(
+    JSON.stringify([source, stickers]),
+    (h) => createEnvStage(h, parseStickers(stickers), setSelected),
+    async (s) => {
+      const f = await fetchModel(rest, source);
+      await s.load(f.buffer, source.name || f.name);
+    },
+    rest,
+    webgl_limit,
+    onError,
+  );
+  useEffect(() => {
+    v.stage.current?.settings(ev, flat, lighting, overlay);
+  }, [ev, flat, lighting, overlay, v.ready]);
+  useEffect(() => {
+    v.stage.current?.select(selected);
+  }, [selected, v.ready]);
+  if (v.error && fallback !== undefined) return <>{fallback}</>;
+  return (
+    <section
+      ref={v.setContainer}
+      data-studiotwin-env-viewer
+      style={panelStyle}
+      onPointerDown={v.touch}
+    >
+      <div style={{ height, position: "relative" }}>
+        <div ref={v.host} style={{ position: "absolute", inset: 0 }} />
+        {!v.live && (
+          <button
+            style={{
+              ...controlStyle,
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+            }}
+            onClick={v.start}
+          >
+            {v.poster && (
+              <img
+                alt="Panorama poster"
+                src={v.poster}
+                style={{ width: "100%", height: "80%", objectFit: "contain" }}
+              />
+            )}
+            {v.error ? "Preview failed. Retry environment" : "Load environment"}
+          </button>
+        )}
+        {v.live && !v.ready && <span role="status">Loading environment…</span>}
+      </div>
+      {v.ready && (
+        <div
+          role="toolbar"
+          aria-label="Environment controls"
+          style={{ display: "flex", flexWrap: "wrap", gap: 8, padding: 8 }}
+        >
+          <label>
+            Exposure EV{" "}
+            <input
+              aria-label="Exposure EV"
+              type="range"
+              min="-5"
+              max="5"
+              step=".1"
+              value={ev}
+              onChange={(e) => setEV(+e.target.value)}
+            />
+            <output>{ev}</output>
+          </label>
+          <button
+            style={controlStyle}
+            aria-pressed={flat}
+            onClick={() => setFlat(!flat)}
+          >
+            Flat 2:1
+          </button>
+          <button
+            style={controlStyle}
+            aria-pressed={lighting}
+            onClick={() => setLighting(!lighting)}
+          >
+            Chrome / matte preview
+          </button>
+          <button
+            style={controlStyle}
+            aria-pressed={overlay}
+            onClick={() => setOverlay(!overlay)}
+          >
+            Sticker overlay
+          </button>
+          {overlay &&
+            stickers.map((s, i) => (
+              <button
+                key={i}
+                style={controlStyle}
+                aria-pressed={selected === s.assetId}
+                onClick={() => setSelected(s.assetId)}
+              >
+                Sticker {s.assetId}
+              </button>
+            ))}
+          {selected && (
+            <output aria-label="Selected sticker">{selected}</output>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
