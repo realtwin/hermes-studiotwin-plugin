@@ -19,6 +19,7 @@ it("real Chromium: production bundle, eight viewers, four tabs, themes and mixed
     const fixtures: Record<string, string> = {
       model: "model/static-cube.glb",
       animation: "model/rigged-animated.glb",
+      audit: "model/rig-audit.json",
       audio: "audio/tone-48k.wav",
       env: "env/equirect-64x32.hdr",
       image: "image/concept-64.png",
@@ -128,6 +129,7 @@ it("real Chromium: production bundle, eight viewers, four tabs, themes and mixed
       await capture("3d-model", theme);
       await render("model", {
         path: saved.animation,
+        audit: saved.audit,
         name: "rigged-animated.glb",
       });
       await page
@@ -149,13 +151,8 @@ it("real Chromium: production bundle, eight viewers, four tabs, themes and mixed
       await pw(page.locator("[data-model-stats]")).toContainText(
         "bones/joints",
       );
-      if ((await page.getByText(/Rig audit:/).count()) === 0)
-        findings.push({
-          theme,
-          surface: "animation",
-          missing:
-            "Rig audit badge is not wired through production directive/media registration",
-        });
+      await pw(page.getByText("Rig audit: passed · 2 joints", { exact: true })).toBeVisible();
+      await pw(page.getByText(/Rig inspection \(local\):/)).toHaveText("Rig inspection (local): 2 joints · 1 skinned meshes · 2 clips");
       await capture("animation-rigged", theme);
       await render("audio", { path: saved.audio });
       await pw(page.locator("canvas")).toBeVisible();

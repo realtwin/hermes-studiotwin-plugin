@@ -391,18 +391,7 @@
       ]
     }
   ],
-  "findings": [
-    {
-      "theme": "light",
-      "surface": "animation",
-      "missing": "Rig audit badge is not wired through production directive/media registration"
-    },
-    {
-      "theme": "dark",
-      "surface": "animation",
-      "missing": "Rig audit badge is not wired through production directive/media registration"
-    }
-  ],
+  "findings": [],
   "errors": [],
   "consoleErrors": [],
   "blocked": [],
