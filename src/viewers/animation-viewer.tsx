@@ -8,6 +8,17 @@ export interface RigAudit {
   joints: number
   warnings: string[]
 }
+/** Provider data only: model inspection must never manufacture an audit verdict. */
+export function parseRigAudit(doc: unknown): RigAudit | null {
+  if (!doc || typeof doc !== 'object' || Array.isArray(doc)) return null
+  const d = doc as Record<string, unknown>
+  if (
+    typeof d.riggable !== 'boolean' ||
+    typeof d.joints !== 'number' || !Number.isInteger(d.joints) || d.joints < 0 ||
+    !Array.isArray(d.warnings) || !d.warnings.every((w: unknown) => typeof w === 'string')
+  ) return null
+  return { riggable: d.riggable, joints: d.joints, warnings: [...d.warnings] }
+}
 export function AnimationControls({
   controller,
   invalidate,
@@ -98,9 +109,10 @@ export function AnimationControls({
         {state.time.toFixed(2)} / {state.duration.toFixed(2)} s
       </output>
       {audit && (
-        <span title={audit.warnings.join('\n')}>
+        <span>
           Rig audit: {audit.riggable ? 'passed' : 'needs attention'} · {audit.joints} joints
           {audit.warnings.length ? ` · ${audit.warnings.length} warnings` : ''}
+          {audit.warnings.map((w, i) => <span key={i} style={{ display: 'block' }}>{w}</span>)}
         </span>
       )}
     </div>

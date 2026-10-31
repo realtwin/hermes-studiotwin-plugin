@@ -6,7 +6,7 @@ import { createModelStage, type ModelStage, type ShadingMode } from './model-sta
 import { fetchModel, type ModelSource } from './model-source.ts'
 import type { ModelStats } from './model-data.ts'
 import { modelWebGLPool } from './webgl-pool.ts'
-import { AnimationControls, type RigAudit } from './animation-viewer.tsx'
+import { AnimationControls, parseRigAudit, type RigAudit } from './animation-viewer.tsx'
 export interface ModelViewerProps {
   rest: PluginContext['rest']
   source: ModelSource
@@ -103,15 +103,10 @@ export function ModelViewer({
         if (!alive) return
         if ((source.name || f.name).toLowerCase().endsWith('.json')) {
           const doc = JSON.parse(new TextDecoder().decode(f.buffer))
-          if (
-            typeof doc.riggable === 'boolean' &&
-            Number.isInteger(doc.joints) &&
-            doc.joints >= 0 &&
-            Array.isArray(doc.warnings) &&
-            doc.warnings.every((w: unknown) => typeof w === 'string')
-          ) {
+          const parsedAudit = parseRigAudit(doc)
+          if (parsedAudit) {
             modelWebGLPool.release(id)
-            setLoadedAudit(doc as RigAudit)
+            setLoadedAudit(parsedAudit)
             return
           }
         }
@@ -262,14 +257,18 @@ export function ModelViewer({
             <div data-model-stats style={{ padding: 8, fontSize: 12, color: 'var(--ui-text-secondary)' }}>
               {stats.vertices} vertices · {stats.triangles} triangles · {stats.meshes} meshes · {stats.bones}{' '}
               bones/joints · {stats.clips.length} clips
+              {stats.bones > 0 && (
+                <div>Rig inspection (local): {stats.bones} joints · {stats.skinnedMeshes} skinned meshes · {stats.clips.length} clips</div>
+              )}
             </div>
           )}
           {controller && controller.clips.length > 0 && (
             <AnimationControls controller={controller} invalidate={() => stage.current?.invalidate()} audit={audit} />
           )}
           {audit && !controller?.clips.length && (
-            <div title={audit.warnings.join('\n')}>
+            <div>
               Rig audit: {audit.riggable ? 'passed' : 'needs attention'} · {audit.joints} joints
+              {audit.warnings.map((w, i) => <div key={i}>{w}</div>)}
             </div>
           )}
         </>
