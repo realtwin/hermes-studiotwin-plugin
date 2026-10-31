@@ -24,6 +24,7 @@ import uuid
 from email.parser import BytesParser
 from email.policy import default as email_policy
 from pathlib import Path
+from urllib.parse import unquote, urlsplit
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.concurrency import run_in_threadpool
@@ -94,6 +95,10 @@ def _allowed_roots():
     return [_data_root(), get_hermes_home() / 'cache/generated', Path.home()]
 
 
+def _trusted_roots():
+    return _allowed_roots()[:2]
+
+
 def _id(value):
     if not isinstance(value,str) or not re.fullmatch(r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}',value):
         raise HTTPException(400, 'a UUID is required')
@@ -126,7 +131,7 @@ def _local_rows():
     result = []
     for row in rows:
         try:
-            p = sandbox.readable(row['path'],_allowed_roots())
+            p = sandbox.readable(row['path'],_allowed_roots(),_trusted_roots())
             st = p.stat()
         except (HTTPException,OSError):
             continue
@@ -189,8 +194,18 @@ def _download_asset(aid):
         folder = sandbox.local_folder(_data_root(),'studio_cache')
         with _client() as client:
             row = client.call('studiotwin_resolve_asset',{'assetId':aid})
-            ext = Path(row.get('name','')).suffix.lower()
-            if ext not in sandbox.MIME:
+            ext = None
+            for key in ('s3Uri','downloadUrl','name','type'):
+                value = row.get(key)
+                if not isinstance(value, str):
+                    continue
+                candidate = Path(unquote(urlsplit(value).path)).suffix.lower()
+                if key == 'type' and not candidate:
+                    candidate = '.' + value.lower().lstrip('.')
+                if candidate in sandbox.MIME:
+                    ext = candidate
+                    break
+            if ext is None:
                 raise HTTPException(415,'unsupported asset extension')
             _, data = client.request('GET',row.get('downloadUrl',''),storage=True,cap=sandbox.MAX_BYTES)
         dest = folder / f'{aid}-{uuid.uuid4().hex}{ext}'
@@ -229,7 +244,7 @@ def file(request: Request, path: str = '', asset: str = '', task: str = '', form
     if format not in ('original',*CONVERSIONS):
         raise HTTPException(400,'format must be original, mp3, wav, ogg or flac')
     if path:
-        sandbox.readable(path,_allowed_roots())  # preflight BEFORE an asset lookup
+        sandbox.readable(path,_allowed_roots(),_trusted_roots())  # preflight BEFORE an asset lookup
     if asset:
         _id(asset)
     if task:
@@ -237,7 +252,7 @@ def file(request: Request, path: str = '', asset: str = '', task: str = '', form
     if bool(path) == bool(asset):
         raise HTTPException(400,'provide exactly one of path or asset')
     path = path or _download_asset(asset)
-    with sandbox.open_media(path,_allowed_roots()) as (target,source,st):
+    with sandbox.open_media(path,_allowed_roots(),_trusted_roots()) as (target,source,st):
         mime = sandbox.MIME[target.suffix.lower()]
         name = target.name
         size = st.st_size

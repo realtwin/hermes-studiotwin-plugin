@@ -23,12 +23,20 @@ class ProvenanceStore:
 
     def details(self, identifier):
         rows = self.rows()
-        related = [(k,r) for k,r in rows.items() if k == identifier or identifier in r.get('outputAssetIds',[])]
-        rec = related[0][1] if related else {}
+        # Stable job-ID order, then nonempty direct metadata takes precedence.
+        related = sorted((k,r) for k,r in rows.items()
+                         if k == identifier or identifier in r.get('outputAssetIds',[]))
+        related.sort(key=lambda pair: pair[0] == identifier)
+        rec = {}
+        for _, row in related:
+            for key, value in row.items():
+                if key in ('sourceAssetIds','outputAssetIds'):
+                    rec[key] = sorted(set(rec.get(key,[])) | set(value))
+                elif value:
+                    rec[key] = value
         parents = [{'id':s, 'relation':'source'} for s in rec.get('sourceAssetIds',[])]
-        if related and related[0][0] != identifier:
-            parents.append({'id':related[0][0], 'relation':'job'})
-        children = [{'id':k, 'relation':'derived'} for k,r in rows.items() if identifier in r.get('sourceAssetIds',[])]
+        parents += [{'id':k, 'relation':'job'} for k,_ in related if k != identifier]
+        children = [{'id':k, 'relation':'derived'} for k,r in sorted(rows.items()) if identifier in r.get('sourceAssetIds',[])]
         children += [{'id':a,'relation':'output'} for a in rec.get('outputAssetIds',[]) if a != identifier]
         label = rec.get('prompt') or rec.get('tool')
         return {'id':identifier, 'record':rec, 'parents':parents, 'children':children,

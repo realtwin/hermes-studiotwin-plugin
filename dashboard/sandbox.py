@@ -1,6 +1,7 @@
 """Local media path checks. No process or authority sandbox is implied."""
 from __future__ import annotations
 
+import json
 import os
 import stat
 from contextlib import contextmanager
@@ -17,7 +18,7 @@ MIME = {'.glb':'model/gltf-binary', '.gltf':'model/gltf+json', '.fbx':'applicati
 MAX_BYTES = 128 * 1024 * 1024
 
 
-def readable(raw: str, roots) -> Path:
+def readable(raw: str, roots, trusted_roots=()) -> Path:
     if not raw or '\x00' in raw or '..' in raw.replace('\\','/').split('/'):
         raise HTTPException(400, 'an absolute non-traversing path is required')
     path = Path(raw).expanduser()
@@ -29,6 +30,11 @@ def readable(raw: str, roots) -> Path:
         raise HTTPException(403, 'symbolic links are not served')
     if not any(path.is_relative_to(Path(r).resolve()) for r in roots):
         raise HTTPException(403, 'outside allowed media folders')
+    trusted = any(path.is_relative_to(Path(r).resolve()) for r in trusted_roots)
+    home = Path.home().resolve()
+    if not trusted and path.is_relative_to(home) and any(
+            part.startswith('.') for part in path.relative_to(home).parts[:-1]):
+        raise HTTPException(403, 'hidden home folders are not media folders')
     try:
         st = path.stat()
     except OSError:
@@ -41,8 +47,8 @@ def readable(raw: str, roots) -> Path:
 
 
 @contextmanager
-def open_media(raw, roots):
-    path = readable(raw, roots)
+def open_media(raw, roots, trusted_roots=()):
+    path = readable(raw, roots, trusted_roots)
     # Walk from the filesystem root using no-follow descriptors on POSIX, preventing
     # a link swap between validation and reading. Hold the final descriptor throughout.
     fd = None
@@ -63,6 +69,28 @@ def open_media(raw, roots):
             raise HTTPException(413, 'invalid or oversized media')
         with os.fdopen(fd, 'rb') as source:
             fd = None
+            if path.suffix.lower() == '.json' and not any(
+                    path.is_relative_to(Path(r).resolve()) for r in trusted_roots):
+                # Validate the same descriptor that is served, including Range reads.
+                try:
+                    payload = json.load(source)
+                except (ValueError, UnicodeError, RecursionError):
+                    raise HTTPException(415, 'invalid motion JSON') from None
+                def has_secret(value):
+                    pending = [value]
+                    while pending:
+                        item = pending.pop()
+                        if isinstance(item, dict):
+                            if any(str(k).lower() in {'api_key','client_secret','password'} for k in item):
+                                return True
+                            pending.extend(item.values())
+                        elif isinstance(item, list):
+                            pending.extend(item)
+                    return False
+                if (not isinstance(payload, dict) or 'clips' not in payload
+                        or not ('joints' in payload or 'frames' in payload) or has_secret(payload)):
+                    raise HTTPException(415, 'only motion JSON is served outside managed folders')
+                source.seek(0)
             yield path, source, st
     except OSError:
         raise HTTPException(403, 'media could not be opened safely') from None

@@ -39,6 +39,100 @@ def api(tmp_path, monkeypatch):
             yield client, mod, h, settings
 
 
+@pytest.mark.parametrize('raw', [False, True])
+def test_account_credentials_json_is_not_media(api, raw):
+    c, _, _, _ = api
+    p = Path.home()/'.config'/'synthetic-service'/'credentials.json'
+    p.parent.mkdir(parents=True)
+    p.write_text('{"api_key":"SYNTHETIC_NOT_A_REAL_SECRET"}')
+    assert c.get('/file', params={'path':str(p),'raw':raw}).status_code in (403,415)
+
+
+@pytest.mark.parametrize('payload,allowed', [
+    ({'clips':[], 'joints':[]}, True), ({'clips':[], 'frames':[]}, True),
+    ({'clips':[]}, False), ([], False), ({'setting':True}, False),
+    ({'clips':[], 'frames':[], 'api_key':'synthetic'}, False),
+    ({'clips':[], 'frames':[{'client_secret':'synthetic'}]}, False),
+    ({'clips':[], 'joints':[], 'password':'synthetic'}, False),
+])
+def test_home_json_requires_motion_payload(api, payload, allowed):
+    c, _, _, _ = api
+    p = Path.home()/'motion.json'
+    p.write_text(json.dumps(payload))
+    response = c.get('/file', params={'path':str(p)})
+    assert response.status_code == 200 if allowed else response.status_code in (403,415)
+    response = c.get('/file', params={'path':str(p)}, headers={'Range':'bytes=0-3'})
+    assert response.status_code == 206 if allowed else response.status_code in (403,415)
+
+
+def test_hidden_media_denied_and_trusted_json_roots_allowed(api):
+    c, mod, _, _ = api
+    hidden = Path.home()/'.private'/'image.png'
+    hidden.parent.mkdir()
+    hidden.write_bytes(b'png')
+    assert c.get('/file', params={'path':str(hidden)}).status_code == 403
+    for root in mod._allowed_roots()[:2]:
+        root.mkdir(parents=True, exist_ok=True)
+        p = root/'motion.json'
+        p.write_text('{"trusted":true}')
+        assert c.get('/file', params={'path':str(p),'raw':True}).status_code == 200
+    ordinary = Path.home()/'image.png'
+    ordinary.write_bytes(b'png')
+    assert c.get('/file', params={'path':str(ordinary)}).status_code == 200
+
+
+@pytest.mark.parametrize('name', ['Renamed concept reference', None, 'missing'])
+@pytest.mark.parametrize('source', ['s3Uri', 'downloadUrl'])
+def test_asset_display_name_need_not_be_filename(api, name, source, monkeypatch):
+    c, _, h, _ = api
+    aid = next(iter(h.fake.assets))
+    resolve = h.fake._t_resolve_asset
+    # Shape the wire response, not the fake's internal storage index: its
+    # resolver needs s3Uri/name to locate the object before returning metadata.
+    def resolve_response(args):
+        result = resolve(args)
+        row = json.loads(result.text)
+        if name == 'missing':
+            row.pop('name', None)
+        else:
+            row['name'] = name
+        if source == 'downloadUrl':
+            row.pop('s3Uri', None)
+        result.text = json.dumps(row)
+        return result
+    monkeypatch.setattr(h.fake, '_t_resolve_asset', resolve_response)
+    assert c.get('/assets/'+aid).status_code == 200
+    response = c.get('/file', params={'asset':aid,'raw':True})
+    assert response.status_code == 200, response.text
+    assert response.headers['content-type'] == 'image/png'
+    assert response.content.startswith(b'\x89PNG')
+    before = len(h.requests)
+    assert c.get('/file', params={'asset':aid,'raw':True}).content == response.content
+    assert len(h.requests) == before
+    assert c.get('/assets/'+aid).json()['local_path'].endswith('.png')
+
+
+@pytest.mark.parametrize('direct_first', [True, False])
+@pytest.mark.parametrize('direct', [{}, {'session_id':'asset-session'}])
+def test_id_only_asset_provenance_does_not_hide_job_lineage(api, direct_first, direct):
+    c, _, h, _ = api
+    source, output = list(h.fake.assets)[:2]
+    job = '00000001-0001-4000-8000-000000000001'
+    records = [{'id':output, **direct}, {'id':job,'prompt':'owl','tool':'image-to-3d-mesh',
+        'sourceAssetIds':[source],'outputAssetIds':[output]}]
+    for record in records if direct_first else reversed(records):
+        assert c.post('/provenance', json=record).status_code == 200
+    response = c.get('/details', params={'id':output}).json()
+    assert response['made_from'] == 'Made from owl'
+    assert response['record']['tool'] == 'image-to-3d-mesh'
+    assert all(response['record'][key] == value for key,value in direct.items())
+    assert {'id':source,'relation':'source'} in response['parents']
+    assert {'id':job,'relation':'job'} in response['parents']
+    assert response['recorded']
+    rows = c.get('/assets').json()['assets']
+    assert next(r for r in rows if r['uuid'] == output)['made_from'] == 'Made from owl'
+
+
 def test_manifest_host_contract(tmp_path):
     from hermes_cli.agent_plugins import load_agent_plugin
     from hermes_cli.plugin_validate import validate_plugin_dir
