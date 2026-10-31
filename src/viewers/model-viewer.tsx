@@ -30,9 +30,11 @@ export function ModelViewer({
   onDownload
 }: ModelViewerProps) {
   const id = useId(),
-    container = useRef<HTMLDivElement>(null),
     canvasHost = useRef<HTMLDivElement>(null),
     stage = useRef<ModelStage | null>(null)
+  // The fallback/audit branches remove the viewer section. Track the actual
+  // element so recovery observes its replacement, not a detached section.
+  const [container, setContainer] = useState<HTMLElement | null>(null)
   const [live, setLive] = useState(false),
     [ready, setReady] = useState(false),
     [error, setError] = useState(false),
@@ -48,14 +50,14 @@ export function ModelViewer({
     modelWebGLPool.setLimit(webgl_limit)
   }, [webgl_limit])
   useEffect(() => {
-    const el = container.current
+    const el = container
     if (!el || typeof IntersectionObserver === 'undefined') return
     const o = new IntersectionObserver((entries) => {
       if (!entries.some((e) => e.isIntersecting)) modelWebGLPool.release(id)
     })
     o.observe(el)
     return () => o.disconnect()
-  }, [id])
+  }, [id, container])
   // Disposal changes live, not the outcome of the last attempt. Only a new
   // source/backend or an explicit retry should clear a failed preview.
   useEffect(() => setError(false), [rest, sourceKey])
@@ -150,7 +152,7 @@ export function ModelViewer({
   const controller = ready ? stage.current?.animation() : null
   return (
     <section
-      ref={container}
+      ref={setContainer}
       data-studiotwin-model-viewer
       style={{
         border: '1px solid var(--ui-stroke-secondary)',

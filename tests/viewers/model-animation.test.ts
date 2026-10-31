@@ -290,6 +290,21 @@ it.skipIf(process.env.STUDIOTWIN_WEBGL_TEST !== '1')(
             await settle()
             expect(await page.locator('canvas').count()).toBe(1)
             expect(await page.evaluate(() => (window as any).pool.size)).toBe(1)
+            // Fallback recovery creates a new section. Its visibility must still own
+            // the GPU slot, for both ModelViewer and AnimationViewer.
+            await page.locator('#root').evaluate((el) => {
+              el.style.position = 'absolute'
+              el.style.top = '2000px'
+            })
+            await page.waitForFunction(() => (window as any).pool.size === 0, undefined, { timeout: 2000 })
+            await settle()
+            expect(await page.locator('canvas').count()).toBe(0)
+            expect(await page.getByRole('button', { name: 'Click to load 3D' }).count()).toBe(1)
+            await page.locator('#root').evaluate((el) => {
+              el.style.position = ''
+              el.style.top = ''
+            })
+            await settle()
           }
         }
       }
