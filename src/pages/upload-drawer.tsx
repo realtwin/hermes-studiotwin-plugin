@@ -1,0 +1,174 @@
+import * as sdk from "@hermes/plugin-sdk";
+import { useRef, useState } from "react";
+import { object, type MediaScope } from "../cards/next-actions.ts";
+import { compose, panel, type Row } from "./workspace-data.ts";
+export async function uploadReference(
+  scope: MediaScope,
+  file: File,
+  cloud: boolean,
+) {
+  scope.assert();
+  if (!file.size || file.size > 50 * 1024 * 1024)
+    throw Error("Choose a nonempty file no larger than 50 MiB.");
+  if (
+    !/^[A-Za-z0-9][A-Za-z0-9._ -]{0,119}$/.test(file.name) ||
+    file.name.includes("..")
+  )
+    throw Error("Use a plain file name.");
+  if (
+    !/\.(glb|fbx|obj|hdr|exr|png|jpe?g|webp|wav|mp3|ogg|opus|flac|mp4|tar|json)$/i.test(
+      file.name,
+    )
+  )
+    throw Error("Unsupported reference file type.");
+  // Read first, then assert BEFORE dispatch: ctx.rest routes synchronously to the selected backend.
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  scope.assert();
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 32768)
+    binary += String.fromCharCode(...bytes.subarray(i, i + 32768));
+  const result = object(
+    await scope.rest("/upload", {
+      method: "POST",
+      body: { filename: file.name, data: btoa(binary), cloud },
+      timeoutMs: 180000,
+    }),
+  );
+  scope.assert();
+  // Whitelist final asset metadata. Presigned POST session fields never belong in a UI result.
+  const asset = result.assets?.[0]?.uuid ?? result.assetIds?.[0] ?? result.uuid;
+  if (
+    cloud &&
+    (typeof asset !== "string" ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        asset,
+      ))
+  )
+    throw Error(
+      "Upload completion did not return an asset UUID. Inspect the library before retrying.",
+    );
+  return {
+    name: file.name,
+    path: result.path,
+    uuid: cloud ? asset : undefined,
+    cloud,
+  };
+}
+export function UploadDrawer({
+  scope,
+  configured,
+  session,
+  onUploaded,
+}: {
+  scope: MediaScope;
+  configured: boolean;
+  session?: string | null;
+  onUploaded?: () => void;
+}) {
+  const [cloud, setCloud] = useState(false),
+    [busy, setBusy] = useState(false),
+    [result, setResult] = useState<Row | null>(null),
+    [error, setError] = useState("");
+  const lock = useRef(false);
+  const upload = async (file?: File) => {
+    if (!file || lock.current) return;
+    if (cloud && !configured) {
+      setError("Configure StudioTwin before uploading to the cloud.");
+      return;
+    }
+    lock.current = true;
+    setBusy(true);
+    setError("");
+    setResult(null);
+    try {
+      const saved = await uploadReference(scope, file, cloud);
+      scope.assert();
+      setResult(saved);
+      onUploaded?.();
+    } catch (e) {
+      if (scope.current())
+        setError(
+          e instanceof Error
+            ? /^(Choose a|Use a plain|Unsupported reference|Upload completion)/.test(
+                e.message,
+              )
+              ? e.message
+              : "Upload could not be confirmed. Inspect the library before retrying."
+            : "Upload could not be confirmed. Inspect the library before retrying.",
+        );
+    } finally {
+      lock.current = false;
+      setBusy(false);
+    }
+  };
+  return (
+    <section aria-label="Upload reference" style={panel}>
+      <h2>Upload a reference</h2>
+      <p>
+        Stage on the connected Hermes host, or explicitly send the file to
+        StudioTwin. No generation is submitted.
+      </p>
+      <label>
+        <input
+          type="checkbox"
+          checked={cloud}
+          disabled={busy || !configured}
+          onChange={(e) => setCloud(e.target.checked)}
+        />
+        Cloud upload
+      </label>
+      <div
+        aria-label="Drop reference asset"
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => {
+          e.preventDefault();
+          void upload(e.dataTransfer.files[0]);
+        }}
+        style={{
+          padding: 24,
+          marginTop: 16,
+          border: "2px dashed var(--ui-stroke-secondary)",
+          borderRadius: 12,
+        }}
+      >
+        <p>Drop a reference here or choose a file</p>
+        <input
+          type="file"
+          aria-label="Reference file"
+          disabled={busy}
+          accept=".glb,.fbx,.obj,.hdr,.exr,.png,.jpg,.jpeg,.webp,.wav,.mp3,.ogg,.opus,.flac,.mp4,.tar,.json"
+          onChange={(e) => {
+            void upload(e.target.files?.[0]);
+            e.target.value = "";
+          }}
+        />
+      </div>
+      {busy && <p role="status">Uploading reference…</p>}
+      {error && <p role="alert">{error}</p>}
+      {result && (
+        <div>
+          <p>
+            {result.name} ·{" "}
+            {result.cloud ? "Cloud assetId" : "Local staging path"}
+          </p>
+          <code style={{ overflowWrap: "anywhere" }}>
+            {result.uuid ?? result.path}
+          </code>
+          <sdk.Button
+            onClick={() =>
+              compose(scope, session, {
+                id: "upload",
+                label: "Use in Chat",
+                message: result.uuid
+                  ? `Use uploaded asset ${result.uuid} (${result.name}) to ...`
+                  : `Use staged local reference ${result.path} (${result.name}) to ... Ask before uploading this file or spending credits.`,
+              })
+            }
+          >
+            Use in Chat
+          </sdk.Button>
+        </div>
+      )}
+    </section>
+  );
+}
