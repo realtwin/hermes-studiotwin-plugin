@@ -1,6 +1,7 @@
 import { Button } from '@hermes/plugin-sdk'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { PluginContext } from '@hermes/plugin-sdk'
+import { adjacentFrame, loadVideoTiming } from './video-timing.ts'
 
 import {
   deliveryUrl,
@@ -21,7 +22,7 @@ export interface VideoViewerProps {
   fallback?: ReactNode
   onError?: () => void
 }
-export function VideoViewer({ scope, source, frames, fps = 24, resolveUrl, fallback, onError }: VideoViewerProps) {
+export function VideoViewer({ scope, source, frames, fps, resolveUrl, fallback, onError }: VideoViewerProps) {
   const video = useRef<HTMLVideoElement>(null),
     frameImage = useRef<HTMLImageElement>(null)
   const [url, setUrl] = useState<string>(),
@@ -37,7 +38,11 @@ export function VideoViewer({ scope, source, frames, fps = 24, resolveUrl, fallb
     setFailed(true)
     onError?.()
   }
-  const frameRate = Number.isFinite(fps) && fps > 0 ? fps : 24
+  const sequenceRate = typeof fps === 'number' && Number.isFinite(fps) && fps > 0 ? fps : undefined
+  const frameRate = sequenceRate ?? 1 // internal indexing only; never reported as measured timing
+  const [timing, setTiming] = useState<{ url: string; times: number[] }>()
+  const times = timing && timing.url === url ? timing.times : undefined
+  const canStep = frames?.length ? !!sequenceRate : !!times?.length
   const frameIndex = Math.min(Math.max(0, Math.round(time * frameRate)), Math.max(0, urls.length - 1))
   useEffect(() => {
     let live = true
@@ -48,7 +53,7 @@ export function VideoViewer({ scope, source, frames, fps = 24, resolveUrl, fallb
         if (live) {
           scope.assert()
           setUrls(files.map((f) => f.dataUrl))
-          setDuration(files.length / frameRate)
+          setDuration(sequenceRate ? files.length / sequenceRate : 0)
         }
       } else {
         let src: string
@@ -82,7 +87,7 @@ export function VideoViewer({ scope, source, frames, fps = 24, resolveUrl, fallb
       video.current?.pause()
       stop()
     }
-  }, [scope, source.path, source.asset, source.url, frames, resolveUrl, frameRate])
+  }, [scope, source.path, source.asset, source.url, frames, resolveUrl, frameRate, sequenceRate])
   useEffect(() => {
     const player = video.current
     return () => {
@@ -90,6 +95,18 @@ export function VideoViewer({ scope, source, frames, fps = 24, resolveUrl, fallb
       player?.removeAttribute('src')
     }
   }, [url])
+  useEffect(() => {
+    if (!url) return
+    const controller = new AbortController()
+    let live = true
+    const timer = setTimeout(() => controller.abort(), 10000)
+    const stop = scope.watch(() => controller.abort())
+    void loadVideoTiming(url, controller.signal).then((times) => {
+      if (live && scope.current() && !controller.signal.aborted) setTiming({ url, times })
+    }).catch(() => { /* optional: playback is still usable without exact timing */ })
+      .finally(() => clearTimeout(timer))
+    return () => { live = false; controller.abort(); clearTimeout(timer); stop() }
+  }, [url, scope])
   useEffect(() => {
     if (!urls.length || !playing) return
     const timer = setInterval(
@@ -113,9 +130,13 @@ export function VideoViewer({ scope, source, frames, fps = 24, resolveUrl, fallb
     setTime(next)
   }
   const step = (delta: number) => {
+    if (!canStep || video.current?.seeking) return
     video.current?.pause()
     setPlaying(false)
-    seek((video.current?.currentTime ?? time) + delta / frameRate)
+    const target = times ? adjacentFrame(times, video.current?.currentTime ?? time, delta) : time + delta / frameRate
+    // Media currentTime is quantized (e.g. 1/6 rounds below its boundary).
+    // Seek just inside the sample so the browser decodes the requested frame.
+    seek(times && target > 0 ? target + 0.000001 : target)
   }
   const toggle = async () => {
     try {
@@ -180,9 +201,9 @@ export function VideoViewer({ scope, source, frames, fps = 24, resolveUrl, fallb
         <p role="status">Loading video…</p>
       )}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-        <Button onClick={() => void toggle()}>{playing ? 'Pause' : 'Play'}</Button>
-        <Button onClick={() => step(-1)}>-1f</Button>
-        <Button onClick={() => step(1)}>+1f</Button>
+        <Button disabled={!!frames?.length && !sequenceRate} onClick={() => void toggle()}>{playing ? 'Pause' : 'Play'}</Button>
+        <Button disabled={!canStep} onClick={() => step(-1)}>-1f</Button>
+        <Button disabled={!canStep} onClick={() => step(1)}>+1f</Button>
         <Button aria-pressed={loop} onClick={() => setLoop(!loop)}>
           Loop
         </Button>
@@ -208,16 +229,20 @@ export function VideoViewer({ scope, source, frames, fps = 24, resolveUrl, fallb
       </div>
       <input
         aria-label="Timeline"
+        disabled={!!frames?.length && !sequenceRate}
         type="range"
         min="0"
         max={duration || 0}
-        step={1 / frameRate}
+        step={urls.length && sequenceRate ? 1 / sequenceRate : 'any'}
         value={time}
         onChange={(e) => seek(Number(e.target.value))}
         style={{ width: '100%', accentColor: 'var(--ui-accent)' }}
       />
       <small>
-        {time.toFixed(2)} / {duration.toFixed(2)} s · {frameRate} fps{urls.length ? ` · ${urls.length} frames` : ''}
+        {time.toFixed(2)} / {duration.toFixed(2)} s
+        {urls.length && sequenceRate ? ` · ${sequenceRate} fps (sequence timing) · ${urls.length} frames` :
+          times ? ` · ${times.length} frames · source presentation timestamps` :
+          ' · Exact frame timing unavailable; frame stepping disabled.'}
       </small>
       {captureError && <p role="alert">{captureError}</p>}
     </section>

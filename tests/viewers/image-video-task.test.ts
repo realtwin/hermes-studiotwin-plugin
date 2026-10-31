@@ -194,6 +194,15 @@ it('renders video controls, handles decode failure with persistent fallback', as
   fireEvent.error(document.querySelector('video')!)
   await screen.findByText('Video fallback')
 })
+it('requires explicit sequence timing rather than inventing a playback rate', async () => {
+  render(createElement(VideoCard, { ctx: ctx(), source: {}, frames: [{ url: png }, { url: png }] }))
+  await screen.findByAltText('Frame 1')
+  expect((screen.getByRole('button', { name: '+1f' }) as HTMLButtonElement).disabled).toBe(true)
+  expect((screen.getByRole('button', { name: 'Play' }) as HTMLButtonElement).disabled).toBe(true)
+  expect((screen.getByRole('slider', { name: 'Timeline' }) as HTMLInputElement).disabled).toBe(true)
+  await screen.findByText(/Exact frame timing unavailable/)
+  expect(screen.queryByText(/24 fps/)).toBeNull()
+})
 it('all V05 presentation colors use theme variables', () => {
   for (const path of [
     'src/viewers/image-viewer.tsx',
@@ -308,7 +317,7 @@ it('normalizes status vocabulary and Concept history, preserves delivery links a
   expect(mediaQuery({ asset: 'a' }, true)).toBe('/file?asset=a&raw=1')
 })
 
-it('Chromium: actual image inspection, Range MP4 playback/step/scrub/loop/capture, sequence, jobs, scoped Next and invalidation', async () => {
+it.each([6, 10])('Chromium: registered and completed %i-fps video decoded steps, image inspection, sequence, jobs and invalidation', async (fps) => {
   const root = process.cwd()
   vi.stubGlobal('Uint8Array', new TextEncoder().encode('').constructor)
   const { build } = await import('esbuild')
@@ -320,16 +329,20 @@ it('Chromium: actual image inspection, Range MP4 playback/step/scrub/loop/captur
     import React from 'react'; import {createRoot} from 'react-dom/client';
     import {QueryClient,QueryClientProvider} from '@tanstack/react-query';
     import {ImageCard} from './src/cards/image-card.tsx';
-    import {VideoCard} from './src/cards/video-card.tsx';
+    import {VideoCard,registerVideoCards} from './src/cards/video-card.tsx';
     import {TaskCard} from './src/cards/task-card.tsx';
     const ctx={rest: async (path,opts={}) => {window.requests.push(path); const response=await fetch('/api/plugins/hermes-studiotwin'+path,{method:opts.method||'GET',headers:{'Content-Type':'application/json'},body:opts.body?JSON.stringify(opts.body):undefined}); if(!response.ok)throw Error('HTTP '+response.status);return response.json()}};
+    const registrations=[];ctx.register=row=>registrations.push(row);registerVideoCards(ctx);
+    const registeredVideo=(path)=>registrations.find(r=>r.id==='studiotwin-video-media').data.render({toolName:'mcp__studiotwin__text_to_motion',toolCallId:path,result:{success:true},file:{kind:'video',path,resolveUrl:async()=>location.origin+'/api/plugins/hermes-studiotwin/file?path='+encodeURIComponent(path)+'&raw=1'},fallback:'Video fallback'});
     const history=[{source:{url:window.png},active:false},{source:{url:window.png},active:true,before:{url:window.png}}];
     const frames=[{url:window.png},{url:window.png},{url:window.png},{url:window.png}];
     createRoot(document.getElementById('root')).render(<QueryClientProvider client={new QueryClient({defaultOptions:{queries:{retry:false}}})}>
       <div id='image'><ImageCard ctx={ctx} source={{url:window.png}} before={{url:window.png}} provenanceId='image-id' history={history} sessionId='owner' fallback='Image fallback'/></div>
       <div id='jpg'><ImageCard ctx={ctx} source={{url:window.jpg}} fallback='JPG fallback'/></div>
       <div id='webp'><ImageCard ctx={ctx} source={{url:window.webp}} fallback='WebP fallback'/></div>
-      <div id='video'><VideoCard ctx={ctx} source={{path:'/cache/preview.mp4'}} resolveUrl={async()=>location.origin+'/api/plugins/hermes-studiotwin/file?path=%2Fcache%2Fpreview.mp4&raw=1'} fps={6} fallback='Video fallback'/></div>
+      <div id='video'>{registeredVideo('/cache/preview.mp4')}</div>
+      <div id='unknown-video'>{registeredVideo('/cache/unknown.mp4')}</div>
+      <div id='completed-video'><TaskCard ctx={ctx} id='video-job' fallback='Completed video fallback'/></div>
       <div id='sequence'><VideoCard ctx={ctx} source={{}} frames={frames} fps={4} fallback='Sequence fallback'/></div>
       <div id='task'><TaskCard ctx={ctx} id='job' pollInterval={250} sessionId='owner' fallback='Task fallback'/></div>
       <div id='cancel'><TaskCard ctx={ctx} id='cancel' pollInterval={250} sessionId='owner' fallback='Cancel fallback'/></div>
@@ -372,7 +385,7 @@ it('Chromium: actual image inspection, Range MP4 playback/step/scrub/loop/captur
     page.on('pageerror', (e) => errors.push(e.message))
     let polls = 0,
       cancelled = false
-    const bytes = readFileSync('tests/fixtures/media/video/testsrc-32.mp4')
+    const bytes = readFileSync(fps === 6 ? 'tests/fixtures/media/video/testsrc-32.mp4' : 'tests/fixtures/video-timing/testsrc-32-10fps.mp4')
     await page.route('http://v05.test/**', async (route) => {
       const url = new URL(route.request().url()),
         path = url.pathname
@@ -383,6 +396,8 @@ it('Chromium: actual image inspection, Range MP4 playback/step/scrub/loop/captur
         })
       if (path.endsWith('/file')) {
         const range = route.request().headers().range
+        if (url.searchParams.get('path') === '/cache/unknown.mp4' && !range)
+          return route.fulfill({ status: 403, body: 'Timing inspection denied' })
         if (range) {
           ranges.push(range)
           const parts = /bytes=(\d+)-(\d*)/.exec(range)!,
@@ -406,7 +421,9 @@ it('Chromium: actual image inspection, Range MP4 playback/step/scrub/loop/captur
         result = { made_from: 'Made from Parent image', parents: [{ id: 'reference', relation: 'source' }] }
       if (path.endsWith('/task'))
         result =
-          url.searchParams.get('id') === 'cancel'
+          url.searchParams.get('id') === 'video-job'
+            ? { status: 'completed', outputs: { videoUrl: 'http://v05.test/api/plugins/hermes-studiotwin/file?raw=1' } }
+            : url.searchParams.get('id') === 'cancel'
             ? { status: cancelled ? 'cancelled' : 'queued' }
             : [
                 { status: 'queued' },
@@ -495,10 +512,53 @@ it('Chromium: actual image inspection, Range MP4 playback/step/scrub/loop/captur
     expect(ranges.length).toBeGreaterThan(0)
     expect(await video.locator('video').getAttribute('src')).toContain('raw=1')
     expect(await video.locator('video').evaluate((v: HTMLVideoElement) => v.duration)).toBeCloseTo(1)
-    await video.getByRole('button', { name: '+1f', exact: true }).click()
-    expect(await video.locator('video').evaluate((v: HTMLVideoElement) => v.currentTime)).toBeCloseTo(1 / 6, 3)
-    await video.getByRole('button', { name: '-1f', exact: true }).click()
-    expect(await video.locator('video').evaluate((v: HTMLVideoElement) => v.currentTime)).toBeCloseTo(0)
+    for (const container of [video, page.locator('#completed-video')]) {
+      await container.getByText(/source presentation timestamps/).waitFor()
+      // Wait for the browser's decoded presentation callback, not just currentTime:
+      // arbitrary sub-frame seeks can change currentTime while displaying the same frame.
+      const decoded = await container.locator('video').evaluate(async (v: HTMLVideoElement) => {
+        await new Promise<void>((resolve) => {
+          v.requestVideoFrameCallback(() => resolve())
+          v.currentTime = 0
+        })
+        const frames: number[] = []
+        const tick = (_: number, metadata: VideoFrameCallbackMetadata) => {
+          frames.push(metadata.mediaTime)
+          v.requestVideoFrameCallback(tick)
+        }
+        v.requestVideoFrameCallback(tick)
+        ;(v as any).decodedTimes = frames
+        const pixels = () => {
+          const c = document.createElement('canvas'); c.width = v.videoWidth; c.height = v.videoHeight
+          c.getContext('2d')!.drawImage(v, 0, 0); return c.toDataURL()
+        }
+        ;(v as any).pixels = pixels
+        return pixels()
+      })
+      await container.getByRole('button', { name: '+1f', exact: true }).click()
+      expect(await container.locator('video').evaluate((v: HTMLVideoElement) => v.currentTime)).toBeCloseTo(1 / fps, 3)
+      await page.waitForFunction(({ id, expected }) => {
+        const v = document.querySelector(`#${id} video`) as any
+        return !v.seeking && v.decodedTimes.some((t: number) => Math.abs(t - expected) < 0.00001)
+      }, { id: await container.getAttribute('id'), expected: 1 / fps })
+      expect(await container.locator('video').evaluate((v: HTMLVideoElement) => v.currentTime)).toBeCloseTo(1 / fps, 3)
+      expect(await container.locator('video').evaluate((v: any) => v.pixels())).not.toBe(decoded)
+      await container.locator('video').evaluate((v: any) => { v.decodedTimes.length = 0 })
+      await container.getByRole('button', { name: '-1f', exact: true }).click()
+      await page.waitForFunction((id) => {
+        const v = document.querySelector(`#${id} video`) as any
+        return !v.seeking && v.decodedTimes.includes(0)
+      }, await container.getAttribute('id'))
+      expect(await container.locator('video').evaluate((v: any) => v.pixels())).toBe(decoded)
+    }
+    const unknown = page.locator('#unknown-video')
+    await unknown.getByText(/Exact frame timing unavailable/).waitFor()
+    expect(await unknown.getByRole('button', { name: '+1f', exact: true }).isDisabled()).toBe(true)
+    expect(await unknown.getByRole('button', { name: '-1f', exact: true }).isDisabled()).toBe(true)
+    expect(await unknown.locator('small').innerText()).not.toContain('24 fps')
+    await unknown.getByRole('button', { name: 'Play', exact: true }).click()
+    await page.waitForFunction(() => (document.querySelector('#unknown-video video') as HTMLVideoElement).currentTime > 0.1)
+    await unknown.getByRole('button', { name: 'Pause', exact: true }).click()
     await video.getByRole('slider', { name: 'Timeline' }).fill('0.5')
     await page.waitForFunction(
       () =>
@@ -542,11 +602,15 @@ it('Chromium: actual image inspection, Range MP4 playback/step/scrub/loop/captur
       'JPG fallback',
       'WebP fallback',
       'Video fallback',
+      'Completed video fallback',
       'Sequence fallback',
       'Task fallback',
       'Cancel fallback',
-    ])
-      await page.getByText(text, { exact: true }).waitFor()
+    ]) {
+      await page.getByText(text, { exact: true }).first().waitFor()
+      for (const fallback of await page.getByText(text, { exact: true }).all()) await fallback.waitFor()
+    }
+    expect(await page.getByText('Video fallback', { exact: true }).count()).toBe(2)
     const count = await page.evaluate(() => (window as any).requests.length)
     await page.waitForTimeout(350)
     expect(await page.evaluate(() => (window as any).requests.length)).toBe(count)
