@@ -123,6 +123,15 @@ def main():
                 fake.jobs[ids['done']].outputs = {'assetId': mesh, 'type': kind}
                 return {'id': ids['done']}
 
+            @app.post('/__test/visual-job/{status}')
+            def visual_job(status: str):
+                assert status in ('queued', 'running', 'done')
+                job = fake.jobs[ids['queued']]
+                job.schedule = (status,)
+                job.status = status
+                job.outputs = {'imageUrl': fake.signed_url(fake.assets[parent]['s3Uri'].split('/', 3)[3])} if status == 'done' else {}
+                return {'id': job.uuid, 'status': job.status}
+
             @app.post('/__test/settings')
             async def update_settings(request: Request):
                 settings.update(await request.json())

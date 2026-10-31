@@ -20,6 +20,7 @@ export async function openWorkspace(
     settingsDoor?: boolean;
     backendOnly?: boolean;
     largeLibrary?: boolean;
+    deviceScaleFactor?: number;
   } = {},
 ): Promise<WorkspaceHarness> {
   const root = process.cwd();
@@ -160,6 +161,7 @@ export async function openWorkspace(
     });
     const page = await browser.newPage({
       viewport: { width: 1280, height: 1000 },
+      deviceScaleFactor: options.deviceScaleFactor ?? 1,
     });
     page.setDefaultTimeout(10000);
     const errors: string[] = [],
