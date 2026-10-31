@@ -3,7 +3,7 @@ import { expect, it } from "vitest";
 import { expect as pw } from "@playwright/test";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { openVisual, upload } from "./bundle-harness";
-const evidence = "evidence/v08";
+const evidence = process.env.V08_EVIDENCE_DIR ?? "evidence/v08";
 
 it("real Chromium: production bundle, eight viewers, four tabs, themes and mixed WebGL budget", async () => {
   const h = await openVisual(),

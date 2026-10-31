@@ -91,4 +91,6 @@ git diff --exit-code -- desktop/plugin.js
 - Desktop build: passed, zero diff in `desktop/plugin.js` (`build.log`, `bundle-diff.log`).
 - Frozen scaffold, build configs, SDK declaration and package manifests remain unchanged.
 
+`V08_EVIDENCE_DIR` optionally redirects generated visual artifacts (for example to `.verification/exact-head-visual`) so exact-HEAD reruns can keep the committed screenshot baseline untouched.
+
 These are RED acceptance results, not successful V08 completion. The QA checkpoint is committed separately from any production remediation. Resolve the missing audit through a real production metadata/inspection path (never fabricate a passing audit), then rerun all gates and host verification on the final committed HEAD, recapture/inspect evidence, and complete V08 to release the pre-created Salt review. No successful exact-HEAD acceptance or release approval is claimed.
