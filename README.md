@@ -83,6 +83,7 @@ Desktop stages the sheet locally on the originating Hermes backend (`POST /uploa
 The model asset inspector also offers **Environment IBL** when panorama assets are available. HDR/EXR or equirectangular PNG/JPG assets light the model; optionally show the panorama background or return to Studio lighting. Component integrations can provide `envSource` or an environment list. This is preview lighting, not a modification of the model.
 
 The same reference sheets can be rendered without Desktop:
+Use the Multiview yaw offset selector, or CLI `--yaw-offset <degrees>` (finite, default `0`), when the model does not face +Z. Choose `90` for +X, `180` for -Z or `-90` for -X. Every canonical view rotates by that offset and JSON stdout reports `yaw_offset_deg`.
 
 ```sh
 node skills/studiotwin/scripts/render_multiview.mjs /absolute/model.glb --out /absolute/multiview-sheet.png --split-dir /absolute/views --views 6 --shading clay --tile-size 512
@@ -109,12 +110,13 @@ The agent submits once and polls the original job/Concept. A timeout does not pr
 ## Desktop cards and background jobs
 
 With the Desktop half enabled, standalone directives render existing assets or progress. Examples (replace placeholders with actual IDs/host paths):
+Material channel values accept local paths or asset UUIDs, with `normals`, `metallic`, and `height` aliases for `normal`, `metalness`, and `heightmap`. Optional `name`/`title` and `zip` are supported. Do not put nested braces inside directive attribute values: Desktop's parser requires `[^{}]` within the outer block. Flat channels are canonical; legacy JSON maps are for programmatic/tool-media input. Prefer tool-media for environment sticker objects.
 
 ```text
 ::studiotwin-model{path="/absolute/model.glb" audit="/absolute/rig-audit.json" title="Character"}
 ::studiotwin-audio{asset="<asset-uuid>"}
 ::studiotwin-env{path="/absolute/environment.hdr"}
-::studiotwin-material{maps='{"albedo":{"path":"/absolute/albedo.png"},"normal":{"path":"/absolute/normal.png"}}'}
+::studiotwin-material{albedo="/absolute/albedo.png" normal="/absolute/normals.png" roughness="/absolute/roughness.png" metalness="/absolute/metalness.png" heightmap="/absolute/heightmap.png"}
 ::studiotwin-image{asset="<asset-uuid>" before="<source-asset-uuid>"}
 ::studiotwin-video{path="/absolute/preview.mp4"}
 ::studiotwin-task{id="<job-uuid>"}

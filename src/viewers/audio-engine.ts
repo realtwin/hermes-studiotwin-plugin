@@ -1,6 +1,7 @@
 // Adapted from Nous Research elevenlabs-sound-effects src/audio.ts + sound.ts (MIT).
 // Copyright (c) 2026 Nous Research. No provider credentials or local filesystem access in the UI.
 import * as sdk from '@hermes/plugin-sdk'
+import { submitTranscript } from '../lib/composer.ts'
 import type { PluginContext } from '@hermes/plugin-sdk'
 const { host } = sdk
 
@@ -137,8 +138,7 @@ export function nextActions(source: AudioSource, prompt = ''): NextAction[] {
   ]
 }
 export function submitNext(scope: Scope, sessionId: string | null | undefined, action: NextAction): boolean {
-  // No active-composer fallback on older hosts: that could target a different chat.
-  return scopeMatches(scope) && sessionId !== undefined && Boolean(host.composer?.submit(sessionId ?? 'new', action.message))
+  return scopeMatches(scope) && submitTranscript(sessionId, action.message)
 }
 export async function saveAudio(payload: AudioPayload): Promise<void> {
   const blob = new Blob([audioBytes(payload.dataUrl)], { type: payload.mime })

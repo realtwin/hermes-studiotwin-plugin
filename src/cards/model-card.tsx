@@ -1,4 +1,5 @@
 import * as sdk from '@hermes/plugin-sdk'
+import { submitTranscript } from '../lib/composer.ts'
 import { cardShell, cardHeader, cardTitle, cardSubtitle, cleanDisplayName, creditBadgeStyle, nextDrawerStyle, nextSummaryStyle, nextActionChipStyle } from '../lib/ui-tokens'
 import { useEffect, useState, type ReactNode } from 'react'
 import { ModelViewer } from '../viewers/model-viewer.tsx'
@@ -136,7 +137,7 @@ export function ModelCard({
   const send = (text: string) => {
     try {
       scope.assert()
-      if (!sessionId || !sdk.host.composer?.submit(sessionId, text))
+      if (!submitTranscript(sessionId, text))
         sdk.host.notify({ kind: 'warning', message: 'Open the originating chat to continue this workflow.' })
     } catch {
       setStale(true)

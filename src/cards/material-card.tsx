@@ -36,13 +36,57 @@ export const nextMaterialActions = [
   [`Extract PBR Maps from Texture (${costLabel('texture-to-material')})`, "texture-to-material"],
   [`Generate Material Variation (${costLabel('image-to-material')})`, "image-to-material"],
 ] as const;
+const materialAliases: Partial<Record<Channel, string>> = {
+  normal: "normals", metalness: "metallic", heightmap: "height",
+};
+function materialSource(value: unknown): ModelSource | undefined {
+  if (typeof value === "string") {
+    if (!value.trim()) return;
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)
+      ? { asset: value } : { path: value };
+  }
+  return sourceValue(value);
+}
+function materialTitle(doc: Record<string, unknown>): string | undefined {
+  for (const value of [doc.title, doc.name])
+    if (typeof value === "string" && value.trim()) return value;
+}
 export function parseMaterialMaps(value: unknown): MaterialMaps {
-  const doc = resultObject(value),
-    maps: MaterialMaps = {};
+  let doc: Record<string, unknown>;
+  if (value instanceof URLSearchParams) {
+    doc = Object.fromEntries(value);
+  } else if (typeof value === "string") {
+    const text = value.trim();
+    try {
+      return parseMaterialMaps(JSON.parse(text));
+    } catch {
+      // Brace-free maps keep URLs intact: split only before another key.
+      if (!text || /[{}]/.test(text)) throw new Error("Invalid material maps");
+      // Query strings encode URL punctuation; raw URLs must not be decoded or
+      // split at their own signed query parameters.
+      const query = /^[a-z][\w-]*=[^?=&,]*%[0-9a-f]{2}/i.test(text) ||
+        /&(?:albedo|normal|normals|roughness|metalness|metallic|heightmap|height)=/.test(text);
+      if (query && !/,\s*[a-z][\w-]*\s*[:=]/i.test(text)) {
+        doc = Object.fromEntries(new URLSearchParams(text));
+      } else {
+        doc = {};
+        for (const entry of text.split(/,\s*(?=[a-z][\w-]*\s*[:=])/i)) {
+          const match = /^\s*([a-z][\w-]*)\s*[:=]\s*(.*?)\s*$/i.exec(entry);
+          if (!match) throw new Error("Invalid material maps");
+          doc[match[1]] = match[2];
+        }
+      }
+    }
+  } else {
+    doc = resultObject(value);
+  }
+  const maps: MaterialMaps = {};
   for (const c of channels) {
-    const v = doc[c];
+    const alias = materialAliases[c];
+    // A defined canonical value wins, including invalid values.
+    const v = doc[c] !== undefined ? doc[c] : alias ? doc[alias] : undefined;
     if (v !== undefined) {
-      const s = sourceValue(v);
+      const s = materialSource(v);
       if (!s) throw new Error("Invalid material channel");
       maps[c] = s;
     }
@@ -53,6 +97,7 @@ export function parseMaterialMaps(value: unknown): MaterialMaps {
 export interface MaterialCardProps {
   ctx: sdk.PluginContext;
   maps: MaterialMaps;
+  title?: string;
   zip?: ModelSource;
   sessionId?: string | null;
   fallback?: ReactNode;
@@ -62,6 +107,7 @@ export interface MaterialCardProps {
 export function MaterialCard({
   ctx,
   maps,
+  title,
   zip,
   sessionId,
   fallback,
@@ -102,7 +148,7 @@ export function MaterialCard({
     <article style={{ ...cardShell, color: 'var(--ui-text)' }}>
       <header style={cardHeader}>
       {sdk.Codicon && <sdk.Codicon name="paintcan" size={16} />}
-      <strong style={cardTitle}>StudioTwin PBR Material</strong>{" "}
+      <strong style={cardTitle}>{title || "StudioTwin PBR Material"}</strong>{" "}
       <span style={creditBadgeStyle}>PBR Material</span>
       <sdk.Button
         disabled={stale}
@@ -163,7 +209,8 @@ export function registerMaterialCards(
                 <MaterialCard
                   ctx={ctx}
                   maps={maps}
-                  zip={sourceValue(r.zip)}
+                  zip={materialSource(r.zip)}
+                  title={materialTitle(r)}
                   fallback={p.fallback}
                   sessionId={p.sessionId}
                   {...options}
@@ -188,13 +235,16 @@ export function registerMaterialCards(
             return (
               <MaterialCard
                 ctx={ctx}
-                maps={parseMaterialMaps(JSON.parse(p.attrs.maps))}
+                maps={parseMaterialMaps(p.attrs.maps !== undefined ? p.attrs.maps : p.attrs)}
+                title={materialTitle(p.attrs)}
+                zip={materialSource(p.attrs.zip)}
+                fallback={<p>{p.source}</p>}
                 sessionId={p.sessionId}
                 {...options}
               />
             );
           } catch {
-            return null;
+            return <p>{p.source}</p>;
           }
         },
       },

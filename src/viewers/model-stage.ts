@@ -32,6 +32,7 @@ export interface MultiviewOptions {
   shading?: ShadingMode
   tileSize?: number
   background?: 'transparent' | 'studio'
+  yawOffsetDeg?: number
 }
 export interface MultiviewCapture {
   views: { name: string; label: string; dataUrl: string }[]
@@ -235,6 +236,8 @@ export function createModelStage(host: HTMLElement) {
       if (count !== 4 && count !== 6) throw new Error('Expected 4 or 6 views')
       if (!['textured', 'clay', 'normals', 'wireframe'].includes(pass)) throw new Error('Invalid shading mode')
       if (opts.background !== undefined && !['transparent', 'studio'].includes(opts.background)) throw new Error('Invalid background')
+      const yawOffsetDeg = opts.yawOffsetDeg === undefined ? 0 : opts.yawOffsetDeg
+      if (!Number.isFinite(yawOffsetDeg)) throw new Error('yawOffsetDeg must be finite')
       const size = Math.round(Math.min(1024, Math.max(128, Number.isFinite(opts.tileSize) ? opts.tileSize! : 384)))
       const cols = count === 6 ? 3 : 2
       const sheet = document.createElement('canvas')
@@ -274,7 +277,7 @@ export function createModelStage(host: HTMLElement) {
         }
         const views: MultiviewCapture['views'] = []
         canonicalViews.slice(0, count).forEach((view, i) => {
-          const yaw = view.yaw * Math.PI / 180, pitch = view.pitch * Math.PI / 180
+          const yaw = (view.yaw + yawOffsetDeg % 360) * Math.PI / 180, pitch = view.pitch * Math.PI / 180
           camera.position.copy(sphere.center).add(new Vector3(
             Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), Math.cos(yaw) * Math.cos(pitch)
           ).multiplyScalar(distance))

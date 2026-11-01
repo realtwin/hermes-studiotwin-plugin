@@ -65,6 +65,7 @@ export function ModelViewer({
   const [loadedAudit, setLoadedAudit] = useState<RigAudit | null>(null)
   const sourceKey = JSON.stringify(source)
   const [views, setViews] = useState<4 | 6>(4), [pass, setPass] = useState<ShadingMode>('clay')
+  const [yawOffsetDeg, setYawOffsetDeg] = useState(0)
   const [capture, setCapture] = useState<MultiviewCapture | null>(null)
   const [sheetPath, setSheetPath] = useState(''), [captureError, setCaptureError] = useState(''), [capturing, setCapturing] = useState(false)
   const captureLock = useRef(false), owner = useRef(0)
@@ -96,7 +97,7 @@ export function ModelViewer({
     const current = () => generation === owner.current && scope.current()
     captureLock.current = true; setCapturing(true); setCaptureError(''); setSheetPath('')
     try {
-      const result = await local.captureMultiview({ views, shading: pass })
+      const result = await local.captureMultiview({ views, shading: pass, yawOffsetDeg })
       if (!current()) return
       setCapture(result)
       const saved = await stageMultiview(scope.rest, source, result, sessionId)
@@ -306,6 +307,9 @@ export function ModelViewer({
             </select>
             <select aria-label="Multiview pass" style={styledSelect} value={pass} disabled={capturing} onChange={e => setPass(e.target.value as ShadingMode)}>
               {(['clay', 'normals', 'textured', 'wireframe'] as const).map(p => <option key={p} value={p}>{p[0].toUpperCase() + p.slice(1)}</option>)}
+            </select>
+            <select aria-label="Multiview yaw offset" style={styledSelect} value={yawOffsetDeg} disabled={capturing} onChange={e => setYawOffsetDeg(Number(e.target.value))}>
+              <option value="0">0° (+Z)</option><option value="90">90° (+X)</option><option value="180">180° (-Z)</option><option value="-90">-90° (-X)</option>
             </select>
             <Button size="sm" aria-label="Capture Multiview" disabled={capturing} onClick={() => void captureReference()}>{capturing ? 'Capturing / staging…' : 'Capture Multiview'}</Button>
             <Button size="sm" disabled={!sheetPath || capturing || !onReskin} onClick={() => { if (sheetPath) onReskin?.(reskinPrompt(source, sheetPath)) }}>Reskin 3D in Chat</Button>

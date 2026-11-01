@@ -1,4 +1,5 @@
 import * as sdk from '@hermes/plugin-sdk'
+import { submitTranscript } from '../lib/composer.ts'
 import { NEXT_ACTION_COSTS, costLabel, costHint } from './action-costs.ts'
 import { useEffect, useState } from 'react'
 import { bindModelScope, type ModelSource } from '../viewers/model-source.ts'
@@ -106,7 +107,7 @@ export function imageActions(source: MediaSource): NextAction[] {
 }
 export function submitNext(scope: MediaScope, sessionId: string | null | undefined, action: NextAction) {
   scope.assert()
-  if (!sessionId || !sdk.host.composer?.submit(sessionId, action.message)) {
+  if (!submitTranscript(sessionId, action.message)) {
     sdk.host.notify({ kind: 'warning', message: 'Open the originating chat to continue this workflow.' })
     return false
   }

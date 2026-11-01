@@ -168,13 +168,14 @@ Presigned **download URLs** and `s3://` URIs are ordinary delivery links/asset l
 - **Remote Desktop:** backend paths belong to the Hermes machine, not necessarily the user's computer. Playback/download streams through scoped backend access. Local processing requires the files and tools on that host.
 
 Directive attributes below come from `src/cards/`, not remote MCP schemas. Substitute real IDs/paths; placeholders are not executable UUIDs. Do not attach a `task` attribute where the renderer expects `id`.
+Never put `{` or `}` inside any `::studiotwin-*` directive attribute value: Desktop's parser permits only `[^{}]{0,1024}` inside the outer attribute block. Use flat material channel attributes, not nested JSON. Legacy JSON `maps` remains supported programmatically/tool-media, but cannot pass that transcript parser. Only pass environment stickers when needed, preferably through tool-media; sticker object JSON and object-based video frame sequences cannot pass this directive parser. Use ordinary video `path` or tool-media for those sequences.
 
 | Directive | Actual attributes |
 |---|---|
 | `studiotwin-model` | Exactly one `path` or `asset`; optional `name`, `title`, `audit` (local audit JSON path or audit asset UUID). No remote `url` input. |
 | `studiotwin-audio` | Exactly one `path` or `asset`; optional `prompt`. |
-| `studiotwin-env` | Exactly one `path` or `asset`; optional `name`, JSON-string `stickers`. |
-| `studiotwin-material` | JSON-string `maps`; channel values are path strings or objects with exactly one `path`/`asset`, optional `name`; `albedo` required, `normal`, `roughness`, `metalness`, `heightmap` optional. |
+| `studiotwin-env` | Exactly one `path` or `asset`; optional `name`. Prefer tool-media for sticker objects. |
+| `studiotwin-material` | Flat `albedo` required; `normal`, `roughness`, `metalness`, `heightmap` optional. Each value is a local path or asset UUID; aliases `normals`, `metallic`, `height` accepted. Optional `name`/`title`, `zip`. Brace-free `maps="albedo=/a.png,normal=/n.png"` also supported. |
 | `studiotwin-image` | Exactly one `path`, `asset` or `url`; optional `before` (HTTP URL or asset UUID, not local path), `title`. |
 | `studiotwin-video` | Exactly one `path`, `asset` or `url`, OR JSON-string `frames` array of objects each with exactly one such source; optional numeric `fps`. |
 | `studiotwin-task` | Required `id` (job UUID); optional `kind="concept"` selects Concept polling. |
@@ -185,10 +186,10 @@ Directive attributes below come from `src/cards/`, not remote MCP schemas. Subst
 ::studiotwin-model{path="/absolute/model.glb" audit="/absolute/rig-audit.json" title="Approved character"}
 ::studiotwin-audio{asset="<asset-uuid>" prompt="Rain ambience"}
 ::studiotwin-env{path="/absolute/environment.hdr"}
-::studiotwin-material{maps='{"albedo":{"path":"/absolute/albedo.png"},"normal":{"path":"/absolute/normal.png"}}'}
+::studiotwin-material{albedo="/absolute/albedo.png" normal="/absolute/normals.png" roughness="/absolute/roughness.png" metalness="/absolute/metalness.png" heightmap="/absolute/heightmap.png"}
 ::studiotwin-image{asset="<asset-uuid>" before="<source-asset-uuid>" title="Iteration"}
 ::studiotwin-video{path="/absolute/preview.mp4"}
-::studiotwin-video{frames='[{"path":"/absolute/frame-0001.png"},{"path":"/absolute/frame-0002.png"}]' fps="24"}
+
 ::studiotwin-task{id="<job-uuid>"}
 ::studiotwin-job{id="<job-uuid>"}
 ::studiotwin-concept{id="<concept-uuid>"}
@@ -244,6 +245,7 @@ node skills/studiotwin/scripts/render_preview.mjs /absolute/rigged.glb --clip "W
 This renders a **turntable or animation MP4**, not a contact sheet. Node 22+ for the script (package development requires 24+), Chromium/Chrome and ffmpeg; ffprobe adds verification metadata. `--chrome PATH` overrides browser discovery. It uses three 0.180.0 from package dependencies or downloads the integrity-checked npm tarball into `<HERMES_HOME>/cache/studiotwin-preview/` on first use; extraction needs `tar`. Default output is a uniquely named MP4 under `cache/generated/videos/`; existing explicit outputs are refused. Read the JSON `ok`, `bytes`, `clip`, `probe`, and `blocked_urls`; embedded external resource URLs are not fetched. Rendering spawns headless Chromium and ffmpeg, not a persistent service.
 
 ### Multiview reference sheets and Forge-E style reskinning
+Use `--yaw-offset <degrees>` (finite number, default `0`) to align FRONT with the model's authored forward axis: `0` for +Z, `90` for +X, `180` for -Z, `-90` for -X. The offset is added to every canonical yaw, including 3/4 and top; pitch stays unchanged. JSON stdout records `yaw_offset_deg`. Desktop exposes the same four orientations in the Multiview yaw offset selector before Capture Multiview. For example, add `--yaw-offset 180` for a model facing -Z.
 
 ```sh
 node skills/studiotwin/scripts/render_multiview.mjs /absolute/model.glb --out /absolute/multiview-sheet.png --split-dir /absolute/views --views 6 --shading clay --tile-size 512

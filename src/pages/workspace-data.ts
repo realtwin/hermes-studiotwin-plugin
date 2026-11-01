@@ -74,7 +74,7 @@ export function compose(
 ) {
   try {
     scope.assert();
-    if (!session || !sdk.host.composer?.submit(session, action.message))
+    if (!sdk.host.composer?.submit(typeof session === 'string' && session.trim() ? session : null, action.message))
       sdk.host.notify({
         kind: "warning",
         message: "Open the originating chat to continue this workflow.",

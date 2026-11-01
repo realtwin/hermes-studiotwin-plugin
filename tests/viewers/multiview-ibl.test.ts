@@ -34,14 +34,14 @@ const stageHarness = `
 import {createModelStage} from './src/viewers/model-stage.ts';
 import {GLTFExporter} from 'three/examples/jsm/exporters/GLTFExporter.js';
 import {Scene,Mesh,BoxGeometry,MeshStandardMaterial,PerspectiveCamera} from 'three';
-window.captureAngles=async()=>{
+window.captureAngles=async(options={})=>{
   const old=PerspectiveCamera.prototype.lookAt, samples=[];
   PerspectiveCamera.prototype.lookAt=function(...args){
     const target=typeof args[0]==='number'?{x:args[0],y:args[1],z:args[2]}:args[0];
     const p=this.position.clone().sub(target);samples.push([Math.atan2(p.x,p.z)*180/Math.PI,Math.asin(p.y/p.length())*180/Math.PI]);
     return old.apply(this,args);
   };
-  try{await window.stage.captureMultiview({views:6,tileSize:128});return samples}finally{PerspectiveCamera.prototype.lookAt=old}
+  try{await window.stage.captureMultiview({views:6,tileSize:128,...options});return samples}finally{PerspectiveCamera.prototype.lookAt=old}
 };
 const decode=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0)).buffer;
 window.hdr=decode(${JSON.stringify(fixture('env/equirect-64x32.hdr'))});
@@ -208,6 +208,64 @@ describe.skipIf(!enabled)('V10 real Chromium multiview + IBL', () => {
       })
     } finally { await page.close() }
   })
+
+  for (const yawOffsetDeg of [0, 90, 180, -90, 22.5, 450]) it(`yaw offset ${yawOffsetDeg} rotates every canonical camera and restores the stage`, async () => {
+    const { page } = await stagePage()
+    try {
+      const before = await page.evaluate(() => (window as any).stage.snapshot())
+      const angles = await page.evaluate(yawOffsetDeg => (window as any).captureAngles({ yawOffsetDeg }), yawOffsetDeg)
+      const expected = [[0,12],[90,12],[180,12],[270,12],[35,22],[0,85]]
+      expect(angles).toHaveLength(6)
+      angles.forEach((angle: number[], i: number) => {
+        const radians = (expected[i][0] + yawOffsetDeg) * Math.PI / 180
+        expect(Math.sin(angle[0] * Math.PI / 180)).toBeCloseTo(Math.sin(radians), 6)
+        expect(Math.cos(angle[0] * Math.PI / 180)).toBeCloseTo(Math.cos(radians), 6)
+        expect(angle[1]).toBeCloseTo(expected[i][1], 6)
+      })
+      expect(await page.evaluate(() => (window as any).stage.snapshot())).toBe(before)
+    } finally { await page.close() }
+  })
+
+  it('yaw offset rejects nonfinite values before changing the stage', async () => {
+    const { page } = await stagePage()
+    try {
+      const result = await page.evaluate(async () => {
+        const s = (window as any).stage, before = s.snapshot(), failures = []
+        for (const yawOffsetDeg of [NaN, Infinity, -Infinity]) {
+          try { await s.captureMultiview({ yawOffsetDeg, tileSize: 128 }); failures.push(false) }
+          catch (e) { failures.push(String(e).includes('yawOffsetDeg')) }
+        }
+        return { failures, restored: before === s.snapshot() }
+      })
+      expect(result).toEqual({ failures: [true, true, true], restored: true })
+    } finally { await page.close() }
+  })
+
+  it('source yaw selector defaults to +Z and passes every selected offset into capture', async () => {
+    const { page } = await newPage(sourceCode)
+    try {
+      await page.evaluate(() => (window as any).mount('viewer')); await loadUI(page)
+      const yaw = page.getByRole('combobox', { name: 'Multiview yaw offset', exact: true })
+      await webExpect(yaw).toHaveValue('0')
+      expect(await yaw.locator('option').evaluateAll(options => options.map(o => [(o as HTMLOptionElement).value, o.textContent]))).toEqual([
+        ['0', '0° (+Z)'], ['90', '90° (+X)'], ['180', '180° (-Z)'], ['-90', '-90° (-X)']
+      ])
+      await captureUI(page)
+      await webExpect(yaw).toBeEnabled()
+      const baseline = await page.getByAltText('Multiview Reference Preview', { exact: true }).getAttribute('src')
+      for (const value of ['90', '180', '-90', '0']) {
+        await yaw.selectOption(value)
+        const previousUploads = (await calls(page, '/upload')).length
+        await page.getByRole('button', { name: 'Capture Multiview', exact: true }).click()
+        await webExpect(yaw).toBeEnabled()
+        expect(await calls(page, '/upload')).toHaveLength(previousUploads + 1)
+        const image = await page.getByAltText('Multiview Reference Preview', { exact: true }).getAttribute('src')
+        if (value === '0') expect(image).toBe(baseline)
+        else expect(image).not.toBe(baseline)
+      }
+      await assertNoPaid(page)
+    } finally { await page.close() }
+  }, 30000)
 
   it('production bundle stages an actual PNG through the real router and persists readable Made from lineage without spending', async () => {
     const h = await openVisual(), { page } = h

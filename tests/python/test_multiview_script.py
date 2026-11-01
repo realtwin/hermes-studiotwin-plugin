@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import struct
 import subprocess
 
 import pytest
@@ -33,7 +34,8 @@ def test_real_multiview(tmp_path, model, views, shading):
     result, data = run(source, '--out', sheet, '--split-dir', split, '--views', views,
                        '--shading', shading, '--tile-size', 128, '--transparent', '--no-labels', '--chrome', CHROME)
     assert result.returncode == 0, data
-    assert set(data) == {'ok', 'sheet', 'views', 'split_files', 'shading', 'width', 'height', 'bytes'}
+    assert set(data) == {'ok', 'sheet', 'views', 'split_files', 'shading', 'width', 'height', 'bytes', 'yaw_offset_deg'}
+    assert data['yaw_offset_deg'] == 0
     assert data['ok'] and data['sheet'] == str(sheet)
     assert data['views'] == NAMES[:views]
     assert data['shading'] == shading
@@ -98,6 +100,54 @@ def test_labels_and_determinism(tmp_path):
             assert image.getpixel((0, 0))[3] == 255
     assert images[0] == images[1]
     assert images[0] != images[2]
+
+
+@pytest.mark.parametrize('value', ['NaN', 'Infinity', '-Infinity', 'bad', '1e309'])
+def test_yaw_offset_rejects_nonfinite(value, tmp_path):
+    out = tmp_path / 'invalid.png'
+    result, data = run(MEDIA/'static-cube.glb', '--out', out, '--yaw-offset', value)
+    assert result.returncode != 0 and data['ok'] is False
+    assert '--yaw-offset must be finite' in data['error']
+    assert not out.exists()
+
+
+@pytest.mark.parametrize('offset', [90, 180, -90, 22.5, 450])
+def test_yaw_offset_rotates_all_views(tmp_path, offset):
+    # Neither bundled fixture is asymmetric from every angle. Build a real,
+    # deliberately skewed tetrahedron so every tile can detect a yaw change.
+    points = [(-0.8, 0, -0.4), (1.2, 0.1, -0.2), (-0.2, 0.3, 1.1), (0.3, 2, 0.2)]
+    faces = [0, 2, 1, 0, 1, 3, 1, 2, 3, 2, 0, 3]
+    vertices = [coordinate for index in faces for coordinate in points[index]]
+    binary = struct.pack('<36f', *vertices)
+    document = {'asset': {'version': '2.0'}, 'scene': 0, 'scenes': [{'nodes': [0]}],
+                'nodes': [{'mesh': 0}], 'meshes': [{'primitives': [{'attributes': {'POSITION': 0}}]}],
+                'buffers': [{'byteLength': len(binary)}],
+                'bufferViews': [{'buffer': 0, 'byteLength': len(binary)}],
+                'accessors': [{'bufferView': 0, 'componentType': 5126, 'count': 12, 'type': 'VEC3',
+                               'min': [-0.8, 0, -0.4], 'max': [1.2, 2, 1.1]}]}
+    encoded = json.dumps(document).encode()
+    encoded += b' ' * (-len(encoded) % 4)
+    source = tmp_path/'asymmetric.glb'
+    source.write_bytes(struct.pack('<4sII', b'glTF', 2, 28 + len(encoded) + len(binary))
+                       + struct.pack('<I4s', len(encoded), b'JSON') + encoded
+                       + struct.pack('<I4s', len(binary), b'BIN\0') + binary)
+    tiles = []
+    for name, flags in [('default', []), ('zero', ['--yaw-offset', 0]),
+                        ('offset', ['--yaw-offset', offset]), ('repeat', ['--yaw-offset', offset])]:
+        out, split = tmp_path/f'{name}.png', tmp_path/name
+        result, data = run(source, '--out', out, '--split-dir', split,
+                           '--views', 6, '--shading', 'normals', '--tile-size', 128,
+                           '--transparent', '--no-labels', '--chrome', CHROME, *flags)
+        assert result.returncode == 0, data
+        assert data['yaw_offset_deg'] == (offset if name in ('offset', 'repeat') else 0)
+        assert data['views'] == NAMES
+        tiles.append([Path(data['split_files'][view]).read_bytes() for view in NAMES])
+    assert tiles[0] == tiles[1]
+    assert tiles[2] == tiles[3]
+    assert all(before != after for before, after in zip(tiles[0], tiles[2]))
+    if offset in (90, 180, -90, 450):
+        shift = (offset // 90) % 4
+        assert tiles[2][:4] == tiles[0][shift:4] + tiles[0][:shift]
 
 
 def test_harness_security_contract():

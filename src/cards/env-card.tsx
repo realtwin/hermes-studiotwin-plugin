@@ -1,4 +1,5 @@
 import * as sdk from "@hermes/plugin-sdk";
+import { submitTranscript } from '../lib/composer.ts';
 import { cardShell, cardHeader, cardTitle, creditBadgeStyle, nextDrawerStyle, nextSummaryStyle, nextActionChipStyle } from '../lib/ui-tokens';
 import { cleanToolName, studiotwinToolAliases } from './tool-names.ts';
 import { costLabel, costHint, type NextActionTool } from './action-costs.ts';
@@ -42,7 +43,7 @@ export function useCardScope(
     send(sessionId: string | null | undefined, text: string) {
       try {
         scope.assert();
-        if (!sessionId || !sdk.host.composer?.submit(sessionId, text))
+        if (!submitTranscript(sessionId, text))
           sdk.host.notify({
             kind: "warning",
             message: "Open the originating chat to continue.",

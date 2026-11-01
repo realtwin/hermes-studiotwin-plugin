@@ -15,7 +15,7 @@ const VIEWS = [
 ]
 const fail = message => { throw new Error(message) }
 function parseArgs(argv) {
-  const a = { views: 4, shading: 'textured', tileSize: 512, transparent: false, labels: true }
+  const a = { views: 4, shading: 'textured', tileSize: 512, transparent: false, labels: true, yawOffsetDeg: 0 }
   const rest = []
   for (let i = 0; i < argv.length; i++) {
     const k = argv[i]
@@ -28,11 +28,12 @@ function parseArgs(argv) {
     else if (k === '--views') a.views = Number(value())
     else if (k === '--shading') a.shading = value()
     else if (k === '--tile-size') a.tileSize = Number(value())
+    else if (k === '--yaw-offset') a.yawOffsetDeg = Number(value())
     else if (k === '--transparent') a.transparent = true
     else if (k === '--no-labels') a.labels = false
     else if (k === '--chrome') a.chrome = value()
     else if (k === '--help' || k === '-h') {
-      console.log('node render_multiview.mjs model.glb [--out sheet.png] [--split-dir DIR] [--views 4|6] [--shading textured|clay|normals|wireframe] [--tile-size 512] [--transparent] [--no-labels] [--chrome PATH]')
+      console.log('node render_multiview.mjs model.glb [--out sheet.png] [--split-dir DIR] [--views 4|6] [--shading textured|clay|normals|wireframe] [--tile-size 512] [--yaw-offset 0] [--transparent] [--no-labels] [--chrome PATH]')
       return null
     } else if (k.startsWith('-')) fail(`unknown option ${k}`)
     else rest.push(k)
@@ -40,6 +41,7 @@ function parseArgs(argv) {
   if (rest.length !== 1) fail('expected one local model.glb')
   a.input = path.resolve(rest[0])
   if (![4, 6].includes(a.views)) fail('--views must be 4 or 6')
+  if (!Number.isFinite(a.yawOffsetDeg)) fail('--yaw-offset must be finite')
   if (!['textured', 'clay', 'normals', 'wireframe'].includes(a.shading)) fail('invalid --shading')
   if (!Number.isInteger(a.tileSize) || a.tileSize < 64 || a.tileSize > 2048) fail('--tile-size must be an integer in 64..2048')
   if (!/\.glb$/i.test(a.input) || !fs.statSync(a.input).isFile()) fail('input must be a local .glb file')
@@ -147,7 +149,7 @@ const decode = url => Buffer.from(url.slice(url.indexOf(',') + 1), 'base64')
 
 async function main() {
   const a = parseArgs(process.argv.slice(2)); if (!a) return
-  const views = VIEWS.slice(0, a.views)
+  const views = VIEWS.slice(0, a.views).map(view => ({ ...view, yaw: view.yaw + a.yawOffsetDeg % 360 }))
   const splitFiles = Object.fromEntries(a.splitDir ? views.map(v => [v.name, path.join(a.splitDir, v.name + '.png')]) : [])
   const targets = [a.out, ...Object.values(splitFiles)]
   if (new Set(targets).size !== targets.length) fail('sheet and split outputs must be distinct')
@@ -197,7 +199,7 @@ async function main() {
       published.push(target)
     }
     console.log(JSON.stringify({ ok: true, sheet: a.out, views: views.map(v => v.name), split_files: splitFiles,
-      shading: a.shading, width: a.tileSize * (a.views / 2), height: a.tileSize * 2, bytes: fs.statSync(a.out).size }))
+      shading: a.shading, yaw_offset_deg: a.yawOffsetDeg, width: a.tileSize * (a.views / 2), height: a.tileSize * 2, bytes: fs.statSync(a.out).size }))
   } catch (e) {
     for (const target of published) fs.unlinkSync(target)
     throw e
