@@ -58,8 +58,14 @@ AUDIO = {'.wav','.mp3','.ogg','.opus','.flac'}
 def _settings():
     from hermes_cli.config import load_config_readonly
     saved = (((load_config_readonly() or {}).get('plugins') or {}).get('entries') or {}).get('hermes-studiotwin') or {}
-    saved = saved.get('settings') if isinstance(saved, dict) else {}
-    saved = saved if isinstance(saved, dict) else {}
+    entry = saved if isinstance(saved, dict) else {}
+    legacy = entry.get('config')
+    if not isinstance(legacy, dict):
+        legacy = {}
+    settings = entry.get('settings')
+    if not isinstance(settings, dict):
+        settings = {}
+    saved = {**legacy, **settings}
     out = {k:saved.get(k, v) if type(saved.get(k,v)) is type(v) else v for k,v in DEFAULTS.items()}
     out['api_base_url'] = client_module.validate_base(out['api_base_url'])
     out['webgl_limit'] = max(1,min(4,out['webgl_limit']))
@@ -169,7 +175,14 @@ def assets(type: str = '', limit: int | None = Query(None,ge=1,le=100), offset: 
     merged = {r['uuid']:dict(r) for r in cloud}
     for row in local:
         key = row.get('uuid') or row['path']
-        merged[key] = {**merged.get(key,{}),**row}
+        remote = merged.get(key)
+        merged[key] = {**(remote or {}), **row}
+        if remote is not None and Path(row['path']).parent == _data_root() / 'studio_cache':
+            # Preview downloads must not rename/reclassify cloud records on the next refresh.
+            for field in ('name', 'type', 'extension', 's3Uri'):
+                merged[key].pop(field, None)
+                if field in remote:
+                    merged[key][field] = remote[field]
     visible = []
     for row in merged.values():
         if type and (row.get('type') != type if type not in ('jpg','png') else not row.get('name','').lower().endswith('.'+type)):
@@ -272,6 +285,37 @@ def file(request: Request, path: str = '', asset: str = '', task: str = '', form
         data = source.read()
         return {'name':name,'bytes':len(data),'mtime':int(st.st_mtime*1000),'mime':mime,
                 'dataUrl':f'data:{mime};base64,'+base64.b64encode(data).decode('ascii')}
+
+
+@router.get('/jobs/{jid}/output')
+def job_output(jid: str):
+    """Resolve an existing job's unindexed media using the same guarded storage reader as assets."""
+    row = _job(jid)
+    outputs = row.get('outputs')
+    if not isinstance(outputs, dict):
+        outputs = {}
+    base = {'name': 'Completed job output', 'jobId': jid,
+            **{k: outputs[k] for k in ('riggable', 'rigType') if k in outputs}}
+    for key, kind in (('meshUrl', '3d_model'), ('modelUrl', '3d_model'),
+                      ('hdrUrl', 'environment'), ('audioUrl', 'audio')):
+        url = outputs.get(key)
+        if not isinstance(url, str) or not url:
+            continue
+        ext = Path(unquote(urlsplit(url).path)).suffix.lower()
+        if ext not in sandbox.MIME:
+            raise HTTPException(415, 'unsupported job output extension')
+        with _client() as client:
+            _, data = client.request('GET', url, storage=True, cap=sandbox.MAX_BYTES)
+        folder = sandbox.local_folder(_data_root(), 'studio_cache')
+        dest = folder / f'{jid}-{uuid.uuid4().hex}{ext}'
+        with dest.open('xb') as out:
+            out.write(data)
+        _index().record(dest, task=jid, kind=kind)
+        return {**base, 'name': Path(unquote(urlsplit(url).path)).name,
+                'type': kind, 'path': str(dest), 'downloadUrl': url}
+    if 'riggable' in outputs:
+        return {**base, 'type': 'rig_check'}
+    raise HTTPException(404, 'job has no supported output link')
 
 
 @router.get('/jobs')

@@ -144,6 +144,7 @@ export function StudioTwinPage({
         {tab === "Jobs" && (
           <JobsTab
             scope={scope}
+            session={session}
             configured={configured}
             onInspect={setSelected}
           />

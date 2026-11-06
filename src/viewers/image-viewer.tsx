@@ -130,6 +130,7 @@ export function ImageViewer({
           aria-modal="true"
           aria-label="Image inspection"
           onKeyDown={(e) => {
+            if (e.key === 'Escape') { e.stopPropagation(); closeInspection(); return }
             if (e.key !== 'Tab') return
             const nodes = e.currentTarget.querySelectorAll<HTMLElement>('button,input,[tabindex="0"]')
             const first = nodes[0],
@@ -149,7 +150,7 @@ export function ImageViewer({
             inset: '5%',
             zIndex: 1000,
             padding: 12,
-            background: 'var(--ui-bg-card)',
+            background: 'var(--ui-bg-elevated, var(--ui-bg-card))',
             border: '1px solid var(--ui-stroke-secondary)',
             display: 'flex',
             flexDirection: 'column',

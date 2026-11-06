@@ -117,6 +117,35 @@ def main():
                 api._index().record(duplicate, asset=image['uuid'], kind='image')
                 return {'video': video['uuid'], 'image': image['uuid'], 'total': 209}
 
+            @app.post('/__test/v11-cloud')
+            def v11_cloud():
+                ids_out = {}
+                for channel in ('basecolor', 'normal', 'roughness', 'metalness', 'height'):
+                    media = 'albedo' if channel == 'basecolor' else 'roughness' if channel == 'height' else channel
+                    asset = fake._new_asset(f'patina-{channel}.png', 'image', 'generated',
+                        key=f'jobs-dev/20261019/material-job/patina-{channel}.png',
+                        media_rel=f'material/pbr-{media}.png')
+                    ids_out[channel] = asset['uuid']
+                env = fake._new_asset('panorama.hdr', 'image', 'generated',
+                    key='07-26/panoramas/env-job/panorama.hdr', media_rel='env/equirect-64x32.hdr')
+                ids_out['env'] = env['uuid']
+                job = fake.jobs[ids['done']]
+                job.inputs = {'prompt': 'A stylized alchemical astrolabe resting on dark slate', 'quality': 'high', 'size': '1024x1024'}
+                job.outputs.update({'metadata': {'generationTime': '9s'}, 'model': 'gpt-image-2'})
+                return ids_out
+
+            @app.post('/__test/v11-job-output/{key}')
+            def v11_job_output(key: str):
+                media = {'meshUrl': 'model/static-cube.glb', 'modelUrl': 'model/static-cube.glb',
+                         'hdrUrl': 'env/equirect-64x32.hdr', 'audioUrl': 'audio/tone-48k.wav'}
+                job = fake.jobs[ids['done']]
+                if key == 'riggable':
+                    job.outputs = {'riggable': False, 'rigType': 'avian'}
+                else:
+                    asset = fake._new_asset(Path(media[key]).name, 'image', 'generated', media_rel=media[key])
+                    job.outputs = {key: fake.signed_url(asset['s3Uri'].split('/', 3)[3])}
+                return {'id': job.uuid}
+
             @app.post('/__test/completed-model/{kind}')
             def completed_model(kind: str):
                 # Seed an existing terminal job; no generation or wallet operation.

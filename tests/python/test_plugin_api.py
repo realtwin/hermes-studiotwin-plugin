@@ -39,6 +39,59 @@ def api(tmp_path, monkeypatch):
             yield client, mod, h, settings
 
 
+def test_v11_settings_precedence_and_per_key_legacy_fallback(api, monkeypatch):
+    import hermes_cli.config
+    _, mod, _, _ = api
+    entry = {'settings': {'auto_rotate': False, 'webgl_limit': True},
+             'config': {'auto_rotate': True, 'gallery_limit': 37, 'webgl_limit': 2}}
+    monkeypatch.setattr(hermes_cli.config, 'load_config_readonly', lambda: {
+        'plugins': {'entries': {'hermes-studiotwin': entry}}})
+    settings = mod._settings()
+    assert settings['auto_rotate'] is False
+    assert settings['gallery_limit'] == 37
+    assert settings['webgl_limit'] == 4  # bool is not int; invalid settings do not resurrect config
+    entry.pop('settings')
+    assert mod._settings()['gallery_limit'] == 37
+    assert mod._settings()['webgl_limit'] == 2
+
+
+def test_v11_thumbnail_cache_does_not_rename_cloud_assets(api):
+    c, mod, h, _ = api
+    row = next(iter(h.fake.assets.values()))
+    assert c.get('/file', params={'asset': row['uuid']}).status_code == 200
+    after = next(a for a in c.get('/assets?limit=100').json()['assets'] if a.get('uuid') == row['uuid'])
+    assert after['name'] == row['name']
+    assert Path(after['local_path']).parent == mod._data_root() / 'studio_cache'
+
+
+def test_v11_job_link_output_uses_existing_guarded_download_and_rig_metadata(api):
+    c, mod, h, _ = api
+    # Seed an existing completed job through the fixture, not a new paid request.
+    from fake_mcp.state import Job
+    jid = '000010b5-0001-4000-8000-000000000001'
+    job = Job(uuid=jid, function_name='image-to-3d-mesh', inputs={}, estimate=0, cost=0,
+              provider='fixture', created_ms=h.fake.clock_ms, schedule=('done',))
+    job.status = 'done'
+    h.fake.jobs[jid] = job
+    for key, kind, media in [('meshUrl', '3d_model', 'model/static-cube.glb'),
+                             ('modelUrl', '3d_model', 'model/static-cube.glb'),
+                             ('hdrUrl', 'environment', 'env/equirect-64x32.hdr'),
+                             ('audioUrl', 'audio', 'audio/tone-48k.wav')]:
+        asset = h.fake._new_asset(Path(media).name, kind, 'generated', media_rel=media)
+        url = h.fake.signed_url(asset['s3Uri'].split('/', 3)[3])
+        job.outputs = {key: url}
+        response = c.get(f'/jobs/{jid}/output')
+        assert response.status_code == 200
+        row = response.json()
+        assert row['type'] == kind and row['downloadUrl'] == url
+        assert row['name'] == Path(media).name
+        assert Path(row['path']).read_bytes() == (ROOT / 'tests/fixtures/media' / media).read_bytes()
+    job.outputs = {'riggable': False, 'rigType': 'avian'}
+    assert c.get(f'/jobs/{jid}/output').json()['riggable'] is False
+    job.outputs = {'meshUrl': 'http://example.org/not-storage.glb'}
+    assert c.get(f'/jobs/{jid}/output').status_code == 502  # existing storage-origin refusal contract
+
+
 def test_assets_pages_merge_before_slice_and_keep_provider_schema(api, monkeypatch):
     c, mod, h, _ = api
     h.fake.assets.clear()
@@ -59,6 +112,7 @@ def test_assets_pages_merge_before_slice_and_keep_provider_schema(api, monkeypat
     rows = [r for p in pages for r in p['assets']]
     assert len({r.get('uuid') or r['path'] for r in rows}) == 207
     assert next(r for r in rows if r.get('uuid') == duplicate)['local_path'] == str(cached)
+    assert next(r for r in rows if r.get('uuid') == duplicate)['name'] == 'cached.png'
     filtered = [c.get('/assets', params={'type':'video','limit':1,'offset':i}).json() for i in (0,1,2)]
     assert [p['next_offset'] for p in filtered] == [1,None,None]
     assert filtered[0]['assets'][0]['uuid'] == late['uuid']
@@ -174,7 +228,7 @@ def test_manifest_host_contract(tmp_path):
     from pm.plugin_declarations import read_python_declaration
     package = load_agent_plugin(ROOT, tmp_path / 'data')
     server = package.mcp_servers['studiotwin']
-    assert package.version == '0.2.0'
+    assert package.version == '0.3.0'
     assert server['url'] == 'https://api.studiotwin.ai/mcp'
     assert server['headers'] == {'x-api-key': '${STUDIOTWIN_API_KEY}'}
     assert server['trust'] == 'untrusted' and server['timeout'] == 1500

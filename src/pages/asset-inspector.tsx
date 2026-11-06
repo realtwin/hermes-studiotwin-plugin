@@ -1,4 +1,8 @@
 import * as sdk from "@hermes/plugin-sdk";
+import { downloadSource } from '../viewers/material-download.ts';
+import { saveUrl } from '../cards/next-actions.ts';
+import { modalityLabel } from '../lib/ui-tokens.ts';
+import { assetDisplayName, copyId, formatDate, modalityIcon, siblingMaterialMaps } from './workspace-data.ts';
 import { cardShell, cardTitle, cardSubtitle, nextDrawerStyle, nextActionChipStyle } from "../lib/ui-tokens.ts";
 import { useStudioTwinSettings } from '../cards/settings.ts';
 import { useEffect, useRef, useState } from "react";
@@ -41,7 +45,11 @@ export function AssetPreview({
   limit?: number;
 }) {
   const settings = useStudioTwinSettings(scope);
-  const environmentAssets = useAssetLibrary(scope, modality(row) === '3d_model');
+  const environmentAssets = useAssetLibrary(scope, ['3d_model', 'material'].includes(modality(row)));
+  if (row.type === 'rig_check') return <section aria-label="Rig compatibility" style={{ ...cardShell, padding: 20 }}>
+    <h3>Rig compatibility</h3><p>{row.riggable ? `Riggable: ${row.rigType || 'yes'}` : 'Not riggable'}</p>
+    {row.rigType && <sdk.Badge>{row.rigType}</sdk.Badge>}
+  </section>;
   const environments = (environmentAssets.data ?? []).filter(r => modality(r) === 'environment').map(r => ({ label: r.name || assetId(r) || 'Panorama', source: assetSource(r) }));
   const source = assetSource(row),
     kind = modality(row),
@@ -97,7 +105,7 @@ export function AssetPreview({
       return (
         <MaterialViewer
           rest={scope.rest}
-          maps={parseMaterialMaps(row.maps ?? { albedo: source })}
+          maps={parseMaterialMaps(siblingMaterialMaps(row, environmentAssets.data ?? []))}
           webgl_limit={limit}
           fallback={fallback}
         />
@@ -202,6 +210,7 @@ export function AssetInspector({
   };
   const record = object(lineage.data?.record);
   return (
+    <div data-asset-backdrop onClick={e => { if (e.target === e.currentTarget) onClose(); }} style={{ position: 'fixed', inset: 0, zIndex: 120, background: 'color-mix(in srgb, var(--ui-bg-editor, var(--ui-bg-card)) 78%, transparent)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2vh 3vw' }}>
     <div
       role="dialog"
       aria-modal="true"
@@ -235,19 +244,39 @@ export function AssetInspector({
         }
       }}
       style={{
-        position: "fixed",
-        inset: "4%",
-        zIndex: 50,
         ...cardShell,
-        overflow: "auto",
+        background: 'var(--ui-bg-elevated, var(--ui-bg-card))',
+        maxHeight: '92vh',
+        width: 'min(1120px, 100%)',
+        boxSizing: 'border-box',
+        overflowY: 'auto',
         padding: "clamp(16px, 3vw, 28px)",
         boxShadow: "var(--ui-shadow-dialog, 0 24px 80px var(--ui-stroke-secondary))",
       }}
     >
       <header style={{ ...flow, justifyContent: "space-between", gap: 16, marginBottom: 20 }}>
-        <h2 style={{ ...cardTitle, overflowWrap: "anywhere", minWidth: 0, flex: "1 1 240px" }}>{row.name ?? id ?? "StudioTwin output"}</h2>
+        <sdk.Codicon name={modalityIcon(modality(row))} size={24} />
+        <h2 style={{ ...cardTitle, whiteSpace: 'normal', fontSize: 18, overflowWrap: "anywhere", minWidth: 0, flex: "1 1 240px" }}>{assetDisplayName(row).title}</h2>
+        <sdk.Badge>{modalityLabel(modality(row))}</sdk.Badge>
+        <sdk.Badge>{row.path || row.local_path ? 'Local' : 'Cloud'}</sdk.Badge>
+        {id && <sdk.Button onClick={() => void copyId(scope, String(id))}>Copy ID</sdk.Button>}
+        {(id || row.path || row.local_path || row.downloadUrl || row.url) && <sdk.Button onClick={() => {
+          void (async () => {
+            try {
+              scope.assert();
+              if (row.downloadUrl || row.url) saveUrl(scope, row.downloadUrl || row.url, assetDisplayName(row).title);
+              else await downloadSource(scope.rest, assetSource(row), scope.assert);
+            } catch { if (scope.current()) setError('Download unavailable. The original asset was not changed.'); }
+          })();
+        }}>Download original</sdk.Button>}
         <sdk.Button onClick={onClose}>Close asset inspection</sdk.Button>
       </header>
+      <div style={{ ...flow, ...cardSubtitle, gap: 12, marginBottom: 16 }}>
+        {id && <code style={{ userSelect: 'text' }}>{id}</code>}
+        {row.extension && <sdk.Badge>.{String(row.extension).toUpperCase()}</sdk.Badge>}
+        {formatDate(row.createdAt) && <time>{formatDate(row.createdAt)}</time>}
+        {typeof row.bytes === 'number' && <span>{(row.bytes / 1024).toFixed(1)} KB</span>}
+      </div>
       <AssetPreview
         key={id ?? row.path ?? row.url}
         ctx={ctx}
@@ -256,11 +285,7 @@ export function AssetInspector({
         session={session}
         limit={limit}
       />
-      {row.downloadUrl && (
-        <a href={row.downloadUrl} target="_blank" rel="noreferrer">
-          Download original
-        </a>
-      )}
+
       <section aria-label="Made from" style={{ ...cardShell, padding: 18, marginTop: 18, overflowWrap: "anywhere" }}>
         <h3 style={cardTitle}>Made from</h3>
         {!id ? (
@@ -276,6 +301,7 @@ export function AssetInspector({
                 lineage.data.made_from ??
                 "No provenance recorded yet."}
             </p>
+            {record.prompt && <sdk.Button onClick={() => compose(scope, session, { id: 'reuse', label: 'Reuse Prompt', message: record.prompt })}>Reuse Prompt</sdk.Button>}
             {record.tool && <p>Tool: {record.tool}</p>}
             {record.jobId && <p>Producing job: {record.jobId}</p>}
             <div style={flow}>
@@ -308,6 +334,7 @@ export function AssetInspector({
           <p>Next actions unavailable. Nothing was submitted.</p>
         )}
       </section>
+    </div>
     </div>
   );
 }

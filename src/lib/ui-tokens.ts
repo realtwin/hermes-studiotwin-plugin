@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react'
 // Scoped inline primitives. Surfaces inherit Hermes colors rather than fixing a dark
 // palette on the workspace. Only semantic status/HUD colors need stable fallbacks.
 const stroke = '1px solid var(--ui-stroke-secondary)'
+export const visuallyHidden: CSSProperties = { position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clipPath: 'inset(50%)', whiteSpace: 'nowrap', border: 0 }
 export const cardShell: CSSProperties = {
   borderRadius: 12, border: stroke, background: 'var(--ui-bg-card, var(--ui-bg-secondary))',
   boxShadow: 'var(--ui-shadow-card, 0 4px 16px color-mix(in srgb, var(--ui-text) 14%, transparent))',
@@ -66,8 +67,10 @@ export function modalityLabel(type: string): string {
   return ({ '3d_model': '3D Model', animation: 'Animation', audio: 'Audio SFX', environment: '360° Environment', material: 'PBR Material', image: 'Image / Concept', video: 'Video', image_sequence: 'Frame Sequence' } as Record<string, string>)[type] ?? type.replace(/[_-]/g, ' ')
 }
 export function cleanDisplayName(raw: string): { title: string; shortId: string } {
-  const match = raw.match(/^([a-f0-9]{32}|[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})-(.+)$/i)
-  return match ? { title: match[2], shortId: match[1].slice(0, 8) } : { title: raw, shortId: '' }
+  const suffix = raw.match(/^(.+)@([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$/i)
+  const name = suffix?.[1] ?? raw
+  const match = name.match(/^([a-f0-9]{32}|[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})-(.+)$/i)
+  return { title: match?.[2] ?? name, shortId: (suffix?.[2] ?? match?.[1] ?? '').slice(0, 8) }
 }
 export const nextDrawerStyle: CSSProperties = { margin: '10px 12px 12px', padding: '8px 12px', borderRadius: 8, background: 'color-mix(in srgb, var(--ui-bg-secondary) 55%, transparent)', border: stroke }
 export const nextSummaryStyle: CSSProperties = { fontSize: 12, fontWeight: 600, color: 'var(--ui-text-secondary)', cursor: 'pointer' }

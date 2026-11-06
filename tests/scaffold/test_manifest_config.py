@@ -44,7 +44,7 @@ def test_reference_host_and_remote_transport(tmp_path):
     import hermes_cli.agent_plugins as host
     assert Path(host.__file__).resolve() == CORE/'hermes_cli/agent_plugins.py'
     package = _package(tmp_path)
-    assert package.name == 'hermes-studiotwin' and package.version == '0.2.0'
+    assert package.name == 'hermes-studiotwin' and package.version == '0.3.0'
     assert package.diagnostics == ()
     assert set(package.mcp_servers) == {'studiotwin'}
     s = package.mcp_servers['studiotwin']

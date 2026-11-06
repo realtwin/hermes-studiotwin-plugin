@@ -1,0 +1,26 @@
+/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v09/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.2.0, pluggy-1.7.0
+rootdir: /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v11
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.15.1, platformdirs-4.14.0, asyncio-1.4.1
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 238 items
+
+tests/fixtures/test_fixture_foundation.py .............................. [ 12%]
+..........................                                               [ 23%]
+tests/python/test_bundled_skill.py ...                                   [ 24%]
+tests/python/test_dcc_scripts.py ...........s.........                   [ 33%]
+tests/python/test_host_compat_v08.py ..............                      [ 39%]
+tests/python/test_multiview_script.py .................................. [ 53%]
+.......                                                                  [ 56%]
+tests/python/test_plugin_api.py ........................................ [ 73%]
+...................                                                      [ 81%]
+tests/python/test_sfx_tool.py .............................              [ 93%]
+tests/scaffold/test_manifest_config.py ...............                   [100%]
+
+================== 237 passed, 1 skipped in 154.82s (0:02:34) ==================

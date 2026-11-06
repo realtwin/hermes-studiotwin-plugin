@@ -1,0 +1,107 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v11
+
+ ❯ tests/workspace/v11-studio.test.ts (3 tests | 3 failed) 25462ms
+   × V11 production bundle: cloud-shaped names, real image posters, HDR classification and five-channel sibling PBR inspection 6967ms
+     → expect(locator).toBeVisible() failed
+
+Locator: getByText('patina-basecolor.png', { exact: true })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" getByText('patina-basecolor.png', { exact: true }) with timeout 5000ms
+  - waiting for getByText('patina-basecolor.png', { exact: true })
+
+   × V11 production bundle: job prompts, metadata, copy and reuse preserve canonical tool and originating chat 6754ms
+     → expect(locator).toBeVisible() failed
+
+Locator: getByText('A stylized alchemical astrolabe resting on dark slate', { exact: true })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" getByText('A stylized alchemical astrolabe resting on dark slate', { exact: true }) with timeout 5000ms
+  - waiting for getByText('A stylized alchemical astrolabe resting on dark slate', { exact: true })
+
+   × V11 production bundle: unindexed completed model, HDR, audio and negative rig-check outputs inspect without resubmission 11739ms
+     → locator.click: Timeout 10000ms exceeded.
+Call log:
+  - waiting for getByRole('dialog', { name: 'Asset inspection', exact: true }).getByRole('button', { name: 'Click to load 3D', exact: true })
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  06:31:20
+   Duration  26.24s (transform 201ms, setup 0ms, collect 506ms, tests 25.46s, environment 0ms, prepare 79ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workspace/v11-studio.test.ts > V11 production bundle: cloud-shaped names, real image posters, HDR classification and five-channel sibling PBR inspection
+Error: expect(locator).toBeVisible() failed
+
+Locator: getByText('patina-basecolor.png', { exact: true })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" getByText('patina-basecolor.png', { exact: true }) with timeout 5000ms
+  - waiting for getByText('patina-basecolor.png', { exact: true })
+
+ ❯ captureRawStack ../v09/node_modules/playwright/node_modules/playwright-core/lib/coreBundle.js:9282:17
+ ❯ callMatcherAsStep ../v09/node_modules/playwright/lib/matchers/expect.js:13316:57
+ ❯ Object.toBeVisible ../v09/node_modules/playwright/lib/matchers/expect.js:13308:23
+ ❯ tests/workspace/v11-studio.test.ts:24:71
+     22|     await page.evaluate(() => (window as any).workspace())
+     23|     await pw(page.getByRole('button', { name: ids.basecolor, exact: tr…
+     24|     await pw(page.getByText('patina-basecolor.png', { exact: true })).…
+       |                                                                       ^
+     25|     const poster = page.locator('[data-asset-poster="image"] img').fir…
+     26|     await pw(poster).toBeVisible()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/workspace/v11-studio.test.ts > V11 production bundle: job prompts, metadata, copy and reuse preserve canonical tool and originating chat
+Error: expect(locator).toBeVisible() failed
+
+Locator: getByText('A stylized alchemical astrolabe resting on dark slate', { exact: true })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" getByText('A stylized alchemical astrolabe resting on dark slate', { exact: true }) with timeout 5000ms
+  - waiting for getByText('A stylized alchemical astrolabe resting on dark slate', { exact: true })
+
+ ❯ captureRawStack ../v09/node_modules/playwright/node_modules/playwright-core/lib/coreBundle.js:9282:17
+ ❯ callMatcherAsStep ../v09/node_modules/playwright/lib/matchers/expect.js:13316:57
+ ❯ Object.toBeVisible ../v09/node_modules/playwright/lib/matchers/expect.js:13308:23
+ ❯ tests/workspace/v11-studio.test.ts:66:104
+     64|     await page.getByRole('tab', { name: 'Jobs', exact: true }).click()
+     65|     await page.getByRole('button', { name: 'Completed', exact: true })…
+     66|     await pw(page.getByText('A stylized alchemical astrolabe resting o…
+       |                                                                                                        ^
+     67|     await pw(page.getByText('Generation: 9s', { exact: true })).toBeVi…
+     68|     await pw(page.getByText('openai-gpt-image-2-v4-fn', { exact: true …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/workspace/v11-studio.test.ts > V11 production bundle: unindexed completed model, HDR, audio and negative rig-check outputs inspect without resubmission
+TimeoutError: locator.click: Timeout 10000ms exceeded.
+Call log:
+  - waiting for getByRole('dialog', { name: 'Asset inspection', exact: true }).getByRole('button', { name: 'Click to load 3D', exact: true })
+
+ ❯ tests/workspace/v11-studio.test.ts:92:125
+     90|       else if (key === 'audioUrl') await pw(dialog.locator('canvas')).…
+     91|       else {
+     92|         await dialog.getByRole('button', { name: key === 'hdrUrl' ? 'L…
+       |                                                                                                                             ^
+     93|         await pw(dialog.locator('canvas')).toBeVisible()
+     94|       }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+

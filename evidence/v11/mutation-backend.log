@@ -1,0 +1,80 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.2.0, pluggy-1.7.0
+rootdir: /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v11
+configfile: pytest.ini
+plugins: anyio-4.15.1, platformdirs-4.14.0, asyncio-1.4.1
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 59 items / 56 deselected / 3 selected
+
+tests/python/test_plugin_api.py FFF                                      [100%]
+
+=================================== FAILURES ===================================
+___________ test_v11_settings_precedence_and_per_key_legacy_fallback ___________
+
+api = (<starlette.testclient.TestClient object at 0x7e166c240440>, <module 'v01_api' from '/home/deploy/work/realtwin/hermes...27.0.0.1', port=60981, api_key='STCANARY_API_KEY_2e9bc6c94a', requests=[]), {'api_base_url': 'http://127.0.0.1:60981'})
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7e166d8482b0>
+
+    def test_v11_settings_precedence_and_per_key_legacy_fallback(api, monkeypatch):
+        import hermes_cli.config
+        _, mod, _, _ = api
+        entry = {'settings': {'auto_rotate': False, 'webgl_limit': True},
+                 'config': {'auto_rotate': True, 'gallery_limit': 37, 'webgl_limit': 2}}
+        monkeypatch.setattr(hermes_cli.config, 'load_config_readonly', lambda: {
+            'plugins': {'entries': {'hermes-studiotwin': entry}}})
+        settings = mod._settings()
+        assert settings['auto_rotate'] is False
+>       assert settings['gallery_limit'] == 37
+E       assert 24 == 37
+
+tests/python/test_plugin_api.py:51: AssertionError
+____________ test_v11_thumbnail_cache_does_not_rename_cloud_assets _____________
+
+api = (<starlette.testclient.TestClient object at 0x7e166c126210>, <module 'v01_api' from '/home/deploy/work/realtwin/hermes...api_key': True}, {'method': 'POST', 'path': '/mcp', 'has_api_key': True}]), {'api_base_url': 'http://127.0.0.1:52149'})
+
+    def test_v11_thumbnail_cache_does_not_rename_cloud_assets(api):
+        c, mod, h, _ = api
+        row = next(iter(h.fake.assets.values()))
+        assert c.get('/file', params={'asset': row['uuid']}).status_code == 200
+        after = next(a for a in c.get('/assets?limit=100').json()['assets'] if a.get('uuid') == row['uuid'])
+>       assert after['name'] == row['name']
+E       AssertionError: assert '000a55e7-000...655ba74f0.png' == 'hero-reference.png'
+E         
+E         - hero-reference.png
+E         + 000a55e7-0001-4000-8000-000000000001-b857d81c579e466799d9ba5655ba74f0.png
+
+tests/python/test_plugin_api.py:63: AssertionError
+___ test_v11_job_link_output_uses_existing_guarded_download_and_rig_metadata ___
+
+api = (<starlette.testclient.TestClient object at 0x7e166565f890>, <module 'v01_api' from '/home/deploy/work/realtwin/hermes...27.0.0.1', port=52237, api_key='STCANARY_API_KEY_2e9bc6c94a', requests=[]), {'api_base_url': 'http://127.0.0.1:52237'})
+
+    def test_v11_job_link_output_uses_existing_guarded_download_and_rig_metadata(api):
+        c, mod, h, _ = api
+        # Seed an existing completed job through the fixture, not a new paid request.
+        from fake_mcp.state import Job
+        jid = '000010b5-0001-4000-8000-000000000001'
+        job = Job(uuid=jid, function_name='image-to-3d-mesh', inputs={}, estimate=0, cost=0,
+                  provider='fixture', created_ms=h.fake.clock_ms, schedule=('done',))
+        job.status = 'done'
+        h.fake.jobs[jid] = job
+        for key, kind, media in [('meshUrl', '3d_model', 'model/static-cube.glb'),
+                                 ('modelUrl', '3d_model', 'model/static-cube.glb'),
+                                 ('hdrUrl', 'environment', 'env/equirect-64x32.hdr'),
+                                 ('audioUrl', 'audio', 'audio/tone-48k.wav')]:
+            asset = h.fake._new_asset(Path(media).name, kind, 'generated', media_rel=media)
+            url = h.fake.signed_url(asset['s3Uri'].split('/', 3)[3])
+            job.outputs = {key: url}
+            response = c.get(f'/jobs/{jid}/output')
+>           assert response.status_code == 200
+E           assert 404 == 200
+E            +  where 404 = <Response [404 Not Found]>.status_code
+
+tests/python/test_plugin_api.py:84: AssertionError
+=========================== short test summary info ============================
+FAILED tests/python/test_plugin_api.py::test_v11_settings_precedence_and_per_key_legacy_fallback
+FAILED tests/python/test_plugin_api.py::test_v11_thumbnail_cache_does_not_rename_cloud_assets
+FAILED tests/python/test_plugin_api.py::test_v11_job_link_output_uses_existing_guarded_download_and_rig_metadata
+======================= 3 failed, 56 deselected in 1.64s =======================
+/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v09/.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))

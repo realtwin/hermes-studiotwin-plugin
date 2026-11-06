@@ -1,5 +1,5 @@
 import * as sdk from "@hermes/plugin-sdk";
-import { cardShell, cardTitle, cardSubtitle, controlStrip, tabButtonStyle, filterPillStyle } from "../lib/ui-tokens.ts";
+import { cardShell, cardTitle, cardSubtitle, controlStrip, filterPillStyle } from "../lib/ui-tokens.ts";
 import { useRef, useState } from "react";
 import { object, type MediaScope } from "../cards/next-actions.ts";
 import { compose, type Row } from "./workspace-data.ts";
@@ -110,11 +110,8 @@ export function UploadDrawer({
         StudioTwin. No generation is submitted.
       </p>
       <div style={{ ...controlStrip, justifyContent: "space-between", gap: 12 }}>
-        <div style={{ display: "flex", gap: 4, padding: 4, background: "var(--ui-bg-primary)", borderRadius: 10 }}>
-          <sdk.Button style={tabButtonStyle(!cloud)} aria-pressed={!cloud} disabled={busy} onClick={() => setCloud(false)}>Local</sdk.Button>
-          <sdk.Button style={tabButtonStyle(cloud)} aria-pressed={cloud} disabled={busy || !configured} onClick={() => setCloud(true)}>Cloud</sdk.Button>
-        </div>
-      <label style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--ui-text-secondary)" }}>
+        <span style={cardSubtitle}>Destination · {cloud ? 'StudioTwin cloud' : 'Local staging'}</span>
+      <label style={{ ...filterPillStyle(cloud), cursor: 'pointer' }}>
         <input
           type="checkbox"
           checked={cloud}
@@ -142,10 +139,12 @@ export function UploadDrawer({
       >
         <span style={{ display: "inline-flex", padding: 18, background: "var(--ui-bg-card)", borderRadius: 18, color: "var(--ui-accent)" }}><sdk.Codicon name="cloud-upload" size={40} /></span>
         <p style={{ fontSize: 16, fontWeight: 600, margin: "20px 0 16px" }}>Drop a reference here or choose a file</p>
+        <label style={{ ...filterPillStyle(false), position: 'relative', cursor: busy ? 'wait' : 'pointer', padding: '10px 18px', borderRadius: 8 }}>
+        Choose file…
         <input
           type="file"
           aria-label="Reference file"
-          style={{ maxWidth: "100%", fontSize: 12, color: "var(--ui-text-secondary)" }}
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0, cursor: busy ? 'wait' : 'pointer' }}
           disabled={busy}
           accept=".glb,.fbx,.obj,.hdr,.exr,.png,.jpg,.jpeg,.webp,.wav,.mp3,.ogg,.opus,.flac,.mp4,.tar,.json"
           onChange={(e) => {
@@ -153,6 +152,7 @@ export function UploadDrawer({
             e.target.value = "";
           }}
         />
+        </label>
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 6, marginTop: 24 }}>
           {["GLB · FBX · OBJ", "HDR · EXR", "PNG · JPG · WEBP", "WAV · MP3 · OGG · OPUS · FLAC", "MP4", "TAR · JSON"].map((format) => <span key={format} style={{ ...filterPillStyle(false), fontSize: 10, cursor: "default" }}>{format}</span>)}
         </div>

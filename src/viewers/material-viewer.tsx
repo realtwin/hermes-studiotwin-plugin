@@ -9,7 +9,7 @@ import {
   type MaterialMaps,
 } from "./material-stage.ts";
 import { usePooledStage } from "./env-lifecycle.ts";
-import { stageShell, glassToolbar, controlStrip, styledSelect, styledRange, posterTile, filterPillStyle } from '../lib/ui-tokens';
+import { stageShell, glassToolbar, controlStrip, styledSelect, styledRange, posterTile, filterPillStyle, visuallyHidden } from '../lib/ui-tokens';
 export interface MaterialViewerProps {
   rest: PluginContext["rest"];
   maps: MaterialMaps;
@@ -105,8 +105,9 @@ export function MaterialViewer({
               ))}
             </span>
             <select
-              style={styledSelect}
+              style={visuallyHidden}
               aria-label="Map channel"
+              tabIndex={-1}
               value={channel}
               onChange={(e) => setChannel(e.target.value as typeof channel)}
             >
@@ -127,8 +128,9 @@ export function MaterialViewer({
               ))}
             </span>
             <select
-              style={styledSelect}
+              style={visuallyHidden}
               aria-label="Geometry"
+              tabIndex={-1}
               value={geometry}
               onChange={(e) => setGeometry(e.target.value as Geometry)}
             >

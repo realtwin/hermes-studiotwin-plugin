@@ -9,6 +9,7 @@ import {
   compose,
   conceptActions,
   flow,
+  formatDate,
   list,
 
   useWorkspaceQuery,
@@ -67,14 +68,16 @@ function ConceptDetail({
       )}
       <section aria-label="Concept workflows" style={{ ...nextDrawerStyle, marginTop: 20, padding: 16 }}>
         <h3 style={{ ...cardTitle, margin: "0 0 12px" }}>Next</h3>
+        <div style={{ ...flow, gap: 10, alignItems: 'stretch' }}>
         {conceptActions(concept, selected?.source.asset).map((a) => (
-          <div key={a.id} style={{ ...flow, justifyContent: "space-between", gap: 12, padding: "10px 0", borderBottom: "1px solid var(--ui-stroke-secondary)" }}>
+          <div key={a.id} style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start', padding: 8 }}>
             <sdk.Button style={nextActionChipStyle} onClick={() => compose(scope, session, a)}>
               {a.label}
             </sdk.Button>
             <small style={creditBadgeStyle}>{a.cost_label}</small>
           </div>
         ))}
+        </div>
         <p style={{ ...cardSubtitle, margin: "14px 0 0" }}>
           Drafts and active assets are separate. These actions only hand off to
           chat.
@@ -133,11 +136,15 @@ export function ConceptsTab({
         <div style={{ display: "grid", gap: 10, minWidth: 0 }}>
         {rows.map((row) => (
           <article style={{ ...cardShell, padding: 16, minWidth: 0, borderColor: (selected?.uuid ?? selected?.id) === (row.uuid ?? row.id) ? "var(--ui-accent)" : "var(--ui-stroke-secondary)" }} key={row.uuid ?? row.id}>
-            <sdk.Button style={{ ...filterPillStyle((selected?.uuid ?? selected?.id) === (row.uuid ?? row.id)), display: "block", textAlign: "left", whiteSpace: "normal", overflowWrap: "anywhere", marginBottom: 12 }} onClick={() => setSelected(row)}>
+            <sdk.Button aria-pressed={(selected?.uuid ?? selected?.id) === (row.uuid ?? row.id)} style={{ background: 'transparent', color: 'var(--ui-text-primary)', border: 0, padding: 0, width: '100%', display: "block", textAlign: "left", whiteSpace: "normal", overflowWrap: "anywhere", marginBottom: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer', outlineColor: 'var(--ui-accent)' }} onClick={() => setSelected(row)}>
               {row.name ?? row.uuid}
             </sdk.Button>
             <sdk.Badge>{row.conceptType ?? row.type ?? "Concept"}</sdk.Badge>
-            {row.activeAssetId && <p style={{ ...cardSubtitle, overflowWrap: "anywhere", fontSize: 11 }}>Active asset: {row.activeAssetId}</p>}
+            <div style={{ ...flow, marginTop: 8, fontSize: 11, color: 'var(--ui-text-secondary)' }}>
+              {row.activeAssetId && <span>● Active asset</span>}
+              {(row.versions || row.history || row.images) && <span>{(row.versions || row.history || row.images).length} versions</span>}
+              {formatDate(row.updatedAt) && <time>{formatDate(row.updatedAt)}</time>}
+            </div>
           </article>
         ))}
         </div>
