@@ -1,5 +1,5 @@
 import * as sdk from '@hermes/plugin-sdk'
-import { stageShell, glassToolbar, glassStatsPill, controlStrip, styledSelect, styledRange, filterPillStyle } from '../lib/ui-tokens'
+import { stageShell, glassToolbar, glassStatsPill, controlStrip, styledSelect, styledRange, inspectorToggleStyle as filterPillStyle } from '../lib/ui-tokens'
 const { Button } = sdk
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { PluginContext } from '@hermes/plugin-sdk'
@@ -179,7 +179,7 @@ export function VideoViewer({ scope, source, frames, fps, resolveUrl, fallback, 
           alt={`Frame ${frameIndex + 1}`}
           src={urls[frameIndex]}
           onError={fail}
-          style={{ display: 'block', width: '100%', maxHeight: 440, objectFit: 'contain', background: 'var(--ui-bg-secondary)' }}
+          style={{ display: 'block', width: '100%', maxHeight: 440, objectFit: 'contain', background: 'oklch(from var(--ui-bg-secondary) l 0 h)' }}
         />
       ) : url ? (
         <video
@@ -197,16 +197,16 @@ export function VideoViewer({ scope, source, frames, fps, resolveUrl, fallback, 
             setDuration(Number.isFinite(e.currentTarget.duration) ? e.currentTarget.duration : 0)
           }
           onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
-          style={{ display: 'block', width: '100%', maxHeight: 440, background: 'var(--ui-bg-secondary)' }}
+          style={{ display: 'block', width: '100%', maxHeight: 440, background: 'oklch(from var(--ui-bg-secondary) l 0 h)' }}
         />
       ) : (
         <p role="status">Loading video…</p>
       )}
       <div style={glassToolbar}>
-        <Button style={filterPillStyle(playing)} disabled={!!frames?.length && !sequenceRate} onClick={() => void toggle()}>{playing ? 'Pause' : 'Play'}</Button>
-        <Button style={filterPillStyle(false)} disabled={!canStep} onClick={() => step(-1)}>-1f</Button>
-        <Button style={filterPillStyle(false)} disabled={!canStep} onClick={() => step(1)}>+1f</Button>
-        <Button style={filterPillStyle(loop)} aria-pressed={loop} onClick={() => setLoop(!loop)}>
+        <Button variant="ghost" size="sm" style={filterPillStyle(playing)} disabled={!!frames?.length && !sequenceRate} onClick={() => void toggle()}>{playing ? 'Pause' : 'Play'}</Button>
+        <Button variant="ghost" size="sm" style={filterPillStyle(false)} disabled={!canStep} onClick={() => step(-1)}>-1f</Button>
+        <Button variant="ghost" size="sm" style={filterPillStyle(false)} disabled={!canStep} onClick={() => step(1)}>+1f</Button>
+        <Button variant="ghost" size="sm" style={filterPillStyle(loop)} aria-pressed={loop} onClick={() => setLoop(!loop)}>
           Loop
         </Button>
         <label style={controlStrip}>
@@ -228,7 +228,7 @@ export function VideoViewer({ scope, source, frames, fps, resolveUrl, fallback, 
             ))}
           </select>
         </label>
-        <Button style={filterPillStyle(false)} onClick={capture}>Capture PNG</Button>
+        <Button variant="ghost" size="sm" style={filterPillStyle(false)} onClick={capture}>Capture PNG</Button>
       </div>
       <input
         aria-label="Timeline"

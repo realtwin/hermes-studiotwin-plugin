@@ -228,7 +228,7 @@ def test_manifest_host_contract(tmp_path):
     from pm.plugin_declarations import read_python_declaration
     package = load_agent_plugin(ROOT, tmp_path / 'data')
     server = package.mcp_servers['studiotwin']
-    assert package.version == '0.3.0'
+    assert package.version == '0.3.1'
     assert server['url'] == 'https://api.studiotwin.ai/mcp'
     assert server['headers'] == {'x-api-key': '${STUDIOTWIN_API_KEY}'}
     assert server['trust'] == 'untrusted' and server['timeout'] == 1500

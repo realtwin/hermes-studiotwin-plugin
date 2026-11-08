@@ -1,7 +1,8 @@
+import { inspectorButtonStyle, inspectorChipStyle } from '../lib/ui-tokens.ts';
 // Waveform/transport adapted from Nous Research elevenlabs-sound-effects src/ui.tsx (MIT).
 // Copyright (c) 2026 Nous Research. Canvas rendition and StudioTwin backend adapter are local.
 import * as sdk from '@hermes/plugin-sdk'
-import { cardShell, cardHeader, cardTitle, cleanDisplayName, nextDrawerStyle, nextSummaryStyle, nextActionChipStyle, creditBadgeStyle, glassToolbar, glassStatsPill, controlStrip, cardSubtitle, filterPillStyle } from '../lib/ui-tokens'
+import { cardShell, cardHeader, cardTitle, cleanDisplayName, nextDrawerStyle, nextSummaryStyle, nextActionChipStyle, creditBadgeStyle, glassToolbar, glassStatsPill, controlStrip, cardSubtitle, inspectorToggleStyle as filterPillStyle } from '../lib/ui-tokens'
 import type { PluginContext } from '@hermes/plugin-sdk'
 const { Badge, Button, host } = sdk
 import { useEffect, useRef, useState, type ReactNode } from 'react'
@@ -23,8 +24,8 @@ export function Waveform({ data, progress, onSeek }: { data: number[]; progress:
       const ctx = canvas.getContext('2d')
       if (!ctx) return
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0); ctx.clearRect(0, 0, width, height)
-      const accent = getComputedStyle(canvas).getPropertyValue('--ui-accent').trim()
-      const muted = getComputedStyle(canvas).getPropertyValue('--ui-text-tertiary').trim()
+      const accent = `oklch(from ${getComputedStyle(canvas).getPropertyValue('--ui-text-primary').trim()} l 0 h)`
+      const muted = `oklch(from ${getComputedStyle(canvas).getPropertyValue('--ui-text-tertiary').trim() || accent} l 0 h)`
       const top = Math.max(.05, ...data)
       for (let i = 0; i < data.length; i++) {
         const bar = Math.max(2, data[i] / top * (height - 4))
@@ -105,7 +106,7 @@ export function AudioViewer({ ctx, source, scope, sessionId, dataUrl, prompt = '
     return () => cancelAnimationFrame(frame)
   }, [ready, error, playing])
   if (error) return <>{fallback ?? <p role="alert" style={{ color: 'var(--ui-red)' }}>Audio unavailable in this profile. Use the original file/player.</p>}</>
-  if (!ready) return <p role="status" style={{ color: 'var(--ui-text-tertiary)' }}>Loading StudioTwin audio…</p>
+  if (!ready) return <p role="status" style={{ color: 'oklch(from var(--ui-text-tertiary) l 0 h)' }}>Loading StudioTwin audio…</p>
   const position = player.current?.position() ?? 0
   const progress = position / ready.buffer.duration
   const guarded = async (fn: () => Promise<void>) => {
@@ -121,16 +122,16 @@ export function AudioViewer({ ctx, source, scope, sessionId, dataUrl, prompt = '
     <div style={{ padding: '0 14px 14px' }}>
     {cleanDisplayName(prompt || ready.payload.name).shortId && <div style={{ ...cardSubtitle, marginTop: 10 }}>{ready.payload.name}</div>}
     <div style={{ ...controlStrip, flexWrap: 'wrap', marginTop: 12 }}>
-      <Badge>{ready.buffer.duration.toFixed(3)} s</Badge>
-      <Badge>{ready.payload.mime.replace('audio/', '').toUpperCase()}</Badge>
-      <Badge title="Decoded playback sample rate; Web Audio may resample the source">{ready.buffer.sampleRate} Hz</Badge>
-      <Badge>{ready.payload.bytes.toLocaleString()} B</Badge>
+      <Badge variant="muted" style={inspectorChipStyle}>{ready.buffer.duration.toFixed(3)} s</Badge>
+      <Badge variant="muted" style={inspectorChipStyle}>{ready.payload.mime.replace('audio/', '').toUpperCase()}</Badge>
+      <Badge variant="muted" style={inspectorChipStyle} title="Decoded playback sample rate; Web Audio may resample the source">{ready.buffer.sampleRate} Hz</Badge>
+      <Badge variant="muted" style={inspectorChipStyle}>{ready.payload.bytes.toLocaleString()} B</Badge>
     </div>
-    <div style={{ padding: 10, borderRadius: 10, margin: '16px 0', border: '1px solid var(--ui-stroke-secondary)', background: 'color-mix(in srgb, var(--ui-bg) 70%, var(--ui-bg-secondary))' }}>
+    <div style={{ padding: 10, borderRadius: 10, margin: '16px 0', border: '1px solid oklch(from var(--ui-stroke-secondary) l 0 h)', background: 'color-mix(in srgb, oklch(from var(--ui-bg) l 0 h) 70%, oklch(from var(--ui-bg-secondary) l 0 h))' }}>
       <Waveform data={ready.wave} progress={progress} onSeek={f => void guarded(() => player.current?.seek(f * ready.buffer.duration) ?? Promise.resolve())} />
     </div>
     <div style={glassToolbar}>
-      <Button size="sm" style={filterPillStyle(playing)} aria-label={playing ? 'Pause' : 'Play'} onClick={() => void guarded(async () => {
+      <Button variant="ghost" size="sm" style={filterPillStyle(playing)} aria-label={playing ? 'Pause' : 'Play'} onClick={() => void guarded(async () => {
         if (player.current?.playing) player.current.pause()
         else await player.current?.play(ready.buffer, loop, player.current.position())
       })}>{playing ? 'Pause' : 'Play'}</Button>
@@ -140,7 +141,7 @@ export function AudioViewer({ ctx, source, scope, sessionId, dataUrl, prompt = '
       }}>Loop</Button>
       <span style={{ ...glassStatsPill, fontVariantNumeric: 'tabular-nums' }}>{position.toFixed(2)} / {ready.buffer.duration.toFixed(2)} s</span>
       <details><summary style={{ ...filterPillStyle(false), cursor: 'pointer' }}>Download / Convert</summary><div style={{ ...controlStrip, flexWrap: 'wrap', marginTop: 8 }}>
-        {AUDIO_FORMATS.map(format => <Button key={format} size="sm" variant="outline" disabled={busy} aria-label={`Download ${format.toUpperCase()}`} onClick={() => {
+        {AUDIO_FORMATS.map(format => <Button style={inspectorButtonStyle} key={format} size="sm" variant="outline" disabled={busy} aria-label={`Download ${format.toUpperCase()}`} onClick={() => {
           setBusy(true)
           void guarded(async () => {
             const payload = await fetchAudio(ctx, source, scope, format)

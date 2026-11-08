@@ -1,3 +1,4 @@
+import { secondaryButtonStyle } from '../lib/ui-tokens.ts';
 import * as sdk from "@hermes/plugin-sdk";
 import { creditBadgeStyle, statusBadgeStyle, tabButtonStyle } from "../lib/ui-tokens.ts";
 import { connectSettings, useStudioTwinSettings } from '../cards/settings.ts';
@@ -76,7 +77,7 @@ export function StudioTwinPage({
           {configured && status.data?.settings?.show_credits !== false && typeof status.data?.balance === "number" && (
             <span style={creditBadgeStyle}>{status.data.balance.toLocaleString()} credits</span>
           )}
-          <sdk.Button onClick={() => openSettings(ctx)}>Plugin Settings</sdk.Button>
+          <sdk.Button variant="outline" size="sm" style={secondaryButtonStyle} onClick={() => openSettings(ctx)}><sdk.Codicon name="settings-gear" size={14} />Plugin Settings</sdk.Button>
         </div>
       </header>
       {status.data?.configured === false && (
@@ -86,7 +87,7 @@ export function StudioTwinPage({
             Add STUDIOTWIN_API_KEY in Plugin Settings to browse cloud assets and
             jobs. Your cached and staged local assets are still available below.
           </p>
-          <sdk.Button onClick={() => openSettings(ctx)}>
+          <sdk.Button variant="outline" size="sm" style={secondaryButtonStyle} onClick={() => openSettings(ctx)}>
             Open Plugin Settings
           </sdk.Button>{" "}
           <a href="https://studiotwin.ai" target="_blank" rel="noreferrer">
@@ -106,7 +107,7 @@ export function StudioTwinPage({
         style={{ ...flow, gap: 4, margin: "24px 0", padding: 5, border: "1px solid var(--ui-stroke-secondary)", borderRadius: 12, background: "var(--ui-bg-card)", width: "fit-content", maxWidth: "100%" }}
       >
         {tabs.map((label) => (
-          <sdk.Button
+          <sdk.Button variant="ghost" size="sm"
             key={label}
             role="tab"
             aria-selected={tab === label}

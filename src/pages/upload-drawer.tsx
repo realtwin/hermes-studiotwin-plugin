@@ -1,3 +1,4 @@
+import { secondaryButtonStyle } from '../lib/ui-tokens.ts';
 import * as sdk from "@hermes/plugin-sdk";
 import { cardShell, cardTitle, cardSubtitle, controlStrip, filterPillStyle } from "../lib/ui-tokens.ts";
 import { useRef, useState } from "react";
@@ -137,9 +138,9 @@ export function UploadDrawer({
           background: "var(--ui-bg-primary)",
         }}
       >
-        <span style={{ display: "inline-flex", padding: 18, background: "var(--ui-bg-card)", borderRadius: 18, color: "var(--ui-accent)" }}><sdk.Codicon name="cloud-upload" size={40} /></span>
+        <span style={{ display: "inline-flex", padding: 18, background: "color-mix(in srgb, var(--ui-text-primary) 6%, var(--ui-bg-secondary))", borderRadius: 18, color: "var(--ui-text-secondary)" }}><sdk.Codicon name="cloud-upload" size={40} /></span>
         <p style={{ fontSize: 16, fontWeight: 600, margin: "20px 0 16px" }}>Drop a reference here or choose a file</p>
-        <label style={{ ...filterPillStyle(false), position: 'relative', cursor: busy ? 'wait' : 'pointer', padding: '10px 18px', borderRadius: 8 }}>
+        <label style={{ ...secondaryButtonStyle, position: 'relative', cursor: busy ? 'wait' : 'pointer', padding: '10px 18px', borderRadius: 8 }}>
         Choose file…
         <input
           type="file"
@@ -154,7 +155,7 @@ export function UploadDrawer({
         />
         </label>
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 6, marginTop: 24 }}>
-          {["GLB · FBX · OBJ", "HDR · EXR", "PNG · JPG · WEBP", "WAV · MP3 · OGG · OPUS · FLAC", "MP4", "TAR · JSON"].map((format) => <span key={format} style={{ ...filterPillStyle(false), fontSize: 10, cursor: "default" }}>{format}</span>)}
+          {["GLB · FBX · OBJ", "HDR · EXR", "PNG · JPG · WEBP", "WAV · MP3 · OGG · OPUS · FLAC", "MP4", "TAR · JSON"].map((format) => <span key={format} style={{ ...filterPillStyle(false), fontSize: 11, padding: '3px 9px', cursor: "default" }}>{format}</span>)}
         </div>
         <p style={{ ...cardSubtitle, margin: "16px 0 0", fontSize: 11 }}>Up to 50 MiB · {cloud ? "StudioTwin cloud" : "Connected Hermes host"}</p>
       </div>
@@ -169,7 +170,7 @@ export function UploadDrawer({
           <code style={{ overflowWrap: "anywhere" }}>
             {result.uuid ?? result.path}
           </code>
-          <sdk.Button
+          <sdk.Button variant="outline" size="sm" style={secondaryButtonStyle}
             onClick={() =>
               compose(scope, session, {
                 id: "upload",

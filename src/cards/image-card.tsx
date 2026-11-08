@@ -71,7 +71,7 @@ export function ImageCard(props: ImageCardProps) {
       {props.history && props.history.length > 0 && (
         <nav aria-label="Concept versions">
           {props.history.map((item, i) => (
-            <sdk.Button style={filterPillStyle(version === i)} key={i} aria-pressed={version === i} onClick={() => setVersion(i)}>
+            <sdk.Button variant="outline" size="sm" style={filterPillStyle(version === i)} key={i} aria-pressed={version === i} onClick={() => setVersion(i)}>
               Version {i + 1}
               {item.active ? ' · Active asset' : ''}
             </sdk.Button>
@@ -91,7 +91,7 @@ export function ImageCard(props: ImageCardProps) {
         <details style={nextDrawerStyle}>
           <summary style={nextSummaryStyle}>Next · review and approve in chat</summary>
           {(props.actions ?? imageActions(source)).map((a) => (
-            <sdk.Button
+            <sdk.Button variant="outline" size="sm"
               key={a.id}
               style={nextActionChipStyle}
               onClick={() => {

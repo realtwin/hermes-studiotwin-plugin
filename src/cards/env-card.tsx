@@ -1,3 +1,4 @@
+import { secondaryButtonStyle } from '../lib/ui-tokens.ts';
 import * as sdk from "@hermes/plugin-sdk";
 import { submitTranscript } from '../lib/composer.ts';
 import { cardShell, cardHeader, cardTitle, creditBadgeStyle, nextDrawerStyle, nextSummaryStyle, nextActionChipStyle } from '../lib/ui-tokens';
@@ -119,7 +120,7 @@ export function EnvCard({
       {sdk.Codicon && <sdk.Codicon name="globe" size={16} />}
       <strong style={cardTitle}>StudioTwin Environment</strong>{" "}
       <span style={creditBadgeStyle}>360° Env</span>
-      <sdk.Button
+      <sdk.Button variant="outline" size="sm" style={secondaryButtonStyle}
         disabled={stale}
         onClick={() =>
           void downloadSource(scope.rest, source, scope.assert).catch(() =>
@@ -147,7 +148,7 @@ export function EnvCard({
       <details style={nextDrawerStyle}>
         <summary style={nextSummaryStyle}>Next · review and approve in chat</summary>
         {nextEnvActions.map(([label, tool]) => (
-          <sdk.Button
+          <sdk.Button variant="outline" size="sm"
             key={tool}
             style={nextActionChipStyle}
             disabled={stale}

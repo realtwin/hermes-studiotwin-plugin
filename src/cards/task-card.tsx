@@ -1,3 +1,4 @@
+import { secondaryButtonStyle } from '../lib/ui-tokens.ts';
 // Progress-card shape adapted from Nous Research meshy/src/task-card.tsx (MIT).
 // Polling uses the host's shared Query client; no parallel job ledger or generation retry.
 import * as sdk from '@hermes/plugin-sdk'
@@ -193,7 +194,7 @@ export function TaskCard({ ctx, id, kind = 'task', sessionId, fallback, pollInte
         </>
       )}
       {status === 'queued' && kind !== 'concept' && (
-        <sdk.Button disabled={cancelling} onClick={() => void cancel()}>
+        <sdk.Button variant="outline" size="sm" style={secondaryButtonStyle} disabled={cancelling} onClick={() => void cancel()}>
           Cancel queued job
         </sdk.Button>
       )}
@@ -208,7 +209,7 @@ export function TaskCard({ ctx, id, kind = 'task', sessionId, fallback, pollInte
         <details style={nextDrawerStyle}>
           <summary style={nextSummaryStyle}>Next · review and approve in chat</summary>
           {actions.data.actions.map((a) => (
-            <sdk.Button
+            <sdk.Button variant="outline" size="sm"
               key={a.id}
               style={nextActionChipStyle}
               onClick={() => {

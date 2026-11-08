@@ -1,3 +1,4 @@
+import { secondaryButtonStyle } from '../lib/ui-tokens.ts';
 import * as sdk from "@hermes/plugin-sdk";
 import { cardShell, cardHeader, cardTitle, creditBadgeStyle, nextDrawerStyle, nextSummaryStyle, nextActionChipStyle } from '../lib/ui-tokens';
 import { studiotwinToolAliases } from './tool-names.ts';
@@ -150,7 +151,7 @@ export function MaterialCard({
       {sdk.Codicon && <sdk.Codicon name="paintcan" size={16} />}
       <strong style={cardTitle}>{title || "StudioTwin PBR Material"}</strong>{" "}
       <span style={creditBadgeStyle}>PBR Material</span>
-      <sdk.Button
+      <sdk.Button variant="outline" size="sm" style={secondaryButtonStyle}
         disabled={stale}
         onClick={() => void download("zip").catch(() => setFailed(true))}
       >
@@ -175,7 +176,7 @@ export function MaterialCard({
       <details style={nextDrawerStyle}>
         <summary style={nextSummaryStyle}>Next · review and approve in chat</summary>
         {nextMaterialActions.map(([label, tool]) => (
-          <sdk.Button
+          <sdk.Button variant="outline" size="sm"
             key={tool}
             style={nextActionChipStyle}
             disabled={stale}

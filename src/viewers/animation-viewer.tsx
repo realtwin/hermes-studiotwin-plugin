@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import * as sdk from '@hermes/plugin-sdk'
-import { glassToolbar, glassStatsPill, controlStrip, styledSelect, styledRange, filterPillStyle } from '../lib/ui-tokens'
+import { glassToolbar, glassStatsPill, controlStrip, styledSelect, styledRange, inspectorToggleStyle as filterPillStyle } from '../lib/ui-tokens'
 const { Button } = sdk
 import type { AnimationController } from './model-data.ts'
 import { ModelViewer, type ModelViewerProps } from './model-viewer.tsx'
@@ -62,7 +62,7 @@ export function AnimationControls({
           ))}
         </select>
       </label>
-      <Button size="sm" style={filterPillStyle(state.playing)} onClick={() => change(() => controller.setPlaying(!controller.state().playing))}>
+      <Button variant="ghost" size="sm" style={filterPillStyle(state.playing)} onClick={() => change(() => controller.setPlaying(!controller.state().playing))}>
         <sdk.Codicon name={state.playing ? 'debug-pause' : 'play'} />
         {state.playing ? 'Pause' : 'Play'}
       </Button>
@@ -84,7 +84,7 @@ export function AnimationControls({
       <label style={{ ...controlStrip, ...filterPillStyle(state.loop) }}>
         <input
           type="checkbox"
-          style={{ accentColor: 'var(--ui-accent)' }}
+          style={{ accentColor: 'oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h)' }}
           checked={state.loop}
           onChange={(e) => change(() => controller.setLoop(e.target.checked))}
         />{' '}

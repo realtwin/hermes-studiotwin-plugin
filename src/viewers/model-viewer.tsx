@@ -1,6 +1,7 @@
+import { inspectorButtonStyle } from '../lib/ui-tokens.ts';
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import * as sdk from '@hermes/plugin-sdk'
-import { stageShell, glassToolbar, glassStatsPill, controlStrip, styledSelect, posterTile, filterPillStyle } from '../lib/ui-tokens'
+import { stageShell, glassToolbar, glassStatsPill, controlStrip, styledSelect, posterTile, inspectorToggleStyle as filterPillStyle } from '../lib/ui-tokens'
 import type { PluginContext } from '@hermes/plugin-sdk'
 const { Button } = sdk
 import { createModelStage, type ModelStage, type ShadingMode } from './model-stage.ts'
@@ -200,7 +201,7 @@ export function ModelViewer({
   if (error && fallback !== undefined) return <>{fallback}</>
   if (loadedAudit)
     return (
-      <section style={{ padding: 12, color: 'var(--ui-text)', background: 'var(--ui-bg-secondary)' }}>
+      <section style={{ padding: 12, color: 'oklch(from var(--ui-text) l 0 h)', background: 'oklch(from var(--ui-bg-secondary) l 0 h)' }}>
         <strong>Rig audit: {loadedAudit.riggable ? 'passed' : 'needs attention'}</strong> · {loadedAudit.joints} joints
         <ul>
           {loadedAudit.warnings.map((w, i) => (
@@ -266,13 +267,13 @@ export function ModelViewer({
                 ))}
               </select>
             </label>
-            <Button size="sm" style={filterPillStyle(spin)} aria-pressed={spin} onClick={() => setSpin(!spin)}>
+            <Button variant="ghost" size="sm" style={filterPillStyle(spin)} aria-pressed={spin} onClick={() => setSpin(!spin)}>
               Auto-rotate
             </Button>
-            <Button size="sm" style={filterPillStyle(grid)} aria-pressed={grid} onClick={() => setGrid(!grid)}>
+            <Button variant="ghost" size="sm" style={filterPillStyle(grid)} aria-pressed={grid} onClick={() => setGrid(!grid)}>
               Grid
             </Button>
-            <Button size="sm" style={filterPillStyle(false)} onClick={() => stage.current?.reset()}>
+            <Button variant="ghost" size="sm" style={filterPillStyle(false)} onClick={() => stage.current?.reset()}>
               <sdk.Codicon name="refresh" />
               Reset camera
             </Button>
@@ -311,8 +312,8 @@ export function ModelViewer({
             <select aria-label="Multiview yaw offset" style={styledSelect} value={yawOffsetDeg} disabled={capturing} onChange={e => setYawOffsetDeg(Number(e.target.value))}>
               <option value="0">0° (+Z)</option><option value="90">90° (+X)</option><option value="180">180° (-Z)</option><option value="-90">-90° (-X)</option>
             </select>
-            <Button size="sm" aria-label="Capture Multiview" disabled={capturing} onClick={() => void captureReference()}>{capturing ? 'Capturing / staging…' : 'Capture Multiview'}</Button>
-            <Button size="sm" disabled={!sheetPath || capturing || !onReskin} onClick={() => { if (sheetPath) onReskin?.(reskinPrompt(source, sheetPath)) }}>Reskin 3D in Chat</Button>
+            <Button variant="outline" style={inspectorButtonStyle} size="sm" aria-label="Capture Multiview" disabled={capturing} onClick={() => void captureReference()}>{capturing ? 'Capturing / staging…' : 'Capture Multiview'}</Button>
+            <Button variant="outline" style={inspectorButtonStyle} size="sm" disabled={!sheetPath || capturing || !onReskin} onClick={() => { if (sheetPath) onReskin?.(reskinPrompt(source, sheetPath)) }}>Reskin 3D in Chat</Button>
           </div>
           {(envSource || environments?.length) && <div style={{ ...controlStrip, padding: 12, flexWrap: 'wrap' }}>
             <label>Environment IBL{' '}<select aria-label="Environment IBL" style={styledSelect} value={environmentChoice ?? (envSource ? 'provided' : '')} onChange={e => setEnvironmentChoice(e.target.value === 'provided' ? null : e.target.value)}>
@@ -326,11 +327,11 @@ export function ModelViewer({
           {capture && <section aria-label="Multiview Reference Preview" style={{ padding: 12 }}>
             <img src={capture.sheetDataUrl} alt="Multiview Reference Preview" style={{ width: '100%', maxWidth: 440, maxHeight: 280, objectFit: 'contain' }} />
             <div style={{ ...controlStrip, flexWrap: 'wrap' }}>{capture.views.map(v => <span key={v.name} style={glassStatsPill}>{v.label}</span>)}
-              <Button size="sm" onClick={() => {
+              <Button variant="outline" style={inspectorButtonStyle} size="sm" onClick={() => {
                 const a = document.createElement('a'); a.href = capture.sheetDataUrl; a.download = multiviewFilename(source, capture); a.click()
               }}>Download Sheet</Button>
             </div>
-            {sheetPath && <p style={{ overflowWrap: 'anywhere', color: 'var(--ui-text-secondary)' }}>Locally staged · Made from this 3D model · {sheetPath}</p>}
+            {sheetPath && <p style={{ overflowWrap: 'anywhere', color: 'oklch(from var(--ui-text-secondary) l 0 h)' }}>Locally staged · Made from this 3D model · {sheetPath}</p>}
           </section>}
           {captureError && <p role="alert" style={{ padding: 12 }}>{captureError}</p>}
           {stats && (

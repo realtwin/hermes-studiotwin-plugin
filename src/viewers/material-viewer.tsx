@@ -9,7 +9,7 @@ import {
   type MaterialMaps,
 } from "./material-stage.ts";
 import { usePooledStage } from "./env-lifecycle.ts";
-import { stageShell, glassToolbar, controlStrip, styledSelect, styledRange, posterTile, filterPillStyle, visuallyHidden } from '../lib/ui-tokens';
+import { stageShell, glassToolbar, controlStrip, styledSelect, styledRange, posterTile, inspectorToggleStyle as filterPillStyle, visuallyHidden } from '../lib/ui-tokens';
 export interface MaterialViewerProps {
   rest: PluginContext["rest"];
   maps: MaterialMaps;
@@ -61,7 +61,7 @@ export function MaterialViewer({
     <section
       ref={v.setContainer}
       data-studiotwin-material-viewer
-      style={{ ...stageShell, color: 'var(--ui-text)' }}
+      style={{ ...stageShell, color: 'oklch(from var(--ui-text) l 0 h)' }}
       onPointerDown={v.touch}
     >
       <div style={{ height, position: "relative" }}>

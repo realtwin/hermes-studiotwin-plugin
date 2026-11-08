@@ -210,7 +210,8 @@ describe('rendered audio card', () => {
   })
   it('uses only Hermes theme variables for colors and observes canvas resizing', () => {
     const source = readFileSync(`${process.cwd()}/src/viewers/audio-viewer.tsx`, 'utf8')
-    expect(source).toContain('ResizeObserver'); expect(source).toContain("getPropertyValue('--ui-accent')")
+    expect(source).toContain('ResizeObserver'); expect(source).toContain("getPropertyValue('--ui-text-primary')")
+    expect(source).toContain('oklch(from ${'); expect(source).not.toContain("getPropertyValue('--ui-accent')")
     expect(source).not.toMatch(/#[0-9a-f]{3,8}\b|rgba?\(|\b(?:black|white)\b/)
   })
 })

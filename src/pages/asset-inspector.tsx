@@ -1,9 +1,10 @@
+import { inspectorBackdropStyle, inspectorDialogStyle, inspectorSectionStyle, inspectorCloseStyle, inspectorChipStyle, inspectorButtonStyle } from '../lib/ui-tokens.ts';
 import * as sdk from "@hermes/plugin-sdk";
 import { downloadSource } from '../viewers/material-download.ts';
 import { saveUrl } from '../cards/next-actions.ts';
 import { modalityLabel } from '../lib/ui-tokens.ts';
 import { assetDisplayName, copyId, formatDate, modalityIcon, siblingMaterialMaps } from './workspace-data.ts';
-import { cardShell, cardTitle, cardSubtitle, nextDrawerStyle, nextActionChipStyle } from "../lib/ui-tokens.ts";
+import { cardShell, cardTitle, cardSubtitle } from "../lib/ui-tokens.ts";
 import { useStudioTwinSettings } from '../cards/settings.ts';
 import { useEffect, useRef, useState } from "react";
 import { useAssetLibrary } from './asset-library.ts';
@@ -48,7 +49,7 @@ export function AssetPreview({
   const environmentAssets = useAssetLibrary(scope, ['3d_model', 'material'].includes(modality(row)));
   if (row.type === 'rig_check') return <section aria-label="Rig compatibility" style={{ ...cardShell, padding: 20 }}>
     <h3>Rig compatibility</h3><p>{row.riggable ? `Riggable: ${row.rigType || 'yes'}` : 'Not riggable'}</p>
-    {row.rigType && <sdk.Badge>{row.rigType}</sdk.Badge>}
+    {row.rigType && <sdk.Badge variant="muted" style={inspectorChipStyle}>{row.rigType}</sdk.Badge>}
   </section>;
   const environments = (environmentAssets.data ?? []).filter(r => modality(r) === 'environment').map(r => ({ label: r.name || assetId(r) || 'Panorama', source: assetSource(r) }));
   const source = assetSource(row),
@@ -210,7 +211,7 @@ export function AssetInspector({
   };
   const record = object(lineage.data?.record);
   return (
-    <div data-asset-backdrop onClick={e => { if (e.target === e.currentTarget) onClose(); }} style={{ position: 'fixed', inset: 0, zIndex: 120, background: 'color-mix(in srgb, var(--ui-bg-editor, var(--ui-bg-card)) 78%, transparent)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2vh 3vw' }}>
+    <div data-asset-backdrop onClick={e => { if (e.target === e.currentTarget) onClose(); }} style={{ ...inspectorBackdropStyle, position: 'fixed', inset: 0, zIndex: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2vh 3vw' }}>
     <div
       role="dialog"
       aria-modal="true"
@@ -245,22 +246,24 @@ export function AssetInspector({
       }}
       style={{
         ...cardShell,
-        background: 'var(--ui-bg-elevated, var(--ui-bg-card))',
+        ...inspectorDialogStyle,
         maxHeight: '92vh',
         width: 'min(1120px, 100%)',
         boxSizing: 'border-box',
         overflowY: 'auto',
-        padding: "clamp(16px, 3vw, 28px)",
-        boxShadow: "var(--ui-shadow-dialog, 0 24px 80px var(--ui-stroke-secondary))",
+        padding: "0 clamp(16px, 3vw, 28px) 24px",
       }}
     >
-      <header style={{ ...flow, justifyContent: "space-between", gap: 16, marginBottom: 20 }}>
-        <sdk.Codicon name={modalityIcon(modality(row))} size={24} />
+      <header style={{ ...flow, ...inspectorDialogStyle, position: 'sticky', top: 0, zIndex: 2, border: 0, boxShadow: 'none', gap: 12, padding: '16px 0', marginBottom: 8 }}>
+        <span style={{ ...inspectorChipStyle, padding: 10, borderRadius: 10 }}><sdk.Codicon name={modalityIcon(modality(row))} size={24} /></span>
+        <div style={{ flex: '1 1 220px', minWidth: 0 }}>
         <h2 style={{ ...cardTitle, whiteSpace: 'normal', fontSize: 18, overflowWrap: "anywhere", minWidth: 0, flex: "1 1 240px" }}>{assetDisplayName(row).title}</h2>
-        <sdk.Badge>{modalityLabel(modality(row))}</sdk.Badge>
-        <sdk.Badge>{row.path || row.local_path ? 'Local' : 'Cloud'}</sdk.Badge>
-        {id && <sdk.Button onClick={() => void copyId(scope, String(id))}>Copy ID</sdk.Button>}
-        {(id || row.path || row.local_path || row.downloadUrl || row.url) && <sdk.Button onClick={() => {
+        <sdk.Badge variant="muted" style={inspectorChipStyle}>{modalityLabel(modality(row))}</sdk.Badge>
+        <sdk.Badge variant="muted" style={inspectorChipStyle}>{row.path || row.local_path ? 'Local' : 'Cloud'}</sdk.Badge>
+        </div>
+        <div style={{ ...flow, gap: 8, marginLeft: 'auto' }}>
+        {id && <sdk.Button variant="outline" size="sm" style={inspectorButtonStyle} onClick={() => void copyId(scope, String(id))}><sdk.Codicon name="copy" size={14} />Copy ID</sdk.Button>}
+        {(id || row.path || row.local_path || row.downloadUrl || row.url) && <sdk.Button variant="outline" size="sm" style={inspectorButtonStyle} onClick={() => {
           void (async () => {
             try {
               scope.assert();
@@ -268,12 +271,14 @@ export function AssetInspector({
               else await downloadSource(scope.rest, assetSource(row), scope.assert);
             } catch { if (scope.current()) setError('Download unavailable. The original asset was not changed.'); }
           })();
-        }}>Download original</sdk.Button>}
-        <sdk.Button onClick={onClose}>Close asset inspection</sdk.Button>
+        }}><sdk.Codicon name="cloud-download" size={14} />Download original</sdk.Button>}
+        <span aria-hidden="true" style={{ ...inspectorSectionStyle, width: 1, height: 24 }} />
+        <sdk.Button aria-label="Close asset inspection" variant="outline" size="sm" style={inspectorCloseStyle} onClick={onClose}><sdk.Codicon name="close" size={16} />Close <kbd style={inspectorChipStyle}>ESC</kbd></sdk.Button>
+        </div>
       </header>
       <div style={{ ...flow, ...cardSubtitle, gap: 12, marginBottom: 16 }}>
         {id && <code style={{ userSelect: 'text' }}>{id}</code>}
-        {row.extension && <sdk.Badge>.{String(row.extension).toUpperCase()}</sdk.Badge>}
+        {row.extension && <sdk.Badge variant="muted" style={inspectorChipStyle}>.{String(row.extension).toUpperCase()}</sdk.Badge>}
         {formatDate(row.createdAt) && <time>{formatDate(row.createdAt)}</time>}
         {typeof row.bytes === 'number' && <span>{(row.bytes / 1024).toFixed(1)} KB</span>}
       </div>
@@ -286,7 +291,7 @@ export function AssetInspector({
         limit={limit}
       />
 
-      <section aria-label="Made from" style={{ ...cardShell, padding: 18, marginTop: 18, overflowWrap: "anywhere" }}>
+      <section aria-label="Made from" style={{ ...inspectorSectionStyle, padding: 18, marginTop: 18, overflowWrap: "anywhere" }}>
         <h3 style={cardTitle}>Made from</h3>
         {!id ? (
           <p>No cloud lineage for this local file.</p>
@@ -301,12 +306,12 @@ export function AssetInspector({
                 lineage.data.made_from ??
                 "No provenance recorded yet."}
             </p>
-            {record.prompt && <sdk.Button onClick={() => compose(scope, session, { id: 'reuse', label: 'Reuse Prompt', message: record.prompt })}>Reuse Prompt</sdk.Button>}
+            {record.prompt && <sdk.Button variant="outline" size="sm" style={inspectorButtonStyle} onClick={() => compose(scope, session, { id: 'reuse', label: 'Reuse Prompt', message: record.prompt })}>Reuse Prompt</sdk.Button>}
             {record.tool && <p>Tool: {record.tool}</p>}
             {record.jobId && <p>Producing job: {record.jobId}</p>}
             <div style={flow}>
               {(lineage.data.parents ?? []).map((p: Row) => (
-                <sdk.Button
+                <sdk.Button variant="outline" size="sm" style={inspectorButtonStyle}
                   key={p.relation + p.id}
                   onClick={() => void pick(p)}
                 >
@@ -319,13 +324,13 @@ export function AssetInspector({
         )}
         {error && <p role="alert">{error}</p>}
       </section>
-      <section aria-label="Next" style={{ ...nextDrawerStyle, padding: 18, marginTop: 18 }}>
+      <section aria-label="Next" style={{ ...inspectorSectionStyle, padding: 18, marginTop: 18 }}>
         <h3 style={cardTitle}>Next</h3>
         <p style={cardSubtitle}>
           Composer handoff only. Review compatibility and approve cost in chat.
         </p>
         {actions.data?.actions.map((a) => (
-          <sdk.Button style={{ ...nextActionChipStyle, margin: "8px 8px 0 0", whiteSpace: "normal", textAlign: "left" }} key={a.id} onClick={() => compose(scope, session, a)}>
+          <sdk.Button variant="outline" size="sm" style={{ ...inspectorButtonStyle, margin: "8px 8px 0 0", whiteSpace: "normal", textAlign: "left" }} key={a.id} onClick={() => compose(scope, session, a)}>
             {a.label} ·{" "}
             {a.cost_label ?? "input-dependent credits; estimate first"}
           </sdk.Button>

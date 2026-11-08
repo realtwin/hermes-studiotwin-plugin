@@ -120,7 +120,7 @@ export function themeColor(host: HTMLElement, token: string) {
   const c = document.createElement("canvas");
   c.width = c.height = 1;
   const g = c.getContext("2d")!;
-  g.fillStyle = getComputedStyle(host).getPropertyValue(token).trim();
+  g.fillStyle = `oklch(from ${getComputedStyle(host).getPropertyValue(token).trim()} l 0 h)`;
   g.fillRect(0, 0, 1, 1);
   const [r, b, v] = g.getImageData(0, 0, 1, 1).data;
   return new T.Color().setRGB(r / 255, b / 255, v / 255, T.SRGBColorSpace);
@@ -205,7 +205,7 @@ export function createEnvStage(
   scene.add(sphere, matte, plane);
   const group = new T.Group();
   scene.add(group);
-  const accent = themeColor(host, "--ui-accent");
+  const accent = themeColor(host, "--ui-text-primary");
   stickers.forEach((s) => {
     const line = new T.Line(
       new T.BufferGeometry().setFromPoints(

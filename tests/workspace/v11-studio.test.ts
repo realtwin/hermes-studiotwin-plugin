@@ -1,8 +1,93 @@
 // @vitest-environment node
 import { expect, it } from 'vitest'
 import { expect as pw } from '@playwright/test'
-import { mkdirSync } from 'node:fs'
+import { mkdirSync, readFileSync, readdirSync } from 'node:fs'
+import ts from 'typescript'
+import { filterPillStyle, tabButtonStyle } from '../../src/lib/ui-tokens'
 import { openVisual } from '../visual/bundle-harness'
+
+it('V12 uses explicit SDK control hierarchy everywhere', () => {
+  const missing: string[] = []
+  for (const dir of ['src/pages', 'src/cards', 'src/viewers']) for (const file of readdirSync(dir).filter(f => f.endsWith('.tsx'))) {
+    const source = ts.createSourceFile(file, readFileSync(`${dir}/${file}`, 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+    const visit = (node: ts.Node) => {
+      if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
+        const name = node.tagName.getText(source)
+        if (['sdk.Button', 'Button', 'sdk.Badge', 'Badge'].includes(name)) {
+          const attrs = node.attributes.properties.filter(ts.isJsxAttribute).map(a => a.name.getText(source))
+          if (!attrs.includes('variant') || (!name.endsWith('Badge') && !attrs.includes('size'))) missing.push(`${dir}/${file}:${source.getLineAndCharacterOfPosition(node.pos).line + 1} ${name}`)
+        }
+      }
+      ts.forEachChild(node, visit)
+    }
+    visit(source)
+  }
+  expect(missing).toEqual([])
+})
+
+it('V12 selection is soft and readable rather than primary blue with background-colored text', () => {
+  expect(filterPillStyle(true).background).toContain('16%')
+  expect(filterPillStyle(true).color).toBe('var(--ui-text-primary, var(--ui-text))')
+  expect(tabButtonStyle(true).background).not.toContain('--ui-accent')
+})
+
+it('V12 production inspection rooms are achromatic in light and dark with dedicated right-hand Close controls', async () => {
+  const h = await openVisual(), { page } = h
+  try {
+    await page.evaluate(() => (window as any).workspace())
+    mkdirSync('.verification/v12', { recursive: true })
+    for (const theme of ['light', 'dark']) {
+      await page.addStyleTag({ content: `:root{--ui-bg:${theme === 'light' ? '#e8e0f0' : '#18102f'};--ui-bg-editor:var(--ui-bg);--ui-bg-secondary:${theme === 'light' ? '#d6e4ff' : '#10285a'};--ui-bg-elevated:${theme === 'light' ? '#dcbcff' : '#301060'};--ui-bg-card:var(--ui-bg-elevated);--ui-text:#888aff;--ui-text-primary:${theme === 'light' ? '#241238' : '#ece4ff'};--ui-text-secondary:var(--ui-text-primary);--ui-stroke-secondary:#697aaa;--ui-accent:#0053fd}body{background:var(--ui-bg);color:var(--ui-text-primary)}` })
+      await page.getByRole('button', { name: 'hero-reference.png', exact: true }).click()
+      const dialog = page.getByRole('dialog', { name: 'Asset inspection', exact: true })
+      const close = dialog.getByRole('button', { name: 'Close asset inspection', exact: true })
+      await pw(close).toContainText('Close')
+      await pw(close).toContainText('ESC')
+      const neutral = async (locator: any) => {
+        const colors = await locator.evaluate((node: HTMLElement) => {
+          const c = document.createElement('canvas'); c.width = c.height = 1
+          const g = c.getContext('2d')!
+          return ['backgroundColor', 'color', 'borderTopColor'].map(key => {
+            g.clearRect(0, 0, 1, 1); g.fillStyle = (getComputedStyle(node) as any)[key]; g.fillRect(0, 0, 1, 1)
+            return Array.from(g.getImageData(0, 0, 1, 1).data)
+          })
+        })
+        for (const [r, g, b, a] of colors) if (a) expect(Math.max(r, g, b) - Math.min(r, g, b)).toBeLessThanOrEqual(1)
+      }
+      await neutral(dialog); await neutral(close)
+      expect(await dialog.evaluate(n => n.getAttribute('style'))).not.toContain('var(--ui-accent)')
+      const roomStyles = await dialog.locator('[style]').evaluateAll(nodes => nodes.map(n => n.getAttribute('style')).join('\n'))
+      expect(roomStyles).not.toContain('var(--ui-accent)')
+      expect(roomStyles).not.toMatch(/#[\da-f]{3,8}\b|rgba?\(/i)
+      await dialog.getByRole('button', { name: 'Inspect image', exact: true }).click()
+      const lightbox = page.getByRole('dialog', { name: 'Image inspection', exact: true })
+      const imageClose = lightbox.getByRole('button', { name: 'Close inspection', exact: true })
+      await pw(imageClose).toContainText('ESC')
+      await neutral(lightbox); await neutral(imageClose)
+      await lightbox.getByRole('button', { name: '2×', exact: true }).click()
+      await neutral(lightbox.getByRole('button', { name: '2×', exact: true }))
+      expect((await imageClose.boundingBox())!.x).toBeGreaterThan((await lightbox.getByRole('button', { name: '1×', exact: true }).boundingBox())!.x)
+      await page.screenshot({ path: `.verification/v12/image-${theme}.png` })
+      await page.locator('[data-image-backdrop]').click({ position: { x: 2, y: 2 } })
+      await pw(lightbox).toHaveCount(0)
+      await pw(dialog).toBeVisible()
+      await dialog.getByRole('button', { name: 'Inspect image', exact: true }).click()
+      await page.setViewportSize({ width: 560, height: 760 })
+      await pw(imageClose).toBeInViewport()
+      expect((await imageClose.boundingBox())!.x).toBeGreaterThan((await lightbox.getByRole('button', { name: '1×', exact: true }).boundingBox())!.x)
+      await page.screenshot({ path: `.verification/v12/image-narrow-${theme}.png` })
+      await imageClose.press('Escape')
+      await pw(lightbox).toHaveCount(0)
+      await pw(dialog).toBeVisible()
+      await pw(dialog.getByRole('button', { name: 'Inspect image', exact: true })).toBeFocused()
+      await page.setViewportSize({ width: 1440, height: 1100 })
+      await page.screenshot({ path: `.verification/v12/inspector-${theme}.png` })
+      await close.click()
+      await page.screenshot({ path: `.verification/v12/library-${theme}.png` })
+    }
+    expect(h.errors).toEqual([])
+  } finally { await h.close() }
+}, 90000)
 
 it('V11 production bundle: cloud-shaped names, real image posters, HDR classification and five-channel sibling PBR inspection', async () => {
   const h = await openVisual(), { page } = h

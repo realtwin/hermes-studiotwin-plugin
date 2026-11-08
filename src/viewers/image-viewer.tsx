@@ -1,5 +1,5 @@
 import * as sdk from '@hermes/plugin-sdk'
-import { stageShell, glassToolbar, glassStatsPill, controlStrip, styledRange, filterPillStyle } from '../lib/ui-tokens'
+import { inspectorBackdropStyle, inspectorDialogStyle, inspectorCloseStyle, stageShell, glassToolbar, glassStatsPill, controlStrip, styledRange, inspectorToggleStyle as filterPillStyle } from '../lib/ui-tokens'
 const { Button } = sdk
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { MediaScope, MediaSource } from '../cards/next-actions.ts'
@@ -29,6 +29,7 @@ export function ImageViewer({
     [zoom, setZoom] = useState(1)
   const viewport = useRef<HTMLDivElement>(null)
   const inspect = useRef<HTMLButtonElement>(null)
+  const close = useRef<HTMLButtonElement>(null)
   const closeInspection = () => {
     setOpen(false)
     inspect.current?.focus()
@@ -73,7 +74,7 @@ export function ImageViewer({
   if (failed || !scope.current()) return <>{fallback ?? <p role="alert">Image preview unavailable.</p>}</>
   if (!file) return <p role="status">Loading image…</p>
   const picture = (
-    <div style={{ position: 'relative', width: '100%', background: 'var(--ui-bg-secondary)' }}>
+    <div style={{ position: 'relative', width: '100%', background: 'oklch(from var(--ui-bg-secondary) l 0 h)' }}>
       <img
         src={file.dataUrl}
         alt={title}
@@ -120,11 +121,12 @@ export function ImageViewer({
           {size[0]} × {size[1]} · {size[1] ? (size[0] / size[1]).toFixed(2) : '?'}:1 ·{' '}
           {file.bytes === undefined ? 'size not reported' : `${file.bytes} bytes`}
         </span>
-        <Button style={filterPillStyle(false)} ref={inspect} onClick={() => setOpen(true)}>
+        <Button variant="ghost" size="sm" style={filterPillStyle(false)} ref={inspect} onClick={() => setOpen(true)}>
           Inspect image
         </Button>
       </div>
       {open && (
+        <div data-image-backdrop onClick={e => { if (e.target === e.currentTarget) closeInspection() }} style={{ ...inspectorBackdropStyle, position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', padding: '5vh 5vw' }}>
         <div
           role="dialog"
           aria-modal="true"
@@ -146,22 +148,19 @@ export function ImageViewer({
           }}
           style={{
             ...stageShell,
-            position: 'fixed',
-            inset: '5%',
-            zIndex: 1000,
+            ...inspectorDialogStyle,
+            width: '100%',
+            minWidth: 0,
             padding: 12,
-            background: 'var(--ui-bg-elevated, var(--ui-bg-card))',
-            border: '1px solid var(--ui-stroke-secondary)',
+
             display: 'flex',
             flexDirection: 'column',
-            boxShadow: 'var(--ui-shadow-dialog, 0 24px 80px var(--ui-stroke-secondary))',
+
           }}
         >
-          <div style={glassToolbar}>
-            <Button style={filterPillStyle(false)} autoFocus onClick={closeInspection}>
-              Close inspection
-            </Button>{' '}
-            {[1, 2, 4].map(value => <Button key={value} style={filterPillStyle(zoom === value)} aria-pressed={zoom === value} onClick={() => setZoom(value)}>{value}×</Button>)}
+          <div style={{ ...glassToolbar, flexWrap: 'nowrap', alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 4, flex: 1, minWidth: 0 }}>
+            {[1, 2, 4].map(value => <Button variant="ghost" size="sm" key={value} style={filterPillStyle(zoom === value)} aria-pressed={zoom === value} onClick={() => setZoom(value)}>{value}×</Button>)}
             <label style={controlStrip}>
               Zoom{' '}
               <input
@@ -176,13 +175,15 @@ export function ImageViewer({
               />
             </label>{' '}
             <span style={glassStatsPill}>{zoom.toFixed(1)}× · drag to pan</span>
-            <span style={{ fontSize: 11, color: 'var(--ui-text-secondary)' }}>Pan · drag canvas</span>
+            <span style={{ fontSize: 11, color: 'oklch(from var(--ui-text-secondary) l 0 h)' }}>Pan · drag canvas</span>
+            </div>
+            <Button aria-label="Close inspection" variant="outline" size="sm" style={inspectorCloseStyle} ref={close} autoFocus onClick={closeInspection}>{Object.hasOwn(sdk, 'Codicon') && <sdk.Codicon name="close" size={16} />}Close <kbd style={{ fontSize: 10 }}>ESC</kbd></Button>
           </div>
           <div
             ref={viewport}
             tabIndex={0}
             aria-label="Pan image"
-            style={{ overflow: 'auto', flex: 1, minHeight: 0, cursor: 'grab', touchAction: 'none', borderRadius: 12, background: 'var(--ui-bg-secondary)' }}
+            style={{ overflow: 'auto', flex: 1, minHeight: 0, cursor: 'grab', touchAction: 'none', borderRadius: 12, background: 'oklch(from var(--ui-bg-secondary) l 0 h)' }}
             onPointerDown={(e) => {
               const el = e.currentTarget
               el.setPointerCapture(e.pointerId)
@@ -204,6 +205,7 @@ export function ImageViewer({
           >
             <img src={file.dataUrl} alt="Image detail" style={{ width: `${zoom * 100}%`, maxWidth: 'none' }} />
           </div>
+        </div>
         </div>
       )}
     </section>

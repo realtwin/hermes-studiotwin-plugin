@@ -91,13 +91,13 @@ export function usePooledStage<S extends Stage>(
   };
 }
 export const panelStyle = {
-  border: "1px solid var(--ui-stroke-secondary)",
+  border: "1px solid oklch(from var(--ui-stroke-secondary) l 0 h)",
   borderRadius: 8,
-  color: "var(--ui-text)",
-  background: "var(--ui-bg-secondary)",
+  color: "oklch(from var(--ui-text) l 0 h)",
+  background: "oklch(from var(--ui-bg-secondary) l 0 h)",
   overflow: "hidden",
 };
 export const controlStyle = {
-  color: "var(--ui-text)",
-  background: "var(--ui-bg-secondary)",
+  color: "oklch(from var(--ui-text) l 0 h)",
+  background: "oklch(from var(--ui-bg-secondary) l 0 h)",
 };

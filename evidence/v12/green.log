@@ -1,0 +1,11 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v12
+
+ ✓ tests/workspace/v11-studio.test.ts (6 tests | 3 skipped) 9562ms
+   ✓ V12 production inspection rooms are achromatic in light and dark with dedicated right-hand Close controls  9463ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed | 3 skipped (6)
+   Start at  05:57:43
+   Duration  10.58s (transform 122ms, setup 0ms, collect 764ms, tests 9.56s, environment 0ms, prepare 69ms)
+

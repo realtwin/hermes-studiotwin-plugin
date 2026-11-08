@@ -1,3 +1,4 @@
+import { secondaryButtonStyle, neutralBadgeStyle } from '../lib/ui-tokens.ts';
 import * as sdk from '@hermes/plugin-sdk';
 import { cardShell, controlStrip, filterPillStyle, statusBadgeStyle, creditBadgeStyle } from '../lib/ui-tokens.ts';
 import { useStudioTwinSettings } from '../cards/settings.ts';
@@ -77,8 +78,8 @@ export function JobsTab({ scope, configured, onInspect, session }: {
   };
   return <section aria-label="StudioTwin jobs">
     <div style={{ ...controlStrip, gap: 8 }}>
-      {['All', 'Active', 'Completed', 'Failed', 'Cancelled'].map(label => <sdk.Button key={label} aria-pressed={label === filter} style={filterPillStyle(label === filter)} onClick={() => setFilter(label)}>{label}</sdk.Button>)}
-      <sdk.Button onClick={() => void query.refetch()} disabled={!configured}>Refresh jobs</sdk.Button>
+      {['All', 'Active', 'Completed', 'Failed', 'Cancelled'].map(label => <sdk.Button variant="ghost" size="sm" key={label} aria-pressed={label === filter} style={filterPillStyle(label === filter)} onClick={() => setFilter(label)}>{label}</sdk.Button>)}
+      <sdk.Button variant="outline" size="sm" style={secondaryButtonStyle} onClick={() => void query.refetch()} disabled={!configured}>Refresh jobs</sdk.Button>
     </div>
     {!configured && <p>Configure StudioTwin to read cloud jobs.</p>}
     {query.isLoading && <p>Loading jobs…</p>}
@@ -91,8 +92,8 @@ export function JobsTab({ scope, configured, onInspect, session }: {
         <JobThumbnail row={row} />
         <div style={{ flex: '1 1 320px', minWidth: 0 }}>
           <header style={{ ...flow, gap: 10, marginBottom: 10 }}>
-            <sdk.Badge>{jobToolLabel(tool)}</sdk.Badge><strong style={{ fontSize: 12, overflowWrap: 'anywhere' }}>{tool}</strong>
-            <sdk.Badge style={statusBadgeStyle(row.status)}>{row.status}</sdk.Badge>
+            <sdk.Badge variant="muted" style={neutralBadgeStyle}>{jobToolLabel(tool)}</sdk.Badge><strong style={{ fontSize: 12, overflowWrap: 'anywhere' }}>{tool}</strong>
+            <sdk.Badge variant="muted" style={statusBadgeStyle(row.status)}>{row.status}</sdk.Badge>
             <span style={creditBadgeStyle}>{row.cost ?? row.creditCost ?? row.credits ?? row.estimate ?? 'Unknown'} credits</span>
           </header>
           {prompt && <p style={{ fontSize: 14, lineHeight: 1.6, margin: '0 0 10px', overflowWrap: 'anywhere' }}>{prompt}</p>}
@@ -104,18 +105,18 @@ export function JobsTab({ scope, configured, onInspect, session }: {
           {['queued', 'running'].includes(row.status) && <><progress aria-label="Job progress" max="100" value={pct} style={{ width: '100%', accentColor: 'var(--ui-accent)' }} /><small>{pct === undefined ? 'Progress not reported' : `${pct}%`}</small></>}
         </div>
         <div style={{ ...flow, marginLeft: 'auto', gap: 8 }}>
-          <sdk.Button onClick={() => void copyId(scope, String(id))}>Copy ID</sdk.Button>
-          {prompt && <sdk.Button onClick={() => compose(scope, session, { id: 'reuse', label: 'Reuse Prompt', message: prompt })}>Reuse Prompt</sdk.Button>}
-          {row.status === 'queued' && <sdk.Button disabled={Boolean(busy)} onClick={() => void cancel(id)}>Cancel queued job</sdk.Button>}
-          {row.status === 'completed' && <sdk.Button onClick={() => void inspect(row)}>Inspect Output</sdk.Button>}
+          <sdk.Button variant="outline" size="sm" style={secondaryButtonStyle} onClick={() => void copyId(scope, String(id))}>Copy ID</sdk.Button>
+          {prompt && <sdk.Button variant="outline" size="sm" style={secondaryButtonStyle} onClick={() => compose(scope, session, { id: 'reuse', label: 'Reuse Prompt', message: prompt })}>Reuse Prompt</sdk.Button>}
+          {row.status === 'queued' && <sdk.Button variant="outline" size="sm" style={secondaryButtonStyle} disabled={Boolean(busy)} onClick={() => void cancel(id)}>Cancel queued job</sdk.Button>}
+          {row.status === 'completed' && <sdk.Button variant="secondary" size="sm" style={secondaryButtonStyle} onClick={() => void inspect(row)}><sdk.Codicon name="eye" size={14} />Inspect Output</sdk.Button>}
         </div>
       </article>;
     })}
     {!query.isLoading && configured && !shown.length && <p>No matching jobs on this page.</p>}
     <nav aria-label="Job pages" style={{ ...flow, marginTop: 20, gap: 12 }}>
-      <sdk.Button disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - limit))}>Previous jobs</sdk.Button>
+      <sdk.Button variant="outline" size="sm" style={secondaryButtonStyle} disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - limit))}>Previous jobs</sdk.Button>
       <span>Offset {offset}</span>
-      <sdk.Button disabled={rows.length < limit} onClick={() => setOffset(offset + limit)}>Next jobs</sdk.Button>
+      <sdk.Button variant="outline" size="sm" style={secondaryButtonStyle} disabled={rows.length < limit} onClick={() => setOffset(offset + limit)}>Next jobs</sdk.Button>
     </nav>
   </section>;
 }

@@ -4,7 +4,7 @@ import * as sdk from '@hermes/plugin-sdk';
 import { fetchModel, type ModelSource } from "./model-source.ts";
 import { createEnvStage, parseStickers, type Sticker } from "./env-stage.ts";
 import { usePooledStage } from "./env-lifecycle.ts";
-import { stageShell, glassToolbar, glassStatsPill, controlStrip, styledRange, posterTile, filterPillStyle } from '../lib/ui-tokens';
+import { stageShell, glassToolbar, glassStatsPill, controlStrip, styledRange, posterTile, inspectorToggleStyle as filterPillStyle } from '../lib/ui-tokens';
 
 export interface EnvViewerProps {
   rest: PluginContext["rest"];
@@ -55,7 +55,7 @@ export function EnvViewer({
     <section
       ref={v.setContainer}
       data-studiotwin-env-viewer
-      style={{ ...stageShell, color: 'var(--ui-text)' }}
+      style={{ ...stageShell, color: 'oklch(from var(--ui-text) l 0 h)' }}
       onPointerDown={v.touch}
     >
       <div style={{ height, position: "relative" }}>

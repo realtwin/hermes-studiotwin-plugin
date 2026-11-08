@@ -56,7 +56,7 @@ function themeColor(value: string) {
   swatch.width = swatch.height = 1
   const g = swatch.getContext('2d')
   if (!g) return new Color()
-  g.fillStyle = value
+  g.fillStyle = `oklch(from ${value} l 0 h)`
   g.fillRect(0, 0, 1, 1)
   const [r, green, b] = g.getImageData(0, 0, 1, 1).data
   return new Color().setRGB(r / 255, green / 255, b / 255, SRGBColorSpace)
