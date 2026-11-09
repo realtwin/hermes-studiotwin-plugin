@@ -3,14 +3,11 @@ import * as sdk from '@hermes/plugin-sdk';
 import { cardShell, controlStrip, filterPillStyle, statusBadgeStyle, creditBadgeStyle } from '../lib/ui-tokens.ts';
 import { useStudioTwinSettings } from '../cards/settings.ts';
 import { useEffect, useRef, useState } from 'react';
-import { jobStatus } from '../cards/task-card.tsx';
+import { normalizeJobStatus } from '../lib/state-machines.ts';
 import { deliveryUrl, object, type MediaScope } from '../cards/next-actions.ts';
 import { compose, copyId, flow, formatDate, list, useWorkspaceQuery, type Row } from './workspace-data.ts';
 export function normalizedJobs(value: unknown): Row[] {
-  return list(value, 'jobs').map(r => {
-    try { return { ...r, status: jobStatus(r.status) }; }
-    catch { return { ...r, status: 'unknown' }; }
-  });
+  return list(value, 'jobs').map(r => ({ ...r, status: normalizeJobStatus(r.status) }));
 }
 export function jobPrompt(row: Row): string {
   const prompt = row.inputs?.prompt ?? row.outputs?.prompt?.user ?? row.prompt;

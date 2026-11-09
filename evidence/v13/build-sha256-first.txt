@@ -1,0 +1,1 @@
+80068b61425acfba05a89f5fcfd564ac563c60d2b3ba9ef5c4f24a5a203697f6  desktop/plugin.js

@@ -6,6 +6,7 @@ import { cardShell, cardHeader, cardTitle, cleanDisplayName, nextDrawerStyle, ne
 import type { PluginContext } from '@hermes/plugin-sdk'
 const { Badge, Button, host } = sdk
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import type { AudioViewerState } from '../lib/state-machines.ts'
 import {
   AUDIO_FORMATS, AudioPlayer, assertScope, decodeAudio, fetchAudio, nextActions, onScopeChange,
   peaks, saveAudio, scopeMatches, submitNext, type AudioPayload, type AudioSource, type Scope
@@ -66,18 +67,17 @@ export interface AudioViewerProps {
 }
 type Ready = { buffer: AudioBuffer; wave: number[]; payload: AudioPayload }
 export function AudioViewer({ ctx, source, scope, sessionId, dataUrl, prompt = '', fallback }: AudioViewerProps) {
-  const [ready, setReady] = useState<Ready | null>(null)
-  const [error, setError] = useState(false)
+  const [state, setState] = useState<AudioViewerState<Ready>>({ phase: 'loading', convertingFormat: null })
+  const ready = state.phase === 'ready' ? state.data : null
   const [loop, setLoop] = useState(false)
-  const [busy, setBusy] = useState(false)
   const [, tick] = useState(0)
   const player = useRef<AudioPlayer | null>(null)
   const key = JSON.stringify(source)
   useEffect(() => {
     let live = true
-    setReady(null); setError(false); setLoop(false)
+    setState({ phase: 'loading', convertingFormat: null }); setLoop(false)
     let transport: AudioPlayer | null = null
-    const fail = () => { if (live) { transport?.dispose(); player.current = null; setError(true) } }
+    const fail = () => { if (live) { transport?.dispose(); player.current = null; setState({ phase: 'error', convertingFormat: null }) } }
     const off = onScopeChange(() => { if (!scopeMatches(scope)) fail() })
     void (async () => {
       try {
@@ -92,28 +92,28 @@ export function AudioViewer({ ctx, source, scope, sessionId, dataUrl, prompt = '
         assertScope(scope)
         if (dataUrl) payload.bytes = atob(dataUrl.split(',')[1]).length
         transport.load(buffer)
-        setReady({ buffer, wave: peaks(buffer), payload })
+        setState({ phase: 'ready', data: { buffer, wave: peaks(buffer), payload }, convertingFormat: null })
       } catch { fail() }
     })()
     return () => { live = false; off(); transport?.dispose(); player.current = null }
   }, [ctx, key, scope, dataUrl]) // key keeps a newly allocated but equal source from re-decoding.
   const playing = player.current?.playing ?? false
   useEffect(() => {
-    if (!ready || error || !playing) return
+    if (!ready || !playing) return
     let frame = 0
     const draw = () => { tick(t => t + 1); frame = requestAnimationFrame(draw) }
     frame = requestAnimationFrame(draw)
     return () => cancelAnimationFrame(frame)
-  }, [ready, error, playing])
-  if (error) return <>{fallback ?? <p role="alert" style={{ color: 'var(--ui-red)' }}>Audio unavailable in this profile. Use the original file/player.</p>}</>
-  if (!ready) return <p role="status" style={{ color: 'oklch(from var(--ui-text-tertiary) l 0 h)' }}>Loading StudioTwin audio…</p>
+  }, [ready, playing])
+  if (state.phase === 'error') return <div data-audio-state={state.phase} data-audio-playing={String(playing)}>{fallback ?? <p role="alert" style={{ color: 'var(--ui-red)' }}>Audio unavailable in this profile. Use the original file/player.</p>}</div>
+  if (!ready) return <p data-audio-state={state.phase} data-audio-playing={String(playing)} role="status" style={{ color: 'oklch(from var(--ui-text-tertiary) l 0 h)' }}>Loading StudioTwin audio…</p>
   const position = player.current?.position() ?? 0
   const progress = position / ready.buffer.duration
   const guarded = async (fn: () => Promise<void>) => {
-    try { assertScope(scope); await fn() } catch { setError(true); player.current?.dispose() }
+    try { assertScope(scope); await fn() } catch { setState({ phase: 'error', convertingFormat: null }); player.current?.dispose() }
     tick(t => t + 1)
   }
-  return <section aria-label="StudioTwin sound effect" style={{ ...cardShell, maxWidth: 640 }}>
+  return <section data-audio-state={state.phase} data-audio-playing={String(playing)} aria-label="StudioTwin sound effect" style={{ ...cardShell, maxWidth: 640 }}>
     <header style={cardHeader}>
       {Object.hasOwn(sdk, 'Codicon') && <sdk.Codicon name="unmute" size={16} />}
       <strong style={cardTitle}>{cleanDisplayName(prompt || ready.payload.name).title}</strong>
@@ -136,17 +136,17 @@ export function AudioViewer({ ctx, source, scope, sessionId, dataUrl, prompt = '
         else await player.current?.play(ready.buffer, loop, player.current.position())
       })}>{playing ? 'Pause' : 'Play'}</Button>
       <Button size="sm" style={filterPillStyle(loop)} variant="outline" aria-label="Loop audition" aria-pressed={loop} onClick={() => {
-        if (!scopeMatches(scope)) { setError(true); return }
+        if (!scopeMatches(scope)) { setState({ phase: 'error', convertingFormat: null }); return }
         player.current?.setLoop(!loop); setLoop(!loop)
       }}>Loop</Button>
       <span style={{ ...glassStatsPill, fontVariantNumeric: 'tabular-nums' }}>{position.toFixed(2)} / {ready.buffer.duration.toFixed(2)} s</span>
       <details><summary style={{ ...filterPillStyle(false), cursor: 'pointer' }}>Download / Convert</summary><div style={{ ...controlStrip, flexWrap: 'wrap', marginTop: 8 }}>
-        {AUDIO_FORMATS.map(format => <Button style={inspectorButtonStyle} key={format} size="sm" variant="outline" disabled={busy} aria-label={`Download ${format.toUpperCase()}`} onClick={() => {
-          setBusy(true)
+        {AUDIO_FORMATS.map(format => <Button style={inspectorButtonStyle} key={format} size="sm" variant="outline" disabled={state.convertingFormat !== null} aria-label={`Download ${format.toUpperCase()}`} onClick={() => {
+          setState(current => current.phase === 'ready' ? { ...current, convertingFormat: format } : current)
           void guarded(async () => {
             const payload = await fetchAudio(ctx, source, scope, format)
             assertScope(scope); await saveAudio(payload)
-          }).finally(() => setBusy(false))
+          }).finally(() => setState(current => current.phase === 'ready' ? { ...current, convertingFormat: null } : current))
         }}>{format === 'original' ? 'Original' : `.${format}`}</Button>)}
       </div></details>
     </div>

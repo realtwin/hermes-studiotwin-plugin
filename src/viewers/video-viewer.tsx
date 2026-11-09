@@ -4,6 +4,7 @@ const { Button } = sdk
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { PluginContext } from '@hermes/plugin-sdk'
 import { adjacentFrame, loadVideoTiming } from './video-timing.ts'
+import type { VideoLoadState } from '../lib/state-machines.ts'
 
 import {
   deliveryUrl,
@@ -27,35 +28,37 @@ export interface VideoViewerProps {
 export function VideoViewer({ scope, source, frames, fps, resolveUrl, fallback, onError }: VideoViewerProps) {
   const video = useRef<HTMLVideoElement>(null),
     frameImage = useRef<HTMLImageElement>(null)
-  const [url, setUrl] = useState<string>(),
-    [urls, setUrls] = useState<string[]>([]),
-    [failed, setFailed] = useState(false)
+  const [state, setState] = useState<VideoLoadState>({ phase: 'loading' })
+  const url = state.phase === 'ready_video' ? state.url : undefined
+  const urls = state.phase === 'ready_sequence' ? state.urls : undefined
   const [time, setTime] = useState(0),
-    [duration, setDuration] = useState(0),
+    [videoDuration, setVideoDuration] = useState(0),
     [playing, setPlaying] = useState(false),
     [loop, setLoop] = useState(false),
     [rate, setRate] = useState(1)
   const [captureError, setCaptureError] = useState('')
   const fail = () => {
-    setFailed(true)
+    setState({ phase: 'error' })
+    setPlaying(false)
     onError?.()
   }
   const sequenceRate = typeof fps === 'number' && Number.isFinite(fps) && fps > 0 ? fps : undefined
   const frameRate = sequenceRate ?? 1 // internal indexing only; never reported as measured timing
-  const [timing, setTiming] = useState<{ url: string; times: number[] }>()
-  const times = timing && timing.url === url ? timing.times : undefined
+  const times = state.phase === 'ready_video' ? state.frameTimes : undefined
+  const duration = state.phase === 'ready_sequence' ? state.duration : videoDuration
   const canStep = frames?.length ? !!sequenceRate : !!times?.length
-  const frameIndex = Math.min(Math.max(0, Math.round(time * frameRate)), Math.max(0, urls.length - 1))
+  const frameIndex = Math.min(Math.max(0, Math.round(time * frameRate)), Math.max(0, (urls?.length ?? 0) - 1))
   useEffect(() => {
     let live = true
+    setState({ phase: 'loading' })
+    setTime(0); setVideoDuration(0); setPlaying(false); setCaptureError('')
     const load = async () => {
       scope.assert()
       if (frames?.length) {
         const files = await Promise.all(frames.map((f) => imageFile(scope, f)))
         if (live) {
           scope.assert()
-          setUrls(files.map((f) => f.dataUrl))
-          setDuration(sequenceRate ? files.length / sequenceRate : 0)
+          setState({ phase: 'ready_sequence', urls: files.map((f) => f.dataUrl), duration: sequenceRate ? files.length / sequenceRate : 0 })
         }
       } else {
         let src: string
@@ -70,7 +73,7 @@ export function VideoViewer({ scope, source, frames, fps, resolveUrl, fallback, 
           src = deliveryUrl(f.dataUrl)
         }
         scope.assert()
-        if (live) setUrl(src)
+        if (live) setState({ phase: 'ready_video', url: src })
       }
     }
     void load().catch(() => {
@@ -80,7 +83,7 @@ export function VideoViewer({ scope, source, frames, fps, resolveUrl, fallback, 
       video.current?.pause()
       video.current?.removeAttribute('src')
       if (live) {
-        setFailed(true)
+        setState({ phase: 'error' })
         setPlaying(false)
       }
     })
@@ -104,13 +107,14 @@ export function VideoViewer({ scope, source, frames, fps, resolveUrl, fallback, 
     const timer = setTimeout(() => controller.abort(), 10000)
     const stop = scope.watch(() => controller.abort())
     void loadVideoTiming(url, controller.signal).then((times) => {
-      if (live && scope.current() && !controller.signal.aborted) setTiming({ url, times })
+      if (live && scope.current() && !controller.signal.aborted) setState(current =>
+        current.phase === 'ready_video' && current.url === url ? { ...current, frameTimes: times } : current)
     }).catch(() => { /* optional: playback is still usable without exact timing */ })
       .finally(() => clearTimeout(timer))
     return () => { live = false; controller.abort(); clearTimeout(timer); stop() }
   }, [url, scope])
   useEffect(() => {
-    if (!urls.length || !playing) return
+    if (!urls?.length || !playing) return
     const timer = setInterval(
       () =>
         setTime((t) => {
@@ -127,7 +131,7 @@ export function VideoViewer({ scope, source, frames, fps, resolveUrl, fallback, 
   }, [urls, playing, loop, rate, duration, frameRate])
   function seek(value: number) {
     scope.assert()
-    const next = Math.max(0, Math.min(value, urls.length ? (urls.length - 1) / frameRate : duration))
+    const next = Math.max(0, Math.min(value, urls?.length ? (urls.length - 1) / frameRate : duration))
     if (video.current) video.current.currentTime = next
     setTime(next)
   }
@@ -143,7 +147,7 @@ export function VideoViewer({ scope, source, frames, fps, resolveUrl, fallback, 
   const toggle = async () => {
     try {
       scope.assert()
-      if (urls.length) {
+      if (urls?.length) {
         if (!playing && time >= (urls.length - 1) / frameRate) setTime(0)
         setPlaying(!playing)
       } else if (video.current) {
@@ -157,7 +161,7 @@ export function VideoViewer({ scope, source, frames, fps, resolveUrl, fallback, 
   const capture = () => {
     try {
       scope.assert()
-      const target = urls.length ? frameImage.current : video.current
+      const target = urls?.length ? frameImage.current : video.current
       if (!target) throw Error('No frame')
       const canvas = document.createElement('canvas')
       canvas.width = target instanceof HTMLVideoElement ? target.videoWidth : target.naturalWidth
@@ -170,10 +174,10 @@ export function VideoViewer({ scope, source, frames, fps, resolveUrl, fallback, 
       setCaptureError('Frame capture unavailable: the source must be decoded and allow cross-origin canvas access.')
     }
   }
-  if (failed || !scope.current()) return <>{fallback ?? <p role="alert">Video preview unavailable.</p>}</>
+  if (state.phase === 'error' || !scope.current()) return <div data-video-state="error">{fallback ?? <p role="alert">Video preview unavailable.</p>}</div>
   return (
-    <section style={stageShell}>
-      {urls.length ? (
+    <section data-video-state={state.phase} style={stageShell}>
+      {urls?.length ? (
         <img
           ref={frameImage}
           alt={`Frame ${frameIndex + 1}`}
@@ -194,13 +198,13 @@ export function VideoViewer({ scope, source, frames, fps, resolveUrl, fallback, 
           onPause={() => setPlaying(false)}
           onEnded={() => setPlaying(false)}
           onLoadedMetadata={(e) =>
-            setDuration(Number.isFinite(e.currentTarget.duration) ? e.currentTarget.duration : 0)
+            setVideoDuration(Number.isFinite(e.currentTarget.duration) ? e.currentTarget.duration : 0)
           }
           onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
           style={{ display: 'block', width: '100%', maxHeight: 440, background: 'oklch(from var(--ui-bg-secondary) l 0 h)' }}
         />
       ) : (
-        <p role="status">Loading video…</p>
+        <span role="status" style={{ position: 'absolute', left: 12, top: 12 }}>Loading video…</span>
       )}
       <div style={glassToolbar}>
         <Button variant="ghost" size="sm" style={filterPillStyle(playing)} disabled={!!frames?.length && !sequenceRate} onClick={() => void toggle()}>{playing ? 'Pause' : 'Play'}</Button>
@@ -236,14 +240,14 @@ export function VideoViewer({ scope, source, frames, fps, resolveUrl, fallback, 
         type="range"
         min="0"
         max={duration || 0}
-        step={urls.length && sequenceRate ? 1 / sequenceRate : 'any'}
+        step={urls?.length && sequenceRate ? 1 / sequenceRate : 'any'}
         value={time}
         onChange={(e) => seek(Number(e.target.value))}
         style={{ ...styledRange, display: 'block', width: 'calc(100% - 32px)', margin: '16px' }}
       />
       <small style={{ ...glassStatsPill, display: 'block', margin: '0 16px 16px', fontVariantNumeric: 'tabular-nums', lineHeight: 1.7 }}>
         {time.toFixed(2)} / {duration.toFixed(2)} s
-        {urls.length && sequenceRate ? ` · ${sequenceRate} fps (sequence timing) · ${urls.length} frames` :
+        {urls?.length && sequenceRate ? ` · ${sequenceRate} fps (sequence timing) · ${urls.length} frames` :
           times ? ` · ${times.length} frames · source presentation timestamps` :
           ' · Exact frame timing unavailable; frame stepping disabled.'}
       </small>

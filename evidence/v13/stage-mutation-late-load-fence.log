@@ -1,0 +1,81 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13
+
+ ✓ tests/workspace/stage-states.test.ts > model exposes poster → loading → ready without simultaneous retry and loading UI 148ms
+ ✓ tests/workspace/stage-states.test.ts > environment exposes poster → loading → ready without simultaneous retry and loading UI 25ms
+ ✓ tests/workspace/stage-states.test.ts > material exposes poster → loading → ready without simultaneous retry and loading UI 26ms
+ ✓ tests/workspace/stage-states.test.ts > model retains its snapshot after offscreen eviction and can acquire a fresh stage 34ms
+ ✓ tests/workspace/stage-states.test.ts > environment retains its snapshot after offscreen eviction and can acquire a fresh stage 20ms
+ ✓ tests/workspace/stage-states.test.ts > material retains its snapshot after offscreen eviction and can acquire a fresh stage 54ms
+ ✓ tests/workspace/stage-states.test.ts > model load failure survives lease release; retry is exclusive with status and actually reloads 41ms
+ ✓ tests/workspace/stage-states.test.ts > environment load failure survives lease release; retry is exclusive with status and actually reloads 21ms
+ ✓ tests/workspace/stage-states.test.ts > material load failure survives lease release; retry is exclusive with status and actually reloads 27ms
+ ✓ tests/workspace/stage-states.test.ts > model fallback still exposes error instead of erasing failed load during disposal 9ms
+ ✓ tests/workspace/stage-states.test.ts > environment fallback still exposes error instead of erasing failed load during disposal 9ms
+ ✓ tests/workspace/stage-states.test.ts > material fallback still exposes error instead of erasing failed load during disposal 9ms
+ × tests/workspace/stage-states.test.ts > 'model' ignores superseded load completion (success=true) 17ms
+   → expected 'ready' to be 'loading' // Object.is equality
+ × tests/workspace/stage-states.test.ts > 'model' ignores superseded load completion (success=false) 13ms
+   → expected 'error' to be 'ready' // Object.is equality
+ × tests/workspace/stage-states.test.ts > 'environment' ignores superseded load completion (success=true) 14ms
+   → expected 'ready' to be 'loading' // Object.is equality
+ × tests/workspace/stage-states.test.ts > 'environment' ignores superseded load completion (success=false) 11ms
+   → expected 'error' to be 'ready' // Object.is equality
+ × tests/workspace/stage-states.test.ts > 'material' ignores superseded load completion (success=true) 14ms
+   → expected 'ready' to be 'loading' // Object.is equality
+ × tests/workspace/stage-states.test.ts > 'material' ignores superseded load completion (success=false) 15ms
+   → expected 'error' to be 'ready' // Object.is equality
+ ✓ tests/workspace/stage-states.test.ts > model audit is terminal without loading/retry controls and releases its GPU lease 11ms
+ ✓ tests/workspace/stage-states.test.ts > real shared pool evicts the first viewer when a second viewer takes its only slot 29ms
+ ✓ tests/workspace/stage-states.test.ts > multiview retains downloadable pixels after upload failure and supports staged/reskin retry 66ms
+ ✓ tests/workspace/stage-states.test.ts > multiview retains downloadable pixels after provenance failure and supports staged/reskin retry 60ms
+ ✓ tests/workspace/stage-states.test.ts > multiview retains downloadable pixels after callback failure and supports staged/reskin retry 61ms
+ ✓ tests/workspace/stage-states.test.ts > multiview capture failure has error without nonexistent download or reskin availability 33ms
+ ✓ tests/workspace/stage-states.test.ts > multiview completion from a superseded model cannot stage a sheet or enable reskin 32ms
+ ✓ tests/workspace/stage-states.test.ts > a superseded model fetch cannot decode into the retired stage or replace current stats 12ms
+ ✓ tests/workspace/stage-states.test.ts > a staging completion after model replacement cannot restore the old sheet or enable reskin 33ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > 'model' ignores superseded load completion (success=true)
+ FAIL  tests/workspace/stage-states.test.ts > 'environment' ignores superseded load completion (success=true)
+ FAIL  tests/workspace/stage-states.test.ts > 'material' ignores superseded load completion (success=true)
+AssertionError: expected 'ready' to be 'loading' // Object.is equality
+
+Expected: [32m"loading"[39m
+Received: [31m"ready"[39m
+
+ ❯ tests/workspace/stage-states.test.ts:160:30
+    158|     // An obsolete success must not mark the replacement ready before …
+    159|     await act(async () => old.resolve(stats))
+    160|     expect(phase(container)).toBe('loading')
+       |                              ^
+    161|     expect(screen.queryByRole('toolbar')).toBeNull()
+    162|     await act(async () => fresh.resolve(stats))
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > 'model' ignores superseded load completion (success=false)
+ FAIL  tests/workspace/stage-states.test.ts > 'environment' ignores superseded load completion (success=false)
+ FAIL  tests/workspace/stage-states.test.ts > 'material' ignores superseded load completion (success=false)
+AssertionError: expected 'error' to be 'ready' // Object.is equality
+
+Expected: [32m"ready"[39m
+Received: [31m"error"[39m
+
+ ❯ tests/workspace/stage-states.test.ts:167:28
+    165|     await act(async () => old.reject(Error('obsolete failure')))
+    166|   }
+    167|   expect(phase(container)).toBe('ready')
+       |                            ^
+    168|   expect(onError).not.toHaveBeenCalled()
+    169|   expect(screen.queryByRole('button', { name: retryName(kind) })).toBe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 21 passed (27)
+   Start at  17:50:37
+   Duration  2.03s (transform 248ms, setup 0ms, collect 461ms, tests 846ms, environment 479ms, prepare 73ms)
+

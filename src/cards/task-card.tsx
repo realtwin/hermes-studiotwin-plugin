@@ -8,17 +8,8 @@ import { ImageCard, conceptImages } from './image-card.tsx'
 import { VideoCard } from './video-card.tsx'
 import { ModelCard } from './model-card.tsx'
 import { deliveryUrl, object, submitNext, useMediaScope, type MediaScope, type NextAction } from './next-actions.ts'
-export function jobStatus(value: unknown): string {
-  const status = String(value ?? '')
-    .toLowerCase()
-    .replace(/[- ]/g, '_')
-  if (['done', 'complete', 'completed', 'succeeded', 'success'].includes(status)) return 'completed'
-  if (['submitted', 'pending', 'draft', 'queued'].includes(status)) return 'queued'
-  if (['executing', 'in_progress', 'processing', 'running'].includes(status)) return 'running'
-  if (['canceled', 'cancelled'].includes(status)) return 'cancelled'
-  if (['failed', 'error'].includes(status)) return 'failed'
-  throw Error('Unknown job status')
-}
+import { deriveTaskCardState, normalizeJobStatus } from '../lib/state-machines.ts'
+export const jobStatus = (value: unknown) => normalizeJobStatus(value)
 const terminal = (status: string) => ['completed', 'failed', 'cancelled'].includes(status)
 export interface TaskCardProps {
   ctx: sdk.PluginContext
@@ -123,8 +114,13 @@ export function TaskCard({ ctx, id, kind = 'task', sessionId, fallback, pollInte
     refetchInterval: (q) =>
       q.state.data && terminal(q.state.data.status) ? false : q.state.error ? false : pollInterval,
   })
-  const info: Record<string, any> | undefined = query.data,
-    status = cancelled ? 'cancelled' : (info?.status ?? 'loading')
+  const info: Record<string, any> | undefined = query.data
+  const state = deriveTaskCardState({
+    status: info?.status, stale, loading: !info && !query.isError && !cancelled,
+    failed: failed || query.isError, cancelled, cancelling, cancelWarning: cancelError,
+  })
+  // Keep the existing task marker/status contract while exposing the finer UI phase.
+  const status = state.phase === 'cancelling' ? 'queued' : state.phase
   const done = status === 'completed'
   const conceptHistory = kind === 'concept' ? conceptImages(info) : []
   const actionsId = (conceptHistory.find((a: any) => a.active) ?? conceptHistory.at(-1))?.source.asset ?? id
@@ -167,8 +163,8 @@ export function TaskCard({ ctx, id, kind = 'task', sessionId, fallback, pollInte
       setCancelling(false)
     }
   }
-  if (stale || failed)
-    return <>{fallback ?? <p role="alert">Task unavailable. Reopen in the originating profile and connection.</p>}</>
+  if (state.phase === 'stale' || ((failed || query.isError) && state.phase === 'failed'))
+    return <div data-task-phase={state.phase}>{fallback ?? <p role="alert">Task unavailable. Reopen in the originating profile and connection.</p>}</div>
   const pct =
     typeof info?.progress === 'number' && Number.isFinite(info.progress)
       ? Math.max(0, Math.min(100, info.progress))
@@ -176,6 +172,7 @@ export function TaskCard({ ctx, id, kind = 'task', sessionId, fallback, pollInte
   return (
     <article
       data-studiotwin-task={status}
+      data-task-phase={state.phase}
       style={{ ...cardShell, maxWidth: 720, color: 'var(--ui-text-primary)' }}
     >
       <header style={cardHeader}>
@@ -198,7 +195,7 @@ export function TaskCard({ ctx, id, kind = 'task', sessionId, fallback, pollInte
           Cancel queued job
         </sdk.Button>
       )}
-      {cancelError && <p role="alert">{cancelError}</p>}
+      {'cancelWarning' in state && state.cancelWarning && <p role="alert">{state.cancelWarning}</p>}
       {status === 'failed' && (
         <p role="alert">
           Job failed. {typeof info?.error === 'string' ? info.error : 'Inspect the existing job before any paid retry.'}

@@ -1,0 +1,83 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13
+
+ ✓ tests/workspace/stage-states.test.ts > model exposes poster → loading → ready without simultaneous retry and loading UI 162ms
+ ✓ tests/workspace/stage-states.test.ts > environment exposes poster → loading → ready without simultaneous retry and loading UI 31ms
+ ✓ tests/workspace/stage-states.test.ts > material exposes poster → loading → ready without simultaneous retry and loading UI 31ms
+ × tests/workspace/stage-states.test.ts > model retains its snapshot after offscreen eviction and can acquire a fresh stage 33ms
+   → expected undefined to be 'data:image/png;base64,c25hcHNob3Q=' // Object.is equality
+ × tests/workspace/stage-states.test.ts > environment retains its snapshot after offscreen eviction and can acquire a fresh stage 13ms
+   → expected undefined to be 'data:image/png;base64,c25hcHNob3Q=' // Object.is equality
+ × tests/workspace/stage-states.test.ts > material retains its snapshot after offscreen eviction and can acquire a fresh stage 18ms
+   → expected undefined to be 'data:image/png;base64,c25hcHNob3Q=' // Object.is equality
+ ✓ tests/workspace/stage-states.test.ts > model load failure survives lease release; retry is exclusive with status and actually reloads 33ms
+ ✓ tests/workspace/stage-states.test.ts > environment load failure survives lease release; retry is exclusive with status and actually reloads 23ms
+ ✓ tests/workspace/stage-states.test.ts > material load failure survives lease release; retry is exclusive with status and actually reloads 29ms
+ ✓ tests/workspace/stage-states.test.ts > model fallback still exposes error instead of erasing failed load during disposal 9ms
+ ✓ tests/workspace/stage-states.test.ts > environment fallback still exposes error instead of erasing failed load during disposal 7ms
+ ✓ tests/workspace/stage-states.test.ts > material fallback still exposes error instead of erasing failed load during disposal 6ms
+ ✓ tests/workspace/stage-states.test.ts > 'model' ignores superseded load completion (success=true) 18ms
+ ✓ tests/workspace/stage-states.test.ts > 'model' ignores superseded load completion (success=false) 15ms
+ ✓ tests/workspace/stage-states.test.ts > 'environment' ignores superseded load completion (success=true) 12ms
+ ✓ tests/workspace/stage-states.test.ts > 'environment' ignores superseded load completion (success=false) 11ms
+ ✓ tests/workspace/stage-states.test.ts > 'material' ignores superseded load completion (success=true) 22ms
+ ✓ tests/workspace/stage-states.test.ts > 'material' ignores superseded load completion (success=false) 19ms
+ ✓ tests/workspace/stage-states.test.ts > model audit is terminal without loading/retry controls and releases its GPU lease 12ms
+ × tests/workspace/stage-states.test.ts > real shared pool evicts the first viewer when a second viewer takes its only slot 28ms
+   → expected undefined to be 'data:image/png;base64,c25hcHNob3Q=' // Object.is equality
+ ✓ tests/workspace/stage-states.test.ts > multiview retains downloadable pixels after upload failure and supports staged/reskin retry 66ms
+ ✓ tests/workspace/stage-states.test.ts > multiview retains downloadable pixels after provenance failure and supports staged/reskin retry 54ms
+ ✓ tests/workspace/stage-states.test.ts > multiview retains downloadable pixels after callback failure and supports staged/reskin retry 52ms
+ ✓ tests/workspace/stage-states.test.ts > multiview capture failure has error without nonexistent download or reskin availability 27ms
+ ✓ tests/workspace/stage-states.test.ts > multiview completion from a superseded model cannot stage a sheet or enable reskin 28ms
+ ✓ tests/workspace/stage-states.test.ts > a superseded model fetch cannot decode into the retired stage or replace current stats 16ms
+ ✓ tests/workspace/stage-states.test.ts > a staging completion after model replacement cannot restore the old sheet or enable reskin 37ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > model retains its snapshot after offscreen eviction and can acquire a fresh stage
+ FAIL  tests/workspace/stage-states.test.ts > environment retains its snapshot after offscreen eviction and can acquire a fresh stage
+ FAIL  tests/workspace/stage-states.test.ts > material retains its snapshot after offscreen eviction and can acquire a fresh stage
+AssertionError: expected undefined to be 'data:image/png;base64,c25hcHNob3Q=' // Object.is equality
+
+[32m- Expected:[39m 
+"data:image/png;base64,c25hcHNob3Q="
+
+[31m+ Received:[39m 
+undefined
+
+ ❯ tests/workspace/stage-states.test.ts:109:63
+    107|   evict(container)
+    108|   expect(phase(container)).toBe('evicted')
+    109|   expect(container.querySelector('img')?.getAttribute('src')).toBe(sna…
+       |                                                               ^
+    110|   expect(screen.queryByRole('toolbar')).toBeNull()
+    111|   expect(screen.queryByRole('status')).toBeNull()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > real shared pool evicts the first viewer when a second viewer takes its only slot
+AssertionError: expected undefined to be 'data:image/png;base64,c25hcHNob3Q=' // Object.is equality
+
+[32m- Expected:[39m 
+"data:image/png;base64,c25hcHNob3Q="
+
+[31m+ Received:[39m 
+undefined
+
+ ❯ tests/workspace/stage-states.test.ts:191:65
+    189|   await start('material')
+    190|   expect(phase(a.container)).toBe('evicted')
+    191|   expect(a.container.querySelector('img')?.getAttribute('src')).toBe(s…
+       |                                                                 ^
+    192|   expect(phase(b.container)).toBe('ready')
+    193|   expect(modelWebGLPool.size).toBe(1)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 23 passed (27)
+   Start at  17:50:42
+   Duration  2.01s (transform 268ms, setup 0ms, collect 467ms, tests 817ms, environment 489ms, prepare 69ms)
+

@@ -1,0 +1,17 @@
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: 'hermes-studiotwin@0.1.0',
+npm warn EBADENGINE   required: { node: '>=24.0.0' },
+npm warn EBADENGINE   current: { node: 'v22.23.1', npm: '10.9.8' }
+npm warn EBADENGINE }
+npm warn reify Removing non-directory /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13/node_modules
+npm warn tar ENOENT: Cannot cd into '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13/node_modules/tldts'
+npm warn tar ENOENT: Cannot cd into '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13/node_modules/saxes'
+npm warn tar ENOENT: Cannot cd into '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13/node_modules/require-from-string'
+npm warn tar ENOENT: Cannot cd into '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13/node_modules/punycode'
+npm warn tar ENOENT: Cannot cd into '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13/node_modules/react-is'
+npm warn tar ENOENT: Cannot cd into '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13/node_modules/postcss'
+npm warn tar ENOENT: Cannot cd into '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13/node_modules/react'
+npm warn tar ENOENT: Cannot cd into '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13/node_modules/rollup'
+npm warn tar ENOENT: Cannot cd into '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13/node_modules/picomatch'
+
+added 133 packages in 2s

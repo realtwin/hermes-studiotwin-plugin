@@ -1,0 +1,13 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13
+
+ ✓ tests/workspace/state-machines.test.ts (3 tests) 8ms
+ ✓ tests/workspace/inspector-states.test.ts (7 tests) 329ms
+ ✓ tests/workspace/task-states.test.ts (16 tests) 144ms
+ ✓ tests/workspace/media-upload-states.test.ts (9 tests) 375ms
+
+ Test Files  4 passed (4)
+      Tests  35 passed (35)
+   Start at  17:32:53
+   Duration  2.66s (transform 530ms, setup 0ms, collect 879ms, tests 855ms, environment 477ms, prepare 119ms)
+

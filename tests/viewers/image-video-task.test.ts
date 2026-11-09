@@ -303,7 +303,7 @@ it('polls Concept operation.status, resolves active history, comparison lineage 
 it('normalizes status vocabulary and Concept history, preserves delivery links and only trusts host media schemes from the resolver', () => {
   expect(['COMPLETE', 'done', 'succeeded'].map(jobStatus)).toEqual(['completed', 'completed', 'completed'])
   expect(jobStatus('IN_PROGRESS')).toBe('running')
-  expect(() => jobStatus('unrecognized')).toThrow()
+  expect(jobStatus('unrecognized')).toBe('queued')
   expect(
     conceptImages({
       assets: [

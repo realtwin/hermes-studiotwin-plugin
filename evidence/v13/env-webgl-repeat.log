@@ -1,0 +1,42 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13
+
+stderr | tests/viewers/env-material.test.ts > environment and material contracts > decodes real Radiance and EXR pixels
+RGBELoader has been deprecated. Please use HDRLoader instead.
+
+ ❯ tests/viewers/env-material.test.ts (13 tests | 1 failed) 3869ms
+   ✓ environment and material contracts > grounds the fixed pano-sticker-placement label in checked-in pricing 3ms
+   ✓ environment and material contracts > grounds the fixed texture-to-material label in checked-in pricing 0ms
+   ✓ environment and material contracts > grounds the fixed environment-map-to-world label in checked-in pricing 0ms
+   ✓ environment and material contracts > requests an estimate instead of a flat price for environment-map-upscale-cpu 1ms
+   ✓ environment and material contracts > requests an estimate instead of a flat price for pano-stickers 0ms
+   ✓ environment and material contracts > requests an estimate instead of a flat price for image-to-material 0ms
+   ✓ environment and material contracts > decodes real Radiance and EXR pixels 8ms
+   ✓ environment and material contracts > validates camelCase placements and projects rolled spherical FOV boundaries 4ms
+   ✓ environment and material contracts > claims only its own tools, registers both surfaces, disposes and returns fallback for bad results 1ms
+   ✓ environment and material contracts > requires albedo but permits missing optional channels 0ms
+   ✓ environment and material contracts > uses host theme tokens for both viewer shells and cards 1ms
+   ✓ environment and material contracts > writes valid stored zip records 0ms
+   × mounted real Chromium WebGL environment and five-map material, lifecycle and scoped cards 3848ms
+     → expected 'data:image/png;base64,iVBORw0KGgoAAAA…' not to be 'data:image/png;base64,iVBORw0KGgoAAAA…' // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/viewers/env-material.test.ts > mounted real Chromium WebGL environment and five-map material, lifecycle and scoped cards
+AssertionError: expected 'data:image/png;base64,iVBORw0KGgoAAAA…' not to be 'data:image/png;base64,iVBORw0KGgoAAAA…' // Object.is equality
+ ❯ tests/viewers/env-material.test.ts:265:13
+    263|       expect(
+    264|         await canvas.evaluate((el) => (el as HTMLCanvasElement).toData…
+    265|       ).not.toBe(before);
+       |             ^
+    266|       await page
+    267|         .getByRole("button", { name: "Sticker sticker-one", exact: tru…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 passed (13)
+   Start at  17:43:24
+   Duration  4.77s (transform 208ms, setup 0ms, collect 604ms, tests 3.87s, environment 0ms, prepare 66ms)
+

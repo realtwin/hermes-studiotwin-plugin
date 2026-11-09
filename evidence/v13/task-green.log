@@ -1,0 +1,32 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13
+
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workspace/task-states.test.ts [ tests/workspace/task-states.test.ts ]
+Error: Failed to resolve import "../lib/state-machines.ts" from "src/cards/task-card.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13/src/cards/task-card.tsx:11:56
+  8  |  import { ModelCard } from "./model-card.tsx";
+  9  |  import { deliveryUrl, object, submitNext, useMediaScope } from "./next-actions.ts";
+  10 |  import { deriveTaskCardState, normalizeJobStatus } from "../lib/state-machines.ts";
+     |                                                           ^
+  11 |  export const jobStatus = (value) => normalizeJobStatus(value);
+  12 |  const terminal = (status) => ["completed", "failed", "cancelled"].includes(status);
+ ❯ TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/config.js:29250:43
+ ❯ TransformPluginContext.error node_modules/vite/dist/node/chunks/config.js:29247:14
+ ❯ normalizeUrl node_modules/vite/dist/node/chunks/config.js:27370:18
+ ❯ node_modules/vite/dist/node/chunks/config.js:27428:32
+ ❯ TransformPluginContext.transform node_modules/vite/dist/node/chunks/config.js:27396:4
+ ❯ EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/config.js:29048:14
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/config.js:22914:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  17:26:38
+   Duration  884ms (transform 71ms, setup 0ms, collect 0ms, tests 0ms, environment 478ms, prepare 71ms)
+

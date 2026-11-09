@@ -1,0 +1,509 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13
+
+ ✓ tests/workspace/stage-states.test.ts > model exposes poster → loading → ready without simultaneous retry and loading UI 142ms
+ ✓ tests/workspace/stage-states.test.ts > environment exposes poster → loading → ready without simultaneous retry and loading UI 38ms
+ ✓ tests/workspace/stage-states.test.ts > material exposes poster → loading → ready without simultaneous retry and loading UI 23ms
+ ✓ tests/workspace/stage-states.test.ts > model retains its snapshot after offscreen eviction and can acquire a fresh stage 30ms
+ ✓ tests/workspace/stage-states.test.ts > environment retains its snapshot after offscreen eviction and can acquire a fresh stage 18ms
+ ✓ tests/workspace/stage-states.test.ts > material retains its snapshot after offscreen eviction and can acquire a fresh stage 30ms
+ ✓ tests/workspace/stage-states.test.ts > model load failure survives lease release; retry is exclusive with status and actually reloads 25ms
+ ✓ tests/workspace/stage-states.test.ts > environment load failure survives lease release; retry is exclusive with status and actually reloads 21ms
+ ✓ tests/workspace/stage-states.test.ts > material load failure survives lease release; retry is exclusive with status and actually reloads 25ms
+ ✓ tests/workspace/stage-states.test.ts > model fallback still exposes error instead of erasing failed load during disposal 10ms
+ ✓ tests/workspace/stage-states.test.ts > environment fallback still exposes error instead of erasing failed load during disposal 8ms
+ ✓ tests/workspace/stage-states.test.ts > material fallback still exposes error instead of erasing failed load during disposal 7ms
+ ✓ tests/workspace/stage-states.test.ts > 'model' ignores superseded load completion (success=true) 15ms
+ ✓ tests/workspace/stage-states.test.ts > 'model' ignores superseded load completion (success=false) 15ms
+ ✓ tests/workspace/stage-states.test.ts > 'environment' ignores superseded load completion (success=true) 13ms
+ ✓ tests/workspace/stage-states.test.ts > 'environment' ignores superseded load completion (success=false) 12ms
+ ✓ tests/workspace/stage-states.test.ts > 'material' ignores superseded load completion (success=true) 18ms
+ ✓ tests/workspace/stage-states.test.ts > 'material' ignores superseded load completion (success=false) 19ms
+ ✓ tests/workspace/stage-states.test.ts > model audit is terminal without loading/retry controls and releases its GPU lease 8ms
+ ✓ tests/workspace/stage-states.test.ts > real shared pool evicts the first viewer when a second viewer takes its only slot 26ms
+ × tests/workspace/stage-states.test.ts > multiview retains downloadable pixels after upload failure and supports staged/reskin retry 24ms
+   → expected 'idle' to be 'capturing' // Object.is equality
+ × tests/workspace/stage-states.test.ts > multiview retains downloadable pixels after provenance failure and supports staged/reskin retry 16ms
+   → expected 'idle' to be 'capturing' // Object.is equality
+ × tests/workspace/stage-states.test.ts > multiview retains downloadable pixels after callback failure and supports staged/reskin retry 19ms
+   → expected 'idle' to be 'capturing' // Object.is equality
+ × tests/workspace/stage-states.test.ts > multiview capture failure has error without nonexistent download or reskin availability 1025ms
+   → expected 'idle' to be 'error' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<section[39m
+        [33mdata-stage-state[39m=[32m"ready"[39m
+        [33mdata-studiotwin-model-viewer[39m=[32m"true"[39m
+        [33mstyle[39m=[32m"position: relative; min-width: 0px; border-radius: 10px; overflow: hidden; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mstyle[39m=[32m"position: relative; height: 320px;"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"position: absolute; inset: 0px;"[39m
+          [36m/>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33maria-label[39m=[32m"Model controls"[39m
+          [33mrole[39m=[32m"toolbar"[39m
+          [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; gap: 4px; align-items: center; padding: 4px 6px; border-radius: 8px; background: color-mix(in srgb, oklch(from var(--ui-bg) l 0 h) 76%, transparent); backdrop-filter: blur(10px); border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h);"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 12px; font-size: 12px; min-width: 0px; font-variant-numeric: tabular-nums; background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 55%, transparent);"[39m
+          [36m>[39m
+            [0mShading[0m
+            [0m [0m
+            [36m<select[39m
+              [33maria-label[39m=[32m"Shading mode"[39m
+              [33mstyle[39m=[32m"padding: 5px 10px; border-radius: 6px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); font-size: 12px; font-weight: 500; cursor: pointer; min-width: 0px; max-width: 100%;"[39m
+            [36m>[39m
+              [36m<option>[39m
+                [0mtextured[0m
+              [36m</option>[39m
+              [36m<option>[39m
+                [0mwireframe[0m
+              [36m</option>[39m
+              [36m<option>[39m
+                [0mclay[0m
+              [36m</option>[39m
+              [36m<option>[39m
+                [0mnormals[0m
+              [36m</option>[39m
+            [36m</select>[39m
+          [36m</label>[39m
+          [36m<button[39m
+            [33maria-pressed[39m=[32m"true"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; background: color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 14%, transparent); border: 1px solid color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 38%, transparent); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); outline-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+            [33mvariant[39m=[32m"ghost"[39m
+          [36m>[39m
+            [0mAuto-rotate[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33maria-pressed[39m=[32m"true"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; background: color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 14%, transparent); border: 1px solid color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 38%, transparent); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); outline-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+            [33mvariant[39m=[32m"ghost"[39m
+          [36m>[39m
+            [0mGrid[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 500; cursor: pointer; background: color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 6%, transparent); border: 1px solid oklch(from var(--ui-stroke-tertiary, var(--ui-stroke-secondary)) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); outline-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+            [33mvariant[39m=[32m"ghost"[39m
+          [36m>[39m
+            [36m<i[39m
+              [33mdata-codicon[39m=[32m"refresh"[39m
+            [36m/>[39m
+            [0mReset camera[0m
+          [36m</button>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33maria-label[39m=[32m"Multiview"[39m
+          [33mdata-multiview-state[39m=[32m"idle"[39m
+          [33mrole[39m=[32m"group"[39m
+          [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px; font-size: 12px; min-width: 0px; font-variant-numeric: tabular-nums; background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 55%, transparent);"[39m
+        [36m>[39m
+          [36m<strong>[39m
+            [0mMultiview[0m
+          [36m</strong>[39m
+          [36m<select[39m
+            [33maria-label[39m=[32m"Multiview views"[39m
+            [33mstyle[39m=[32m"padding: 5px 10px; border-radius: 6px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); font-size: 12px; font-weight: 500; cursor: pointer; min-width: 0px; max-width: 100%;"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"4"[39m
+            [36m>[39m
+              [0m4 Views[0m
+            [36m</option>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"6"[39m
+            [36m>[39m
+              [0m6 Views[0m
+            [36m</option>[39m
+          [36m</select>[39m
+          [36m<select[39m
+            [33maria-label[39m=[32m"Multiview pass"[39m
+            [33mstyle[39m=[32m"padding: 5px 10px; border-radius: 6px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); font-size: 12px; font-weight: 500; cursor: pointer;...
+ × tests/workspace/stage-states.test.ts > multiview completion from a superseded model cannot stage a sheet or enable reskin 27ms
+   → expected 'idle' to be 'capturing' // Object.is equality
+ ✓ tests/workspace/stage-states.test.ts > a superseded model fetch cannot decode into the retired stage or replace current stats 14ms
+ × tests/workspace/stage-states.test.ts > a staging completion after model replacement cannot restore the old sheet or enable reskin 1031ms
+   → expected 'idle' to be 'staging' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<section[39m
+        [33mdata-stage-state[39m=[32m"ready"[39m
+        [33mdata-studiotwin-model-viewer[39m=[32m"true"[39m
+        [33mstyle[39m=[32m"position: relative; min-width: 0px; border-radius: 10px; overflow: hidden; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mstyle[39m=[32m"position: relative; height: 320px;"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"position: absolute; inset: 0px;"[39m
+          [36m/>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33maria-label[39m=[32m"Model controls"[39m
+          [33mrole[39m=[32m"toolbar"[39m
+          [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; gap: 4px; align-items: center; padding: 4px 6px; border-radius: 8px; background: color-mix(in srgb, oklch(from var(--ui-bg) l 0 h) 76%, transparent); backdrop-filter: blur(10px); border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h);"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 12px; font-size: 12px; min-width: 0px; font-variant-numeric: tabular-nums; background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 55%, transparent);"[39m
+          [36m>[39m
+            [0mShading[0m
+            [0m [0m
+            [36m<select[39m
+              [33maria-label[39m=[32m"Shading mode"[39m
+              [33mstyle[39m=[32m"padding: 5px 10px; border-radius: 6px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); font-size: 12px; font-weight: 500; cursor: pointer; min-width: 0px; max-width: 100%;"[39m
+            [36m>[39m
+              [36m<option>[39m
+                [0mtextured[0m
+              [36m</option>[39m
+              [36m<option>[39m
+                [0mwireframe[0m
+              [36m</option>[39m
+              [36m<option>[39m
+                [0mclay[0m
+              [36m</option>[39m
+              [36m<option>[39m
+                [0mnormals[0m
+              [36m</option>[39m
+            [36m</select>[39m
+          [36m</label>[39m
+          [36m<button[39m
+            [33maria-pressed[39m=[32m"true"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; background: color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 14%, transparent); border: 1px solid color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 38%, transparent); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); outline-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+            [33mvariant[39m=[32m"ghost"[39m
+          [36m>[39m
+            [0mAuto-rotate[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33maria-pressed[39m=[32m"true"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; background: color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 14%, transparent); border: 1px solid color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 38%, transparent); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); outline-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+            [33mvariant[39m=[32m"ghost"[39m
+          [36m>[39m
+            [0mGrid[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 500; cursor: pointer; background: color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 6%, transparent); border: 1px solid oklch(from var(--ui-stroke-tertiary, var(--ui-stroke-secondary)) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); outline-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+            [33mvariant[39m=[32m"ghost"[39m
+          [36m>[39m
+            [36m<i[39m
+              [33mdata-codicon[39m=[32m"refresh"[39m
+            [36m/>[39m
+            [0mReset camera[0m
+          [36m</button>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33maria-label[39m=[32m"Multiview"[39m
+          [33mdata-multiview-state[39m=[32m"idle"[39m
+          [33mrole[39m=[32m"group"[39m
+          [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px; font-size: 12px; min-width: 0px; font-variant-numeric: tabular-nums; background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 55%, transparent);"[39m
+        [36m>[39m
+          [36m<strong>[39m
+            [0mMultiview[0m
+          [36m</strong>[39m
+          [36m<select[39m
+            [33maria-label[39m=[32m"Multiview views"[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mstyle[39m=[32m"padding: 5px 10px; border-radius: 6px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); font-size: 12px; font-weight: 500; cursor: pointer; min-width: 0px; max-width: 100%;"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"4"[39m
+            [36m>[39m
+              [0m4 Views[0m
+            [36m</option>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"6"[39m
+            [36m>[39m
+              [0m6 Views[0m
+            [36m</option>[39m
+          [36m</select>[39m
+          [36m<select[39m
+            [33maria-label[39m=[32m"Multiview pass"[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mstyle[39m=[32m"padding: 5px 10px; border-radius: 6px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-t...
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > multiview retains downloadable pixels after upload failure and supports staged/reskin retry
+ FAIL  tests/workspace/stage-states.test.ts > multiview retains downloadable pixels after provenance failure and supports staged/reskin retry
+ FAIL  tests/workspace/stage-states.test.ts > multiview retains downloadable pixels after callback failure and supports staged/reskin retry
+AssertionError: expected 'idle' to be 'capturing' // Object.is equality
+
+Expected: [32m"capturing"[39m
+Received: [31m"idle"[39m
+
+ ❯ tests/workspace/stage-states.test.ts:212:24
+    210|   const captureButton = screen.getByRole('button', { name: 'Capture Mu…
+    211|   fireEvent.click(captureButton)
+    212|   expect(multiPhase()).toBe('capturing')
+       |                        ^
+    213|   expect(captureButton.disabled).toBe(true)
+    214|   expect(screen.getByRole('status').textContent).toBe('Capturing views…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > multiview capture failure has error without nonexistent download or reskin availability
+AssertionError: expected 'idle' to be 'error' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<section[39m
+        [33mdata-stage-state[39m=[32m"ready"[39m
+        [33mdata-studiotwin-model-viewer[39m=[32m"true"[39m
+        [33mstyle[39m=[32m"position: relative; min-width: 0px; border-radius: 10px; overflow: hidden; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mstyle[39m=[32m"position: relative; height: 320px;"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"position: absolute; inset: 0px;"[39m
+          [36m/>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33maria-label[39m=[32m"Model controls"[39m
+          [33mrole[39m=[32m"toolbar"[39m
+          [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; gap: 4px; align-items: center; padding: 4px 6px; border-radius: 8px; background: color-mix(in srgb, oklch(from var(--ui-bg) l 0 h) 76%, transparent); backdrop-filter: blur(10px); border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h);"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 12px; font-size: 12px; min-width: 0px; font-variant-numeric: tabular-nums; background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 55%, transparent);"[39m
+          [36m>[39m
+            [0mShading[0m
+            [0m [0m
+            [36m<select[39m
+              [33maria-label[39m=[32m"Shading mode"[39m
+              [33mstyle[39m=[32m"padding: 5px 10px; border-radius: 6px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); font-size: 12px; font-weight: 500; cursor: pointer; min-width: 0px; max-width: 100%;"[39m
+            [36m>[39m
+              [36m<option>[39m
+                [0mtextured[0m
+              [36m</option>[39m
+              [36m<option>[39m
+                [0mwireframe[0m
+              [36m</option>[39m
+              [36m<option>[39m
+                [0mclay[0m
+              [36m</option>[39m
+              [36m<option>[39m
+                [0mnormals[0m
+              [36m</option>[39m
+            [36m</select>[39m
+          [36m</label>[39m
+          [36m<button[39m
+            [33maria-pressed[39m=[32m"true"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; background: color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 14%, transparent); border: 1px solid color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 38%, transparent); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); outline-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+            [33mvariant[39m=[32m"ghost"[39m
+          [36m>[39m
+            [0mAuto-rotate[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33maria-pressed[39m=[32m"true"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; background: color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 14%, transparent); border: 1px solid color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 38%, transparent); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); outline-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+            [33mvariant[39m=[32m"ghost"[39m
+          [36m>[39m
+            [0mGrid[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 500; cursor: pointer; background: color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 6%, transparent); border: 1px solid oklch(from var(--ui-stroke-tertiary, var(--ui-stroke-secondary)) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); outline-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+            [33mvariant[39m=[32m"ghost"[39m
+          [36m>[39m
+            [36m<i[39m
+              [33mdata-codicon[39m=[32m"refresh"[39m
+            [36m/>[39m
+            [0mReset camera[0m
+          [36m</button>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33maria-label[39m=[32m"Multiview"[39m
+          [33mdata-multiview-state[39m=[32m"idle"[39m
+          [33mrole[39m=[32m"group"[39m
+          [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px; font-size: 12px; min-width: 0px; font-variant-numeric: tabular-nums; background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 55%, transparent);"[39m
+        [36m>[39m
+          [36m<strong>[39m
+            [0mMultiview[0m
+          [36m</strong>[39m
+          [36m<select[39m
+            [33maria-label[39m=[32m"Multiview views"[39m
+            [33mstyle[39m=[32m"padding: 5px 10px; border-radius: 6px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); font-size: 12px; font-weight: 500; cursor: pointer; min-width: 0px; max-width: 100%;"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"4"[39m
+            [36m>[39m
+              [0m4 Views[0m
+            [36m</option>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"6"[39m
+            [36m>[39m
+              [0m6 Views[0m
+            [36m</option>[39m
+          [36m</select>[39m
+          [36m<select[39m
+            [33maria-label[39m=[32m"Multiview pass"[39m
+            [33mstyle[39m=[32m"padding: 5px 10px; border-radius: 6px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); font-size: 12px; font-weight: 500; cursor: pointer;...
+
+Expected: [32m"error"[39m
+Received: [31m"idle"[39m
+
+ ❯ tests/workspace/stage-states.test.ts:262:44
+    260|   stages[0].captureMultiview.mockRejectedValueOnce(Error('capture fail…
+    261|   fireEvent.click(screen.getByRole('button', { name: 'Capture Multivie…
+    262|   await waitFor(() => expect(multiPhase()).toBe('error'))
+       |                                            ^
+    263|   expect(screen.getByRole('alert')).toBeDefined()
+    264|   expect(screen.queryByRole('button', { name: 'Download Sheet' })).toB…
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > multiview completion from a superseded model cannot stage a sheet or enable reskin
+AssertionError: expected 'idle' to be 'capturing' // Object.is equality
+
+Expected: [32m"capturing"[39m
+Received: [31m"idle"[39m
+
+ ❯ tests/workspace/stage-states.test.ts:275:24
+    273|   stages[0].captureMultiview.mockReturnValueOnce(pending.promise)
+    274|   fireEvent.click(screen.getByRole('button', { name: 'Capture Multivie…
+    275|   expect(multiPhase()).toBe('capturing')
+       |                        ^
+    276|   rerender(viewer('model', 'second'))
+    277|   await waitFor(() => expect(multiPhase()).toBe('idle'))
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > a staging completion after model replacement cannot restore the old sheet or enable reskin
+AssertionError: expected 'idle' to be 'staging' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<section[39m
+        [33mdata-stage-state[39m=[32m"ready"[39m
+        [33mdata-studiotwin-model-viewer[39m=[32m"true"[39m
+        [33mstyle[39m=[32m"position: relative; min-width: 0px; border-radius: 10px; overflow: hidden; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mstyle[39m=[32m"position: relative; height: 320px;"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"position: absolute; inset: 0px;"[39m
+          [36m/>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33maria-label[39m=[32m"Model controls"[39m
+          [33mrole[39m=[32m"toolbar"[39m
+          [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; gap: 4px; align-items: center; padding: 4px 6px; border-radius: 8px; background: color-mix(in srgb, oklch(from var(--ui-bg) l 0 h) 76%, transparent); backdrop-filter: blur(10px); border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h);"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 12px; font-size: 12px; min-width: 0px; font-variant-numeric: tabular-nums; background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 55%, transparent);"[39m
+          [36m>[39m
+            [0mShading[0m
+            [0m [0m
+            [36m<select[39m
+              [33maria-label[39m=[32m"Shading mode"[39m
+              [33mstyle[39m=[32m"padding: 5px 10px; border-radius: 6px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); font-size: 12px; font-weight: 500; cursor: pointer; min-width: 0px; max-width: 100%;"[39m
+            [36m>[39m
+              [36m<option>[39m
+                [0mtextured[0m
+              [36m</option>[39m
+              [36m<option>[39m
+                [0mwireframe[0m
+              [36m</option>[39m
+              [36m<option>[39m
+                [0mclay[0m
+              [36m</option>[39m
+              [36m<option>[39m
+                [0mnormals[0m
+              [36m</option>[39m
+            [36m</select>[39m
+          [36m</label>[39m
+          [36m<button[39m
+            [33maria-pressed[39m=[32m"true"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; background: color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 14%, transparent); border: 1px solid color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 38%, transparent); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); outline-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+            [33mvariant[39m=[32m"ghost"[39m
+          [36m>[39m
+            [0mAuto-rotate[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33maria-pressed[39m=[32m"true"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; background: color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 14%, transparent); border: 1px solid color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 38%, transparent); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); outline-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+            [33mvariant[39m=[32m"ghost"[39m
+          [36m>[39m
+            [0mGrid[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 500; cursor: pointer; background: color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 6%, transparent); border: 1px solid oklch(from var(--ui-stroke-tertiary, var(--ui-stroke-secondary)) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); outline-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+            [33mvariant[39m=[32m"ghost"[39m
+          [36m>[39m
+            [36m<i[39m
+              [33mdata-codicon[39m=[32m"refresh"[39m
+            [36m/>[39m
+            [0mReset camera[0m
+          [36m</button>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33maria-label[39m=[32m"Multiview"[39m
+          [33mdata-multiview-state[39m=[32m"idle"[39m
+          [33mrole[39m=[32m"group"[39m
+          [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px; font-size: 12px; min-width: 0px; font-variant-numeric: tabular-nums; background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 55%, transparent);"[39m
+        [36m>[39m
+          [36m<strong>[39m
+            [0mMultiview[0m
+          [36m</strong>[39m
+          [36m<select[39m
+            [33maria-label[39m=[32m"Multiview views"[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mstyle[39m=[32m"padding: 5px 10px; border-radius: 6px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); font-size: 12px; font-weight: 500; cursor: pointer; min-width: 0px; max-width: 100%;"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"4"[39m
+            [36m>[39m
+              [0m4 Views[0m
+            [36m</option>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"6"[39m
+            [36m>[39m
+              [0m6 Views[0m
+            [36m</option>[39m
+          [36m</select>[39m
+          [36m<select[39m
+            [33maria-label[39m=[32m"Multiview pass"[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mstyle[39m=[32m"padding: 5px 10px; border-radius: 6px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-t...
+
+Expected: [32m"staging"[39m
+Received: [31m"idle"[39m
+
+ ❯ tests/workspace/stage-states.test.ts:308:44
+    306|   await start('model')
+    307|   fireEvent.click(screen.getByRole('button', { name: 'Capture Multivie…
+    308|   await waitFor(() => expect(multiPhase()).toBe('staging'))
+       |                                            ^
+    309|   rerender(viewer('model', 'second', { onReskin }))
+    310|   await waitFor(() => expect(multiPhase()).toBe('idle'))
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 21 passed (27)
+   Start at  17:50:47
+   Duration  3.80s (transform 234ms, setup 0ms, collect 414ms, tests 2.66s, environment 485ms, prepare 64ms)
+

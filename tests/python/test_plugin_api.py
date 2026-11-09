@@ -228,7 +228,7 @@ def test_manifest_host_contract(tmp_path):
     from pm.plugin_declarations import read_python_declaration
     package = load_agent_plugin(ROOT, tmp_path / 'data')
     server = package.mcp_servers['studiotwin']
-    assert package.version == '0.3.1'
+    assert package.version == '0.3.2'
     assert server['url'] == 'https://api.studiotwin.ai/mcp'
     assert server['headers'] == {'x-api-key': '${STUDIOTWIN_API_KEY}'}
     assert server['trust'] == 'untrusted' and server['timeout'] == 1500
@@ -326,6 +326,36 @@ def test_jobs_aliases_active_cancel_and_delivery_urls(api):
     assert c.post('/cancel',json={'id':queued}).json()['status'] == 'cancelled'
     assert c.post('/cancel',json={'id':jid}).status_code == 409
     assert c.get('/jobs/nope').status_code == 400
+
+
+@pytest.mark.parametrize('status', ['done', 'complete', 'completed', 'succeeded', 'success'])
+def test_v13_terminal_job_aliases_share_progress_actions_and_active_contract(api, monkeypatch, status):
+    c, mod, _, _ = api
+    jid = '00000001-0001-4000-8000-000000000001'
+    row = {'status': status, 'outputs': {'environmentHDR': 's3://fixture/output.hdr'}}
+    monkeypatch.setattr(mod, '_call', lambda *_: row)
+    result = c.get('/jobs/' + jid).json()
+    assert result['status'] == status  # retain provider status on the wire
+    assert result['progress'] == 100
+    assert c.get('/active', params={'tasks': jid}).json()['done'] == [jid]
+    assert c.get('/actions', params={'id': jid, 'type': 'job'}).json()['actions']
+
+
+@pytest.mark.parametrize('status', ['submitted', 'pending', 'draft', 'queued', 'executing', 'in_progress', 'processing', 'running'])
+def test_v13_active_job_aliases_stay_active_without_invented_progress(api, monkeypatch, status):
+    c, mod, _, _ = api
+    jid = '00000001-0001-4000-8000-000000000001'
+    monkeypatch.setattr(mod, '_call', lambda *_: {'status': status})
+    result = c.get('/active', params={'tasks': jid}).json()
+    assert result['done'] == []
+    assert result['tasks'] == [{'id': jid, 'status': status, 'progress': None}]
+    assert c.get('/actions', params={'id': jid, 'type': 'job'}).json()['actions'] == []
+
+
+def test_v13_job_status_constants_are_canonical(api):
+    _, mod, _, _ = api
+    assert mod.TERMINAL_OK_STATUSES == ('done', 'complete', 'completed', 'succeeded', 'success')
+    assert mod.ACTIVE_JOB_STATUSES == ('submitted', 'pending', 'draft', 'queued', 'executing', 'in_progress', 'processing', 'running')
 
 
 def test_concepts(api):

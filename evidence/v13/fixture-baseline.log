@@ -1,0 +1,16 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___________ test_media_generator_reproduces_every_file_byte_for_byte ___________
+
+    def test_media_generator_reproduces_every_file_byte_for_byte():
+        out = subprocess.run([PY, "-B", str(MEDIA / "generate_media.py"), "--check"], capture_output=True, text=True)
+        report = json.loads(out.stdout)
+>       assert out.returncode == 0 and report["differ"] == [], report
+E       AssertionError: {'match': ['model/static-cube.glb', 'model/rigged-animated.glb', 'model/rig-audit.json', 'env/equirect-64x32.hdr', 'en...nv/equirect-64x32.png', ...], 'differ': ['audio/tone-44k.mp3', 'video/testsrc-32.mp4', 'MANIFEST.json'], 'skipped': []}
+E       assert (1 == 0)
+E        +  where 1 = CompletedProcess(args=['/home/deploy/.cache/uv/builds-v0/.tmpV2bGBq/bin/python', '-B', '/home/deploy/work/realtwin/her...hostile.tar"], "differ": ["audio/tone-44k.mp3", "video/testsrc-32.mp4", "MANIFEST.json"], "skipped": []}\n', stderr='').returncode
+
+tests/fixtures/test_fixture_foundation.py:936: AssertionError
+=========================== short test summary info ============================
+FAILED tests/fixtures/test_fixture_foundation.py::test_media_generator_reproduces_every_file_byte_for_byte
+1 failed in 1.23s

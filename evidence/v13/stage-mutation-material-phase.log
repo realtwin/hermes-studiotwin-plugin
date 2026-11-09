@@ -1,0 +1,158 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13
+
+ ✓ tests/workspace/stage-states.test.ts > model exposes poster → loading → ready without simultaneous retry and loading UI 149ms
+ ✓ tests/workspace/stage-states.test.ts > environment exposes poster → loading → ready without simultaneous retry and loading UI 23ms
+ × tests/workspace/stage-states.test.ts > material exposes poster → loading → ready without simultaneous retry and loading UI 13ms
+   → expected 'poster' to be 'loading' // Object.is equality
+ ✓ tests/workspace/stage-states.test.ts > model retains its snapshot after offscreen eviction and can acquire a fresh stage 33ms
+ ✓ tests/workspace/stage-states.test.ts > environment retains its snapshot after offscreen eviction and can acquire a fresh stage 19ms
+ × tests/workspace/stage-states.test.ts > material retains its snapshot after offscreen eviction and can acquire a fresh stage 18ms
+   → expected 'poster' to be 'ready' // Object.is equality
+ ✓ tests/workspace/stage-states.test.ts > model load failure survives lease release; retry is exclusive with status and actually reloads 27ms
+ ✓ tests/workspace/stage-states.test.ts > environment load failure survives lease release; retry is exclusive with status and actually reloads 18ms
+ × tests/workspace/stage-states.test.ts > material load failure survives lease release; retry is exclusive with status and actually reloads 9ms
+   → expected 'poster' to be 'error' // Object.is equality
+ ✓ tests/workspace/stage-states.test.ts > model fallback still exposes error instead of erasing failed load during disposal 8ms
+ ✓ tests/workspace/stage-states.test.ts > environment fallback still exposes error instead of erasing failed load during disposal 7ms
+ × tests/workspace/stage-states.test.ts > material fallback still exposes error instead of erasing failed load during disposal 7ms
+   → expected 'poster' to be 'error' // Object.is equality
+ ✓ tests/workspace/stage-states.test.ts > 'model' ignores superseded load completion (success=true) 16ms
+ ✓ tests/workspace/stage-states.test.ts > 'model' ignores superseded load completion (success=false) 17ms
+ ✓ tests/workspace/stage-states.test.ts > 'environment' ignores superseded load completion (success=true) 14ms
+ ✓ tests/workspace/stage-states.test.ts > 'environment' ignores superseded load completion (success=false) 12ms
+ × tests/workspace/stage-states.test.ts > 'material' ignores superseded load completion (success=true) 7ms
+   → expected 'poster' to be 'loading' // Object.is equality
+ × tests/workspace/stage-states.test.ts > 'material' ignores superseded load completion (success=false) 15ms
+   → expected 'poster' to be 'ready' // Object.is equality
+ ✓ tests/workspace/stage-states.test.ts > model audit is terminal without loading/retry controls and releases its GPU lease 9ms
+ × tests/workspace/stage-states.test.ts > real shared pool evicts the first viewer when a second viewer takes its only slot 25ms
+   → expected 'poster' to be 'ready' // Object.is equality
+ ✓ tests/workspace/stage-states.test.ts > multiview retains downloadable pixels after upload failure and supports staged/reskin retry 61ms
+ ✓ tests/workspace/stage-states.test.ts > multiview retains downloadable pixels after provenance failure and supports staged/reskin retry 55ms
+ ✓ tests/workspace/stage-states.test.ts > multiview retains downloadable pixels after callback failure and supports staged/reskin retry 53ms
+ ✓ tests/workspace/stage-states.test.ts > multiview capture failure has error without nonexistent download or reskin availability 30ms
+ ✓ tests/workspace/stage-states.test.ts > multiview completion from a superseded model cannot stage a sheet or enable reskin 28ms
+ ✓ tests/workspace/stage-states.test.ts > a superseded model fetch cannot decode into the retired stage or replace current stats 15ms
+ ✓ tests/workspace/stage-states.test.ts > a staging completion after model replacement cannot restore the old sheet or enable reskin 31ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > material exposes poster → loading → ready without simultaneous retry and loading UI
+AssertionError: expected 'poster' to be 'loading' // Object.is equality
+
+Expected: [32m"loading"[39m
+Received: [31m"poster"[39m
+
+ ❯ tests/workspace/stage-states.test.ts:93:28
+     91|   expect(screen.queryByRole('status')).toBeNull()
+     92|   await start(kind)
+     93|   expect(phase(container)).toBe('loading')
+       |                            ^
+     94|   expect(screen.getByRole('status').textContent).toMatch(/Loading/)
+     95|   expect(screen.queryByRole('button', { name: startName(kind) })).toBe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > material retains its snapshot after offscreen eviction and can acquire a fresh stage
+AssertionError: expected 'poster' to be 'ready' // Object.is equality
+
+Expected: [32m"ready"[39m
+Received: [31m"poster"[39m
+
+ ❯ tests/workspace/stage-states.test.ts:106:28
+    104|   const { container } = render(viewer(kind))
+    105|   await start(kind)
+    106|   expect(phase(container)).toBe('ready')
+       |                            ^
+    107|   evict(container)
+    108|   expect(phase(container)).toBe('evicted')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > material load failure survives lease release; retry is exclusive with status and actually reloads
+AssertionError: expected 'poster' to be 'error' // Object.is equality
+
+Expected: [32m"[7merro[27mr"[39m
+Received: [31m"[7mposte[27mr"[39m
+
+ ❯ tests/workspace/stage-states.test.ts:124:28
+    122|   await start(kind)
+    123|   await act(async () => pending.reject(Error('GPU decode failed')))
+    124|   expect(phase(container)).toBe('error')
+       |                            ^
+    125|   expect(screen.getByRole('button', { name: retryName(kind) })).toBeDe…
+    126|   expect(screen.queryByRole('status')).toBeNull()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > material fallback still exposes error instead of erasing failed load during disposal
+AssertionError: expected 'poster' to be 'error' // Object.is equality
+
+Expected: [32m"[7merro[27mr"[39m
+Received: [31m"[7mposte[27mr"[39m
+
+ ❯ tests/workspace/stage-states.test.ts:143:28
+    141|   await start(kind)
+    142|   await act(async () => pending.reject(Error('bad file')))
+    143|   expect(phase(container)).toBe('error')
+       |                            ^
+    144|   expect(screen.getByText('Original asset fallback')).toBeDefined()
+    145|   expect(screen.queryByRole('status')).toBeNull()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > 'material' ignores superseded load completion (success=true)
+AssertionError: expected 'poster' to be 'loading' // Object.is equality
+
+Expected: [32m"loading"[39m
+Received: [31m"poster"[39m
+
+ ❯ tests/workspace/stage-states.test.ts:160:30
+    158|     // An obsolete success must not mark the replacement ready before …
+    159|     await act(async () => old.resolve(stats))
+    160|     expect(phase(container)).toBe('loading')
+       |                              ^
+    161|     expect(screen.queryByRole('toolbar')).toBeNull()
+    162|     await act(async () => fresh.resolve(stats))
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > 'material' ignores superseded load completion (success=false)
+AssertionError: expected 'poster' to be 'ready' // Object.is equality
+
+Expected: [32m"ready"[39m
+Received: [31m"poster"[39m
+
+ ❯ tests/workspace/stage-states.test.ts:167:28
+    165|     await act(async () => old.reject(Error('obsolete failure')))
+    166|   }
+    167|   expect(phase(container)).toBe('ready')
+       |                            ^
+    168|   expect(onError).not.toHaveBeenCalled()
+    169|   expect(screen.queryByRole('button', { name: retryName(kind) })).toBe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > real shared pool evicts the first viewer when a second viewer takes its only slot
+AssertionError: expected 'poster' to be 'ready' // Object.is equality
+
+Expected: [32m"ready"[39m
+Received: [31m"poster"[39m
+
+ ❯ tests/workspace/stage-states.test.ts:192:30
+    190|   expect(phase(a.container)).toBe('evicted')
+    191|   expect(a.container.querySelector('img')?.getAttribute('src')).toBe(s…
+    192|   expect(phase(b.container)).toBe('ready')
+       |                              ^
+    193|   expect(modelWebGLPool.size).toBe(1)
+    194| })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed | 20 passed (27)
+   Start at  17:50:32
+   Duration  1.86s (transform 228ms, setup 0ms, collect 422ms, tests 721ms, environment 481ms, prepare 67ms)
+

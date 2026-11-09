@@ -1,0 +1,299 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13
+
+✘ [ERROR] Could not resolve "./workspace-state.ts"
+
+    src/pages/asset-inspector.tsx:3:44:
+      3 │ import { resolveInspectorTargetState } from './workspace-state.ts';
+        ╵                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "./workspace-state.ts"
+
+    src/pages/asset-inspector.tsx:3:44:
+      3 │ import { resolveInspectorTargetState } from './workspace-state.ts';
+        ╵                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "./workspace-state.ts"
+
+    src/pages/asset-inspector.tsx:3:44:
+      3 │ import { resolveInspectorTargetState } from './workspace-state.ts';
+        ╵                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "./workspace-state.ts"
+
+    src/pages/asset-inspector.tsx:3:44:
+      3 │ import { resolveInspectorTargetState } from './workspace-state.ts';
+        ╵                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "./workspace-state.ts"
+
+    src/pages/asset-inspector.tsx:3:44:
+      3 │ import { resolveInspectorTargetState } from './workspace-state.ts';
+        ╵                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "./workspace-state.ts"
+
+    src/pages/asset-inspector.tsx:3:44:
+      3 │ import { resolveInspectorTargetState } from './workspace-state.ts';
+        ╵                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "./workspace-state.ts"
+
+    src/pages/asset-inspector.tsx:3:44:
+      3 │ import { resolveInspectorTargetState } from './workspace-state.ts';
+        ╵                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "./workspace-state.ts"
+
+    src/pages/asset-inspector.tsx:3:44:
+      3 │ import { resolveInspectorTargetState } from './workspace-state.ts';
+        ╵                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "./workspace-state.ts"
+
+    src/pages/asset-inspector.tsx:3:44:
+      3 │ import { resolveInspectorTargetState } from './workspace-state.ts';
+        ╵                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "./workspace-state.ts"
+
+    src/pages/asset-inspector.tsx:3:44:
+      3 │ import { resolveInspectorTargetState } from './workspace-state.ts';
+        ╵                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "./workspace-state.ts"
+
+    src/pages/asset-inspector.tsx:3:44:
+      3 │ import { resolveInspectorTargetState } from './workspace-state.ts';
+        ╵                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "./workspace-state.ts"
+
+    src/pages/asset-inspector.tsx:3:44:
+      3 │ import { resolveInspectorTargetState } from './workspace-state.ts';
+        ╵                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "./workspace-state.ts"
+
+    src/pages/asset-inspector.tsx:3:44:
+      3 │ import { resolveInspectorTargetState } from './workspace-state.ts';
+        ╵                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "./workspace-state.ts"
+
+    src/pages/asset-inspector.tsx:3:44:
+      3 │ import { resolveInspectorTargetState } from './workspace-state.ts';
+        ╵                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "./workspace-state.ts"
+
+    src/pages/asset-inspector.tsx:3:44:
+      3 │ import { resolveInspectorTargetState } from './workspace-state.ts';
+        ╵                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "./workspace-state.ts"
+
+    src/pages/asset-inspector.tsx:3:44:
+      3 │ import { resolveInspectorTargetState } from './workspace-state.ts';
+        ╵                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "../lib/state-machines.ts"
+
+    src/pages/jobs-tab.tsx:6:35:
+      6 │ import { normalizeJobStatus } from '../lib/state-machines.ts';
+        ╵                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "./workspace-state.ts"
+
+    src/pages/asset-inspector.tsx:3:44:
+      3 │ import { resolveInspectorTargetState } from './workspace-state.ts';
+        ╵                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "../lib/state-machines.ts"
+
+    src/pages/jobs-tab.tsx:6:35:
+      6 │ import { normalizeJobStatus } from '../lib/state-machines.ts';
+        ╵                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "./workspace-state.ts"
+
+    src/pages/asset-inspector.tsx:3:44:
+      3 │ import { resolveInspectorTargetState } from './workspace-state.ts';
+        ╵                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "../lib/state-machines.ts"
+
+    src/pages/jobs-tab.tsx:6:35:
+      6 │ import { normalizeJobStatus } from '../lib/state-machines.ts';
+        ╵                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "./workspace-state.ts"
+
+    src/pages/asset-inspector.tsx:3:44:
+      3 │ import { resolveInspectorTargetState } from './workspace-state.ts';
+        ╵                                             ~~~~~~~~~~~~~~~~~~~~~~
+
+ ❯ tests/workspace/workspace.test.ts (20 tests | 19 failed) 21219ms
+   × Chromium: settings events change recent gallery page sizes, not complete-library paging or workspace previews 1183ms
+     → Build failed with 1 error:
+src/pages/asset-inspector.tsx:3:44: ERROR: Could not resolve "./workspace-state.ts"
+   ✓ Chromium loopback backend: real router/MCP/storage, image decoding, local/cloud upload and pre-network validation  2121ms
+   × Chromium: registers the route, sidebar, six palette commands, and live credits/active-job chrome 1007ms
+     → Build failed with 1 error:
+src/pages/asset-inspector.tsx:3:44: ERROR: Could not resolve "./workspace-state.ts"
+   × Chromium: real library filters/search, model inspector, backend lineage and quoted Next actions address origin chat 971ms
+     → Build failed with 1 error:
+src/pages/asset-inspector.tsx:3:44: ERROR: Could not resolve "./workspace-state.ts"
+   × Chromium: complete merged library beyond 100 rows supports late modality, search and inspection 1050ms
+     → Build failed with 1 error:
+src/pages/asset-inspector.tsx:3:44: ERROR: Could not resolve "./workspace-state.ts"
+   × Chromium: a failed later library page reports an error, not missing assets, and refresh retries all pages 1047ms
+     → Build failed with 1 error:
+src/pages/asset-inspector.tsx:3:44: ERROR: Could not resolve "./workspace-state.ts"
+   × Chromium: real job filters, queued-only cancellation and Inspect Output opens the real image viewer 1038ms
+     → Build failed with 1 error:
+src/pages/asset-inspector.tsx:3:44: ERROR: Could not resolve "./workspace-state.ts"
+   × Chromium: Concepts history/active badge and four composer-only workflows use the captured owner 946ms
+     → Build failed with 1 error:
+src/pages/asset-inspector.tsx:3:44: ERROR: Could not resolve "./workspace-state.ts"
+   × Chromium: local selection and explicit cloud drop upload go through the real router without leaking presigned POST fields 1012ms
+     → Build failed with 1 error:
+src/pages/asset-inspector.tsx:3:44: ERROR: Could not resolve "./workspace-state.ts"
+   × Chromium: cached PBR, cloud HDR, rigged animation, audio and video open their real rich viewers 939ms
+     → Build failed with 1 error:
+src/pages/asset-inspector.tsx:3:44: ERROR: Could not resolve "./workspace-state.ts"
+   × Chromium: every palette command and chip opens the requested registered workspace tab; settings toggle is live 944ms
+     → Build failed with 1 error:
+src/pages/asset-inspector.tsx:3:44: ERROR: Could not resolve "./workspace-state.ts"
+   × Chromium: all four tabs inherit light/dark theme variables, with no hardcoded color styles 1037ms
+     → Build failed with 1 error:
+src/pages/asset-inspector.tsx:3:44: ERROR: Could not resolve "./workspace-state.ts"
+   × Chromium: profile switch permanently revokes captured workspace actions 1044ms
+     → Build failed with 1 error:
+src/pages/asset-inspector.tsx:3:44: ERROR: Could not resolve "./workspace-state.ts"
+   × Chromium: connectionId switch permanently revokes captured workspace actions 1015ms
+     → Build failed with 1 error:
+src/pages/asset-inspector.tsx:3:44: ERROR: Could not resolve "./workspace-state.ts"
+   × Chromium: pending upload cannot expose Use in Chat after profile changes away and back 1004ms
+     → Build failed with 1 error:
+src/pages/asset-inspector.tsx:3:44: ERROR: Could not resolve "./workspace-state.ts"
+   × Chromium: pending upload cannot expose Use in Chat after connectionId changes away and back 912ms
+     → Build failed with 1 error:
+src/pages/asset-inspector.tsx:3:44: ERROR: Could not resolve "./workspace-state.ts"
+   × Chromium: file-read scope change refuses upload before network dispatch (profile) 993ms
+     → Build failed with 1 error:
+src/pages/asset-inspector.tsx:3:44: ERROR: Could not resolve "./workspace-state.ts"
+   × Chromium: file-read scope change refuses upload before network dispatch (connectionId) 969ms
+     → Build failed with 2 errors:
+src/pages/asset-inspector.tsx:3:44: ERROR: Could not resolve "./workspace-state.ts"
+src/pages/jobs-tab.tsx:6:35: ERROR: Could not resolve "../lib/state-machines.ts"
+   × Chromium: missing key setup opens settings with optional settings door=true 1026ms
+     → Build failed with 2 errors:
+src/pages/asset-inspector.tsx:3:44: ERROR: Could not resolve "./workspace-state.ts"
+src/pages/jobs-tab.tsx:6:35: ERROR: Could not resolve "../lib/state-machines.ts"
+   × Chromium: missing key setup opens settings with optional settings door=false 956ms
+     → Build failed with 2 errors:
+src/pages/asset-inspector.tsx:3:44: ERROR: Could not resolve "./workspace-state.ts"
+src/pages/jobs-tab.tsx:6:35: ERROR: Could not resolve "../lib/state-machines.ts"
+ ✓ tests/viewers/video-timing.test.ts (6 tests) 16ms
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "host-shim:sdk" [import-is-undefined]
+
+    src/viewers/audio-viewer.tsx:118:45:
+      118 │ ...asOwn(sdk, 'Codicon') && <sdk.Codicon name="unmute" size={16} />}
+          ╵                                  ~~~~~~~
+
+ ✓ tests/viewers/audio.test.ts (20 tests) 3254ms
+   ✓ waveform and gapless playback > extracts measured peaks from real tone-48k.wav bytes  310ms
+   ✓ rendered audio card > honors cold mouse seek visibly and on first playback without autoplay  358ms
+   ✓ Chromium: real WAV/MP3 decode, canvas resize/theme, audition, seek, download and scope invalidation  1461ms
+ ✓ tests/workspace/media-upload-states.test.ts (9 tests) 376ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/viewers/image-video-task.test.ts [ tests/viewers/image-video-task.test.ts ]
+Error: Failed to resolve import "../lib/state-machines.ts" from "src/cards/task-card.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13/src/cards/task-card.tsx:11:56
+  8  |  import { ModelCard } from "./model-card.tsx";
+  9  |  import { deliveryUrl, object, submitNext, useMediaScope } from "./next-actions.ts";
+  10 |  import { deriveTaskCardState, normalizeJobStatus } from "../lib/state-machines.ts";
+     |                                                           ^
+  11 |  export const jobStatus = (value) => normalizeJobStatus(value);
+  12 |  const terminal = (status) => ["completed", "failed", "cancelled"].includes(status);
+ ❯ TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/config.js:29250:43
+ ❯ TransformPluginContext.error node_modules/vite/dist/node/chunks/config.js:29247:14
+ ❯ normalizeUrl node_modules/vite/dist/node/chunks/config.js:27370:18
+ ❯ node_modules/vite/dist/node/chunks/config.js:27428:32
+ ❯ TransformPluginContext.transform node_modules/vite/dist/node/chunks/config.js:27396:4
+ ❯ EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/config.js:29048:14
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/config.js:22914:26
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/20]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 19 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workspace/workspace.test.ts > Chromium: settings events change recent gallery page sizes, not complete-library paging or workspace previews
+ FAIL  tests/workspace/workspace.test.ts > Chromium: registers the route, sidebar, six palette commands, and live credits/active-job chrome
+ FAIL  tests/workspace/workspace.test.ts > Chromium: real library filters/search, model inspector, backend lineage and quoted Next actions address origin chat
+ FAIL  tests/workspace/workspace.test.ts > Chromium: complete merged library beyond 100 rows supports late modality, search and inspection
+ FAIL  tests/workspace/workspace.test.ts > Chromium: a failed later library page reports an error, not missing assets, and refresh retries all pages
+ FAIL  tests/workspace/workspace.test.ts > Chromium: real job filters, queued-only cancellation and Inspect Output opens the real image viewer
+ FAIL  tests/workspace/workspace.test.ts > Chromium: Concepts history/active badge and four composer-only workflows use the captured owner
+ FAIL  tests/workspace/workspace.test.ts > Chromium: local selection and explicit cloud drop upload go through the real router without leaking presigned POST fields
+ FAIL  tests/workspace/workspace.test.ts > Chromium: cached PBR, cloud HDR, rigged animation, audio and video open their real rich viewers
+ FAIL  tests/workspace/workspace.test.ts > Chromium: every palette command and chip opens the requested registered workspace tab; settings toggle is live
+ FAIL  tests/workspace/workspace.test.ts > Chromium: all four tabs inherit light/dark theme variables, with no hardcoded color styles
+ FAIL  tests/workspace/workspace.test.ts > Chromium: profile switch permanently revokes captured workspace actions
+ FAIL  tests/workspace/workspace.test.ts > Chromium: connectionId switch permanently revokes captured workspace actions
+ FAIL  tests/workspace/workspace.test.ts > Chromium: pending upload cannot expose Use in Chat after profile changes away and back
+ FAIL  tests/workspace/workspace.test.ts > Chromium: pending upload cannot expose Use in Chat after connectionId changes away and back
+ FAIL  tests/workspace/workspace.test.ts > Chromium: file-read scope change refuses upload before network dispatch (profile)
+Error: Build failed with 1 error:
+src/pages/asset-inspector.tsx:3:44: ERROR: Could not resolve "./workspace-state.ts"
+ ❯ failureErrorWithLog node_modules/esbuild/lib/main.js:1752:15
+    1750| ${file}:${line}:${column}: ERROR: ${pluginText}${e.text}`;
+    1751|   }).join("");
+    1752|   let error = new Error(text);
+       |               ^
+    1753|   for (const [key, value] of [["errors", errors], ["warnings", warning…
+    1754|     Object.defineProperty(error, key, {
+ ❯ node_modules/esbuild/lib/main.js:1211:25
+ ❯ runOnEndCallbacks node_modules/esbuild/lib/main.js:1592:45
+ ❯ buildResponseToResult node_modules/esbuild/lib/main.js:1209:7
+ ❯ node_modules/esbuild/lib/main.js:1236:16
+ ❯ responseCallbacks.<computed> node_modules/esbuild/lib/main.js:886:9
+ ❯ handleIncomingPacket node_modules/esbuild/lib/main.js:941:12
+ ❯ Socket.readFromStdout node_modules/esbuild/lib/main.js:864:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/20]⎯
+
+ FAIL  tests/workspace/workspace.test.ts > Chromium: file-read scope change refuses upload before network dispatch (connectionId)
+ FAIL  tests/workspace/workspace.test.ts > Chromium: missing key setup opens settings with optional settings door=true
+ FAIL  tests/workspace/workspace.test.ts > Chromium: missing key setup opens settings with optional settings door=false
+Error: Build failed with 2 errors:
+src/pages/asset-inspector.tsx:3:44: ERROR: Could not resolve "./workspace-state.ts"
+src/pages/jobs-tab.tsx:6:35: ERROR: Could not resolve "../lib/state-machines.ts"
+ ❯ failureErrorWithLog node_modules/esbuild/lib/main.js:1752:15
+    1750| ${file}:${line}:${column}: ERROR: ${pluginText}${e.text}`;
+    1751|   }).join("");
+    1752|   let error = new Error(text);
+       |               ^
+    1753|   for (const [key, value] of [["errors", errors], ["warnings", warning…
+    1754|     Object.defineProperty(error, key, {
+ ❯ node_modules/esbuild/lib/main.js:1211:25
+ ❯ runOnEndCallbacks node_modules/esbuild/lib/main.js:1592:45
+ ❯ buildResponseToResult node_modules/esbuild/lib/main.js:1209:7
+ ❯ node_modules/esbuild/lib/main.js:1236:16
+ ❯ responseCallbacks.<computed> node_modules/esbuild/lib/main.js:886:9
+ ❯ handleIncomingPacket node_modules/esbuild/lib/main.js:941:12
+ ❯ Socket.readFromStdout node_modules/esbuild/lib/main.js:864:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/20]⎯
+
+
+ Test Files  2 failed | 3 passed (5)
+      Tests  19 failed | 36 passed (55)
+   Start at  17:25:47
+   Duration  27.75s (transform 417ms, setup 0ms, collect 650ms, tests 24.87s, environment 546ms, prepare 120ms)
+

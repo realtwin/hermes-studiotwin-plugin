@@ -1,0 +1,96 @@
+Installed 46 packages in 25ms
+....F..F.F.F.F                                                           [100%]
+=================================== FAILURES ===================================
+_ test_v13_terminal_job_aliases_share_progress_actions_and_active_contract[success] _
+
+api = (<starlette.testclient.TestClient object at 0x7986974163d0>, <module 'v01_api' from '/home/deploy/work/realtwin/hermes...27.0.0.1', port=45545, api_key='STCANARY_API_KEY_2e9bc6c94a', requests=[]), {'api_base_url': 'http://127.0.0.1:45545'})
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7986962724d0>
+status = 'success'
+
+    @pytest.mark.parametrize('status', ['done', 'complete', 'completed', 'succeeded', 'success'])
+    def test_v13_terminal_job_aliases_share_progress_actions_and_active_contract(api, monkeypatch, status):
+        c, mod, _, _ = api
+        jid = '00000001-0001-4000-8000-000000000001'
+        row = {'status': status, 'outputs': {'environmentHDR': 's3://fixture/output.hdr'}}
+        monkeypatch.setattr(mod, '_call', lambda *_: row)
+        result = c.get('/jobs/' + jid).json()
+        assert result['status'] == status  # retain provider status on the wire
+>       assert result['progress'] == 100
+E       assert None == 100
+
+tests/python/test_plugin_api.py:339: AssertionError
+___ test_v13_active_job_aliases_stay_active_without_invented_progress[draft] ___
+
+api = (<starlette.testclient.TestClient object at 0x79869619ad90>, <module 'v01_api' from '/home/deploy/work/realtwin/hermes...27.0.0.1', port=49783, api_key='STCANARY_API_KEY_2e9bc6c94a', requests=[]), {'api_base_url': 'http://127.0.0.1:49783'})
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7986960bb650>
+status = 'draft'
+
+    @pytest.mark.parametrize('status', ['submitted', 'pending', 'draft', 'queued', 'executing', 'in_progress', 'processing', 'running'])
+    def test_v13_active_job_aliases_stay_active_without_invented_progress(api, monkeypatch, status):
+        c, mod, _, _ = api
+        jid = '00000001-0001-4000-8000-000000000001'
+        monkeypatch.setattr(mod, '_call', lambda *_: {'status': status})
+        result = c.get('/active', params={'tasks': jid}).json()
+>       assert result['done'] == []
+E       AssertionError: assert ['00000001-00...000000000001'] == []
+E         
+E         Left contains one more item: '00000001-0001-4000-8000-000000000001'
+E         Use -v to get more diff
+
+tests/python/test_plugin_api.py:350: AssertionError
+_ test_v13_active_job_aliases_stay_active_without_invented_progress[executing] _
+
+api = (<starlette.testclient.TestClient object at 0x7986960577d0>, <module 'v01_api' from '/home/deploy/work/realtwin/hermes...27.0.0.1', port=59105, api_key='STCANARY_API_KEY_2e9bc6c94a', requests=[]), {'api_base_url': 'http://127.0.0.1:59105'})
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x798695fb9310>
+status = 'executing'
+
+    @pytest.mark.parametrize('status', ['submitted', 'pending', 'draft', 'queued', 'executing', 'in_progress', 'processing', 'running'])
+    def test_v13_active_job_aliases_stay_active_without_invented_progress(api, monkeypatch, status):
+        c, mod, _, _ = api
+        jid = '00000001-0001-4000-8000-000000000001'
+        monkeypatch.setattr(mod, '_call', lambda *_: {'status': status})
+        result = c.get('/active', params={'tasks': jid}).json()
+>       assert result['done'] == []
+E       AssertionError: assert ['00000001-00...000000000001'] == []
+E         
+E         Left contains one more item: '00000001-0001-4000-8000-000000000001'
+E         Use -v to get more diff
+
+tests/python/test_plugin_api.py:350: AssertionError
+_ test_v13_active_job_aliases_stay_active_without_invented_progress[processing] _
+
+api = (<starlette.testclient.TestClient object at 0x79869800f250>, <module 'v01_api' from '/home/deploy/work/realtwin/hermes...27.0.0.1', port=59307, api_key='STCANARY_API_KEY_2e9bc6c94a', requests=[]), {'api_base_url': 'http://127.0.0.1:59307'})
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x798695e75cd0>
+status = 'processing'
+
+    @pytest.mark.parametrize('status', ['submitted', 'pending', 'draft', 'queued', 'executing', 'in_progress', 'processing', 'running'])
+    def test_v13_active_job_aliases_stay_active_without_invented_progress(api, monkeypatch, status):
+        c, mod, _, _ = api
+        jid = '00000001-0001-4000-8000-000000000001'
+        monkeypatch.setattr(mod, '_call', lambda *_: {'status': status})
+        result = c.get('/active', params={'tasks': jid}).json()
+>       assert result['done'] == []
+E       AssertionError: assert ['00000001-00...000000000001'] == []
+E         
+E         Left contains one more item: '00000001-0001-4000-8000-000000000001'
+E         Use -v to get more diff
+
+tests/python/test_plugin_api.py:350: AssertionError
+_________________ test_v13_job_status_constants_are_canonical __________________
+
+api = (<starlette.testclient.TestClient object at 0x7986960e1410>, <module 'v01_api' from '/home/deploy/work/realtwin/hermes...27.0.0.1', port=40101, api_key='STCANARY_API_KEY_2e9bc6c94a', requests=[]), {'api_base_url': 'http://127.0.0.1:40101'})
+
+    def test_v13_job_status_constants_are_canonical(api):
+        _, mod, _, _ = api
+>       assert mod.TERMINAL_OK_STATUSES == ('done', 'complete', 'completed', 'succeeded', 'success')
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'v01_api' has no attribute 'TERMINAL_OK_STATUSES'
+
+tests/python/test_plugin_api.py:357: AttributeError
+=========================== short test summary info ============================
+FAILED tests/python/test_plugin_api.py::test_v13_terminal_job_aliases_share_progress_actions_and_active_contract[success]
+FAILED tests/python/test_plugin_api.py::test_v13_active_job_aliases_stay_active_without_invented_progress[draft]
+FAILED tests/python/test_plugin_api.py::test_v13_active_job_aliases_stay_active_without_invented_progress[executing]
+FAILED tests/python/test_plugin_api.py::test_v13_active_job_aliases_stay_active_without_invented_progress[processing]
+FAILED tests/python/test_plugin_api.py::test_v13_job_status_constants_are_canonical
+5 failed, 9 passed, 59 deselected in 5.26s

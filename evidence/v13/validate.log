@@ -1,0 +1,13 @@
+
+✓ portable manifest — plugin.json parses (Agent Plugins v1)
+✓ manifest fields — name present
+✓ config schema — shape valid
+✓ server trust: studiotwin — untrusted (Hermes asks before every write-capable 
+tool call)
+✓ server costs: studiotwin — 27 costed tool(s), no spend limit
+✓ security scan — caution
+✓ desktop surface — stays inside the plugin SDK surface
+⚠ security scan caution: python_compile_exec (run-stage-mutations.py:4)
+◆ Isolation — portable plugin (no Python): runs anywhere
+
+Validation passed.

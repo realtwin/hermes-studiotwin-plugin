@@ -2,6 +2,7 @@ import { secondaryButtonStyle } from '../lib/ui-tokens.ts';
 import * as sdk from "@hermes/plugin-sdk";
 import { cardShell, cardTitle, cardSubtitle, controlStrip, filterPillStyle } from "../lib/ui-tokens.ts";
 import { useRef, useState } from "react";
+import type { UploadLifecycleState } from "../lib/state-machines.ts";
 import { object, type MediaScope } from "../cards/next-actions.ts";
 import { compose, type Row } from "./workspace-data.ts";
 export async function uploadReference(
@@ -67,44 +68,40 @@ export function UploadDrawer({
   session?: string | null;
   onUploaded?: () => void;
 }) {
-  const [cloud, setCloud] = useState(false),
-    [busy, setBusy] = useState(false),
-    [result, setResult] = useState<Row | null>(null),
-    [error, setError] = useState("");
+  const [cloud, setCloud] = useState(false);
+  const [state, setState] = useState<UploadLifecycleState<Row>>({ phase: 'idle' });
+  const busy = state.phase === 'uploading';
+  const result = state.phase === 'succeeded' ? state.result : null;
   const lock = useRef(false);
   const upload = async (file?: File) => {
     if (!file || lock.current) return;
     if (cloud && !configured) {
-      setError("Configure StudioTwin before uploading to the cloud.");
+      setState({ phase: 'failed', message: "Configure StudioTwin before uploading to the cloud." });
       return;
     }
     lock.current = true;
-    setBusy(true);
-    setError("");
-    setResult(null);
+    setState({ phase: 'uploading', filename: file.name, destination: cloud ? 'cloud' : 'local' });
     try {
       const saved = await uploadReference(scope, file, cloud);
       scope.assert();
-      setResult(saved);
+      setState({ phase: 'succeeded', result: saved });
       onUploaded?.();
     } catch (e) {
-      if (scope.current())
-        setError(
-          e instanceof Error
+      setState({ phase: 'failed', message:
+          scope.current() && e instanceof Error
             ? /^(Choose a|Use a plain|Unsupported reference|Upload completion)/.test(
                 e.message,
               )
               ? e.message
               : "Upload could not be confirmed. Inspect the library before retrying."
             : "Upload could not be confirmed. Inspect the library before retrying.",
-        );
+        });
     } finally {
       lock.current = false;
-      setBusy(false);
     }
   };
   return (
-    <section aria-label="Upload reference" style={{ ...cardShell, padding: 24, maxWidth: 920, margin: "0 auto" }}>
+    <section data-upload-state={state.phase} aria-label="Upload reference" style={{ ...cardShell, padding: 24, maxWidth: 920, margin: "0 auto" }}>
       <h2 style={{ ...cardTitle, margin: "0 0 10px" }}>Upload a reference</h2>
       <p style={{ ...cardSubtitle, lineHeight: 1.6, marginBottom: 20 }}>
         Stage on the connected Hermes host, or explicitly send the file to
@@ -159,8 +156,8 @@ export function UploadDrawer({
         </div>
         <p style={{ ...cardSubtitle, margin: "16px 0 0", fontSize: 11 }}>Up to 50 MiB · {cloud ? "StudioTwin cloud" : "Connected Hermes host"}</p>
       </div>
-      {busy && <p role="status">Uploading reference…</p>}
-      {error && <p role="alert">{error}</p>}
+      {state.phase === 'uploading' && <p role="status">Uploading reference… {state.filename} · {state.destination === 'cloud' ? 'StudioTwin cloud' : 'Local staging'}</p>}
+      {state.phase === 'failed' && <p role="alert">{state.message}</p>}
       {result && (
         <div style={{ ...cardShell, padding: 16, marginTop: 20 }}>
           <p>

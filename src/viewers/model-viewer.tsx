@@ -1,13 +1,14 @@
 import { inspectorButtonStyle } from '../lib/ui-tokens.ts';
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import * as sdk from '@hermes/plugin-sdk'
 import { stageShell, glassToolbar, glassStatsPill, controlStrip, styledSelect, posterTile, inspectorToggleStyle as filterPillStyle } from '../lib/ui-tokens'
 import type { PluginContext } from '@hermes/plugin-sdk'
 const { Button } = sdk
-import { createModelStage, type ModelStage, type ShadingMode } from './model-stage.ts'
+import { createModelStage, type ShadingMode } from './model-stage.ts'
 import { fetchModel, type ModelSource } from './model-source.ts'
 import type { ModelStats } from './model-data.ts'
-import { modelWebGLPool } from './webgl-pool.ts'
+import { usePooledStage } from './env-lifecycle.ts'
+import { multiviewTransition, type MultiviewState, type MultiviewEvent } from '../lib/state-machines.ts'
 import { bindModelScope } from './model-source.ts'
 import type { MultiviewCapture } from './model-stage.ts'
 import { multiviewFilename, stageMultiview, reskinPrompt } from './multiview-reference.ts'
@@ -48,16 +49,7 @@ export function ModelViewer({
   envSource,
   environments
 }: ModelViewerProps) {
-  const id = useId(),
-    canvasHost = useRef<HTMLDivElement>(null),
-    stage = useRef<ModelStage | null>(null)
-  // The fallback/audit branches remove the viewer section. Track the actual
-  // element so recovery observes its replacement, not a detached section.
-  const [container, setContainer] = useState<HTMLElement | null>(null)
-  const [live, setLive] = useState(false),
-    [ready, setReady] = useState(false),
-    [error, setError] = useState(false),
-    [thumbnail, setThumbnail] = useState(poster)
+
   const [stats, setStats] = useState<ModelStats | null>(null),
     [mode, setMode] = useState<ShadingMode>('textured'),
     [spinOverride, setSpin] = useState<boolean | null>(null),
@@ -67,16 +59,39 @@ export function ModelViewer({
   const sourceKey = JSON.stringify(source)
   const [views, setViews] = useState<4 | 6>(4), [pass, setPass] = useState<ShadingMode>('clay')
   const [yawOffsetDeg, setYawOffsetDeg] = useState(0)
-  const [capture, setCapture] = useState<MultiviewCapture | null>(null)
-  const [sheetPath, setSheetPath] = useState(''), [captureError, setCaptureError] = useState(''), [capturing, setCapturing] = useState(false)
-  const captureLock = useRef(false), owner = useRef(0)
+  const [multiview, setMultiview] = useState<MultiviewState<MultiviewCapture>>({ phase: 'idle' })
+  const multiviewRef = useRef(multiview), owner = useRef(0)
+  const sendMultiview = (event: MultiviewEvent<MultiviewCapture>) => {
+    multiviewRef.current = multiviewTransition(multiviewRef.current, event)
+    setMultiview(multiviewRef.current)
+  }
+  const capture = 'capture' in multiview ? multiview.capture : null
+  const sheetPath = multiview.phase === 'staged' ? multiview.sheetPath : ''
+  const captureError = 'message' in multiview ? multiview.message : ''
+  const capturing = multiview.phase === 'capturing' || multiview.phase === 'staging'
+  const v = usePooledStage(sourceKey, h => {
+    const local = createModelStage(h)
+    local.setGrid(grid); local.setAutoRotate(spin)
+    return local
+  }, async (local, current) => {
+    setStats(null); setLoadedAudit(null)
+    const f = await fetchModel(rest, source)
+    if (!current()) return
+    if ((source.name || f.name).toLowerCase().endsWith('.json')) {
+      const parsedAudit = parseRigAudit(JSON.parse(new TextDecoder().decode(f.buffer)))
+      if (parsedAudit) { setLoadedAudit(parsedAudit); return 'audit' }
+    }
+    const result = await local.load(f.buffer, source.name || f.name)
+    if (current()) { local.setShading(mode); setStats(result) }
+  }, rest, webgl_limit, onError, poster)
+  const { host: canvasHost, stage, setContainer, live, ready, error, poster: thumbnail } = v
   const [environmentChoice, setEnvironmentChoice] = useState<string | null>(null), [showEnvironment, setShowEnvironment] = useState(false)
   const [environmentError, setEnvironmentError] = useState('')
   const chosenEnvironment = environmentChoice === null ? envSource : environmentChoice === '' ? undefined : environments?.[Number(environmentChoice)]?.source
   const envKey = JSON.stringify(chosenEnvironment)
   useEffect(() => {
     owner.current++
-    setCapture(null); setSheetPath(''); setCaptureError(''); setCapturing(false); captureLock.current = false
+    sendMultiview({ type: 'reset' })
     return () => { owner.current++ }
   }, [rest, sourceKey])
   useEffect(() => {
@@ -93,102 +108,23 @@ export function ModelViewer({
   }, [ready, rest, envKey, showEnvironment])
   const captureReference = async () => {
     const local = stage.current
-    if (!local || captureLock.current) return
+    if (!local || ['capturing', 'staging'].includes(multiviewRef.current.phase)) return
     const scope = bindModelScope(rest, sdk.host.state), generation = owner.current
     const current = () => generation === owner.current && scope.current()
-    captureLock.current = true; setCapturing(true); setCaptureError(''); setSheetPath('')
+    sendMultiview({ type: 'start' })
     try {
       const result = await local.captureMultiview({ views, shading: pass, yawOffsetDeg })
       if (!current()) return
-      setCapture(result)
+      sendMultiview({ type: 'captured', capture: result })
       const saved = await stageMultiview(scope.rest, source, result, sessionId)
       if (!current()) return
       await onMultiviewCaptured?.(result, source)
-      if (current()) setSheetPath(saved.path)
+      if (current()) sendMultiview({ type: 'staged', sheetPath: saved.path })
     } catch {
-      if (current()) setCaptureError('Capture or local staging could not be confirmed. The sheet can still be downloaded if available. Nothing was generated in the cloud.')
-    } finally {
-      if (generation === owner.current) { captureLock.current = false; setCapturing(false) }
+      if (current()) sendMultiview({ type: 'error', message: 'Capture or local staging could not be confirmed. The sheet can still be downloaded if available. Nothing was generated in the cloud.' })
     }
   }
   useEffect(() => setLoadedAudit(null), [sourceKey])
-  useEffect(() => {
-    modelWebGLPool.setLimit(webgl_limit)
-  }, [webgl_limit])
-  useEffect(() => {
-    const el = container
-    if (!el || typeof IntersectionObserver === 'undefined') return
-    const o = new IntersectionObserver((entries) => {
-      if (!entries.some((e) => e.isIntersecting)) modelWebGLPool.release(id)
-    })
-    o.observe(el)
-    return () => o.disconnect()
-  }, [id, container])
-  // Disposal changes live, not the outcome of the last attempt. Only a new
-  // source/backend or an explicit retry should clear a failed preview.
-  useEffect(() => setError(false), [rest, sourceKey])
-  useEffect(() => {
-    setReady(false)
-    setStats(null)
-    if (!live || !canvasHost.current) return
-    let alive = true,
-      s: ModelStage | null = null
-    const dispose = () => {
-      alive = false
-      if (s) {
-        try {
-          setThumbnail(s.snapshot())
-        } catch {}
-        s.dispose()
-      }
-      if (stage.current === s) stage.current = null
-      setLive(false)
-      setReady(false)
-    }
-    // Reserve BEFORE creating a renderer. Eviction disposes synchronously, so cap is never exceeded.
-    modelWebGLPool.acquire(id, dispose)
-    try {
-      s = createModelStage(canvasHost.current)
-      stage.current = s
-      s.setGrid(grid)
-      s.setAutoRotate(spin)
-    } catch (e) {
-      modelWebGLPool.release(id)
-      setError(true)
-      onError?.(e)
-      return
-    }
-    const local = s
-    void fetchModel(rest, source)
-      .then(async (f) => {
-        if (!alive) return
-        if ((source.name || f.name).toLowerCase().endsWith('.json')) {
-          const doc = JSON.parse(new TextDecoder().decode(f.buffer))
-          const parsedAudit = parseRigAudit(doc)
-          if (parsedAudit) {
-            modelWebGLPool.release(id)
-            setLoadedAudit(parsedAudit)
-            return
-          }
-        }
-        const stats = await local.load(f.buffer, source.name || f.name)
-        if (alive) {
-          local.setShading(mode)
-          setStats(stats)
-          setReady(true)
-        }
-      })
-      .catch((e) => {
-        if (alive) {
-          modelWebGLPool.release(id)
-          setError(true)
-          onError?.(e)
-        }
-      })
-    return () => {
-      modelWebGLPool.release(id)
-    }
-  }, [live, rest, sourceKey, id])
   useEffect(() => {
     stage.current?.setShading(mode)
   }, [mode])
@@ -198,10 +134,10 @@ export function ModelViewer({
   useEffect(() => {
     stage.current?.setAutoRotate(spin)
   }, [spin])
-  if (error && fallback !== undefined) return <>{fallback}</>
-  if (loadedAudit)
+  if (error && fallback !== undefined) return <section data-stage-state={v.phase}>{fallback}</section>
+  if (v.phase === 'audit' && loadedAudit)
     return (
-      <section style={{ padding: 12, color: 'oklch(from var(--ui-text) l 0 h)', background: 'oklch(from var(--ui-bg-secondary) l 0 h)' }}>
+      <section data-stage-state={v.phase} style={{ padding: 12, color: 'oklch(from var(--ui-text) l 0 h)', background: 'oklch(from var(--ui-bg-secondary) l 0 h)' }}>
         <strong>Rig audit: {loadedAudit.riggable ? 'passed' : 'needs attention'}</strong> · {loadedAudit.joints} joints
         <ul>
           {loadedAudit.warnings.map((w, i) => (
@@ -215,18 +151,16 @@ export function ModelViewer({
     <section
       ref={setContainer}
       data-studiotwin-model-viewer
+      data-stage-state={v.phase}
       style={stageShell}
-      onPointerDown={() => modelWebGLPool.touch(id)}
+      onPointerDown={v.touch}
     >
       <div style={{ position: 'relative', height }}>
         <div ref={canvasHost} style={{ position: 'absolute', inset: 0 }} />
         {!live && (
           <button
             type="button"
-            onClick={() => {
-              setError(false)
-              setLive(true)
-            }}
+            onClick={v.start}
             style={{
               ...posterTile,
               position: 'absolute',
@@ -285,8 +219,7 @@ export function ModelViewer({
                   const row = downloads?.[Number(e.target.value)]
                   if (row)
                     void onDownload(row.source).catch((err) => {
-                      setError(true)
-                      onError?.(err)
+                      v.fail(err)
                     })
                   e.target.value = ''
                 }}
@@ -301,7 +234,7 @@ export function ModelViewer({
               </select>
             )}
           </div>
-          <div role="group" aria-label="Multiview" style={{ ...controlStrip, padding: 12, flexWrap: 'wrap' }}>
+          <div role="group" aria-label="Multiview" data-multiview-state={multiview.phase} style={{ ...controlStrip, padding: 12, flexWrap: 'wrap' }}>
             <strong>Multiview</strong>
             <select aria-label="Multiview views" style={styledSelect} value={views} disabled={capturing} onChange={e => setViews(Number(e.target.value) as 4 | 6)}>
               <option value="4">4 Views</option><option value="6">6 Views</option>
@@ -312,7 +245,9 @@ export function ModelViewer({
             <select aria-label="Multiview yaw offset" style={styledSelect} value={yawOffsetDeg} disabled={capturing} onChange={e => setYawOffsetDeg(Number(e.target.value))}>
               <option value="0">0° (+Z)</option><option value="90">90° (+X)</option><option value="180">180° (-Z)</option><option value="-90">-90° (-X)</option>
             </select>
-            <Button variant="outline" style={inspectorButtonStyle} size="sm" aria-label="Capture Multiview" disabled={capturing} onClick={() => void captureReference()}>{capturing ? 'Capturing / staging…' : 'Capture Multiview'}</Button>
+            <Button variant="outline" style={inspectorButtonStyle} size="sm" aria-label="Capture Multiview" disabled={capturing} onClick={() => void captureReference()}>{multiview.phase === 'capturing' ? 'Capturing views…' : multiview.phase === 'staging' ? 'Staging sheet…' : 'Capture Multiview'}</Button>
+            {capturing && <span role="status">{multiview.phase === 'capturing' ? 'Capturing views…' : 'Staging sheet…'}</span>}
+            {multiview.phase === 'staged' && <span role="status">Ready for Reskin</span>}
             <Button variant="outline" style={inspectorButtonStyle} size="sm" disabled={!sheetPath || capturing || !onReskin} onClick={() => { if (sheetPath) onReskin?.(reskinPrompt(source, sheetPath)) }}>Reskin 3D in Chat</Button>
           </div>
           {(envSource || environments?.length) && <div style={{ ...controlStrip, padding: 12, flexWrap: 'wrap' }}>
@@ -324,7 +259,7 @@ export function ModelViewer({
             <label><input type="checkbox" checked={showEnvironment} onChange={e => setShowEnvironment(e.target.checked)} /> Show environment background</label>
           </div>}
           {environmentError && <p role="alert">{environmentError}</p>}
-          {capture && <section aria-label="Multiview Reference Preview" style={{ padding: 12 }}>
+          {capture && <section aria-label="Multiview Reference Preview" data-multiview-state={multiview.phase} style={{ padding: 12 }}>
             <img src={capture.sheetDataUrl} alt="Multiview Reference Preview" style={{ width: '100%', maxWidth: 440, maxHeight: 280, objectFit: 'contain' }} />
             <div style={{ ...controlStrip, flexWrap: 'wrap' }}>{capture.views.map(v => <span key={v.name} style={glassStatsPill}>{v.label}</span>)}
               <Button variant="outline" style={inspectorButtonStyle} size="sm" onClick={() => {

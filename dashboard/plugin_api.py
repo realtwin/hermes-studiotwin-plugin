@@ -323,12 +323,16 @@ def jobs(limit: int = Query(24,ge=1,le=100),offset: int = Query(0,ge=0)):
     return {'jobs':_call('studiotwin_list_my_jobs',{'limit':limit,'offset':offset})}
 
 
+TERMINAL_OK_STATUSES = ('done', 'complete', 'completed', 'succeeded', 'success')
+ACTIVE_JOB_STATUSES = ('submitted', 'pending', 'draft', 'queued', 'executing', 'in_progress', 'processing', 'running')
+
+
 def _job(jid):
     _id(jid)
     row = _call('studiotwin_get_job_status',{'jobId':jid})
     state = str(row.get('status','')).lower()
     # No invented intermediate percentage: None explicitly means not reported.
-    progress = row.get('progress',100 if state in ('done','complete','completed','succeeded') else None)
+    progress = row.get('progress',100 if state in TERMINAL_OK_STATUSES else None)
     return {**row,'id':jid,'progress':progress}
 
 
@@ -356,7 +360,7 @@ def active(tasks: str = ''):
         except HTTPException as exc:
             (missing if exc.status_code == 404 else failed).append(jid)
             continue
-        if str(row.get('status','')).lower() in ('submitted','queued','running','pending','in_progress'):
+        if str(row.get('status','')).lower() in ACTIVE_JOB_STATUSES:
             running.append(row)
         else:
             done.append(jid)
@@ -525,7 +529,7 @@ def actions(id: str, type: str = ''):
             type = 'environment' if Path(row.get('name','')).suffix.lower() in ('.hdr','.exr') else row.get('type','unknown')
         else:
             row = _job(id)
-            if str(row.get('status','')).lower() not in ('done','complete','completed','succeeded'):
+            if str(row.get('status','')).lower() not in TERMINAL_OK_STATUSES:
                 return {'id':id,'type':'job','actions':[]}
             outputs = row.get('outputs') or {}
             type = next((kind for keys,kind in [

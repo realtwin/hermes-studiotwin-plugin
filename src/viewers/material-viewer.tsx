@@ -56,11 +56,12 @@ export function MaterialViewer({
       swatch,
     );
   }, [channel, geometry, repeat, scale, rotation, swatch, v.ready]);
-  if (v.error && fallback !== undefined) return <>{fallback}</>;
+  if (v.error && fallback !== undefined) return <section data-stage-state={v.phase}>{fallback}</section>;
   return (
     <section
       ref={v.setContainer}
       data-studiotwin-material-viewer
+      data-stage-state={v.phase}
       style={{ ...stageShell, color: 'oklch(from var(--ui-text) l 0 h)' }}
       onPointerDown={v.touch}
     >

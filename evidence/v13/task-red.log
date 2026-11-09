@@ -1,0 +1,1136 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13
+
+ ❯ tests/workspace/task-states.test.ts (16 tests | 16 failed) 8274ms
+   × unknown job status undefined safely defaults to queued at both consumers 9ms
+     → Unknown job status
+   × unknown job status null safely defaults to queued at both consumers 1ms
+     → Unknown job status
+   × unknown job status "" safely defaults to queued at both consumers 0ms
+     → Unknown job status
+   × unknown job status "provider-new-state" safely defaults to queued at both consumers 0ms
+     → Unknown job status
+   × unknown job status {} safely defaults to queued at both consumers 0ms
+     → Unknown job status
+   × unknown job status 42 safely defaults to queued at both consumers 0ms
+     → Unknown job status
+   × renders normalized success as phase completed with existing task marker 1077ms
+     → expected null to be 'completed' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<article[39m
+        [33mdata-studiotwin-task[39m=[32m"completed"[39m
+        [33mstyle[39m=[32m"border-radius: 12px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-card, var(--ui-bg-secondary)) l 0 h); box-shadow: var(--ui-shadow-card, 0 4px 16px color-mix(in srgb, oklch(from var(--ui-text) l 0 h) 14%, transparent)); overflow: hidden; min-width: 0px; color: var(--ui-text-primary); max-width: 720px;"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mstyle[39m=[32m"display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 14px; border-bottom: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 65%, transparent);"[39m
+        [36m>[39m
+          [36m<strong[39m
+            [33mstyle[39m=[32m"font-weight: 650; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0px; flex: 1 1 120px;"[39m
+          [36m>[39m
+            [0mStudioTwin [0m
+            [0mtask[0m
+          [36m</strong>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mrole[39m=[32m"status"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; letter-spacing: 0.4px; text-transform: uppercase; font-weight: 650; color: var(--ui-text-primary, var(--ui-text)); border: 1px solid color-mix(in srgb, var(--ui-success, hsl(160 84% 39%)) 55%, transparent); background: color-mix(in srgb, var(--ui-success, hsl(160 84% 39%)) 16%, transparent);"[39m
+          [36m>[39m
+            [0mcompleted[0m
+          [36m</span>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mstyle[39m=[32m"font-size: 11px; line-height: 1.5; color: oklch(from var(--ui-text-secondary) l 0 h); overflow-wrap: anywhere; font-variant-numeric: tabular-nums;"[39m
+          [36m>[39m
+            [0m0[0m
+            [0m s elapsed[0m
+          [36m</span>[39m
+        [36m</header>[39m
+        [36m<div>[39m
+          [36m<p>[39m
+            [0mCompleted. No previewable media was reported.[0m
+          [36m</p>[39m
+        [36m</div>[39m
+      [36m</article>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × renders normalized in-progress as phase running with existing task marker 1012ms
+     → expected null to be 'running' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<article[39m
+        [33mdata-studiotwin-task[39m=[32m"running"[39m
+        [33mstyle[39m=[32m"border-radius: 12px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-card, var(--ui-bg-secondary)) l 0 h); box-shadow: var(--ui-shadow-card, 0 4px 16px color-mix(in srgb, oklch(from var(--ui-text) l 0 h) 14%, transparent)); overflow: hidden; min-width: 0px; color: var(--ui-text-primary); max-width: 720px;"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mstyle[39m=[32m"display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 14px; border-bottom: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 65%, transparent);"[39m
+        [36m>[39m
+          [36m<strong[39m
+            [33mstyle[39m=[32m"font-weight: 650; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0px; flex: 1 1 120px;"[39m
+          [36m>[39m
+            [0mStudioTwin [0m
+            [0mtask[0m
+          [36m</strong>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mrole[39m=[32m"status"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; letter-spacing: 0.4px; text-transform: uppercase; font-weight: 650; color: var(--ui-text-primary, var(--ui-text)); border: 1px solid color-mix(in srgb, var(--ui-accent) 55%, transparent); background: color-mix(in srgb, var(--ui-accent) 16%, transparent);"[39m
+          [36m>[39m
+            [0mrunning[0m
+          [36m</span>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mstyle[39m=[32m"font-size: 11px; line-height: 1.5; color: oklch(from var(--ui-text-secondary) l 0 h); overflow-wrap: anywhere; font-variant-numeric: tabular-nums;"[39m
+          [36m>[39m
+            [0m0[0m
+            [0m s elapsed[0m
+          [36m</span>[39m
+        [36m</header>[39m
+        [36m<progress[39m
+          [33maria-label[39m=[32m"Job progress"[39m
+          [33mmax[39m=[32m"100"[39m
+          [33mstyle[39m=[32m"width: calc(100% - 28px); margin: 14px 14px 8px; height: 8px; border-radius: 999px; overflow: hidden; accent-color: var(--ui-accent); transition: all .3s ease;"[39m
+        [36m/>[39m
+        [36m<small[39m
+          [33mstyle[39m=[32m"font-size: 11px; line-height: 1.5; color: oklch(from var(--ui-text-secondary) l 0 h); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; padding: 14px;"[39m
+        [36m>[39m
+          [0mProgress not reported[0m
+        [36m</small>[39m
+      [36m</article>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × renders normalized processing as phase running with existing task marker 1008ms
+     → expected null to be 'running' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<article[39m
+        [33mdata-studiotwin-task[39m=[32m"running"[39m
+        [33mstyle[39m=[32m"border-radius: 12px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-card, var(--ui-bg-secondary)) l 0 h); box-shadow: var(--ui-shadow-card, 0 4px 16px color-mix(in srgb, oklch(from var(--ui-text) l 0 h) 14%, transparent)); overflow: hidden; min-width: 0px; color: var(--ui-text-primary); max-width: 720px;"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mstyle[39m=[32m"display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 14px; border-bottom: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 65%, transparent);"[39m
+        [36m>[39m
+          [36m<strong[39m
+            [33mstyle[39m=[32m"font-weight: 650; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0px; flex: 1 1 120px;"[39m
+          [36m>[39m
+            [0mStudioTwin [0m
+            [0mtask[0m
+          [36m</strong>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mrole[39m=[32m"status"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; letter-spacing: 0.4px; text-transform: uppercase; font-weight: 650; color: var(--ui-text-primary, var(--ui-text)); border: 1px solid color-mix(in srgb, var(--ui-accent) 55%, transparent); background: color-mix(in srgb, var(--ui-accent) 16%, transparent);"[39m
+          [36m>[39m
+            [0mrunning[0m
+          [36m</span>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mstyle[39m=[32m"font-size: 11px; line-height: 1.5; color: oklch(from var(--ui-text-secondary) l 0 h); overflow-wrap: anywhere; font-variant-numeric: tabular-nums;"[39m
+          [36m>[39m
+            [0m0[0m
+            [0m s elapsed[0m
+          [36m</span>[39m
+        [36m</header>[39m
+        [36m<progress[39m
+          [33maria-label[39m=[32m"Job progress"[39m
+          [33mmax[39m=[32m"100"[39m
+          [33mstyle[39m=[32m"width: calc(100% - 28px); margin: 14px 14px 8px; height: 8px; border-radius: 999px; overflow: hidden; accent-color: var(--ui-accent); transition: all .3s ease;"[39m
+        [36m/>[39m
+        [36m<small[39m
+          [33mstyle[39m=[32m"font-size: 11px; line-height: 1.5; color: oklch(from var(--ui-text-secondary) l 0 h); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; padding: 14px;"[39m
+        [36m>[39m
+          [0mProgress not reported[0m
+        [36m</small>[39m
+      [36m</article>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × renders normalized draft as phase queued with existing task marker 1013ms
+     → expected null to be 'queued' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<article[39m
+        [33mdata-studiotwin-task[39m=[32m"queued"[39m
+        [33mstyle[39m=[32m"border-radius: 12px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-card, var(--ui-bg-secondary)) l 0 h); box-shadow: var(--ui-shadow-card, 0 4px 16px color-mix(in srgb, oklch(from var(--ui-text) l 0 h) 14%, transparent)); overflow: hidden; min-width: 0px; color: var(--ui-text-primary); max-width: 720px;"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mstyle[39m=[32m"display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 14px; border-bottom: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 65%, transparent);"[39m
+        [36m>[39m
+          [36m<strong[39m
+            [33mstyle[39m=[32m"font-weight: 650; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0px; flex: 1 1 120px;"[39m
+          [36m>[39m
+            [0mStudioTwin [0m
+            [0mtask[0m
+          [36m</strong>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mrole[39m=[32m"status"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; letter-spacing: 0.4px; text-transform: uppercase; font-weight: 650; color: var(--ui-text-primary, var(--ui-text)); border: 1px solid color-mix(in srgb, var(--ui-warning, hsl(41 80% 47%)) 55%, transparent); background: color-mix(in srgb, var(--ui-warning, hsl(41 80% 47%)) 16%, transparent);"[39m
+          [36m>[39m
+            [0mqueued[0m
+          [36m</span>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mstyle[39m=[32m"font-size: 11px; line-height: 1.5; color: oklch(from var(--ui-text-secondary) l 0 h); overflow-wrap: anywhere; font-variant-numeric: tabular-nums;"[39m
+          [36m>[39m
+            [0m0[0m
+            [0m s elapsed[0m
+          [36m</span>[39m
+        [36m</header>[39m
+        [36m<progress[39m
+          [33maria-label[39m=[32m"Job progress"[39m
+          [33mmax[39m=[32m"100"[39m
+          [33mstyle[39m=[32m"width: calc(100% - 28px); margin: 14px 14px 8px; height: 8px; border-radius: 999px; overflow: hidden; accent-color: var(--ui-accent); transition: all .3s ease;"[39m
+        [36m/>[39m
+        [36m<small[39m
+          [33mstyle[39m=[32m"font-size: 11px; line-height: 1.5; color: oklch(from var(--ui-text-secondary) l 0 h); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; padding: 14px;"[39m
+        [36m>[39m
+          [0mProgress not reported[0m
+        [36m</small>[39m
+        [36m<button[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 8px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-primary, var(--ui-text)); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mCancel queued job[0m
+        [36m</button>[39m
+      [36m</article>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × renders normalized canceled as phase cancelled with existing task marker 1012ms
+     → expected null to be 'cancelled' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<article[39m
+        [33mdata-studiotwin-task[39m=[32m"cancelled"[39m
+        [33mstyle[39m=[32m"border-radius: 12px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-card, var(--ui-bg-secondary)) l 0 h); box-shadow: var(--ui-shadow-card, 0 4px 16px color-mix(in srgb, oklch(from var(--ui-text) l 0 h) 14%, transparent)); overflow: hidden; min-width: 0px; color: var(--ui-text-primary); max-width: 720px;"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mstyle[39m=[32m"display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 14px; border-bottom: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 65%, transparent);"[39m
+        [36m>[39m
+          [36m<strong[39m
+            [33mstyle[39m=[32m"font-weight: 650; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0px; flex: 1 1 120px;"[39m
+          [36m>[39m
+            [0mStudioTwin [0m
+            [0mtask[0m
+          [36m</strong>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mrole[39m=[32m"status"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; letter-spacing: 0.4px; text-transform: uppercase; font-weight: 650; color: var(--ui-text-primary, var(--ui-text)); border: 1px solid color-mix(in srgb, var(--ui-danger, hsl(0 84% 60%)) 55%, transparent); background: color-mix(in srgb, var(--ui-danger, hsl(0 84% 60%)) 16%, transparent);"[39m
+          [36m>[39m
+            [0mcancelled[0m
+          [36m</span>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mstyle[39m=[32m"font-size: 11px; line-height: 1.5; color: oklch(from var(--ui-text-secondary) l 0 h); overflow-wrap: anywhere; font-variant-numeric: tabular-nums;"[39m
+          [36m>[39m
+            [0m0[0m
+            [0m s elapsed[0m
+          [36m</span>[39m
+        [36m</header>[39m
+      [36m</article>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × renders normalized error as phase failed with existing task marker 1010ms
+     → expected null to be 'failed' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<article[39m
+        [33mdata-studiotwin-task[39m=[32m"failed"[39m
+        [33mstyle[39m=[32m"border-radius: 12px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-card, var(--ui-bg-secondary)) l 0 h); box-shadow: var(--ui-shadow-card, 0 4px 16px color-mix(in srgb, oklch(from var(--ui-text) l 0 h) 14%, transparent)); overflow: hidden; min-width: 0px; color: var(--ui-text-primary); max-width: 720px;"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mstyle[39m=[32m"display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 14px; border-bottom: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 65%, transparent);"[39m
+        [36m>[39m
+          [36m<strong[39m
+            [33mstyle[39m=[32m"font-weight: 650; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0px; flex: 1 1 120px;"[39m
+          [36m>[39m
+            [0mStudioTwin [0m
+            [0mtask[0m
+          [36m</strong>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mrole[39m=[32m"status"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; letter-spacing: 0.4px; text-transform: uppercase; font-weight: 650; color: var(--ui-text-primary, var(--ui-text)); border: 1px solid color-mix(in srgb, var(--ui-danger, hsl(0 84% 60%)) 55%, transparent); background: color-mix(in srgb, var(--ui-danger, hsl(0 84% 60%)) 16%, transparent);"[39m
+          [36m>[39m
+            [0mfailed[0m
+          [36m</span>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mstyle[39m=[32m"font-size: 11px; line-height: 1.5; color: oklch(from var(--ui-text-secondary) l 0 h); overflow-wrap: anywhere; font-variant-numeric: tabular-nums;"[39m
+          [36m>[39m
+            [0m0[0m
+            [0m s elapsed[0m
+          [36m</span>[39m
+        [36m</header>[39m
+        [36m<p[39m
+          [33mrole[39m=[32m"alert"[39m
+        [36m>[39m
+          [0mJob failed. [0m
+          [0mInspect the existing job before any paid retry.[0m
+        [36m</p>[39m
+      [36m</article>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × renders loading then cancelling while preserving queued marker and disabling duplicate cancel 10ms
+     → expected null to be 'loading' // Object.is equality
+   × completion retires a cancellation warning and its alert 1089ms
+     → expected null to be 'completed' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<article[39m
+        [33mdata-studiotwin-task[39m=[32m"completed"[39m
+        [33mstyle[39m=[32m"border-radius: 12px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-card, var(--ui-bg-secondary)) l 0 h); box-shadow: var(--ui-shadow-card, 0 4px 16px color-mix(in srgb, oklch(from var(--ui-text) l 0 h) 14%, transparent)); overflow: hidden; min-width: 0px; color: var(--ui-text-primary); max-width: 720px;"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mstyle[39m=[32m"display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 14px; border-bottom: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 65%, transparent);"[39m
+        [36m>[39m
+          [36m<strong[39m
+            [33mstyle[39m=[32m"font-weight: 650; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0px; flex: 1 1 120px;"[39m
+          [36m>[39m
+            [0mStudioTwin [0m
+            [0mtask[0m
+          [36m</strong>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mrole[39m=[32m"status"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; letter-spacing: 0.4px; text-transform: uppercase; font-weight: 650; color: var(--ui-text-primary, var(--ui-text)); border: 1px solid color-mix(in srgb, var(--ui-success, hsl(160 84% 39%)) 55%, transparent); background: color-mix(in srgb, var(--ui-success, hsl(160 84% 39%)) 16%, transparent);"[39m
+          [36m>[39m
+            [0mcompleted[0m
+          [36m</span>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mstyle[39m=[32m"font-size: 11px; line-height: 1.5; color: oklch(from var(--ui-text-secondary) l 0 h); overflow-wrap: anywhere; font-variant-numeric: tabular-nums;"[39m
+          [36m>[39m
+            [0m0[0m
+            [0m s elapsed[0m
+          [36m</span>[39m
+        [36m</header>[39m
+        [36m<p[39m
+          [33mrole[39m=[32m"alert"[39m
+        [36m>[39m
+          [0mCancellation could not be confirmed. Check the existing job before retrying.[0m
+        [36m</p>[39m
+        [36m<div>[39m
+          [36m<p>[39m
+            [0mCompleted. No previewable media was reported.[0m
+          [36m</p>[39m
+        [36m</div>[39m
+      [36m</article>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+   × stale task fallback has an explicit stale phase without exposing active controls 5ms
+     → expected null to be truthy
+   × JobsTab treats unknown provider states as cancellable active jobs 1026ms
+     → Unable to find role="button" and name "Cancel queued job"
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"StudioTwin jobs"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 12px; font-size: 12px; min-width: 0px; font-variant-numeric: tabular-nums; background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 55%, transparent);"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"false"[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-secondary); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mAll[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"true"[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-accent) 16%, var(--ui-bg-elevated, var(--ui-bg-secondary))); color: var(--ui-text-primary, var(--ui-text)); border: 1px solid color-mix(in srgb, var(--ui-accent) 48%, var(--ui-stroke-secondary)); font-weight: 600; box-shadow: var(--ui-shadow-control, 0 1px 4px color-mix(in srgb, var(--ui-text) 18%, transparent));"[39m
+        [36m>[39m
+          [0mActive[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"false"[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-secondary); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mCompleted[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"false"[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-secondary); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mFailed[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"false"[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-secondary); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mCancelled[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 8px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-primary, var(--ui-text)); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mRefresh jobs[0m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<p>[39m
+        [0mNo matching jobs on this page.[0m
+      [36m</p>[39m
+      [36m<nav[39m
+        [33maria-label[39m=[32m"Job pages"[39m
+        [33mstyle[39m=[32m"display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 20px;"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mdisabled[39m=[32m""[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 8px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-primary, var(--ui-text)); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mPrevious jobs[0m
+        [36m</button>[39m
+        [36m<span>[39m
+          [0mOffset [0m
+          [0m0[0m
+        [36m</span>[39m
+        [36m<button[39m
+          [33mdisabled[39m=[32m""[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 8px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-primary, var(--ui-text)); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mNext jobs[0m
+        [36m</button>[39m
+      [36m</nav>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"StudioTwin jobs"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 12px; font-size: 12px; min-width: 0px; font-variant-numeric: tabular-nums; background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 55%, transparent);"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"false"[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-secondary); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mAll[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"true"[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-accent) 16%, var(--ui-bg-elevated, var(--ui-bg-secondary))); color: var(--ui-text-primary, var(--ui-text)); border: 1px solid color-mix(in srgb, var(--ui-accent) 48%, var(--ui-stroke-secondary)); font-weight: 600; box-shadow: var(--ui-shadow-control, 0 1px 4px color-mix(in srgb, var(--ui-text) 18%, transparent));"[39m
+        [36m>[39m
+          [0mActive[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"false"[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-secondary); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mCompleted[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"false"[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-secondary); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mFailed[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"false"[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-secondary); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mCancelled[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 8px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-primary, var(--ui-text)); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mRefresh jobs[0m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<p>[39m
+        [0mNo matching jobs on this page.[0m
+      [36m</p>[39m
+      [36m<nav[39m
+        [33maria-label[39m=[32m"Job pages"[39m
+        [33mstyle[39m=[32m"display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 20px;"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mdisabled[39m=[32m""[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 8px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-primary, var(--ui-text)); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mPrevious jobs[0m
+        [36m</button>[39m
+        [36m<span>[39m
+          [0mOffset [0m
+          [0m0[0m
+        [36m</span>[39m
+        [36m<button[39m
+          [33mdisabled[39m=[32m""[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 8px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-primary, var(--ui-text)); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mNext jobs[0m
+        [36m</button>[39m
+      [36m</nav>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 16 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workspace/task-states.test.ts > unknown job status undefined safely defaults to queued at both consumers
+ FAIL  tests/workspace/task-states.test.ts > unknown job status null safely defaults to queued at both consumers
+ FAIL  tests/workspace/task-states.test.ts > unknown job status "" safely defaults to queued at both consumers
+ FAIL  tests/workspace/task-states.test.ts > unknown job status "provider-new-state" safely defaults to queued at both consumers
+ FAIL  tests/workspace/task-states.test.ts > unknown job status {} safely defaults to queued at both consumers
+ FAIL  tests/workspace/task-states.test.ts > unknown job status 42 safely defaults to queued at both consumers
+Error: Unknown job status
+ ❯ Module.jobStatus src/cards/task-card.tsx:20:9
+     18|   if (['canceled', 'cancelled'].includes(status)) return 'cancelled'
+     19|   if (['failed', 'error'].includes(status)) return 'failed'
+     20|   throw Error('Unknown job status')
+       |         ^
+     21| }
+     22| const terminal = (status: string) => ['completed', 'failed', 'cancelle…
+ ❯ tests/workspace/task-states.test.ts:30:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/16]⎯
+
+ FAIL  tests/workspace/task-states.test.ts > renders normalized success as phase completed with existing task marker
+AssertionError: expected null to be 'completed' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<article[39m
+        [33mdata-studiotwin-task[39m=[32m"completed"[39m
+        [33mstyle[39m=[32m"border-radius: 12px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-card, var(--ui-bg-secondary)) l 0 h); box-shadow: var(--ui-shadow-card, 0 4px 16px color-mix(in srgb, oklch(from var(--ui-text) l 0 h) 14%, transparent)); overflow: hidden; min-width: 0px; color: var(--ui-text-primary); max-width: 720px;"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mstyle[39m=[32m"display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 14px; border-bottom: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 65%, transparent);"[39m
+        [36m>[39m
+          [36m<strong[39m
+            [33mstyle[39m=[32m"font-weight: 650; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0px; flex: 1 1 120px;"[39m
+          [36m>[39m
+            [0mStudioTwin [0m
+            [0mtask[0m
+          [36m</strong>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mrole[39m=[32m"status"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; letter-spacing: 0.4px; text-transform: uppercase; font-weight: 650; color: var(--ui-text-primary, var(--ui-text)); border: 1px solid color-mix(in srgb, var(--ui-success, hsl(160 84% 39%)) 55%, transparent); background: color-mix(in srgb, var(--ui-success, hsl(160 84% 39%)) 16%, transparent);"[39m
+          [36m>[39m
+            [0mcompleted[0m
+          [36m</span>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mstyle[39m=[32m"font-size: 11px; line-height: 1.5; color: oklch(from var(--ui-text-secondary) l 0 h); overflow-wrap: anywhere; font-variant-numeric: tabular-nums;"[39m
+          [36m>[39m
+            [0m0[0m
+            [0m s elapsed[0m
+          [36m</span>[39m
+        [36m</header>[39m
+        [36m<div>[39m
+          [36m<p>[39m
+            [0mCompleted. No previewable media was reported.[0m
+          [36m</p>[39m
+        [36m</div>[39m
+      [36m</article>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+
+[32m- Expected:[39m 
+"completed"
+
+[31m+ Received:[39m 
+null
+
+ ❯ tests/workspace/task-states.test.ts:36:104
+     34|   const { ctx, mount } = setup(async () => ({ status: raw }))
+     35|   const view = mount(createElement(TaskCard, { ctx, id: 'one', pollInt…
+     36|   await waitFor(() => expect(view.container.querySelector('article')?.…
+       |                                                                                                        ^
+     37|   expect(view.container.querySelector('article')?.getAttribute('data-s…
+     38|   if (['completed', 'cancelled', 'failed'].includes(phase)) expect(scr…
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/16]⎯
+
+ FAIL  tests/workspace/task-states.test.ts > renders normalized in-progress as phase running with existing task marker
+ FAIL  tests/workspace/task-states.test.ts > renders normalized processing as phase running with existing task marker
+AssertionError: expected null to be 'running' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<article[39m
+        [33mdata-studiotwin-task[39m=[32m"running"[39m
+        [33mstyle[39m=[32m"border-radius: 12px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-card, var(--ui-bg-secondary)) l 0 h); box-shadow: var(--ui-shadow-card, 0 4px 16px color-mix(in srgb, oklch(from var(--ui-text) l 0 h) 14%, transparent)); overflow: hidden; min-width: 0px; color: var(--ui-text-primary); max-width: 720px;"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mstyle[39m=[32m"display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 14px; border-bottom: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 65%, transparent);"[39m
+        [36m>[39m
+          [36m<strong[39m
+            [33mstyle[39m=[32m"font-weight: 650; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0px; flex: 1 1 120px;"[39m
+          [36m>[39m
+            [0mStudioTwin [0m
+            [0mtask[0m
+          [36m</strong>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mrole[39m=[32m"status"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; letter-spacing: 0.4px; text-transform: uppercase; font-weight: 650; color: var(--ui-text-primary, var(--ui-text)); border: 1px solid color-mix(in srgb, var(--ui-accent) 55%, transparent); background: color-mix(in srgb, var(--ui-accent) 16%, transparent);"[39m
+          [36m>[39m
+            [0mrunning[0m
+          [36m</span>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mstyle[39m=[32m"font-size: 11px; line-height: 1.5; color: oklch(from var(--ui-text-secondary) l 0 h); overflow-wrap: anywhere; font-variant-numeric: tabular-nums;"[39m
+          [36m>[39m
+            [0m0[0m
+            [0m s elapsed[0m
+          [36m</span>[39m
+        [36m</header>[39m
+        [36m<progress[39m
+          [33maria-label[39m=[32m"Job progress"[39m
+          [33mmax[39m=[32m"100"[39m
+          [33mstyle[39m=[32m"width: calc(100% - 28px); margin: 14px 14px 8px; height: 8px; border-radius: 999px; overflow: hidden; accent-color: var(--ui-accent); transition: all .3s ease;"[39m
+        [36m/>[39m
+        [36m<small[39m
+          [33mstyle[39m=[32m"font-size: 11px; line-height: 1.5; color: oklch(from var(--ui-text-secondary) l 0 h); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; padding: 14px;"[39m
+        [36m>[39m
+          [0mProgress not reported[0m
+        [36m</small>[39m
+      [36m</article>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+
+[32m- Expected:[39m 
+"running"
+
+[31m+ Received:[39m 
+null
+
+ ❯ tests/workspace/task-states.test.ts:36:104
+     34|   const { ctx, mount } = setup(async () => ({ status: raw }))
+     35|   const view = mount(createElement(TaskCard, { ctx, id: 'one', pollInt…
+     36|   await waitFor(() => expect(view.container.querySelector('article')?.…
+       |                                                                                                        ^
+     37|   expect(view.container.querySelector('article')?.getAttribute('data-s…
+     38|   if (['completed', 'cancelled', 'failed'].includes(phase)) expect(scr…
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/16]⎯
+
+ FAIL  tests/workspace/task-states.test.ts > renders normalized draft as phase queued with existing task marker
+AssertionError: expected null to be 'queued' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<article[39m
+        [33mdata-studiotwin-task[39m=[32m"queued"[39m
+        [33mstyle[39m=[32m"border-radius: 12px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-card, var(--ui-bg-secondary)) l 0 h); box-shadow: var(--ui-shadow-card, 0 4px 16px color-mix(in srgb, oklch(from var(--ui-text) l 0 h) 14%, transparent)); overflow: hidden; min-width: 0px; color: var(--ui-text-primary); max-width: 720px;"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mstyle[39m=[32m"display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 14px; border-bottom: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 65%, transparent);"[39m
+        [36m>[39m
+          [36m<strong[39m
+            [33mstyle[39m=[32m"font-weight: 650; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0px; flex: 1 1 120px;"[39m
+          [36m>[39m
+            [0mStudioTwin [0m
+            [0mtask[0m
+          [36m</strong>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mrole[39m=[32m"status"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; letter-spacing: 0.4px; text-transform: uppercase; font-weight: 650; color: var(--ui-text-primary, var(--ui-text)); border: 1px solid color-mix(in srgb, var(--ui-warning, hsl(41 80% 47%)) 55%, transparent); background: color-mix(in srgb, var(--ui-warning, hsl(41 80% 47%)) 16%, transparent);"[39m
+          [36m>[39m
+            [0mqueued[0m
+          [36m</span>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mstyle[39m=[32m"font-size: 11px; line-height: 1.5; color: oklch(from var(--ui-text-secondary) l 0 h); overflow-wrap: anywhere; font-variant-numeric: tabular-nums;"[39m
+          [36m>[39m
+            [0m0[0m
+            [0m s elapsed[0m
+          [36m</span>[39m
+        [36m</header>[39m
+        [36m<progress[39m
+          [33maria-label[39m=[32m"Job progress"[39m
+          [33mmax[39m=[32m"100"[39m
+          [33mstyle[39m=[32m"width: calc(100% - 28px); margin: 14px 14px 8px; height: 8px; border-radius: 999px; overflow: hidden; accent-color: var(--ui-accent); transition: all .3s ease;"[39m
+        [36m/>[39m
+        [36m<small[39m
+          [33mstyle[39m=[32m"font-size: 11px; line-height: 1.5; color: oklch(from var(--ui-text-secondary) l 0 h); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; padding: 14px;"[39m
+        [36m>[39m
+          [0mProgress not reported[0m
+        [36m</small>[39m
+        [36m<button[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 8px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-primary, var(--ui-text)); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mCancel queued job[0m
+        [36m</button>[39m
+      [36m</article>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+
+[32m- Expected:[39m 
+"queued"
+
+[31m+ Received:[39m 
+null
+
+ ❯ tests/workspace/task-states.test.ts:36:104
+     34|   const { ctx, mount } = setup(async () => ({ status: raw }))
+     35|   const view = mount(createElement(TaskCard, { ctx, id: 'one', pollInt…
+     36|   await waitFor(() => expect(view.container.querySelector('article')?.…
+       |                                                                                                        ^
+     37|   expect(view.container.querySelector('article')?.getAttribute('data-s…
+     38|   if (['completed', 'cancelled', 'failed'].includes(phase)) expect(scr…
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/16]⎯
+
+ FAIL  tests/workspace/task-states.test.ts > renders normalized canceled as phase cancelled with existing task marker
+AssertionError: expected null to be 'cancelled' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<article[39m
+        [33mdata-studiotwin-task[39m=[32m"cancelled"[39m
+        [33mstyle[39m=[32m"border-radius: 12px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-card, var(--ui-bg-secondary)) l 0 h); box-shadow: var(--ui-shadow-card, 0 4px 16px color-mix(in srgb, oklch(from var(--ui-text) l 0 h) 14%, transparent)); overflow: hidden; min-width: 0px; color: var(--ui-text-primary); max-width: 720px;"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mstyle[39m=[32m"display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 14px; border-bottom: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 65%, transparent);"[39m
+        [36m>[39m
+          [36m<strong[39m
+            [33mstyle[39m=[32m"font-weight: 650; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0px; flex: 1 1 120px;"[39m
+          [36m>[39m
+            [0mStudioTwin [0m
+            [0mtask[0m
+          [36m</strong>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mrole[39m=[32m"status"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; letter-spacing: 0.4px; text-transform: uppercase; font-weight: 650; color: var(--ui-text-primary, var(--ui-text)); border: 1px solid color-mix(in srgb, var(--ui-danger, hsl(0 84% 60%)) 55%, transparent); background: color-mix(in srgb, var(--ui-danger, hsl(0 84% 60%)) 16%, transparent);"[39m
+          [36m>[39m
+            [0mcancelled[0m
+          [36m</span>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mstyle[39m=[32m"font-size: 11px; line-height: 1.5; color: oklch(from var(--ui-text-secondary) l 0 h); overflow-wrap: anywhere; font-variant-numeric: tabular-nums;"[39m
+          [36m>[39m
+            [0m0[0m
+            [0m s elapsed[0m
+          [36m</span>[39m
+        [36m</header>[39m
+      [36m</article>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+
+[32m- Expected:[39m 
+"cancelled"
+
+[31m+ Received:[39m 
+null
+
+ ❯ tests/workspace/task-states.test.ts:36:104
+     34|   const { ctx, mount } = setup(async () => ({ status: raw }))
+     35|   const view = mount(createElement(TaskCard, { ctx, id: 'one', pollInt…
+     36|   await waitFor(() => expect(view.container.querySelector('article')?.…
+       |                                                                                                        ^
+     37|   expect(view.container.querySelector('article')?.getAttribute('data-s…
+     38|   if (['completed', 'cancelled', 'failed'].includes(phase)) expect(scr…
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/16]⎯
+
+ FAIL  tests/workspace/task-states.test.ts > renders normalized error as phase failed with existing task marker
+AssertionError: expected null to be 'failed' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<article[39m
+        [33mdata-studiotwin-task[39m=[32m"failed"[39m
+        [33mstyle[39m=[32m"border-radius: 12px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-card, var(--ui-bg-secondary)) l 0 h); box-shadow: var(--ui-shadow-card, 0 4px 16px color-mix(in srgb, oklch(from var(--ui-text) l 0 h) 14%, transparent)); overflow: hidden; min-width: 0px; color: var(--ui-text-primary); max-width: 720px;"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mstyle[39m=[32m"display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 14px; border-bottom: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 65%, transparent);"[39m
+        [36m>[39m
+          [36m<strong[39m
+            [33mstyle[39m=[32m"font-weight: 650; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0px; flex: 1 1 120px;"[39m
+          [36m>[39m
+            [0mStudioTwin [0m
+            [0mtask[0m
+          [36m</strong>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mrole[39m=[32m"status"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; letter-spacing: 0.4px; text-transform: uppercase; font-weight: 650; color: var(--ui-text-primary, var(--ui-text)); border: 1px solid color-mix(in srgb, var(--ui-danger, hsl(0 84% 60%)) 55%, transparent); background: color-mix(in srgb, var(--ui-danger, hsl(0 84% 60%)) 16%, transparent);"[39m
+          [36m>[39m
+            [0mfailed[0m
+          [36m</span>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mstyle[39m=[32m"font-size: 11px; line-height: 1.5; color: oklch(from var(--ui-text-secondary) l 0 h); overflow-wrap: anywhere; font-variant-numeric: tabular-nums;"[39m
+          [36m>[39m
+            [0m0[0m
+            [0m s elapsed[0m
+          [36m</span>[39m
+        [36m</header>[39m
+        [36m<p[39m
+          [33mrole[39m=[32m"alert"[39m
+        [36m>[39m
+          [0mJob failed. [0m
+          [0mInspect the existing job before any paid retry.[0m
+        [36m</p>[39m
+      [36m</article>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+
+[32m- Expected:[39m 
+"failed"
+
+[31m+ Received:[39m 
+null
+
+ ❯ tests/workspace/task-states.test.ts:36:104
+     34|   const { ctx, mount } = setup(async () => ({ status: raw }))
+     35|   const view = mount(createElement(TaskCard, { ctx, id: 'one', pollInt…
+     36|   await waitFor(() => expect(view.container.querySelector('article')?.…
+       |                                                                                                        ^
+     37|   expect(view.container.querySelector('article')?.getAttribute('data-s…
+     38|   if (['completed', 'cancelled', 'failed'].includes(phase)) expect(scr…
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/16]⎯
+
+ FAIL  tests/workspace/task-states.test.ts > renders loading then cancelling while preserving queued marker and disabling duplicate cancel
+AssertionError: expected null to be 'loading' // Object.is equality
+
+[32m- Expected:[39m 
+"loading"
+
+[31m+ Received:[39m 
+null
+
+ ❯ tests/workspace/task-states.test.ts:44:84
+     42|   const { ctx, mount } = setup(async (path) => path === '/cancel' ? ne…
+     43|   const view = mount(createElement(TaskCard, { ctx, id: 'one', pollInt…
+     44|   expect(view.container.querySelector('article')?.getAttribute('data-t…
+       |                                                                                    ^
+     45|   const cancel = await screen.findByRole('button', { name: 'Cancel que…
+     46|   fireEvent.click(cancel)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/16]⎯
+
+ FAIL  tests/workspace/task-states.test.ts > completion retires a cancellation warning and its alert
+AssertionError: expected null to be 'completed' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<article[39m
+        [33mdata-studiotwin-task[39m=[32m"completed"[39m
+        [33mstyle[39m=[32m"border-radius: 12px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-card, var(--ui-bg-secondary)) l 0 h); box-shadow: var(--ui-shadow-card, 0 4px 16px color-mix(in srgb, oklch(from var(--ui-text) l 0 h) 14%, transparent)); overflow: hidden; min-width: 0px; color: var(--ui-text-primary); max-width: 720px;"[39m
+      [36m>[39m
+        [36m<header[39m
+          [33mstyle[39m=[32m"display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 10px 14px; border-bottom: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 65%, transparent);"[39m
+        [36m>[39m
+          [36m<strong[39m
+            [33mstyle[39m=[32m"font-weight: 650; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0px; flex: 1 1 120px;"[39m
+          [36m>[39m
+            [0mStudioTwin [0m
+            [0mtask[0m
+          [36m</strong>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mrole[39m=[32m"status"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; letter-spacing: 0.4px; text-transform: uppercase; font-weight: 650; color: var(--ui-text-primary, var(--ui-text)); border: 1px solid color-mix(in srgb, var(--ui-success, hsl(160 84% 39%)) 55%, transparent); background: color-mix(in srgb, var(--ui-success, hsl(160 84% 39%)) 16%, transparent);"[39m
+          [36m>[39m
+            [0mcompleted[0m
+          [36m</span>[39m
+          [0m · [0m
+          [36m<span[39m
+            [33mstyle[39m=[32m"font-size: 11px; line-height: 1.5; color: oklch(from var(--ui-text-secondary) l 0 h); overflow-wrap: anywhere; font-variant-numeric: tabular-nums;"[39m
+          [36m>[39m
+            [0m0[0m
+            [0m s elapsed[0m
+          [36m</span>[39m
+        [36m</header>[39m
+        [36m<p[39m
+          [33mrole[39m=[32m"alert"[39m
+        [36m>[39m
+          [0mCancellation could not be confirmed. Check the existing job before retrying.[0m
+        [36m</p>[39m
+        [36m<div>[39m
+          [36m<p>[39m
+            [0mCompleted. No previewable media was reported.[0m
+          [36m</p>[39m
+        [36m</div>[39m
+      [36m</article>[39m
+    [36m</div>[39m
+  [36m</body>[39m
+[36m</html>[39m
+
+[32m- Expected:[39m 
+"completed"
+
+[31m+ Received:[39m 
+null
+
+ ❯ tests/workspace/task-states.test.ts:64:104
+     62|   status = 'completed'
+     63|   await client.invalidateQueries({ queryKey: ['studiotwin'] })
+     64|   await waitFor(() => expect(view.container.querySelector('article')?.…
+       |                                                                                                        ^
+     65|   expect(screen.queryByText(/Cancellation could not be confirmed/)).to…
+     66| })
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/16]⎯
+
+ FAIL  tests/workspace/task-states.test.ts > stale task fallback has an explicit stale phase without exposing active controls
+AssertionError: expected null to be truthy
+
+[32m- Expected:[39m 
+true
+
+[31m+ Received:[39m 
+null
+
+ ❯ tests/workspace/task-states.test.ts:71:69
+     69|   const { ctx, mount } = setup(async () => ({ status: 'queued' }))
+     70|   const view = mount(createElement(TaskCard, { ctx, id: 'one' }))
+     71|   expect(view.container.querySelector('[data-task-phase="stale"]')).to…
+       |                                                                     ^
+     72|   expect(screen.getByRole('alert').textContent).toMatch(/originating p…
+     73|   expect(screen.queryByRole('button')).toBeNull()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/16]⎯
+
+ FAIL  tests/workspace/task-states.test.ts > JobsTab treats unknown provider states as cancellable active jobs
+TestingLibraryElementError: Unable to find role="button" and name "Cancel queued job"
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"StudioTwin jobs"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 12px; font-size: 12px; min-width: 0px; font-variant-numeric: tabular-nums; background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 55%, transparent);"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"false"[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-secondary); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mAll[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"true"[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-accent) 16%, var(--ui-bg-elevated, var(--ui-bg-secondary))); color: var(--ui-text-primary, var(--ui-text)); border: 1px solid color-mix(in srgb, var(--ui-accent) 48%, var(--ui-stroke-secondary)); font-weight: 600; box-shadow: var(--ui-shadow-control, 0 1px 4px color-mix(in srgb, var(--ui-text) 18%, transparent));"[39m
+        [36m>[39m
+          [0mActive[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"false"[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-secondary); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mCompleted[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"false"[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-secondary); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mFailed[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"false"[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-secondary); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mCancelled[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 8px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-primary, var(--ui-text)); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mRefresh jobs[0m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<p>[39m
+        [0mNo matching jobs on this page.[0m
+      [36m</p>[39m
+      [36m<nav[39m
+        [33maria-label[39m=[32m"Job pages"[39m
+        [33mstyle[39m=[32m"display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 20px;"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mdisabled[39m=[32m""[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 8px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-primary, var(--ui-text)); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mPrevious jobs[0m
+        [36m</button>[39m
+        [36m<span>[39m
+          [0mOffset [0m
+          [0m0[0m
+        [36m</span>[39m
+        [36m<button[39m
+          [33mdisabled[39m=[32m""[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 8px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-primary, var(--ui-text)); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mNext jobs[0m
+        [36m</button>[39m
+      [36m</nav>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"StudioTwin jobs"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 12px; font-size: 12px; min-width: 0px; font-variant-numeric: tabular-nums; background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 55%, transparent);"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"false"[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-secondary); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mAll[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"true"[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-accent) 16%, var(--ui-bg-elevated, var(--ui-bg-secondary))); color: var(--ui-text-primary, var(--ui-text)); border: 1px solid color-mix(in srgb, var(--ui-accent) 48%, var(--ui-stroke-secondary)); font-weight: 600; box-shadow: var(--ui-shadow-control, 0 1px 4px color-mix(in srgb, var(--ui-text) 18%, transparent));"[39m
+        [36m>[39m
+          [0mActive[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"false"[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-secondary); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mCompleted[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"false"[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-secondary); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mFailed[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"false"[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-secondary); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mCancelled[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 8px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-primary, var(--ui-text)); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mRefresh jobs[0m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<p>[39m
+        [0mNo matching jobs on this page.[0m
+      [36m</p>[39m
+      [36m<nav[39m
+        [33maria-label[39m=[32m"Job pages"[39m
+        [33mstyle[39m=[32m"display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 20px;"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33mdisabled[39m=[32m""[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 8px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-primary, var(--ui-text)); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mPrevious jobs[0m
+        [36m</button>[39m
+        [36m<span>[39m
+          [0mOffset [0m
+          [0m0[0m
+        [36m</span>[39m
+        [36m<button[39m
+          [33mdisabled[39m=[32m""[39m
+          [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 8px; font-size: 12px; cursor: pointer; background: color-mix(in srgb, var(--ui-bg-secondary) 60%, transparent); color: var(--ui-text-primary, var(--ui-text)); border: 1px solid var(--ui-stroke-tertiary, var(--ui-stroke-secondary)); font-weight: 500;"[39m
+        [36m>[39m
+          [0mNext jobs[0m
+        [36m</button>[39m
+      [36m</nav>[39m
+    [36m</section>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ tests/workspace/task-states.test.ts:79:23
+     77|   mount(createElement(JobsTab, { scope: scope as any, configured: true…
+     78|   fireEvent.click(screen.getByRole('button', { name: 'Active', exact: …
+     79|   expect(await screen.findByRole('button', { name: 'Cancel queued job'…
+       |                       ^
+     80|   expect(screen.getByRole('progressbar', { name: 'Job progress' })).to…
+     81| })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/16]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  16 failed (16)
+   Start at  17:24:48
+   Duration  9.71s (transform 389ms, setup 0ms, collect 669ms, tests 8.27s, environment 515ms, prepare 75ms)
+

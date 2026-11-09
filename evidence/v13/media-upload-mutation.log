@@ -1,0 +1,179 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13
+
+ ❯ tests/workspace/media-upload-states.test.ts (9 tests | 9 failed) 309ms
+   × audio exposes loading then ready, with transport playing separate from load state 47ms
+     → expected undefined to be 'loading' // Object.is equality
+   × audio conversion remains ready, blocks duplicate conversions, then clears busy 166ms
+     → expected undefined to be 'ready' // Object.is equality
+   × audio load failure exposes error and a new source restarts loading without stale data 6ms
+     → expected undefined to be 'error' // Object.is equality
+   × video exposes loading then ready_video and resets loading on source replacement 12ms
+     → expected undefined to be 'loading' // Object.is equality
+   × video sequence uses ready_sequence and derives duration from sequence timing 12ms
+     → expected undefined to be 'ready_sequence' // Object.is equality
+   × video resolution and decode failures expose error and preserve fallbacks 14ms
+     → expected undefined to be 'error' // Object.is equality
+   × upload exposes idle, uploading filename/destination, then succeeded (cloud=false) 9ms
+     → expected undefined to be 'idle' // Object.is equality
+   × upload exposes idle, uploading filename/destination, then succeeded (cloud=true) 6ms
+     → expected undefined to be 'idle' // Object.is equality
+   × upload failure clears prior success and supports retry without stale result 36ms
+     → expected undefined to be 'failed' // Object.is equality
+
+ Test Files  1 failed (1)
+      Tests  9 failed (9)
+   Start at  17:25:44
+   Duration  1.47s (transform 237ms, setup 0ms, collect 427ms, tests 309ms, environment 466ms, prepare 81ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workspace/media-upload-states.test.ts > audio exposes loading then ready, with transport playing separate from load state
+AssertionError: expected undefined to be 'loading' // Object.is equality
+
+[32m- Expected:[39m 
+"loading"
+
+[31m+ Received:[39m 
+undefined
+
+ ❯ tests/workspace/media-upload-states.test.ts:52:37
+     50|   vi.mocked(fetchAudio).mockReturnValueOnce(pending.promise)
+     51|   const { container } = render(createElement(AudioViewer, audioProps))
+     52|   expect(state(container, 'audio')).toBe('loading')
+       |                                     ^
+     53|   expect(screen.getByRole('status').textContent).toContain('Loading St…
+     54|   expect(container.querySelector('[data-audio-playing]')?.getAttribute…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  tests/workspace/media-upload-states.test.ts > audio conversion remains ready, blocks duplicate conversions, then clears busy
+AssertionError: expected undefined to be 'ready' // Object.is equality
+
+[32m- Expected:[39m 
+"ready"
+
+[31m+ Received:[39m 
+undefined
+
+ ❯ tests/workspace/media-upload-states.test.ts:70:37
+     68|   vi.mocked(fetchAudio).mockReturnValueOnce(pending.promise)
+     69|   fireEvent.click(screen.getByRole('button', { name: 'Download WAV' }))
+     70|   expect(state(container, 'audio')).toBe('ready')
+       |                                     ^
+     71|   expect((screen.getByRole('button', { name: 'Download MP3' }) as HTML…
+     72|   await act(async () => pending.resolve(audioPayload))
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  tests/workspace/media-upload-states.test.ts > audio load failure exposes error and a new source restarts loading without stale data
+AssertionError: expected undefined to be 'error' // Object.is equality
+
+[32m- Expected:[39m 
+"error"
+
+[31m+ Received:[39m 
+undefined
+
+ ❯ tests/workspace/media-upload-states.test.ts:81:37
+     79|   const { container, rerender } = render(createElement(AudioViewer, { …
+     80|   await screen.findByText('Original player')
+     81|   expect(state(container, 'audio')).toBe('error')
+       |                                     ^
+     82|   const pending = deferred<typeof audioPayload>()
+     83|   vi.mocked(fetchAudio).mockReturnValueOnce(pending.promise)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  tests/workspace/media-upload-states.test.ts > video exposes loading then ready_video and resets loading on source replacement
+AssertionError: expected undefined to be 'loading' // Object.is equality
+
+[32m- Expected:[39m 
+"loading"
+
+[31m+ Received:[39m 
+undefined
+
+ ❯ tests/workspace/media-upload-states.test.ts:94:37
+     92|   const props = { ctx: {} as PluginContext, scope, source: { path: 'mo…
+     93|   const { container, rerender } = render(createElement(VideoViewer, pr…
+     94|   expect(state(container, 'video')).toBe('loading')
+       |                                     ^
+     95|   expect(screen.getByRole('status').textContent).toBe('Loading video…')
+     96|   await act(async () => first.resolve('https://example.com/one.mp4'))
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  tests/workspace/media-upload-states.test.ts > video sequence uses ready_sequence and derives duration from sequence timing
+AssertionError: expected undefined to be 'ready_sequence' // Object.is equality
+
+[32m- Expected:[39m 
+"ready_sequence"
+
+[31m+ Received:[39m 
+undefined
+
+ ❯ tests/workspace/media-upload-states.test.ts:110:37
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  tests/workspace/media-upload-states.test.ts > video resolution and decode failures expose error and preserve fallbacks
+AssertionError: expected undefined to be 'error' // Object.is equality
+
+[32m- Expected:[39m 
+"error"
+
+[31m+ Received:[39m 
+undefined
+
+ ❯ tests/workspace/media-upload-states.test.ts:120:37
+    118|   const { container, rerender } = render(createElement(VideoViewer, { …
+    119|   await screen.findByText('Original video')
+    120|   expect(state(container, 'video')).toBe('error')
+       |                                     ^
+    121|   rerender(createElement(VideoViewer, { ...props, source: { url: 'http…
+    122|   await waitFor(() => expect(container.querySelector('video')).not.toB…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  tests/workspace/media-upload-states.test.ts > upload exposes idle, uploading filename/destination, then succeeded (cloud=false)
+ FAIL  tests/workspace/media-upload-states.test.ts > upload exposes idle, uploading filename/destination, then succeeded (cloud=true)
+AssertionError: expected undefined to be 'idle' // Object.is equality
+
+[32m- Expected:[39m 
+"idle"
+
+[31m+ Received:[39m 
+undefined
+
+ ❯ tests/workspace/media-upload-states.test.ts:138:38
+    136|   const rest = vi.fn(() => pending.promise), onUploaded = vi.fn()
+    137|   const { container } = render(createElement(UploadDrawer, { scope: sc…
+    138|   expect(state(container, 'upload')).toBe('idle')
+       |                                      ^
+    139|   if (cloud) fireEvent.click(screen.getByRole('checkbox', { name: 'Clo…
+    140|   fireEvent.change(screen.getByLabelText('Reference file'), { target: …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  tests/workspace/media-upload-states.test.ts > upload failure clears prior success and supports retry without stale result
+AssertionError: expected undefined to be 'failed' // Object.is equality
+
+[32m- Expected:[39m 
+"failed"
+
+[31m+ Received:[39m 
+undefined
+
+ ❯ tests/workspace/media-upload-states.test.ts:162:38
+    160|   choose()
+    161|   await screen.findByRole('alert')
+    162|   expect(state(container, 'upload')).toBe('failed')
+       |                                      ^
+    163|   expect(screen.queryByText('/staged/reference.png')).toBeNull()
+    164|   expect(screen.getByRole('alert').textContent).not.toContain('secret')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+

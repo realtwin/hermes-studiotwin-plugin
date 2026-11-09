@@ -1,5 +1,6 @@
 import { inspectorBackdropStyle, inspectorDialogStyle, inspectorSectionStyle, inspectorCloseStyle, inspectorChipStyle, inspectorButtonStyle } from '../lib/ui-tokens.ts';
 import * as sdk from "@hermes/plugin-sdk";
+import { resolveInspectorTargetState } from '../lib/state-machines.ts';
 import { downloadSource } from '../viewers/material-download.ts';
 import { saveUrl } from '../cards/next-actions.ts';
 import { modalityLabel } from '../lib/ui-tokens.ts';
@@ -162,7 +163,15 @@ export function AssetInspector({
     "/assets/" + encodeURIComponent(id ?? ""),
     Boolean(id) && !picked.local_path && !picked.path,
   );
-  const row = { ...picked, ...resolved.data };
+  const jobOutput = useWorkspaceQuery(
+    scope,
+    '/jobs/' + encodeURIComponent(picked.jobId ?? '') + '/output',
+    picked.type === 'job_output' && Boolean(picked.jobId),
+  );
+  const inspectorState = resolveInspectorTargetState(picked, resolved, jobOutput, modality);
+  const row = 'target' in inspectorState ? inspectorState.target : picked;
+  const inspectorModality = inspectorState.phase === 'ready'
+    ? inspectorState.modality : modality(row);
   const lineage = useWorkspaceQuery(
     scope,
     "/provenance?id=" + encodeURIComponent(id ?? ""),
@@ -214,6 +223,8 @@ export function AssetInspector({
     <div data-asset-backdrop onClick={e => { if (e.target === e.currentTarget) onClose(); }} style={{ ...inspectorBackdropStyle, position: 'fixed', inset: 0, zIndex: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2vh 3vw' }}>
     <div
       role="dialog"
+      data-inspector-state={inspectorState.phase}
+      data-inspector-modality={inspectorModality}
       aria-modal="true"
       aria-label="Asset inspection"
       tabIndex={-1}
@@ -282,14 +293,23 @@ export function AssetInspector({
         {formatDate(row.createdAt) && <time>{formatDate(row.createdAt)}</time>}
         {typeof row.bytes === 'number' && <span>{(row.bytes / 1024).toFixed(1)} KB</span>}
       </div>
-      <AssetPreview
-        key={id ?? row.path ?? row.url}
-        ctx={ctx}
-        scope={scope}
-        row={row}
-        session={session}
-        limit={limit}
-      />
+      {'resolutionWarning' in inspectorState && inspectorState.resolutionWarning && (
+        <p role="alert">{inspectorState.resolutionWarning}</p>
+      )}
+      {inspectorState.phase === 'loading_job_output' ? (
+        <p role="status">Loading job output…</p>
+      ) : inspectorState.phase === 'job_output_error' ? (
+        <p role="alert">Output unavailable. The existing job was not resubmitted.</p>
+      ) : (
+        <AssetPreview
+          key={id ?? row.path ?? row.url}
+          ctx={ctx}
+          scope={scope}
+          row={row}
+          session={session}
+          limit={limit}
+        />
+      )}
 
       <section aria-label="Made from" style={{ ...inspectorSectionStyle, padding: 18, marginTop: 18, overflowWrap: "anywhere" }}>
         <h3 style={cardTitle}>Made from</h3>

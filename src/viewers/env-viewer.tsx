@@ -50,11 +50,12 @@ export function EnvViewer({
   useEffect(() => {
     v.stage.current?.select(selected);
   }, [selected, v.ready]);
-  if (v.error && fallback !== undefined) return <>{fallback}</>;
+  if (v.error && fallback !== undefined) return <section data-stage-state={v.phase}>{fallback}</section>;
   return (
     <section
       ref={v.setContainer}
       data-studiotwin-env-viewer
+      data-stage-state={v.phase}
       style={{ ...stageShell, color: 'oklch(from var(--ui-text) l 0 h)' }}
       onPointerDown={v.touch}
     >

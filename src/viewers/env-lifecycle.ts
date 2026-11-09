@@ -1,103 +1,82 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { stageTransition, stageProjection, type StageLifecycleState, type StageEvent } from '../lib/state-machines.ts';
 import { modelWebGLPool } from "./webgl-pool.ts";
-interface Stage {
-  dispose(): void;
-  snapshot(): string;
-}
-/** Outcome is independent from residency: eviction must never erase a decoder failure. */
+interface Stage { dispose(): void; snapshot(): string }
+/** One residency/outcome state for every pooled viewer. Async work owns its lease. */
 export function usePooledStage<S extends Stage>(
   key: string,
   create: (host: HTMLElement) => S,
-  load: (s: S) => Promise<void>,
+  load: (s: S, current: () => boolean) => Promise<void | 'audit'>,
   rest: unknown,
   limit = 4,
   onError?: (e: unknown) => void,
+  initialPoster?: string,
 ) {
-  const id = useId(),
-    host = useRef<HTMLDivElement>(null),
-    stage = useRef<S | null>(null);
-  const [container, setContainer] = useState<HTMLElement | null>(null),
-    [live, setLive] = useState(false),
-    [ready, setReady] = useState(false),
-    [error, setError] = useState(false),
-    [poster, setPoster] = useState<string>();
+  const id = useId(), host = useRef<HTMLDivElement>(null), stage = useRef<S | null>(null);
+  const [container, setContainer] = useState<HTMLElement | null>(null);
+  const [state, setState] = useState<StageLifecycleState>({ phase: 'poster', poster: initialPoster });
+  const stateRef = useRef(state);
+  const send = (event: StageEvent) => {
+    stateRef.current = stageTransition(stateRef.current, event);
+    setState(stateRef.current);
+  };
+  const { live, ready, error } = stageProjection(state);
+  useEffect(() => { modelWebGLPool.setLimit(limit) }, [limit]);
   useEffect(() => {
-    modelWebGLPool.setLimit(limit);
-  }, [limit]);
-  useEffect(() => {
-    if (!container) return;
-    const o = new IntersectionObserver((rows) => {
-      if (!rows.some((r) => r.isIntersecting)) modelWebGLPool.release(id);
+    if (!container || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(rows => {
+      if (!rows.some(row => row.isIntersecting)) modelWebGLPool.release(id);
     });
-    o.observe(container);
-    return () => o.disconnect();
+    observer.observe(container);
+    return () => observer.disconnect();
   }, [container, id]);
+  useEffect(() => { if (!live) send({ type: 'reset', poster: initialPoster }) }, [key, rest]);
   useEffect(() => {
-    setError(false);
-  }, [key, rest]);
-  useEffect(() => {
-    setReady(false);
     if (!live || !host.current) return;
-    let alive = true,
-      s: S | null = null;
+    // A source/backend replacement starts a fresh attempt on the retained lease.
+    send({ type: 'reset', poster: initialPoster });
+    send({ type: 'start' });
+    let alive = true, local: S | null = null;
     const dispose = () => {
       alive = false;
-      if (s) {
-        try {
-          setPoster(s.snapshot());
-        } catch {}
-        s.dispose();
+      let poster: string | undefined;
+      if (local) {
+        try { poster = local.snapshot() } catch {}
+        local.dispose();
       }
-      if (stage.current === s) stage.current = null;
-      setLive(false);
-      setReady(false);
+      if (stage.current === local) stage.current = null;
+      send({ type: 'evict', poster });
     };
     modelWebGLPool.acquire(id, dispose);
     const fail = (e: unknown) => {
-      if (alive) {
-        modelWebGLPool.release(id);
-        setError(true);
-        onError?.(e);
-      }
+      if (!alive) return;
+      send({ type: 'error' });
+      modelWebGLPool.release(id);
+      onError?.(e);
     };
     try {
-      s = create(host.current);
-      stage.current = s;
-      void load(s)
-        .then(() => {
-          if (alive) setReady(true);
-        })
-        .catch(fail);
-    } catch (e) {
-      fail(e);
-    }
+      local = create(host.current);
+      stage.current = local;
+      void load(local, () => alive).then(result => {
+        if (!alive) return;
+        send({ type: result === 'audit' ? 'audit' : 'ready' });
+        if (result === 'audit') modelWebGLPool.release(id);
+      }).catch(fail);
+    } catch (e) { fail(e) }
     return () => modelWebGLPool.release(id);
+    // Callbacks intentionally belong to an attempt, not every UI control render.
   }, [live, key, rest, id]);
   return {
-    host,
-    stage,
-    setContainer,
-    live,
-    ready,
-    error,
-    poster,
-    start() {
-      setError(false);
-      setLive(true);
-    },
-    touch() {
-      modelWebGLPool.touch(id);
-    },
+    host, stage, setContainer, live, ready, error, poster: state.poster, phase: state.phase,
+    start() { send({ type: 'start' }) },
+    fail(e: unknown) { send({ type: 'error' }); modelWebGLPool.release(id); onError?.(e) },
+    touch() { modelWebGLPool.touch(id) },
   };
 }
 export const panelStyle = {
-  border: "1px solid oklch(from var(--ui-stroke-secondary) l 0 h)",
-  borderRadius: 8,
-  color: "oklch(from var(--ui-text) l 0 h)",
-  background: "oklch(from var(--ui-bg-secondary) l 0 h)",
-  overflow: "hidden",
+  border: "1px solid oklch(from var(--ui-stroke-secondary) l 0 h)", borderRadius: 8,
+  color: "oklch(from var(--ui-text) l 0 h)", background: "oklch(from var(--ui-bg-secondary) l 0 h)", overflow: "hidden",
 };
 export const controlStyle = {
-  color: "oklch(from var(--ui-text) l 0 h)",
-  background: "oklch(from var(--ui-bg-secondary) l 0 h)",
+  color: "oklch(from var(--ui-text) l 0 h)", background: "oklch(from var(--ui-bg-secondary) l 0 h)",
 };
