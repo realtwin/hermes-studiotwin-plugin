@@ -1,5 +1,11 @@
 # V01 backend handoff
 
+> Historical slice notes, not the current release/install guide. Routes and verification
+> commands below describe V01 at its own revision; later changes can supersede them.
+> Use [development](development.md) and [compatibility](compatibility.md) for current
+> isolated verification and evidence boundaries. In particular, old reference paths,
+> hard-coded assertions and successful fixture runs are not current-host install proof.
+
 ## Architecture
 
 The agent connects directly to `https://api.studiotwin.ai/mcp` through portable

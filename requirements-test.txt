@@ -2,6 +2,8 @@
 httpx==0.28.1
 mcp==2.3.0
 pytest==9.1.1
+# Multiview tests import PIL unconditionally; align with the tested host lock.
+Pillow==13.0.0
 fastapi==0.133.1
 uvicorn==0.54.0
 python-multipart==0.0.32

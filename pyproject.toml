@@ -1,6 +1,6 @@
 [project]
 name = "hermes-studiotwin"
-version = "0.3.2"
+version = "1.0.0"
 description = "StudioTwin remote MCP and Desktop media backend for Hermes."
 readme = "README.md"
 license = { text = "MIT" }

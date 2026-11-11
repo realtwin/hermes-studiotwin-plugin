@@ -22,7 +22,7 @@ from hermes_cli.plugins_settings import _field_type, secret_env_name
 from pm.plugin_declarations import read_python_declaration
 
 ROOT = Path(__file__).resolve().parents[2]
-CORE = Path('/home/deploy/work/realtwin/hermes-studiotwin/reference/hermes-agent')
+CORE = Path(os.environ.get('HERMES_REFERENCE_ROOT', '/home/deploy/work/realtwin/hermes-studiotwin/reference/hermes-agent')).resolve()
 UPSTREAM = Path('/home/deploy/work/realtwin/hermes-studiotwin/reference/hermes-official-plugins')
 UPSTREAM_SHA = '1e326ddd28ae261821d7714d106fe114999a0bba'
 
@@ -44,7 +44,7 @@ def test_reference_host_and_remote_transport(tmp_path):
     import hermes_cli.agent_plugins as host
     assert Path(host.__file__).resolve() == CORE/'hermes_cli/agent_plugins.py'
     package = _package(tmp_path)
-    assert package.name == 'hermes-studiotwin' and package.version == '0.3.2'
+    assert package.name == 'hermes-studiotwin' and package.version == '1.0.0'
     assert package.diagnostics == ()
     assert set(package.mcp_servers) == {'studiotwin'}
     s = package.mcp_servers['studiotwin']
@@ -129,7 +129,9 @@ def test_node_project_and_lock_pin_the_serial_vitest_runner():
     lock = json.loads((ROOT/'package-lock.json').read_text())
     deps = {**package.get('dependencies',{}),**package['devDependencies']}
     assert package['engines']['node'] == '>=24.0.0'
-    assert deps['vitest'] == '3.2.7' and lock['lockfileVersion'] == 3
+    assert deps['vitest'] == '4.1.12' and lock['lockfileVersion'] == 3
+    assert lock['packages']['node_modules/@vitest/mocker']['version'] == '4.1.12'
+    assert not any(path.endswith('/tinypool') for path in lock['packages'])
     for name,spec in deps.items():
         assert spec[0].isdigit() and lock['packages'][f'node_modules/{name}']['version'] == spec
     assert 'jest' not in json.dumps(package)

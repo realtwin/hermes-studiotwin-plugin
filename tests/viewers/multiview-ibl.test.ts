@@ -303,9 +303,12 @@ describe.skipIf(!enabled)('V10 real Chromium multiview + IBL', () => {
       expect(messages[0].text).toContain(sheetPath)
       const state = await h.state()
       expect(state.submissions).toEqual([]); expect(state.ledger.filter((e: any) => e.event === 'debit')).toEqual([])
-      mkdirSync('evidence/v10/screenshots', { recursive: true })
-      writeFileSync('evidence/v10/ui-6-normals-sheet.png', Buffer.from(stored.dataUrl.split(',')[1], 'base64'))
-      await page.screenshot({ path: 'evidence/v10/screenshots/multiview-reference.png', fullPage: true })
+      const evidence = process.env.STUDIOTWIN_MULTIVIEW_EVIDENCE
+      if (evidence) {
+        mkdirSync(evidence, { recursive: true })
+        writeFileSync(resolve(evidence, 'ui-6-normals-sheet.png'), Buffer.from(stored.dataUrl.split(',')[1], 'base64'))
+        await page.screenshot({ path: resolve(evidence, 'multiview-reference.png'), fullPage: true })
+      }
       expect(h.errors).toEqual([]); expect(h.blocked).toEqual([])
     } finally { await h.close() }
   }, 30000)

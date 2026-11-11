@@ -1,6 +1,6 @@
 # StudioTwin installed — configure and verify
 
-This is RealTwin's `hermes-studiotwin` plugin, not a Nous Research official plugin. No generation is needed to finish setup.
+This is RealTwin's `hermes-studiotwin` plugin, not a Nous Research official plugin. No generation is needed to finish setup. Its private Git repository is `realtwin/hermes-studiotwin-plugin`; the installed plugin ID stays `hermes-studiotwin`.
 
 1. **Use the intended Hermes profile.** Enable the agent half if it is not enabled:
    ```sh
@@ -10,14 +10,14 @@ This is RealTwin's `hermes-studiotwin` plugin, not a Nous Research official plug
    Installation/enabled state alone does not prove that the remote tools or Desktop UI loaded.
 2. **Configure your StudioTwin API key privately.** In Desktop: **Capabilities → Plugins → hermes-studiotwin → settings → StudioTwin API key**. Without Desktop, put `STUDIOTWIN_API_KEY` in the active profile's `.env`/secret configuration. `hermes config set STUDIOTWIN_API_KEY <your-key>` is also supported when executed privately; real keys can enter shell history. Do not paste the key into chat, source files, screenshots or bug reports. A new StudioTwin key comes from your StudioTwin account; this plugin does not require separate generation-provider keys.
 3. **Start a new Hermes session.** Ask: “Discover StudioTwin tools and check my credit balance without generating anything.” A real `studiotwin_get_credit_balance` response verifies the remote connection and key. Optionally list existing assets or jobs. Do not use a paid generation as a connectivity test.
-4. **Enable Desktop UI if wanted.** Turn on the plugin's Desktop half in Capabilities → Plugins, then open **StudioTwin** from the sidebar/palette. Route: **`/studiotwin`**; tabs: Library, Jobs, Concepts and Upload. Remote use needs the backend on the Hermes machine and the Desktop UI on the client. CLI/chat users do not need Desktop.
+4. **Enable Desktop UI if wanted.** Turn on the plugin's Desktop half in Capabilities → Plugins, then open **StudioTwin** from the sidebar/palette. Route: **`/studiotwin`**; tabs: Library, Jobs, Concepts and Upload. Remote use needs the enabled backend/key on the Hermes machine **and** client UI: in the client Desktop's **Install from Git**, use `realtwin/hermes-studiotwin-plugin` with **Desktop UI** selected, then enable its Desktop switch. Private GitHub access is required on each cloning machine. Desktop UI is app-level, not per selected backend profile. CLI/chat users do not need Desktop.
 5. **Start with an estimate.** For example: “Create a character Concept, estimate the credits first, and show me the image before making any mesh.” The bundled `studiotwin` skill covers routing, all captured tools, exact card attributes and local scripts.
 
 ## Connection and requirements
 
 `mcp.json` already connects directly to `https://api.studiotwin.ai/mcp` using Streamable HTTP with `x-api-key: ${STUDIOTWIN_API_KEY}`. Do **not** add a duplicate `mcp_servers.studiotwin` entry unless deliberately overriding the bundle. There is no local MCP proxy/IPC gateway, no local MCP daemon and no opaque-handle or URL-redaction layer.
 
-Use a Hermes host with Agent Plugins v1, Streamable HTTP MCP and native approval/cost support; full Desktop cards need transcript-directive/tool-media support. The manifest does not specify a numeric Hermes minimum. Backend/helpers need Python 3.11+; the backend uses httpx and the host FastAPI environment. Optional local tools: Blender 4.2+, ffmpeg/ffprobe; MP4 previews also need Node.js 22+ and Chromium/Chrome. Package development requires Node.js 24+. Network access to StudioTwin and allowed S3/StudioTwin asset origins is needed for cloud workflows.
+Use a Hermes host with Agent Plugins v1, Streamable HTTP MCP and native approval/cost support; full Desktop cards need transcript-directive/tool-media support. See [support and evidence boundaries](docs/compatibility.md): Hermes v0.23.1 is the tested released host for isolated install/load. This is not an inferred historical minimum or native Desktop proof; the portable manifest does not enforce a numeric host floor. Backend/helpers need Python 3.11+; the backend uses httpx and the host FastAPI environment. Optional local tools: Blender 4.2+, ffmpeg/ffprobe; MP4 previews also need Node.js 22+ and Chromium/Chrome. Package development requires Node.js 24+. Network access to StudioTwin and allowed S3/StudioTwin asset origins is needed for cloud workflows.
 
 ## Spending — read before generating
 
@@ -27,7 +27,7 @@ There is **no artificial 200-credit limit**, plugin session spend cap, local res
 
 ## What leaves the machine; what stays
 
-- Prompts, generation parameters, source references/media and authorized uploads go to StudioTwin under your key; StudioTwin's selected generation providers and terms apply. The captured schemas identify routes using OpenAI/Gemini, Tripo, fal.ai and ElevenLabs. This is cloud generation, not an offline model.
+- Prompts, generation parameters, source references/media and authorized uploads go to StudioTwin under your key; StudioTwin's selected generation providers and terms apply. The captured schemas identify routes using OpenAI/Gemini, Tripo, fal.ai and ElevenLabs. This is cloud generation, not an offline model. The plugin adds no provider-retention setting or cloud-retention guarantee.
 - The agent uses the direct remote MCP endpoint. The Desktop backend calls StudioTwin directly and downloads/uploads through allowed StudioTwin/Amazon S3 origins. Changing `api_base_url` affects the Desktop backend, **not** the agent MCP declaration.
 - `st_...` API keys and presigned **POST** upload policies/signatures are secret and must not be exposed. Presigned **download** URLs and `s3://` URIs are ordinary delivery links/asset locations, not credentials to redact. Links can expire; resolve the existing asset again instead of generating it again.
 - Files stay on the Hermes backend host, which may be remote from your Desktop. Cached downloads, uploaded copies, `asset-index.json` and local `provenance.json` live under active `<HERMES_HOME>/plugin-data/agent-plugin-hermes-studiotwin-<hash>/` (with an unhashed fallback). The index is not a home-folder scan. Provenance can include prompts and source/output/job/Concept/session IDs. Do not assume every remote job automatically has a local Made from record.
@@ -42,10 +42,12 @@ Bundled scripts (`skills/studiotwin/scripts/`) cost no StudioTwin generation cre
 
 - `glb_stats.py`: inspect actual triangles, bound skeletons and clips, standard library only.
 - `render_preview.mjs`: GLB turntable/animation MP4; spawns headless Chromium/ffmpeg and can download integrity-checked three 0.180.0 from `registry.npmjs.org` into the active home's preview cache if absent. External GLB resources are blocked/reported.
-- `blender_handoff.py`: fresh Blender factory-startup process, new blend/GLB/FBX outputs and fresh-process checks. No live-scene edits; triangle budgets and risky loss/overwrite flags require authorization.
+- `render_multiview.mjs`: four/six-view PNG sheets and optional split images; shares `render_harness.mjs` with the MP4 helper. Needs Node 22+, Chromium and three; no ffmpeg or paid call.
+  Both render helpers launch Chromium with `--no-sandbox` and `--enable-unsafe-swiftshader`. Chromium's sandbox is disabled and unsafe software rendering enabled. Integrity checks and external-resource refusal are not process isolation: use trusted inputs, or a separately isolated processing environment for untrusted assets.
+- `blender_handoff.py`: fresh Blender factory-startup process, new blend/GLB/FBX outputs and fresh-process checks. No live-scene edits; triangle budgets and risky loss/overwrite flags require authorization. A fresh process is not a security sandbox.
 - `sfx_tool.py`: ffmpeg/ffprobe processing, format conversion, loudness/loop checks and packs. Selected outputs must not overwrite existing files without permission. Never trim or fade a loop; check its final seam.
 
-See [README](README.md#files-provenance-and-local-helpers) and the [bundled skill](skills/studiotwin/SKILL.md#local-scripts-no-studiotwin-credits) for exact commands and prerequisites. Scripts run on the terminal host, not automatically on the Desktop computer.
+See [README](README.md#files-privacy-and-local-tools) and the [local-tools reference](skills/studiotwin/references/local-tools.md) for exact commands and prerequisites. Scripts run on the terminal host, not automatically on the Desktop computer.
 
 ## Settings, failures and removal
 
