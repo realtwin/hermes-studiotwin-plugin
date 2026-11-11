@@ -228,6 +228,10 @@ export function createEnvStage(
     plane.visible = flat;
     group.visible = overlay && !flat;
     scene.background = flat ? themeColor(host, "--ui-bg-secondary") : texture;
+    // Three.js bypasses tone mapping for sRGB image backgrounds. Linear HDR/EXR
+    // already receive renderer EV; multiplying their intensity would apply it twice.
+    scene.backgroundIntensity = texture?.colorSpace === T.SRGBColorSpace
+      ? renderer.toneMappingExposure : 1;
     render();
   };
   let drag: { x: number; y: number } | null = null;

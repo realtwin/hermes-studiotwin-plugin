@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { createElement } from 'react';
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { AssetInspector } from '../../src/pages/asset-inspector.tsx';
 
 const queries = vi.hoisted(() => new Map<string, Record<string, any>>());
@@ -25,8 +25,34 @@ function mount(selected: Record<string, any>) {
   return { ...view, update: () => view.rerender(createElement(AssetInspector, props)) };
 }
 function dialog() { return screen.getByRole('dialog', { name: 'Asset inspection' }); }
+
+it('downloads the scoped cached original rather than an expired URL and reports backend failures', async () => {
+  const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+  const create = vi.fn(() => 'blob:cached-original');
+  const priorCreate = URL.createObjectURL, priorRevoke = URL.revokeObjectURL;
+  URL.createObjectURL = create; URL.revokeObjectURL = vi.fn();
+  scope.rest.mockReset().mockResolvedValue({ name: 'cached.png', dataUrl: 'data:image/png;base64,aGVsbG8=', bytes: 5 });
+  try {
+    mount({ type: 'image', path: '/local/cached.png', downloadUrl: 'https://expired.invalid/file.png', name: 'Cached' });
+    fireEvent.click(screen.getByRole('button', { name: 'Download original' }));
+    await waitFor(() => expect(scope.rest).toHaveBeenCalledWith(expect.stringContaining('path=%2Flocal%2Fcached.png'), expect.objectContaining({ timeoutMs: 180000 })));
+    await waitFor(() => expect(create).toHaveBeenCalledOnce());
+    expect((click.mock.instances[0] as HTMLAnchorElement).href).toBe('blob:cached-original');
+    scope.rest.mockRejectedValueOnce(Error('backend unavailable'));
+    fireEvent.click(screen.getByRole('button', { name: 'Download original' }));
+    await waitFor(() => expect(screen.getByRole('alert').textContent).toMatch(/download unavailable.*refresh|download unavailable.*retry/i));
+    expect(click).toHaveBeenCalledOnce();
+  } finally {
+    click.mockRestore(); URL.createObjectURL = priorCreate; URL.revokeObjectURL = priorRevoke;
+  }
+});
 beforeEach(() => { queries.clear(); requests.length = 0; close.mockClear(); });
 afterEach(cleanup);
+
+it('requests continuation for a URL-backed output using job identity, never an invented asset identity', () => {
+  mount({ type: 'image', jobId: 'job-output-id', path: '/cache/output.png' });
+  expect(requests.find(r => r.path === '/actions?id=job-output-id&type=job')?.enabled).toBe(true);
+});
 
 it('exposes ready local modality and preserves the selected preview and accessible controls', () => {
   mount({ type: 'image', path: '/local/reference.png', name: 'Reference' });

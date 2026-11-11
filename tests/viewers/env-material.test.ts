@@ -249,6 +249,7 @@ it.skipIf(process.env.STUDIOTWIN_WEBGL_TEST !== "1")(
         .nth(5)
         .evaluate((el) => ((el as HTMLElement).style.display = "none"));
       await page.waitForFunction(() => (window as any).pool.size === 3);
+      // Preserve the original LDR pixel regression and guard HDR separately below.
       await call("env", "equirect-64x32.png");
       await page
         .getByRole("button", { name: "Load environment", exact: true })

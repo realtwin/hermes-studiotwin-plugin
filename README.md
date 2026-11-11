@@ -1,122 +1,96 @@
 # StudioTwin for Hermes Agent
 
-Create and inspect images, environments, PBR materials, 3D meshes, rigs, character motion and sound effects with [StudioTwin](https://studiotwin.ai), from Hermes Agent or Hermes Desktop. Keep creative iterations together as durable ConceptLab Concepts, then reuse the resulting assets across projects.
+> A RealTwin plugin for Hermes, not a Nous Research official plugin.
 
-A RealTwin plugin for Hermes, **not a Nous Research official plugin**. This portable [Agent Plugins v1](https://agent-plugins.org) package ships:
+Create and inspect images, environments, PBR materials, meshes, rigs, character motion and sound effects with [StudioTwin](https://studiotwin.ai). Keep iterations together as durable ConceptLab Concepts, then reuse the assets in your projects.
 
-| Part | Purpose |
-|---|---|
-| `mcp.json` | Direct Streamable HTTP connection to StudioTwin's hosted MCP server; no local MCP process |
-| `plugin.json` | Hermes native approval/cost declarations and profile-scoped configuration |
-| `skills/studiotwin/` | Workflow skill with the complete captured tool catalog, routing, spending, delivery and local script instructions |
-| `desktop/plugin.js` | Desktop workspace, media viewers, progress cards and status chips |
-| `dashboard/plugin_api.py` | Host-authenticated Desktop backend for assets, jobs, uploads, media streaming and local provenance |
+One package supplies a direct remote MCP connection for the agent, a bundled workflow skill, and an optional Hermes Desktop workspace with media viewers. There is no local MCP server or proxy. Generation is paid; browsing existing assets and local processing do not create paid generations.
 
-Try: “Make a character Concept and show me the image before creating the mesh,” “Turn this panorama into a world,” “Extract a tileable brass material from this image,” or “Make a rain loop for my game; estimate the credits first.” Generation is paid; inspecting existing assets and local post-processing do not create paid generations.
+Try: “Create a character Concept, estimate the credits first, and show me the image before making a mesh,” or “Make a rain loop for my game; estimate it before generating.”
 
-## Requirements
+## Requirements and support
 
-- Hermes Agent with Agent Plugins v1, remote Streamable HTTP MCP and native MCP approval/cost support. Hermes Desktop is optional and needs transcript directives/tool-media renderers for the full UI. This manifest does not declare a numeric minimum Hermes version; verify your host rather than inferring compatibility from installation alone.
-- StudioTwin account, API key and enough wallet credits for requested generation. No separate OpenAI, Tripo or ElevenLabs key is required by this plugin.
-- Network access to `api.studiotwin.ai` and returned StudioTwin/Amazon S3 storage endpoints for cloud operations and delivery.
-- Python 3.11+ for the backend/helpers; backend dependency `httpx>=0.27,<1` plus the host's FastAPI environment. Let Hermes manage plugin dependencies.
-- Optional: Blender 4.2+ for local handoff; ffmpeg/ffprobe for audio processing/conversion and preview encoding; Chromium/Chrome plus Node.js for headless GLB MP4 previews. Package development requires Node.js 24+ and npm. The preview helper itself requires Node.js 22+.
+- **Tested released agent/backend host: Hermes v0.23.1** at `3b421578588243f920886e6fe79a6faa87ea026e`, on Linux/Python 3.14.9, with isolated validation, doctor and actual PluginManager load. Full Desktop UI also needs the transcript-directive, tool-media and scoped backend SDK surfaces; native client acceptance is separate. **Installation alone does not prove compatibility.** See [support and verification boundaries](docs/compatibility.md). Portable Agent Plugins v1 has no manifest host-floor field; the earliest compatible historical release is not established.
+- A StudioTwin account and API key, with wallet credits for generation. No separate OpenAI, Tripo or ElevenLabs key is required by this plugin.
+- Network access from the Hermes host to `api.studiotwin.ai` and the returned StudioTwin/Amazon S3 delivery/upload endpoints.
+- Python 3.11+ for the backend/helpers, `httpx>=0.27,<1`, and the host's FastAPI environment. Let Hermes prepare plugin dependencies.
+- Optional local tools, on the machine doing the processing: Blender 4.2+; ffmpeg/ffprobe for sound and MP4 previews; Node.js 22+ and Chrome/Chromium for GLB previews/contact sheets. Package development requires Node.js 24+ and npm.
 
-## Install and setup
+## Install
+
+The repository is currently private. You need GitHub access to **`realtwin/hermes-studiotwin-plugin`**; it is not a public catalog install. Authenticate Git on the **Hermes backend machine** using your normal approved credential helper or organizational access method before installing. A StudioTwin API key does not grant GitHub access. Do not put GitHub tokens in a repository URL, command argument, chat or bug report.
+
+A read-only Git check, run privately on that machine:
 
 ```sh
-hermes plugins install realtwin/hermes-studiotwin
+git ls-remote https://github.com/realtwin/hermes-studiotwin-plugin.git HEAD
+```
+
+Then, in the intended Hermes profile:
+
+```sh
+hermes plugins install realtwin/hermes-studiotwin-plugin
 hermes plugins enable hermes-studiotwin
 hermes plugins show hermes-studiotwin
 ```
 
-Installation is per profile; select the intended profile first, for example `hermes -p <profile> plugins install realtwin/hermes-studiotwin`. Review the installer prompts, including dependency preparation. Installation does not prove a successful MCP connection or a loaded Desktop half.
+The **repository slug** ends in `-plugin`; the **plugin ID** remains `hermes-studiotwin`. Installation is per profile: use `hermes -p <profile> plugins ...` consistently for another profile. Review the installer's code/dependency/enable prompts. Agree to Python dependency preparation for the backend; `--no-deps` leaves a downloaded package disabled and is not a working setup. The Desktop bundle is committed, so end users do not need a source build to load it.
 
-To install a reviewed revision rather than the default branch, use `hermes plugins install realtwin/hermes-studiotwin --ref <full-40-character-commit-sha>` (replace the placeholder with the actual reviewed commit).
+For a reviewed revision, replace the placeholder below with the maintainer-supplied full 40-character commit SHA. This is a command template, not a published v1 pin:
 
-Create an API key in your StudioTwin account. In Hermes Desktop, open **Capabilities → Plugins**, find **hermes-studiotwin**, open its settings and enter **StudioTwin API key**. Keep the key out of chat. Without Desktop, use the active profile's secret configuration (`hermes config set STUDIOTWIN_API_KEY <your-key>`, executed privately), or its `.env`:
-
-```dotenv
-STUDIOTWIN_API_KEY=<your-key>
+```sh
+hermes plugins install realtwin/hermes-studiotwin-plugin --ref <full-40-character-commit-sha>
 ```
 
-The example is a placeholder, not a key to copy. Secrets belong to the active profile's `.env`/secret store, never `config.yaml` or the renderer. Shell commands can enter shell history; the Desktop secret field is preferable. Do not paste real credentials into bug reports.
+A new local documentation/release-candidate commit is not necessarily available from GitHub. Private Git authentication and a pinned install still need to succeed on the target host; local fixture tests are not substitutes.
 
-Start a new Hermes session and ask it to discover StudioTwin tools and call **`studiotwin_get_credit_balance`**. A real balance response verifies authentication without a paid generation. Optionally list existing assets/jobs. Enable the plugin's **Desktop** half in Capabilities → Plugins, then open **StudioTwin** from the sidebar/palette; the workspace route is **`/studiotwin`**. Desktop UI is opt-in and separate from the agent half. A remote connection also needs the Desktop UI available on the client and the enabled backend on the Hermes host.
+## Configure and verify without spending
 
-There is no need to add a second MCP server manually. The bundled declaration connects directly to:
+1. Create an API key in your StudioTwin account. In Desktop, open **Capabilities → Plugins → hermes-studiotwin → settings → StudioTwin API key**. Keep credentials out of chat.
+2. Without Desktop, use the active profile's secret configuration or `.env`. `hermes config set STUDIOTWIN_API_KEY <your-key>` is supported when executed privately, but real values can enter shell history. The Desktop secret field is preferable. Secrets belong in the active profile's `.env`/secret store, never `config.yaml` or browser JS.
+3. Start a new Hermes session. Ask: **“Discover StudioTwin tools and check my credit balance without generating anything.”** A real `studiotwin_get_credit_balance` response verifies the MCP connection and key without a paid generation. Optionally list existing assets/jobs.
+4. For Desktop, turn on the plugin's **Desktop** half and open **StudioTwin** from the sidebar or command palette. The workspace route is `/studiotwin`, with Library, Jobs, Concepts and Upload tabs. The Desktop toggle and the enabled agent/backend are separate requirements.
 
-```json
-{
-  "type": "streamable-http",
-  "url": "https://api.studiotwin.ai/mcp",
-  "headers": {"x-api-key": "${STUDIOTWIN_API_KEY}"}
-}
-```
+**Remote Desktop:** install/enable the agent package and configure the key on the remote Hermes host. On the client Desktop, use **Capabilities → Plugins → Install from Git** with `realtwin/hermes-studiotwin-plugin`, select the **Desktop UI** target, then enable its Desktop switch. Authenticate private-repository access on that client too. Desktop UI is app-level, not installed anew for each selected agent profile. A remote backend-only install can show **unavailable (remote backend)** until the client has the UI. Files and conversion tools remain on the backend; playback/downloads stream through scoped host access. See the [official SDK's unified-package guidance](https://hermes-agent.nousresearch.com/docs/developer-guide/desktop-plugin-sdk#one-package-both-sdks).
 
-A manually configured `mcp_servers.studiotwin` can override the bundled connection. Avoid accidental duplication/replacement. `api_base_url` changes the **Desktop backend** endpoint, not this agent MCP declaration.
+`mcp.json` already connects directly to `https://api.studiotwin.ai/mcp`, using Streamable HTTP and `x-api-key: ${STUDIOTWIN_API_KEY}`. Do not add a duplicate `mcp_servers.studiotwin` entry inadvertently: it can override the bundle. The `api_base_url` setting changes the **Desktop backend**, not the agent MCP endpoint.
 
 ## Capabilities
 
-| Modality / workflow | Cloud capabilities | Desktop / local delivery |
+| Workflow | Cloud tools | Desktop / local inspection |
 |---|---|---|
-| Images | One-shot generate/edit; typed concept-image guidance | Image preview, before/after comparison |
-| Concepts | Draft, create-and-generate, generate, edit, attach/select active asset, clone, rename/replace metadata, list/status/delete | Concepts tab, history/version strip and active-asset indication |
-| Meshes | Simple or Tripo image-to-3D, retopology/decimation | GLB/FBX/OBJ inspection, orbit/pan/zoom, textured/clay/normals/wireframe modes, grid and measured geometry stats |
-| Rigs / animation | Blender cloud auto-rig, Tripo riggability check and auto-rig; motion generation/edit/control/stitch | Skeleton/clip inspection, clip selection and playback/scrubbing; local Blender handoff and GLB preview MP4 |
-| Environments / worlds | Text/image environment maps, upscale, sticker placement/compositing, environment-to-world | 360° HDR/EXR/PNG panorama viewer, exposure control and sticker placement boundaries; world mesh preview |
-| Materials | Text-to-PBR, image-guided extraction, texture decomposition | Sphere/cube/rounded-plane inspection, map channel views and map/zip download; absent optional maps stay unavailable |
-| Audio | Sound effects, optional duration and loops | Waveform/seek/play/pause/loop audition, original download and ffmpeg conversion; local trim/mono/loudness/loop checks/packs |
-| Video / frame sequences | Browse/upload existing assets; not a video-generation promise | Range-enabled video playback/scrubbing and explicit frame-sequence playback |
-| Account / jobs / assets | Estimate/balance, status/list/cancel, upload/complete/resolve/library | Library, Jobs, Concepts and Upload workspace, credit/active-job chips, local “Made from” lineage |
+| Images and Concepts | One-shot generate/edit; create, generate, edit, attach/select assets, clone, update, list/status/delete durable Concepts | Image comparison, Concept history and active-asset indication |
+| Meshes | Simple/Tripo image-to-3D; retopology and decimation | GLB/FBX/OBJ preview, orbit/pan/zoom, textured/clay/normals/wireframe, geometry stats |
+| Rigs and motion | Cloud Blender/Tripo rigging, riggability check, motion generate/edit/control/stitch | Bound skeleton/clip inspection, clip playback/scrub, provider rig-audit display, new Blender handoff |
+| Environments and worlds | Text/image environment maps, upscale, sticker placement/compositing, environment-to-world | HDR/EXR/PNG 360° viewer, exposure, sticker boundaries and world-mesh preview |
+| PBR materials | Text-to-material, image-guided extraction, texture decomposition | Sphere/cube/rounded-plane inspector, available map channels and map/zip downloads |
+| Sound effects | SFX with optional duration/loops | Waveform, seeking, loop audition, original/converted downloads; local loudness, seam and pack tools |
+| Video / frame sequences | Browse/upload existing assets, **not video generation** | Video playback/scrub; exact MP4 frame stepping where timing can be read; explicit-rate image sequences |
+| Account / assets / jobs | Estimates, wallet, status/list/cancel, upload/complete/resolve | Library, Jobs, Concepts, Upload, credit/active-job chips and local Made from lineage |
 
-**Next** actions submit a visible request to the originating chat for review/approval; they do not bypass the agent and start paid jobs from a card. A preview is not proof of target-engine compatibility, successful retargeting or artist approval.
+**Next** actions put a visible request into the originating chat; they do not start hidden paid jobs. An image-to-mesh chain, retargeting route or engine import still needs compatible inputs and authorization at each stage. Motion JSON is not automatically a rigged animated GLB. A world mesh is not a complete engine level. Missing optional material maps remain unavailable rather than fabricated.
 
-### Multiview references and 3D-to-3D reskin handoff
+### Multiview and reskin references
 
-Load a 3D model and use **Multiview** to capture four canonical front/right/back/left views as a 2×2 PNG, or six views (adding 3/4 and top) as a 3×2 PNG. Choose Clay (default), Normals, Textured or Wireframe. Capture preserves the live camera, current pose, shading, auto-rotate, grid and background, and provides a labeled contact sheet preview, individual view badges and **Download Sheet**.
+In a model inspector, choose **Multiview**, 4 or 6 views, shading and yaw offset, then **Capture Multiview**. Desktop captures the current pose and restores the live view state. It offers a labeled PNG contact sheet, individual-view badges and **Download Sheet**. The sheet is staged **locally** on the originating backend, with Made from provenance; this does not upload it to the cloud. Staging/lineage errors leave the sheet downloadable but disable the reskin handoff.
 
-Desktop stages the sheet locally on the originating Hermes backend (`POST /upload`, `cloud:false`) and records **Made from** provenance referencing the source model and sheet path. The local provenance UUID is separate from any cloud asset UUID; local-file references are stored in the record's text, with a source asset UUID link when available. No cloud generation or cloud upload occurs when capturing. A staging/lineage error disables the reskin handoff but leaves a captured sheet downloadable.
+**Reskin 3D in Chat** proposes a reference workflow: inspect the sheet, authorize upload/edit, review the edited reference, then separately estimate/approve reconstruction. This is not in-place retexturing and may change topology, rig and animation. Do not assume a contact sheet is a supported multiview input to a live provider. [Full workflow and CLI](skills/studiotwin/references/local-tools.md#multiview-reference-sheets-and-forge-e-style-reskinning).
 
-**Reskin 3D in Chat** submits a visible request to the originating composer: inspect the sheet, specify changes, edit the reference through ConceptLab / `openai-gpt-image-2-v4-fn`, review it, then reconstruct with `image-to-3d-mesh` or `tripo-image-to-3d-mesh`. This is a Forge-E style reference workflow, not an automatic paid pipeline. Each upload and paid stage needs its own authorization and exact credit estimate. Check live image-input compatibility rather than assuming a contact sheet is accepted directly. Reconstruction may change geometry, topology, rigs and animation; keep the source unchanged.
+Environment IBL lets available HDR/EXR or equirectangular PNG/JPG panoramas light a model, optionally as its background. It changes preview lighting, not the source file.
 
-The model asset inspector also offers **Environment IBL** when panorama assets are available. HDR/EXR or equirectangular PNG/JPG assets light the model; optionally show the panorama background or return to Studio lighting. Component integrations can provide `envSource` or an environment list. This is preview lighting, not a modification of the model.
+### Tool and card reference
 
-The same reference sheets can be rendered without Desktop:
-Use the Multiview yaw offset selector, or CLI `--yaw-offset <degrees>` (finite, default `0`), when the model does not face +Z. Choose `90` for +X, `180` for -Z or `-90` for -X. Every canonical view rotates by that offset and JSON stdout reports `yaw_offset_deg`.
+The [bundled skill](skills/studiotwin/SKILL.md) links a [complete catalog of the 45 captured provider tools](skills/studiotwin/references/tools.md), with required arguments and [routing constraints](skills/studiotwin/references/workflows.md). Its source is the [2026-10-30 fixture, server 1.2.4](tests/fixtures/tools-list-2026-10-30.json), **not a live-server pin**. Discover tools and describe their live schemas before calling; use the returned callable name rather than guessing a Hermes prefix.
 
-```sh
-node skills/studiotwin/scripts/render_multiview.mjs /absolute/model.glb --out /absolute/multiview-sheet.png --split-dir /absolute/views --views 6 --shading clay --tile-size 512
-```
+The snapshot's current image identifier is `openai-gpt-image-2-v4-fn`; the viewer also recognizes legacy `openai-gpt-image-1-v1-fn` for old transcripts. Renderer recognition does not make that legacy function callable. `pano-sticker-placement` selects placement; `pano-stickers` composites with camelCase sticker fields. The captured `sourceAspect` discrepancy is documented in the routing reference, not silently normalized.
 
-Options include `--views 4|6`, `--shading textured|clay|normals|wireframe`, `--tile-size` (64–2048, default 512), `--transparent`, `--no-labels` and `--chrome PATH`. Four 512px tiles produce 1024×1024; six produce 1536×1024. Default output is `<stem>-multiview.png` beside the model. Existing outputs are refused. JSON stdout reports `ok`, absolute `sheet`, ordered `views`, `split_files`, `shading`, `width`, `height` and `bytes`. Requires Node 22+, Chromium and three 0.180.0, using the same integrity-checked discovery/cache and anonymous debugging-pipe harness as the preview script; no ffmpeg, local server or paid call. See the [full multiview workflow](skills/studiotwin/SKILL.md#multiview-reference-sheets-and-forge-e-style-reskinning).
-
-### Tools and schema drift
-
-The bundled [workflow skill](skills/studiotwin/SKILL.md#complete-captured-tool-catalog) lists **all 45 exact provider tool names** from the [captured tools/list](tests/fixtures/tools-list-2026-10-30.json), including ConceptLab. The live server can change independently of this package; discover and read its schemas before invoking. Hermes prefixes/sanitizes callable names; search results, not guessed prefixes, are authoritative.
-
-Image-name drift warning: the viewer recognizes both current `openai-gpt-image-2-v4-fn` and legacy `openai-gpt-image-1-v1-fn` for old transcripts, plus `concept-lab-img-fn`. The captured server exposes the current name, not the legacy identifier. Discover the live tool; do not call the legacy identifier merely because a renderer recognizes it. `pano-sticker-placement` chooses placement parameters; the separate `pano-stickers` function composites the panorama with camelCase sticker inputs. See the skill for the captured `sourceAspect` schema discrepancy and safe pass-through policy.
-
-## Credits and approval
-
-Paid tools run through the **direct remote MCP server**. The manifest marks it `trust: untrusted`, sets a 1,500-second call timeout and declares credits for Hermes's native cost-aware approval UI. There is **no plugin session spend cap, no artificial 200-credit cap and no local credit reservation ledger**. Illustrative manifest ranges such as 1–100 credits are not provider maximum prices.
-
-Before input-dependent paid work, or when you ask about cost, the skill requires `studiotwin_estimate_cost` with exact intended inputs and `studiotwin_get_credit_balance`. It states the operation, variants/stages and quote, then requires explicit user approval **or** the native untrusted-server prompt before submission. A fixed-cost operation uses its live schema price; an estimate is still appropriate for expensive/uncertain work. Unknown cost is disclosed, never fabricated. Each extra generation or retry is a separate paid action, not a free continuation.
-
-Approval behavior depends on the Hermes host and your profile's approval settings. Unattended runs without an approver can be refused. A denial is not a reason to switch off trust, call the API through a script or retry around the gate. User-configured approval bypasses can permit unattended spending; this plugin adds no separate cap. An insufficient-wallet error (`40001`) needs a balance check and a user decision, not automatic retries.
-
-The agent submits once and polls the original job/Concept. A timeout does not prove the provider failed to create or bill a job. Cancellation applies only to owned queued/submitted jobs and is subject to the provider's state/refund rules; do not assume a running job can be cancelled.
-
-## Desktop cards and background jobs
-
-With the Desktop half enabled, standalone directives render existing assets or progress. Examples (replace placeholders with actual IDs/host paths):
-Material channel values accept local paths or asset UUIDs, with `normals`, `metallic`, and `height` aliases for `normal`, `metalness`, and `heightmap`. Optional `name`/`title` and `zip` are supported. Do not put nested braces inside directive attribute values: Desktop's parser requires `[^{}]` within the outer block. Flat channels are canonical; legacy JSON maps are for programmatic/tool-media input. Prefer tool-media for environment sticker objects.
+Desktop directives must occupy their own paragraph. Replace placeholders with real backend paths or IDs:
 
 ```text
 ::studiotwin-model{path="/absolute/model.glb" audit="/absolute/rig-audit.json" title="Character"}
 ::studiotwin-audio{asset="<asset-uuid>"}
 ::studiotwin-env{path="/absolute/environment.hdr"}
-::studiotwin-material{albedo="/absolute/albedo.png" normal="/absolute/normals.png" roughness="/absolute/roughness.png" metalness="/absolute/metalness.png" heightmap="/absolute/heightmap.png"}
+::studiotwin-material{albedo="/absolute/albedo.png" normal="/absolute/normals.png"}
 ::studiotwin-image{asset="<asset-uuid>" before="<source-asset-uuid>"}
 ::studiotwin-video{path="/absolute/preview.mp4"}
 ::studiotwin-task{id="<job-uuid>"}
@@ -124,94 +98,78 @@ Material channel values accept local paths or asset UUIDs, with `normals`, `meta
 ::studiotwin-concept{id="<concept-uuid>"}
 ```
 
-[Exact attributes and sequence/sticker examples](skills/studiotwin/SKILL.md#delivery-by-surface-and-desktop-directives) are in the skill. Model/audio/environment cards use a local `path` or asset UUID, not arbitrary cloud URLs. Material maps need resolved/downloaded channel sources. A task/job card uses `id`, not `task`. Cards are scoped to their original profile/connection; reopening after a switch avoids retargeting old media to a different account. At most four live 3D WebGL viewers are allowed, configurable down to one; off-screen/context-limited cards can fall back until reopened.
+[Exact attributes, all optional channels, audit handling, sequence/sticker limits and provenance](skills/studiotwin/references/delivery.md). Task/job cards use `id`, not `task`; material `normal` deliberately maps the provider's `normals`. Nested braces in attribute values cannot pass Desktop's transcript parser: use flat channels and tool-media for object-based sequences/stickers. Model/audio/environment cards accept backend-local paths or asset UUIDs, not arbitrary cloud URLs. Local skeleton counts are not a provider rig-audit verdict. Viewers and waveforms are user-facing UI, **not proof the model saw or heard the result**.
 
-The model directive's optional `audit=` is the separate provider audit JSON from `blender-auto-rig` (or `tripo-auto-rig` when present), saved to a backend-local path or referenced by asset UUID. Only validated provider data supplies a rig-audit verdict; invalid/unloadable audits show an unavailable notice while the mesh still previews. Local skeleton counts appear separately as “Rig inspection (local)”, not a passing audit. Tool-media cards use a local/asset `audit` in the producing result; HTTPS-only audit URLs are “provided separately”, never fetched from the renderer. The host passes the producing result and one MEDIA file at a time, not a mapping of sibling output files: use `audit=` after separately downloading a provider audit.
+## Credits, approval and recovery
 
-**Telegram, Discord, Slack and WhatsApp:** long mesh, rig, pano-stickers and world jobs need a real notification-capable background poller. The skill supplies a host-aware Python adapter using the shipped direct MCP client to poll `studiotwin_get_job_status`, launched through `terminal(background=True, notify=True)`, exiting 0 on completion. A shell cannot invoke a model tool by typing its name, and no `studiotwin` CLI/poller executable is bundled. The host interpreter, active-profile secret resolver and plugin path must be checked before arming it. Without that wake, the agent must not promise future delivery. Desktop polling updates the visible card only; it does not wake the agent or execute a paid chain.
+Paid calls go through the **direct remote MCP server**. The manifest declares `trust: untrusted`, a 1,500-second timeout and estimated credit costs for Hermes's native approval UI. There is **no plugin session spend cap, artificial 200-credit cap or local billing/reservation ledger**. Illustrative ranges such as 1–100 are not provider price ceilings.
 
-Downloads are delivered on messaging surfaces through standalone `MEDIA:/absolute/path` lines; CLI/TUI shows paths/text. Large attachments can use the provider download link instead. Link expiry follows actual provider metadata (many captured outputs say one hour), not a blanket retention guarantee. Save files you need to keep.
+For variable-price work, or a cost/balance question, the skill requires `studiotwin_estimate_cost` with the **exact intended inputs** and `studiotwin_get_credit_balance`. State the operation, variants, stages and quote, then obtain explicit user approval or the native trust prompt before submission. Fixed prices come from live schemas; unknown cost is disclosed, never invented. Extra stages, variants and retries are separate authorizations.
+
+Host/profile approval settings matter. An unattended run without an approver can be refused; configured prompt bypasses can permit uncapped spending. A denial is not a reason to change trust, call a paid API through a helper or retry around the gate. Insufficient-wallet error `40001` needs a balance check and user decision.
+
+Submit once and preserve the job, Concept and output-asset IDs separately. A timeout or lost connection does **not** prove the job failed or was not billed. Resume by listing/checking the original job. Concept image operations use `studiotwin_conceptlab_get_status` and `operation.status`, not the Concept ID as a job ID or lifecycle `draft` as a completion signal. Cancel only eligible owned queued/submitted jobs; verify status afterward and do not assume running jobs can be cancelled or refunded.
+
+Desktop polls visible status/cards; it does not wake the agent or execute dependent paid stages. On Telegram, Discord, Slack and WhatsApp, the skill's [long-job procedure](skills/studiotwin/SKILL.md#long-jobs-arm-a-real-chat-wake) requires a verified `terminal(background=True, notify=True)` poller for automatic follow-up. No `studiotwin` CLI/poller executable is bundled. Without working host interpreter, profile-secret access and notifications, the agent must disclose that automatic delivery is not armed. A sleep alone is not a status poller.
+
+Messaging delivery uses a separate `MEDIA:/absolute/path` line for each downloaded attachment; CLI/TUI prints paths/text. Large files can use the provider link. Link expiry follows provider metadata; resolve an expired asset URL instead of regenerating.
 
 ## Settings
 
-In Desktop: **Capabilities → Plugins → hermes-studiotwin → settings**. Nonsecret settings live under `plugins.entries.hermes-studiotwin.settings`; for example:
+Desktop: **Capabilities → Plugins → hermes-studiotwin → settings**. Nonsecrets live under `plugins.entries.hermes-studiotwin.settings`:
 
 ```sh
 hermes config set plugins.entries.hermes-studiotwin.settings.webgl_limit 2
 hermes config set plugins.entries.hermes-studiotwin.settings.blender_handoff never
 ```
 
-The complete `plugin.json` configuration surface and manifest defaults:
-
-| Key | Type / default | Purpose / accepted values |
+| Key | Type / default | Purpose |
 |---|---|---|
-| `api_key` | secret / unset | StudioTwin API key; stored as `STUDIOTWIN_API_KEY`, never sent to browser |
-| `api_base_url` | str / `https://api.studiotwin.ai` | Desktop API endpoint; HTTPS, with HTTP only for localhost/127.0.0.1 tests; agent MCP stays direct to production |
-| `show_credits` | bool / `true` | Show Desktop credit balance |
-| `inline_cards` | bool / `true` | StudioTwin media cards in chat |
-| `auto_rotate` | bool / `true` | Rotate models in Desktop viewers |
-| `webgl_limit` | int / `4` | Maximum live WebGL viewers, 1–4 |
-| `gallery_limit` | int / `24` | Recent assets shown, 1–100 |
-| `blender_handoff` | str / `ask` | Offer new local Blender project: `ask`, `always`, `never` |
-| `blender_path` | str / empty | Full Blender executable path; empty finds it on PATH |
+| `api_key` | secret / unset | Stored as `STUDIOTWIN_API_KEY`, never sent to browser JS |
+| `api_base_url` | str / `https://api.studiotwin.ai` | Desktop API base; HTTPS, HTTP only for localhost/127.0.0.1 tests |
+| `show_credits` | bool / `true` | Credit chip |
+| `inline_cards` | bool / `true` | Inline StudioTwin cards |
+| `auto_rotate` | bool / `true` | Initial model rotation |
+| `webgl_limit` | int / `4` | Maximum live WebGL viewers, clamped 1–4 |
+| `gallery_limit` | int / `24` | Recent Concepts/Jobs page size, clamped 1–100 |
+| `blender_handoff` | str / `ask` | Workflow policy: `ask`, `always`, `never` |
+| `blender_path` | str / empty | Blender executable; empty uses PATH |
 
-Current settings boundary: `show_credits` is live in Desktop chrome. Settings refresh from the scoped `/status` cache on the settings-changed event without reloading. `inline_cards=false` restores the host's tool-media fallback and plain directive text; the workspace, sidebar, palette and statusbar remain available. `auto_rotate` initializes inline and workspace model viewers; a viewer's manual toggle overrides it locally. `webgl_limit` (clamped 1–4) applies to inline model/environment/material viewers and workspace inspectors. `gallery_limit` (clamped 1–100) controls recent Concepts/Jobs page sizes, resetting their offset when changed; the library intentionally reads all 100-row pages so filtering stays complete, and the active-job chip still counts all pages. Missing or malformed settings use the manifest defaults. Blender settings guide the workflow skill, not permission to overwrite a scene or decimate without an approved budget. There is no hidden model/audio-format/session-cap setting: per-call controls come from live MCP schemas.
+Settings refresh on the scoped settings-changed event. `inline_cards=false` restores tool-media fallback/plain directive text, not disabled workspace/navigation/chrome. `auto_rotate` initializes inline/workspace viewers; manual toggles override it locally. `webgl_limit` includes workspace inspectors; off-screen/context-limited viewers can fall back until reopened. `gallery_limit` resets recent-page offsets, not the library's complete 100-row paging or all-page active-job counts. Missing/malformed values use defaults. Blender settings do not authorize overwrites or geometry losses. There is no hidden model/audio-format/session-cap setting; generation controls come from live schemas.
 
-## Files, provenance and local helpers
+## Files, privacy and local tools
 
-Files live on the **Hermes backend machine**, which may be remote from Desktop. The backend uses the active Hermes home's plugin data directory, normally `<HERMES_HOME>/plugin-data/agent-plugin-hermes-studiotwin-<hash>/` (with an unhashed fallback):
+Files live on the **Hermes backend machine**, possibly remote from Desktop. The active home's data root is normally `<HERMES_HOME>/plugin-data/agent-plugin-hermes-studiotwin-<hash>/`, with an unhashed fallback:
 
-- `studio_cache/`: resolved cloud downloads, with unique names.
-- `uploads/`: local uploaded copies; cloud upload is a separate explicit step.
-- `asset-index.json`: profile-local index of files opened/downloaded by the plugin; not a scan of your home folder.
-- `provenance.json`: local source/output IDs, prompt, tool, Concept/job and session linkage used by **Made from**.
-- Conversion scratch files are removed after requests; saved/exported project files are not automatically cleaned up.
+- `studio_cache/`: uniquely named cloud downloads; `uploads/`: local staged copies. Cloud upload is a separate explicit action.
+- `asset-index.json`: files opened/downloaded through this plugin, not a scan of the home folder.
+- `provenance.json`: local Made from records, which can include prompt, source/output, job, Concept and session IDs. Remote jobs are **not all automatically recorded**. [Scoped provenance write/readback procedure](skills/studiotwin/references/delivery.md#made-from-provenance).
+- Audio-conversion scratch files are removed after requests. Exports/project files are not automatically cleaned up; preview MP4s default to `<HERMES_HOME>/cache/generated/videos/`.
 
-The Desktop backend serves checked media paths from plugin data, active `<HERMES_HOME>/cache/generated/` and supported files under the user's home. Local file access is constrained by backend path/link/media checks, not unrestricted renderer filesystem access. Downloads and uploads have size/format limits; unsupported or unsafe files are refused. Audio/video streaming supports HTTP Range; audio conversion requires ffmpeg on the backend host.
+Backend file/link/media checks constrain serving to plugin data, active `cache/generated/` and supported files under the user home. This is not an execution sandbox. Downloads/uploads have size/format limits; audio/video support HTTP Range. Format conversion needs ffmpeg on the backend host.
 
-Provenance is not inferred from every remote call automatically. The skill documents how to record source IDs on submission and output IDs after completion using authenticated, plugin-scoped `POST /provenance` (full mount `/api/plugins/hermes-studiotwin/provenance`) and read it back. This is **not** a public StudioTwin endpoint. If an agent lacks a scoped backend adapter, it reports lineage in chat rather than pretending it persisted it. Prompt/session data in local provenance should be included in your retention/privacy planning.
+Five bundled entry-point scripts run through the terminal: `glb_stats.py` (measured mesh/rig/clip data), `render_preview.mjs` (MP4), `render_multiview.mjs` (PNG sheets/splits), `blender_handoff.py` (new Blender/export copies) and `sfx_tool.py` (probe/process/loopcheck/loopfix/pack). [Exact recipes, dependencies and safety flags](skills/studiotwin/references/local-tools.md). They spend no StudioTwin credits, but rendering may download integrity-checked three 0.180.0 from `registry.npmjs.org` into the active home's preview cache. Render helpers share `render_harness.mjs`, spawn headless Chromium with `--no-sandbox` and `--enable-unsafe-swiftshader`, and refuse external GLB resources; MP4 also spawns ffmpeg. These flags disable Chromium's sandbox and enable unsafe software rendering: resource refusal/integrity checks are not process isolation. Use trusted inputs; process untrusted assets only in a separately isolated environment. Blender runs fresh factory-startup processes, not an attached live scene or a security sandbox. Do not trim/fade loops; inspect the delivered seam. Choose new outputs; risky loss/overwrite flags need authorization.
 
-Five bundled entry-point scripts run locally, with no StudioTwin generation credits. Examples from the plugin root:
+Prompts, generation parameters, source references/media and authorized uploads leave the host for StudioTwin and its selected generation providers. Captured schemas identify OpenAI/Gemini, Tripo, fal.ai and ElevenLabs routes. Their terms, billing and retention apply. The plugin exposes no separate provider-retention control and makes no cloud-retention guarantee; this is not offline generation. Desktop requests go directly to its configured API and allowed StudioTwin/S3 origins. It adds no MCP proxy, TCP IPC broker, opaque handles or URL-redaction layer.
 
-```sh
-python3 skills/studiotwin/scripts/glb_stats.py /absolute/model.glb
-node skills/studiotwin/scripts/render_preview.mjs /absolute/model.glb --out /absolute/preview.mp4 --seconds 6 --size 720 --max-mb 8
-blender --background --factory-startup --python skills/studiotwin/scripts/blender_handoff.py -- --input /absolute/model.glb --out-dir /absolute/new-handoff --export both
-python3 skills/studiotwin/scripts/sfx_tool.py process /absolute/sound.wav --out /absolute/sound.ogg --mono --trim --loudness -18
-python3 skills/studiotwin/scripts/sfx_tool.py loopcheck /absolute/loop.wav
-```
+**Secrets:** API keys (`st_...`) and presigned **POST** upload policy/signature fields must not appear in chat, renderer JS, logs or reports. Presigned **download** URLs and `s3://` URIs are ordinary delivery locations and are not redacted just for being signed. Transcripts may contain prompts, IDs and those normal links. Index/provenance/cache stay in the active profile unless shared/uploaded. This plugin adds no independent analytics collector; Hermes/StudioTwin have their own logs and policies.
 
-[Full script CLI, dependencies and safety notes](skills/studiotwin/SKILL.md#local-scripts-no-studiotwin-credits):
-
-- `glb_stats.py`: stdlib, measured geometry, bound skins and animation clip names; no network.
-- `render_preview.mjs`: GLB turntable/clip **MP4**, not contact sheet. Spawns headless Chromium and ffmpeg. Uses bundled/development three 0.180.0 or downloads its integrity-checked tarball from `registry.npmjs.org` to `<HERMES_HOME>/cache/studiotwin-preview/`; default output is `cache/generated/videos/`. Rendering refuses external URLs inside the GLB and reports blocked resources.
-- `render_multiview.mjs`: deterministic 4/6-view labeled contact-sheet PNG plus optional split PNGs, all four shading passes and transparency. Uses the shared `render_harness.mjs` and headless Chromium; no ffmpeg or StudioTwin credit use.
-- `blender_handoff.py`: Blender 4.2+, new background factory-startup processes, new optimized blend/GLB/FBX exports and fresh-process verification. Optional triangle/texture/LOD reductions require agreed scope; no live-scene edits. Decimation is not retopology; rig/shape-key losses must be disclosed.
-- `sfx_tool.py`: Python stdlib + ffmpeg/ffprobe; probe/process/loopcheck/loopfix/pack. Writes chosen outputs and pack folder/manifest/zip, refuses existing outputs without `--force`. Never trim/fade a loop; check the delivered file's seam. Reports JSON measurements/errors.
-
-## Privacy, network and telemetry
-
-- Prompts, generation parameters, referenced source media/assets and authorized uploads leave the host for StudioTwin's cloud under your key. StudioTwin may use its generation providers (the schemas identify OpenAI/Gemini, Tripo, fal.ai and ElevenLabs routes). Provider billing, retention and terms apply; do not assume offline generation or that only RealTwin infrastructure processes media.
-- The agent connects directly to `api.studiotwin.ai/mcp`. Desktop backend requests also go directly to the configured StudioTwin endpoint and allowed StudioTwin/S3 delivery/upload origins. The plugin does not add a local MCP proxy, IPC broker, opaque handles or URL-redaction layer. Desktop's host-scoped media streaming is not an agent MCP wrapper.
-- `STUDIOTWIN_API_KEY` (`st_...`) and presigned **POST** upload policy/signature fields are secrets. They must not be copied into chat, browser JS, logs or reports. Presigned **download** URLs and `s3://` URIs are normal delivery links/locations and are **not redacted** merely because they contain signatures.
-- Asset index/provenance and downloaded files stay in the active profile's storage unless you upload/share them. Hermes transcripts can contain prompts, IDs and ordinary delivery links. This plugin adds no independent analytics/telemetry collector; Hermes and StudioTwin have their own logging/policies.
-- No persistent local MCP daemon is installed. Desktop polls visible jobs/status; agent-armed terminal pollers are bounded background processes, and local previews/handoffs/conversions spawn tools while running. Disabling/removing the plugin does not cancel a cloud job or necessarily stop a previously armed terminal process. Stop those processes separately when appropriate.
+No persistent local MCP daemon is installed. Desktop polling, agent-armed bounded background pollers and temporary render/conversion/Blender processes are separate activities. Disable/remove does not necessarily stop a poller or cancel a cloud job.
 
 ## Troubleshooting
 
 | Symptom | Check |
 |---|---|
-| No tools | Agent half enabled in the correct profile, new session, MCP discovery; inspect host plugin/MCP logs; remove accidental duplicate server overrides only after review |
-| Key rejected / no balance | Active profile's secret field/`.env`, not another profile or only the Desktop client's shell; never print the key |
-| Insufficient credits (`40001`) | Read wallet and estimate; let the user fund/reduce scope; no paid auto-retry |
-| Timeout after submit | List recent jobs and poll the existing ID; an uncertain result may already be billed |
-| Concept seems stuck at draft | Inspect `operation.status` via ConceptLab status; lifecycle draft alone is not image-operation status |
-| Expired download | Resolve existing asset for a new URL; no regeneration needed |
-| Blank/unsupported card | Desktop half, exact directive attributes, original profile/connection, supported file format; see settings boundary above; use normal file/link fallback |
-| No format conversions | ffmpeg on the Hermes host; original download still works |
-| Local helper cannot find file | Terminal and backend may run on different machines; confirm paths/tool host before copying or installing |
-| No automatic chat follow-up | A verified `background=True, notify=True` poller must be armed; a visible progress card alone is insufficient |
-| Cannot cancel | Provider permits cancellation only before running; read back current job status |
+| Repository not found / install denied | Correct `realtwin/hermes-studiotwin-plugin` slug and private GitHub access on the machine doing the clone |
+| No tools | Correct enabled profile, new session, discovery, host plugin/MCP logs and accidental server overrides |
+| Key rejected / no balance | Active backend profile's secret field, not another profile or only the client shell; never print the key |
+| Timeout after submit | List recent jobs and poll the original ID; do not automatically submit again |
+| Concept remains draft | Inspect `operation.status` through ConceptLab status |
+| Blank card / remote UI unavailable | Client Desktop UI install/switch, original scope, exact attributes, supported file; use normal link/file fallback |
+| Expired download | Resolve the existing asset again |
+| Missing conversion/helper input | Tools/files must be on the processing host; terminal and backend can be different machines |
+| No automatic follow-up | Check the actual notification-capable poller handle; a visible progress card alone is insufficient |
+| No exact video frame stepping | Timing inspection has format/size/CORS limits; ordinary playback remains available; [timing details](docs/video-frame-timing.md) |
 
 ## Disable or remove
 
@@ -220,29 +178,12 @@ hermes plugins disable hermes-studiotwin
 hermes plugins remove hermes-studiotwin
 ```
 
-Use the active profile and turn off Desktop UI separately if needed. Review the host's removal prompt/options; back up desired downloads and provenance first. Do not assume removal deletes cloud assets, cancels cloud jobs, clears retained profile data or revokes the API key. Stop outstanding terminal pollers, explicitly cancel eligible cloud jobs, and revoke the key in StudioTwin if desired. Delete retained local data only after identifying the correct active-profile directory and confirming scope.
+Use the intended profile; manage the app-level Desktop switch separately. Back up wanted downloads/provenance and review removal behavior first. Removal does not imply cloud deletion, job cancellation, API-key revocation or deletion of retained local data. Stop pollers separately, explicitly cancel eligible jobs if wanted, and revoke the key in StudioTwin if no longer needed. Identify the correct active-profile storage before any confirmed cleanup.
 
-## Development
+## Development and verification
 
-From this repository, use Node.js 24+, npm and Python 3.11+; the Python dependency manifest is `[project]` only, letting the Hermes host manage plugin dependencies. The committed Desktop bundle is built from `src/` with React/SDK supplied by the host.
-
-```sh
-npm ci
-npm run typecheck
-npm run build:desktop
-STUDIOTWIN_WEBGL_TEST=1 npx vitest run
-python -m venv .venv
-.venv/bin/pip install -r requirements-test.txt
-PYTHONPATH=/absolute/path/to/hermes-agent .venv/bin/pytest -q
-PYTHONPATH=/absolute/path/to/hermes-agent .venv/bin/python tools/verify_v07.py
-hermes plugins validate .
-hermes plugins doctor --ci .
-```
-
-The pinned portable host automatically discovers `skills/*/SKILL.md`. It does not accept a top-level `skills` manifest field; the admission probe verifies actual `studiotwin` skill discovery and zero warnings instead of shipping an ignored declaration.
-
-Backend/host-loader tests may require a matching Hermes source checkout on `PYTHONPATH`; use their fixtures and the host version under test. Do not infer live compatibility from offline unit tests. Run validate/doctor/install/load probes only in a disposable Hermes home/environment, never a daily profile. Tests use captured schemas and local stand-ins; no paid provider call is required for this development loop. Rebuild `desktop/plugin.js` after renderer changes. The bundled tool snapshot is a deterministic fixture, not a version pin on the hosted service.
+[Development recipes and evidence classes](docs/development.md) cover isolated dependencies, script checks, tests, bundle rebuilds and host validation. Do not run dependency-preparation probes against a daily profile/shared managed environment. [Compatibility](docs/compatibility.md) distinguishes released-host source inspection, fixture/browser tests and native Desktop acceptance; none is silently substituted for another. [Candidate v1 notes](docs/release-notes-v1.md) are not a shipped-release claim.
 
 ## License and attribution
 
-MIT; see [NOTICE](NOTICE) and the retained upstream [licenses/](licenses/). Model/animation tooling and viewer patterns are adapted from Nous Research's Meshy plugin; audio tooling/card patterns from its ElevenLabs Sound Effects plugin, retaining attribution. Those upstream plugins' official status does not make this RealTwin package an official Nous Research plugin. StudioTwin and third-party service/content terms apply separately to generated assets.
+MIT; see [NOTICE](NOTICE) and retained upstream [licenses/](licenses/). Model/animation tooling and viewer patterns adapt Nous Research's Meshy plugin; audio tooling/card patterns adapt its ElevenLabs Sound Effects plugin. Attribution does not make this RealTwin package an official Nous plugin. StudioTwin and third-party service/content terms apply separately to generated assets.

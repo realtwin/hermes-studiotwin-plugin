@@ -59,6 +59,7 @@ export function LibraryTab({ scope, onInspect }: { scope: MediaScope; onInspect:
     </div>
     {query.isLoading && <p role="status">Loading assets…</p>}
     {query.isError && <p role="alert">Asset library unavailable. Refresh to retry this read.</p>}
+    {query.partial && <p role="alert">Cloud inventory unavailable — this is a partial library of available cached and staged assets. Refresh to retry cloud access.</p>}
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%, 240px),1fr))', gap: 14, marginTop: 14 }}>
       {rows.map(row => {
         const display = assetDisplayName(row);

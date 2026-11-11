@@ -181,10 +181,10 @@ export function AssetInspector({
     scope,
     "/actions?" +
       new URLSearchParams({
-        id: id ?? "",
-        type: modality(row) === "material" ? "texture" : modality(row),
+        id: assetId(row) ?? row.jobId ?? "",
+        type: !assetId(row) && row.jobId ? 'job' : modality(row) === "material" ? "texture" : modality(row),
       }),
-    Boolean(id),
+    Boolean(assetId(row) || row.jobId),
   );
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
@@ -278,9 +278,9 @@ export function AssetInspector({
           void (async () => {
             try {
               scope.assert();
-              if (row.downloadUrl || row.url) saveUrl(scope, row.downloadUrl || row.url, assetDisplayName(row).title);
-              else await downloadSource(scope.rest, assetSource(row), scope.assert);
-            } catch { if (scope.current()) setError('Download unavailable. The original asset was not changed.'); }
+              if (row.local_path || row.path || id) await downloadSource(scope.rest, assetSource(row), scope.assert);
+              else saveUrl(scope, row.downloadUrl || row.url, assetDisplayName(row).title);
+            } catch { if (scope.current()) setError('Download unavailable. Refresh the asset and retry this download. The original asset was not changed.'); }
           })();
         }}><sdk.Codicon name="cloud-download" size={14} />Download original</sdk.Button>}
         <span aria-hidden="true" style={{ ...inspectorSectionStyle, width: 1, height: 24 }} />

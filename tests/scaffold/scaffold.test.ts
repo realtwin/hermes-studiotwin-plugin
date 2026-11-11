@@ -13,20 +13,22 @@ import viteConfig, { HOST_PROVIDED } from '../../vite.config.ts'
 import vitestConfig, { SDK_STUB } from '../../vitest.config.ts'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
-const CORE = '/home/deploy/work/realtwin/hermes-studiotwin/reference/hermes-agent/apps/desktop/src'
+const CORE = process.env.HERMES_REFERENCE_ROOT
+  ? join(process.env.HERMES_REFERENCE_ROOT, 'apps/desktop/src')
+  : '/home/deploy/work/realtwin/hermes-studiotwin/reference/hermes-agent/apps/desktop/src'
 const read = (path: string) => readFileSync(path, 'utf8')
 const json = (path: string) => JSON.parse(read(join(ROOT, path)))
 
 describe('locked runner', () => {
-  it('is the pinned Vitest 3.2.7 in a single forked worker', () => {
-    // 3.x is required: Vitest 4.1.12 rejects `--poolOptions` ("Unknown option"), which every §9 command passes.
-    expect(json('node_modules/vitest/package.json').version).toBe('3.2.7')
-    expect(json('package.json').devDependencies.vitest).toBe('3.2.7')
+  it('is the patched Vitest 4.1.12 in a single bounded forked worker', () => {
+    // Authorized narrow security migration: Vitest 4 replaces poolOptions.
+    expect(json('node_modules/vitest/package.json').version).toBe('4.1.12')
+    expect(json('package.json').devDependencies.vitest).toBe('4.1.12')
     expect(typeof process.send).toBe('function') // forks pool: a child_process with an IPC channel
-    expect(process.env.VITEST_POOL_ID).toBe('1') // singleFork: exactly one worker
-    const forks = vitestConfig.test?.poolOptions?.forks
+    expect(process.env.VITEST_POOL_ID).toBe('1') // maxWorkers: exactly one worker
     expect(vitestConfig.test?.pool).toBe('forks')
-    expect(forks?.singleFork).toBe(true)
+    expect(vitestConfig.test?.maxWorkers).toBe(1)
+    expect(vitestConfig.test?.execArgv).toContain('--max-old-space-size=3072')
     expect(vitestConfig.test?.fileParallelism).toBe(false)
   })
 

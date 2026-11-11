@@ -3,7 +3,7 @@
   "label": "StudioTwin",
   "description": "StudioTwin Desktop media backend and library.",
   "icon": "Box",
-  "version": "0.3.2",
+  "version": "1.0.0",
   "tab": {"path": "/studiotwin", "hidden": true},
   "entry": "dist/index.js",
   "api": "plugin_api.py"

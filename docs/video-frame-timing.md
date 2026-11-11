@@ -12,6 +12,10 @@ Timing inspection is an additional optional fetch of the playback URL, bounded t
 
 ## Verification
 
+This section records browser-harness/fixture evidence at the implementation revision,
+not native Hermes Desktop acceptance. “Native video” above means the browser's HTML
+video element, not a claim that the Electron app was exercised.
+
 The Chromium test mounts the actual registerVideoCards render callback, without an fps prop, and a completed TaskCard video. It exercises both 6-fps and 10-fps MP4s, observes requestVideoFrameCallback mediaTime, checks that forward stepping changes decoded pixels, and checks that reverse stepping restores the initial pixels. The same browser test preserves explicit 4-fps image-sequence coverage and checks playback with disabled stepping after timing inspection is denied.
 
 The second fixture was generated locally:

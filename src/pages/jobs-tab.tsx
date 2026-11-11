@@ -59,18 +59,9 @@ export function JobsTab({ scope, configured, onInspect, session }: {
   const inspect = async (row: Row) => {
     setError('');
     try {
-      const full = { ...row, ...object(await scope.rest('/jobs/' + encodeURIComponent(row.uuid ?? row.id))) };
-      const outputs = object(full.outputs), asset = outputs.assetId ?? outputs.assetIds?.[0] ?? full.assetId ?? full.outputAssetIds?.[0];
-      if (asset) onInspect(object(await scope.rest('/assets/' + encodeURIComponent(asset))));
-      else {
-        const entry = [['imageUrl', 'image'], ['videoUrl', 'video'], ['meshUrl', '3d_model'], ['modelUrl', '3d_model'], ['hdrUrl', 'environment'], ['audioUrl', 'audio']].find(([key]) => outputs[key]);
-        scope.assert();
-        if (entry || outputs.riggable !== undefined) {
-          if (entry && ['image', 'video'].includes(entry[1])) onInspect({ type: entry[1], url: outputs[entry[0]], name: 'Completed job output' });
-          else onInspect(object(await scope.rest('/jobs/' + encodeURIComponent(row.uuid ?? row.id) + '/output')));
-        }
-        else setError('Completed job has no previewable output asset. Inspect its output links in chat.');
-      }
+      const output = object(await scope.rest('/jobs/' + encodeURIComponent(row.uuid ?? row.id) + '/output'));
+      scope.assert();
+      onInspect(output);
     } catch { if (scope.current()) setError('Output unavailable. The existing job was not resubmitted.'); }
   };
   return <section aria-label="StudioTwin jobs">

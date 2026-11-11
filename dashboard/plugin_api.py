@@ -24,7 +24,7 @@ import uuid
 from email.parser import BytesParser
 from email.policy import default as email_policy
 from pathlib import Path
-from urllib.parse import unquote, urlsplit
+from urllib.parse import unquote, urlsplit, parse_qsl, urlencode, urlunsplit
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.concurrency import run_in_threadpool
@@ -171,7 +171,16 @@ def assets(type: str = '', limit: int | None = Query(None,ge=1,le=100), offset: 
         raise HTTPException(400,'unsupported asset type')
     limit = limit or _settings()['gallery_limit']
     local = _local_rows()
-    cloud = _call('studiotwin_list_my_assets',{'type':type} if type else {}).get('assets',[]) if _api_key() else []
+    configured = bool(_api_key())
+    cloud, cloud_status = [], 'not_configured'
+    if configured:
+        try:
+            cloud = _call('studiotwin_list_my_assets',{'type':type} if type else {}).get('assets',[])
+            cloud_status = 'available'
+        except HTTPException:
+            # Local originals remain usable. Do not echo provider/key-bearing details
+            # or represent the returned local subset as the full cloud inventory.
+            cloud_status = 'unavailable'
     merged = {r['uuid']:dict(r) for r in cloud}
     for row in local:
         key = row.get('uuid') or row['path']
@@ -192,7 +201,8 @@ def assets(type: str = '', limit: int | None = Query(None,ge=1,le=100), offset: 
     # The provider returns a complete assets array, not a paged tool response.
     # Page only after merging/deduplicating and filtering cloud + local rows.
     page = visible[offset:offset+limit]
-    return {'configured':bool(_api_key()),'assets':page,'total':len(visible),
+    return {'configured':configured,'cloud_status':cloud_status,
+            'partial':cloud_status == 'unavailable','assets':page,'total':len(visible),
             'next_offset':offset+len(page) if offset+len(page) < len(visible) else None}
 
 
@@ -287,35 +297,77 @@ def file(request: Request, path: str = '', asset: str = '', task: str = '', form
                 'dataUrl':f'data:{mime};base64,'+base64.b64encode(data).decode('ascii')}
 
 
+JOB_LINKS = (('meshUrl', '3d_model'), ('modelUrl', '3d_model'),
+             ('mesh', '3d_model'), ('worldMesh', '3d_model'),
+             ('hdrUrl', 'environment'), ('environmentHDR', 'environment'),
+             ('panoramaHDR', 'environment'), ('imageUrl', 'image'),
+             ('audioUrl', 'audio'), ('audioClip', 'audio'), ('videoUrl', 'video'))
+
+
+def _job_target(row):
+    """One output selection contract for inspection and continuation; never job-as-asset."""
+    outputs = row.get('outputs')
+    outputs = outputs if isinstance(outputs, dict) else {}
+    asset = (outputs.get('assetId') or next(iter(outputs.get('assetIds') or []), None)
+             or next(iter(outputs.get('outputAssetIds') or []), None) or row.get('assetId')
+             or next(iter(row.get('outputAssetIds') or []), None))
+    if asset:
+        resolved = _call('studiotwin_resolve_asset', {'assetId':_id(asset)})
+        kind = 'environment' if Path(resolved.get('name','')).suffix.lower() in ('.hdr','.exr') else resolved.get('type','unknown')
+        return {'uuid':asset, **resolved, 'type':kind, 'local_path':_cached(asset)}
+    for key, kind in JOB_LINKS:
+        url = outputs.get(key)
+        if isinstance(url, str) and url:
+            return {'type':kind, 'downloadUrl':url, 'outputField':key,
+                    'name':Path(unquote(urlsplit(url).path)).name}
+    if 'riggable' in outputs:
+        return {'type':'rig_check', **{k:outputs[k] for k in ('riggable','rigType') if k in outputs}}
+    return {'type':'unknown'}
+
+
+def _output_identity(url):
+    # Ignore only known signing/expiry parameters, NOT content/version selectors.
+    # Same object URL with changed signature reopens; changed key/version stays distinct.
+    parts = urlsplit(url)
+    auth = {'signature','expires','awsaccesskeyid','key-pair-id','policy'}
+    query = [(k,v) for k,v in parse_qsl(parts.query, keep_blank_values=True)
+             if not k.lower().startswith('x-amz-') and k.lower() not in auth]
+    return urlunsplit((parts.scheme,parts.netloc,parts.path,urlencode(sorted(query)),''))
+
+
 @router.get('/jobs/{jid}/output')
 def job_output(jid: str):
-    """Resolve an existing job's unindexed media using the same guarded storage reader as assets."""
     row = _job(jid)
-    outputs = row.get('outputs')
-    if not isinstance(outputs, dict):
-        outputs = {}
-    base = {'name': 'Completed job output', 'jobId': jid,
-            **{k: outputs[k] for k in ('riggable', 'rigType') if k in outputs}}
-    for key, kind in (('meshUrl', '3d_model'), ('modelUrl', '3d_model'),
-                      ('hdrUrl', 'environment'), ('audioUrl', 'audio')):
-        url = outputs.get(key)
-        if not isinstance(url, str) or not url:
-            continue
-        ext = Path(unquote(urlsplit(url).path)).suffix.lower()
-        if ext not in sandbox.MIME:
-            raise HTTPException(415, 'unsupported job output extension')
+    if str(row.get('status','')).lower() not in TERMINAL_OK_STATUSES:
+        raise HTTPException(409, 'job has not completed')
+    target = _job_target(row)
+    if target['type'] == 'unknown':
+        raise HTTPException(404, 'job has no supported output link')
+    target['jobId'] = jid
+    outputs = row.get('outputs') or {}
+    target.update({k:outputs[k] for k in ('riggable','rigType') if k in outputs})
+    if target.get('uuid') or target['type'] == 'rig_check':
+        return target
+    url = target['downloadUrl']
+    ext = Path(unquote(urlsplit(url).path)).suffix.lower()
+    if ext not in sandbox.MIME:
+        raise HTTPException(415, 'unsupported job output extension')
+    identity = target['outputField'] + ':' + _output_identity(url)
+    # Existing process-wide store lock serializes lookup + publication across
+    # requests; scope is still resolved per request, never cached globally.
+    with store.STATE_LOCK:
+        cached = next((r for r in _local_rows() if r.get('task') == jid
+                       and r.get('output_identity') == identity), None)
+        if cached:
+            return {**target, 'path':cached['path']}
         with _client() as client:
             _, data = client.request('GET', url, storage=True, cap=sandbox.MAX_BYTES)
         folder = sandbox.local_folder(_data_root(), 'studio_cache')
         dest = folder / f'{jid}-{uuid.uuid4().hex}{ext}'
         with dest.open('xb') as out:
             out.write(data)
-        _index().record(dest, task=jid, kind=kind)
-        return {**base, 'name': Path(unquote(urlsplit(url).path)).name,
-                'type': kind, 'path': str(dest), 'downloadUrl': url}
-    if 'riggable' in outputs:
-        return {**base, 'type': 'rig_check'}
-    raise HTTPException(404, 'job has no supported output link')
+        _index().record(dest, task=jid, kind=target['type'], output_identity=identity)
+        return {**target, 'path':str(dest)}
 
 
 @router.get('/jobs')
@@ -517,6 +569,7 @@ ACTION_TABLE = {
 @router.get('/actions')
 def actions(id: str, type: str = ''):
     _id(id)
+    reference = f'StudioTwin asset {id}'
     if not type or type == 'job':
         row = None
         if not type:
@@ -531,18 +584,17 @@ def actions(id: str, type: str = ''):
             row = _job(id)
             if str(row.get('status','')).lower() not in TERMINAL_OK_STATUSES:
                 return {'id':id,'type':'job','actions':[]}
-            outputs = row.get('outputs') or {}
-            type = next((kind for keys,kind in [
-                (('environmentHDR','panoramaHDR'),'environment'), (('mesh','worldMesh'),'3d_model'),
-                (('imageUrl',),'image'), (('audioClip',),'audio')]
-                if any(key in outputs for key in keys)), 'unknown')
+            target = _job_target(row)
+            type = target['type']
+            reference = (f"StudioTwin asset {target['uuid']} (output of job {id})" if target.get('uuid')
+                         else f'StudioTwin job {id}: resolve its current output source before using it; this is a job reference, not an asset UUID')
     if type not in ACTION_TABLE:
         return {'id':id,'type':type,'actions':[]}
     out = []
     for aid,label,tool,cost in ACTION_TABLE[type]:
         price = f'{cost} credits' if cost is not None else 'input-dependent credits; estimate first'
         out.append({'id':aid,'label':label,'tool':tool,'cost':cost,'cost_label':price,
-            'message':f'StudioTwin asset {id}: {label} using {tool} ({price}). '
+            'message':f'{reference}: {label} using {tool} ({price}). '
                        'Read the live tool schema, check compatibility, estimate the exact inputs with '
                        'studiotwin_estimate_cost, and ask me to approve the cost before submitting.'})
     return {'id':id,'type':type,'actions':out}
