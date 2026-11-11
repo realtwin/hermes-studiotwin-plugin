@@ -1,0 +1,51 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v09
+
+ ❯ tests/visual/inspector-scroll.test.ts (2 tests | 2 failed) 13869ms
+   × production bundle: wheel reaches inspector Next actions in light at 1000x700 6940ms
+     → expect(received).toBeGreaterThan(expected)
+
+Expected: > 0
+Received:   0
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+   × production bundle: wheel reaches inspector Next actions in dark at 1000x700 6927ms
+     → expect(received).toBeGreaterThan(expected)
+
+Expected: > 0
+Received:   0
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/visual/inspector-scroll.test.ts > production bundle: wheel reaches inspector Next actions in light at 1000x700
+ FAIL  tests/visual/inspector-scroll.test.ts > production bundle: wheel reaches inspector Next actions in dark at 1000x700
+Error: expect(received).toBeGreaterThan(expected)
+
+Expected: > 0
+Received:   0
+
+Call Log:
+- Timeout 5000ms exceeded while waiting on the predicate
+ ❯ captureRawStack node_modules/playwright/node_modules/playwright-core/lib/coreBundle.js:9282:17
+ ❯ callMatcherAsStep node_modules/playwright/lib/matchers/expect.js:13316:57
+ ❯ Object.toBeGreaterThan node_modules/playwright/lib/matchers/expect.js:13308:23
+ ❯ tests/visual/inspector-scroll.test.ts:34:62
+     32|       await dialog.hover()
+     33|       await page.mouse.wheel(0, 1200)
+     34|       await pw.poll(async () => (await measure()).scrollTop).toBeGreat…
+       |                                                              ^
+     35|       await pw.poll(async () => {
+     36|         const m = await measure()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  15:46:06
+   Duration  14.51s (transform 95ms, setup 0ms, collect 389ms, tests 13.87s, environment 0ms, prepare 66ms)
+

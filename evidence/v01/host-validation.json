@@ -1,0 +1,169 @@
+{
+  "ok": true,
+  "checks": [
+    {
+      "name": "portable manifest",
+      "ok": true,
+      "detail": "plugin.json parses (Agent Plugins v1)"
+    },
+    {
+      "name": "manifest fields",
+      "ok": true,
+      "detail": "name present"
+    },
+    {
+      "name": "config schema",
+      "ok": true,
+      "detail": "shape valid"
+    },
+    {
+      "name": "server trust: studiotwin",
+      "ok": true,
+      "detail": "untrusted (Hermes asks before every write-capable tool call)"
+    },
+    {
+      "name": "server costs: studiotwin",
+      "ok": true,
+      "detail": "27 costed tool(s), no spend limit"
+    },
+    {
+      "name": "security scan",
+      "ok": true,
+      "detail": "safe"
+    }
+  ],
+  "warnings": [],
+  "isolation": {
+    "verdict": "portable",
+    "host_ready": true,
+    "reasons": [],
+    "notes": [],
+    "ctx_methods": []
+  },
+  "host_module": "/home/deploy/work/realtwin/hermes-studiotwin/reference/hermes-agent/hermes_cli/agent_plugins.py",
+  "version": "0.2.0",
+  "pyproject_installs": false,
+  "server": {
+    "url": "https://api.studiotwin.ai/mcp",
+    "strict_redirect_headers": true,
+    "headers": {
+      "x-api-key": "${STUDIOTWIN_API_KEY}"
+    },
+    "trust": "untrusted",
+    "timeout": 1500.0,
+    "cost_unit": "credits",
+    "tool_costs": {
+      "text-to-motion-edit": 5,
+      "text-to-motion": {
+        "credits": [
+          1,
+          100
+        ],
+        "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."
+      },
+      "text-to-motion-kimodo": {
+        "credits": [
+          1,
+          100
+        ],
+        "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."
+      },
+      "text-to-motion-control": 5,
+      "motion-stitch-single": 5,
+      "text-to-environment-map": 20,
+      "image-to-environment-map": 25,
+      "environment-map-to-world": 80,
+      "environment-map-upscale-cpu": {
+        "credits": [
+          1,
+          100
+        ],
+        "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."
+      },
+      "pano-sticker-placement": 1,
+      "pano-stickers": {
+        "credits": [
+          1,
+          100
+        ],
+        "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."
+      },
+      "text-to-material": {
+        "credits": [
+          1,
+          100
+        ],
+        "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."
+      },
+      "texture-to-material": 20,
+      "image-to-material": {
+        "credits": [
+          1,
+          100
+        ],
+        "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."
+      },
+      "image-to-3d-mesh": 25,
+      "tripo-image-to-3d-mesh": {
+        "credits": [
+          1,
+          100
+        ],
+        "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."
+      },
+      "tripo-rig-check": 0,
+      "blender-auto-rig": 15,
+      "tripo-auto-rig": 45,
+      "tripo-retopology": {
+        "credits": [
+          1,
+          100
+        ],
+        "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."
+      },
+      "text-to-sound-effect": {
+        "credits": [
+          1,
+          100
+        ],
+        "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."
+      },
+      "prompt-to-dart-translation": 1,
+      "openai-gpt-image-2-v4-fn": {
+        "credits": [
+          1,
+          100
+        ],
+        "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."
+      },
+      "concept-lab-img-fn": {
+        "credits": [
+          1,
+          100
+        ],
+        "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."
+      },
+      "studiotwin_conceptlab_create_and_generate": {
+        "credits": [
+          1,
+          74
+        ],
+        "note": "Approximate range from the tool description; obtain a fresh estimate for the selected quality and resolution."
+      },
+      "studiotwin_conceptlab_generate": {
+        "credits": [
+          1,
+          74
+        ],
+        "note": "Approximate range from the tool description; obtain a fresh estimate for the selected quality and resolution."
+      },
+      "studiotwin_conceptlab_edit": {
+        "credits": [
+          3,
+          74
+        ],
+        "note": "Approximate range from the tool description, includes source image; obtain a fresh estimate."
+      }
+    }
+  }
+}

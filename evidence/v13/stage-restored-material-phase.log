@@ -1,0 +1,36 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13
+
+ ✓ tests/workspace/stage-states.test.ts > model exposes poster → loading → ready without simultaneous retry and loading UI 174ms
+ ✓ tests/workspace/stage-states.test.ts > environment exposes poster → loading → ready without simultaneous retry and loading UI 24ms
+ ✓ tests/workspace/stage-states.test.ts > material exposes poster → loading → ready without simultaneous retry and loading UI 27ms
+ ✓ tests/workspace/stage-states.test.ts > model retains its snapshot after offscreen eviction and can acquire a fresh stage 42ms
+ ✓ tests/workspace/stage-states.test.ts > environment retains its snapshot after offscreen eviction and can acquire a fresh stage 19ms
+ ✓ tests/workspace/stage-states.test.ts > material retains its snapshot after offscreen eviction and can acquire a fresh stage 32ms
+ ✓ tests/workspace/stage-states.test.ts > model load failure survives lease release; retry is exclusive with status and actually reloads 24ms
+ ✓ tests/workspace/stage-states.test.ts > environment load failure survives lease release; retry is exclusive with status and actually reloads 20ms
+ ✓ tests/workspace/stage-states.test.ts > material load failure survives lease release; retry is exclusive with status and actually reloads 28ms
+ ✓ tests/workspace/stage-states.test.ts > model fallback still exposes error instead of erasing failed load during disposal 17ms
+ ✓ tests/workspace/stage-states.test.ts > environment fallback still exposes error instead of erasing failed load during disposal 8ms
+ ✓ tests/workspace/stage-states.test.ts > material fallback still exposes error instead of erasing failed load during disposal 6ms
+ ✓ tests/workspace/stage-states.test.ts > 'model' ignores superseded load completion (success=true) 15ms
+ ✓ tests/workspace/stage-states.test.ts > 'model' ignores superseded load completion (success=false) 14ms
+ ✓ tests/workspace/stage-states.test.ts > 'environment' ignores superseded load completion (success=true) 13ms
+ ✓ tests/workspace/stage-states.test.ts > 'environment' ignores superseded load completion (success=false) 11ms
+ ✓ tests/workspace/stage-states.test.ts > 'material' ignores superseded load completion (success=true) 18ms
+ ✓ tests/workspace/stage-states.test.ts > 'material' ignores superseded load completion (success=false) 20ms
+ ✓ tests/workspace/stage-states.test.ts > model audit is terminal without loading/retry controls and releases its GPU lease 8ms
+ ✓ tests/workspace/stage-states.test.ts > real shared pool evicts the first viewer when a second viewer takes its only slot 25ms
+ ✓ tests/workspace/stage-states.test.ts > multiview retains downloadable pixels after upload failure and supports staged/reskin retry 57ms
+ ✓ tests/workspace/stage-states.test.ts > multiview retains downloadable pixels after provenance failure and supports staged/reskin retry 60ms
+ ✓ tests/workspace/stage-states.test.ts > multiview retains downloadable pixels after callback failure and supports staged/reskin retry 51ms
+ ✓ tests/workspace/stage-states.test.ts > multiview capture failure has error without nonexistent download or reskin availability 24ms
+ ✓ tests/workspace/stage-states.test.ts > multiview completion from a superseded model cannot stage a sheet or enable reskin 27ms
+ ✓ tests/workspace/stage-states.test.ts > a superseded model fetch cannot decode into the retired stage or replace current stats 13ms
+ ✓ tests/workspace/stage-states.test.ts > a staging completion after model replacement cannot restore the old sheet or enable reskin 31ms
+
+ Test Files  1 passed (1)
+      Tests  27 passed (27)
+   Start at  17:50:34
+   Duration  1.99s (transform 248ms, setup 0ms, collect 448ms, tests 809ms, environment 482ms, prepare 74ms)
+

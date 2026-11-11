@@ -1,0 +1,399 @@
+{
+  "captures": [
+    {
+      "file": "3d-model-light.png",
+      "theme": "light",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(246, 247, 251)",
+      "fg": "rgb(23, 32, 51)",
+      "canvases": [
+        {
+          "width": 1436,
+          "height": 640,
+          "cssWidth": 718,
+          "cssHeight": 320
+        }
+      ]
+    },
+    {
+      "file": "animation-rigged-light.png",
+      "theme": "light",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(246, 247, 251)",
+      "fg": "rgb(23, 32, 51)",
+      "canvases": [
+        {
+          "width": 1436,
+          "height": 640,
+          "cssWidth": 718,
+          "cssHeight": 320
+        }
+      ]
+    },
+    {
+      "file": "audio-sfx-light.png",
+      "theme": "light",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(246, 247, 251)",
+      "fg": "rgb(23, 32, 51)",
+      "canvases": [
+        {
+          "width": 1180,
+          "height": 176,
+          "cssWidth": 590,
+          "cssHeight": 88
+        }
+      ]
+    },
+    {
+      "file": "env-360-stickers-light.png",
+      "theme": "light",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(246, 247, 251)",
+      "fg": "rgb(23, 32, 51)",
+      "canvases": [
+        {
+          "width": 2712,
+          "height": 640,
+          "cssWidth": 1356,
+          "cssHeight": 320
+        }
+      ]
+    },
+    {
+      "file": "pbr-material-light.png",
+      "theme": "light",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(246, 247, 251)",
+      "fg": "rgb(23, 32, 51)",
+      "canvases": [
+        {
+          "width": 2712,
+          "height": 640,
+          "cssWidth": 1356,
+          "cssHeight": 320
+        }
+      ]
+    },
+    {
+      "file": "image-concept-compare-light.png",
+      "theme": "light",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(246, 247, 251)",
+      "fg": "rgb(23, 32, 51)",
+      "canvases": []
+    },
+    {
+      "file": "video-player-light.png",
+      "theme": "light",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(246, 247, 251)",
+      "fg": "rgb(23, 32, 51)",
+      "canvases": []
+    },
+    {
+      "file": "task-progress-queued-light.png",
+      "theme": "light",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(246, 247, 251)",
+      "fg": "rgb(23, 32, 51)",
+      "canvases": []
+    },
+    {
+      "file": "task-progress-running-light.png",
+      "theme": "light",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(246, 247, 251)",
+      "fg": "rgb(23, 32, 51)",
+      "canvases": []
+    },
+    {
+      "file": "task-progress-card-light.png",
+      "theme": "light",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(246, 247, 251)",
+      "fg": "rgb(23, 32, 51)",
+      "canvases": []
+    },
+    {
+      "file": "workspace-library-light.png",
+      "theme": "light",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(246, 247, 251)",
+      "fg": "rgb(23, 32, 51)",
+      "canvases": []
+    },
+    {
+      "file": "workspace-jobs-light.png",
+      "theme": "light",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(246, 247, 251)",
+      "fg": "rgb(23, 32, 51)",
+      "canvases": []
+    },
+    {
+      "file": "workspace-concepts-light.png",
+      "theme": "light",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(246, 247, 251)",
+      "fg": "rgb(23, 32, 51)",
+      "canvases": []
+    },
+    {
+      "file": "workspace-upload-light.png",
+      "theme": "light",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(246, 247, 251)",
+      "fg": "rgb(23, 32, 51)",
+      "canvases": []
+    },
+    {
+      "file": "webgl-pool-six-light.png",
+      "theme": "light",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(246, 247, 251)",
+      "fg": "rgb(23, 32, 51)",
+      "canvases": [
+        {
+          "width": 882,
+          "height": 640,
+          "cssWidth": 441,
+          "cssHeight": 320
+        },
+        {
+          "width": 882,
+          "height": 640,
+          "cssWidth": 441,
+          "cssHeight": 320
+        },
+        {
+          "width": 882,
+          "height": 640,
+          "cssWidth": 441,
+          "cssHeight": 320
+        },
+        {
+          "width": 882,
+          "height": 640,
+          "cssWidth": 441,
+          "cssHeight": 320
+        }
+      ]
+    },
+    {
+      "file": "3d-model-dark.png",
+      "theme": "dark",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(21, 24, 30)",
+      "fg": "rgb(227, 233, 244)",
+      "canvases": [
+        {
+          "width": 1436,
+          "height": 640,
+          "cssWidth": 718,
+          "cssHeight": 320
+        }
+      ]
+    },
+    {
+      "file": "animation-rigged-dark.png",
+      "theme": "dark",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(21, 24, 30)",
+      "fg": "rgb(227, 233, 244)",
+      "canvases": [
+        {
+          "width": 1436,
+          "height": 640,
+          "cssWidth": 718,
+          "cssHeight": 320
+        }
+      ]
+    },
+    {
+      "file": "audio-sfx-dark.png",
+      "theme": "dark",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(21, 24, 30)",
+      "fg": "rgb(227, 233, 244)",
+      "canvases": [
+        {
+          "width": 1180,
+          "height": 176,
+          "cssWidth": 590,
+          "cssHeight": 88
+        }
+      ]
+    },
+    {
+      "file": "env-360-stickers-dark.png",
+      "theme": "dark",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(21, 24, 30)",
+      "fg": "rgb(227, 233, 244)",
+      "canvases": [
+        {
+          "width": 2712,
+          "height": 640,
+          "cssWidth": 1356,
+          "cssHeight": 320
+        }
+      ]
+    },
+    {
+      "file": "pbr-material-dark.png",
+      "theme": "dark",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(21, 24, 30)",
+      "fg": "rgb(227, 233, 244)",
+      "canvases": [
+        {
+          "width": 2712,
+          "height": 640,
+          "cssWidth": 1356,
+          "cssHeight": 320
+        }
+      ]
+    },
+    {
+      "file": "image-concept-compare-dark.png",
+      "theme": "dark",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(21, 24, 30)",
+      "fg": "rgb(227, 233, 244)",
+      "canvases": []
+    },
+    {
+      "file": "video-player-dark.png",
+      "theme": "dark",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(21, 24, 30)",
+      "fg": "rgb(227, 233, 244)",
+      "canvases": []
+    },
+    {
+      "file": "task-progress-queued-dark.png",
+      "theme": "dark",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(21, 24, 30)",
+      "fg": "rgb(227, 233, 244)",
+      "canvases": []
+    },
+    {
+      "file": "task-progress-running-dark.png",
+      "theme": "dark",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(21, 24, 30)",
+      "fg": "rgb(227, 233, 244)",
+      "canvases": []
+    },
+    {
+      "file": "task-progress-card-dark.png",
+      "theme": "dark",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(21, 24, 30)",
+      "fg": "rgb(227, 233, 244)",
+      "canvases": []
+    },
+    {
+      "file": "workspace-library-dark.png",
+      "theme": "dark",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(21, 24, 30)",
+      "fg": "rgb(227, 233, 244)",
+      "canvases": []
+    },
+    {
+      "file": "workspace-jobs-dark.png",
+      "theme": "dark",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(21, 24, 30)",
+      "fg": "rgb(227, 233, 244)",
+      "canvases": []
+    },
+    {
+      "file": "workspace-concepts-dark.png",
+      "theme": "dark",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(21, 24, 30)",
+      "fg": "rgb(227, 233, 244)",
+      "canvases": []
+    },
+    {
+      "file": "workspace-upload-dark.png",
+      "theme": "dark",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(21, 24, 30)",
+      "fg": "rgb(227, 233, 244)",
+      "canvases": []
+    },
+    {
+      "file": "webgl-pool-six-dark.png",
+      "theme": "dark",
+      "width": 1440,
+      "scroll": 1440,
+      "bg": "rgb(21, 24, 30)",
+      "fg": "rgb(227, 233, 244)",
+      "canvases": [
+        {
+          "width": 882,
+          "height": 640,
+          "cssWidth": 441,
+          "cssHeight": 320
+        },
+        {
+          "width": 882,
+          "height": 640,
+          "cssWidth": 441,
+          "cssHeight": 320
+        },
+        {
+          "width": 882,
+          "height": 640,
+          "cssWidth": 441,
+          "cssHeight": 320
+        },
+        {
+          "width": 882,
+          "height": 640,
+          "cssWidth": 441,
+          "cssHeight": 320
+        }
+      ]
+    }
+  ],
+  "findings": [],
+  "errors": [],
+  "consoleErrors": [],
+  "blocked": [],
+  "submissions": []
+}

@@ -1,0 +1,71 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13
+
+ ❯ tests/workspace/inspector-states.test.ts (7 tests | 3 failed) 270ms
+   ✓ exposes ready local modality and preserves the selected preview and accessible controls 161ms
+   ✓ keeps cloud selection preview ready while detail metadata is loading 26ms
+   ✓ warns explicitly on failed detail resolution without discarding selected fallback 24ms
+   ✓ merges resolved cloud details and exposes their effective modality 27ms
+   × exposes a rig-check summary including a negative compatibility result 16ms
+     → expected 'ready' to be 'rig_check_summary' // Object.is equality
+   × renders loading and error states for an unresolved job output without a misleading preview 9ms
+     → expected 'ready' to be 'loading_job_output' // Object.is equality
+   × replaces an unresolved job output with the resolved target preview 7ms
+     → expected 'ready' to be 'loading_job_output' // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workspace/inspector-states.test.ts > exposes a rig-check summary including a negative compatibility result
+AssertionError: expected 'ready' to be 'rig_check_summary' // Object.is equality
+
+Expected: [32m"r[7mig_check_summar[27my"[39m
+Received: [31m"r[7mead[27my"[39m
+
+ ❯ tests/workspace/inspector-states.test.ts:68:57
+     66| it('exposes a rig-check summary including a negative compatibility res…
+     67|   mount({ type: 'rig_check', riggable: false, name: 'Rig result' });
+     68|   expect(dialog().getAttribute('data-inspector-state')).toBe('rig_chec…
+       |                                                         ^
+     69|   expect(dialog().getAttribute('data-inspector-modality')).toBe('rig_c…
+     70|   expect(screen.getByText('Not riggable')).toBeTruthy();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/workspace/inspector-states.test.ts > renders loading and error states for an unresolved job output without a misleading preview
+AssertionError: expected 'ready' to be 'loading_job_output' // Object.is equality
+
+Expected: [32m"loading_job_output"[39m
+Received: [31m"ready"[39m
+
+ ❯ tests/workspace/inspector-states.test.ts:78:57
+     76|   queries.set(path, { isLoading: true });
+     77|   const view = mount({ type: 'job_output', jobId: 'job/id', name: 'Com…
+     78|   expect(dialog().getAttribute('data-inspector-state')).toBe('loading_…
+       |                                                         ^
+     79|   expect(within(dialog()).getByRole('status').textContent).toMatch(/lo…
+     80|   expect(screen.queryByTestId('image-preview')).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/workspace/inspector-states.test.ts > replaces an unresolved job output with the resolved target preview
+AssertionError: expected 'ready' to be 'loading_job_output' // Object.is equality
+
+Expected: [32m"loading_job_output"[39m
+Received: [31m"ready"[39m
+
+ ❯ tests/workspace/inspector-states.test.ts:93:57
+     91|   queries.set(path, { isLoading: true });
+     92|   const view = mount({ type: 'job_output', jobId: 'job-id' });
+     93|   expect(dialog().getAttribute('data-inspector-state')).toBe('loading_…
+       |                                                         ^
+     94|   queries.set(path, { data: { type: 'image', url: 'https://example.com…
+     95|   view.update();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 4 passed (7)
+   Start at  17:52:48
+   Duration  1.77s (transform 404ms, setup 0ms, collect 723ms, tests 270ms, environment 519ms, prepare 73ms)
+

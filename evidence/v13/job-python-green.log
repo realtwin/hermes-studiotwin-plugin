@@ -1,0 +1,25 @@
+.........................F.............................................. [ 98%]
+.                                                                        [100%]
+=================================== FAILURES ===================================
+_________________________ test_manifest_host_contract __________________________
+
+tmp_path = PosixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-2/test_manifest_host_contract0')
+
+    def test_manifest_host_contract(tmp_path):
+        from hermes_cli.agent_plugins import load_agent_plugin
+        from hermes_cli.plugin_validate import validate_plugin_dir
+        from pm.plugin_declarations import read_python_declaration
+        package = load_agent_plugin(ROOT, tmp_path / 'data')
+        server = package.mcp_servers['studiotwin']
+>       assert package.version == '0.3.2'
+E       AssertionError: assert '0.3.1' == '0.3.2'
+E         
+E         - 0.3.2
+E         ?     ^
+E         + 0.3.1
+E         ?     ^
+
+tests/python/test_plugin_api.py:231: AssertionError
+=========================== short test summary info ============================
+FAILED tests/python/test_plugin_api.py::test_manifest_host_contract - Asserti...
+1 failed, 72 passed in 21.00s

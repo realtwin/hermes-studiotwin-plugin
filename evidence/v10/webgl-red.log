@@ -1,0 +1,1833 @@
+file:///home/deploy/.npm/_npx/69c381f8ad94b576/node_modules/vitest/dist/chunks/cac.CLrZKo1g.js:405
+          throw new CACError(`Unknown option \`${name.length > 1 ? `--${name}` : `-${name}`}\``);
+                ^
+
+CACError: Unknown option `--poolOptions`
+    at Command.checkUnknownOptions (file:///home/deploy/.npm/_npx/69c381f8ad94b576/node_modules/vitest/dist/chunks/cac.CLrZKo1g.js:405:17)
+    at CAC.runMatchedCommand (file:///home/deploy/.npm/_npx/69c381f8ad94b576/node_modules/vitest/dist/chunks/cac.CLrZKo1g.js:605:13)
+    at CAC.parse (file:///home/deploy/.npm/_npx/69c381f8ad94b576/node_modules/vitest/dist/chunks/cac.CLrZKo1g.js:546:12)
+    at file:///home/deploy/.npm/_npx/69c381f8ad94b576/node_modules/vitest/dist/cli.js:10:13
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v26.7.0
+failed to load config from /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/vitest.config.ts
+
+⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vitest' imported from /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10/vitest.config.ts.timestamp-1793468983173-16235c9ad6b2b8.mjs
+Did you mean to import "vitest/dist/config.cjs"?
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:301:9)
+    at packageResolve (node:internal/modules/esm/resolve:784:25)
+    at moduleResolve (node:internal/modules/esm/resolve:873:18)
+    at defaultResolve (node:internal/modules/esm/resolve:1006:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+    at #resolve (node:internal/modules/esm/loader:690:17)
+    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+    at ModuleJob.syncLink (node:internal/modules/esm/module_job:277:33) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+
+
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10
+
+✘ [ERROR] Could not resolve "three/examples/jsm/exporters/GLTFExporter.js"
+
+    <stdin>:3:27:
+      3 │ ...{GLTFExporter} from 'three/examples/jsm/exporters/GLTFExporter.js';
+        ╵                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "three/examples/jsm/exporters/GLTFExporter.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three"
+
+    <stdin>:4:58:
+      4 │ import {Scene,Mesh,BoxGeometry,MeshStandardMaterial} from 'three';
+        ╵                                                           ~~~~~~~
+
+  You can mark the path "three" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "react"
+
+    <stdin>:2:18:
+      2 │ import React from 'react';import {createRoot} from 'react-dom/client';
+        ╵                   ~~~~~~~
+
+  You can mark the path "react" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "react-dom/client"
+
+    <stdin>:2:51:
+      2 │ import React from 'react';import {createRoot} from 'react-dom/client';
+        ╵                                                    ~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "react-dom/client" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "@tanstack/react-query"
+
+    <stdin>:3:34:
+      3 │ import {QueryClientProvider} from '@tanstack/react-query';
+        ╵                                   ~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "@tanstack/react-query" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "react"
+
+    <stdin>:2:18:
+      2 │ import React from 'react';import {createRoot} from 'react-dom/client';
+        ╵                   ~~~~~~~
+
+  You can mark the path "react" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "react-dom/client"
+
+    <stdin>:2:51:
+      2 │ import React from 'react';import {createRoot} from 'react-dom/client';
+        ╵                                                    ~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "react-dom/client" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "@tanstack/react-query"
+
+    <stdin>:3:34:
+      3 │ import {QueryClientProvider} from '@tanstack/react-query';
+        ╵                                   ~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "@tanstack/react-query" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three"
+
+    src/viewers/model-stage.ts:24:7:
+      24 │ } from 'three'
+         ╵        ~~~~~~~
+
+  You can mark the path "three" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three/examples/jsm/controls/OrbitControls.js"
+
+    src/viewers/model-stage.ts:25:30:
+      25 │ ...rbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+         ╵                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "three/examples/jsm/controls/OrbitControls.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three"
+
+    src/viewers/model-data.ts:16:7:
+      16 │ } from 'three'
+         ╵        ~~~~~~~
+
+  You can mark the path "three" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "react"
+
+    src/cards/model-card.tsx:3:52:
+      3 │ import { useEffect, useState, type ReactNode } from 'react'
+        ╵                                                     ~~~~~~~
+
+  You can mark the path "react" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "react/jsx-runtime"
+
+    src/cards/model-card.tsx:131:21:
+      131 │   if (failed) return <>{fallback ?? <span role="alert">StudioTwin...
+          ╵                      ^
+
+  You can mark the path "react/jsx-runtime" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "react"
+
+    src/viewers/animation-viewer.tsx:1:36:
+      1 │ import { useEffect, useState } from 'react'
+        ╵                                     ~~~~~~~
+
+  You can mark the path "react" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "react/jsx-runtime"
+
+    src/viewers/animation-viewer.tsx:46:6:
+      46 │       <label style={controlStrip}>
+         ╵       ^
+
+  You can mark the path "react/jsx-runtime" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "react"
+
+    tests/scaffold/sdk-stub.ts:4:46:
+      4 │ import { createElement, type ReactNode } from 'react'
+        ╵                                               ~~~~~~~
+
+  You can mark the path "react" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "nanostores"
+
+    tests/scaffold/sdk-stub.ts:6:31:
+      6 │ export { atom, computed } from 'nanostores'
+        ╵                                ~~~~~~~~~~~~
+
+  You can mark the path "nanostores" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "@nanostores/react"
+
+    tests/scaffold/sdk-stub.ts:7:37:
+      7 │ export { useStore as useValue } from '@nanostores/react'
+        ╵                                      ~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "@nanostores/react" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "react"
+
+    src/viewers/model-viewer.tsx:1:67:
+      1 │ ...{ useEffect, useId, useRef, useState, type ReactNode } from 'react'
+        ╵                                                                ~~~~~~~
+
+  You can mark the path "react" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "@tanstack/react-query"
+
+    tests/scaffold/sdk-stub.ts:8:67:
+      8 │ ...seMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+        ╵                                                ~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "@tanstack/react-query" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "react/jsx-runtime"
+
+    src/viewers/model-viewer.tsx:141:46:
+      141 │   if (error && fallback !== undefined) return <>{fallback}</>
+          ╵                                               ^
+
+  You can mark the path "react/jsx-runtime" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three"
+
+    src/viewers/model-parse.ts:12:101:
+      12 │ ...gManager, Mesh, MeshStandardMaterial, type Object3D } from 'three'
+         ╵                                                               ~~~~~~~
+
+  You can mark the path "three" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "react"
+
+    tests/scaffold/sdk-stub.ts:4:46:
+      4 │ import { createElement, type ReactNode } from 'react'
+        ╵                                               ~~~~~~~
+
+  You can mark the path "react" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "nanostores"
+
+    tests/scaffold/sdk-stub.ts:6:31:
+      6 │ export { atom, computed } from 'nanostores'
+        ╵                                ~~~~~~~~~~~~
+
+  You can mark the path "nanostores" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "@nanostores/react"
+
+    tests/scaffold/sdk-stub.ts:7:37:
+      7 │ export { useStore as useValue } from '@nanostores/react'
+        ╵                                      ~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "@nanostores/react" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three/examples/jsm/loaders/FBXLoader.js"
+
+    src/viewers/model-parse.ts:13:26:
+      13 │ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
+         ╵                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "three/examples/jsm/loaders/FBXLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three/examples/jsm/loaders/GLTFLoader.js"
+
+    src/viewers/model-parse.ts:14:27:
+      14 │ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+         ╵                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "three/examples/jsm/loaders/GLTFLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three/examples/jsm/loaders/MTLLoader.js"
+
+    src/viewers/model-parse.ts:15:26:
+      15 │ import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js'
+         ╵                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "three/examples/jsm/loaders/MTLLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three/examples/jsm/loaders/OBJLoader.js"
+
+    src/viewers/model-parse.ts:16:26:
+      16 │ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
+         ╵                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "three/examples/jsm/loaders/OBJLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three/examples/jsm/loaders/STLLoader.js"
+
+    src/viewers/model-parse.ts:17:26:
+      17 │ import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js'
+         ╵                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "three/examples/jsm/loaders/STLLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three/examples/jsm/loaders/3MFLoader.js"
+
+    src/viewers/model-parse.ts:18:30:
+      18 │ ...t { ThreeMFLoader } from 'three/examples/jsm/loaders/3MFLoader.js'
+         ╵                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "three/examples/jsm/loaders/3MFLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three/examples/jsm/loaders/USDLoader.js"
+
+    src/viewers/model-parse.ts:19:26:
+      19 │ import { USDLoader } from 'three/examples/jsm/loaders/USDLoader.js'
+         ╵                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "three/examples/jsm/loaders/USDLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "@tanstack/react-query"
+
+    tests/scaffold/sdk-stub.ts:8:67:
+      8 │ ...seMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+        ╵                                                ~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "@tanstack/react-query" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "react"
+
+    src/cards/env-card.tsx:5:52:
+      5 │ import { useEffect, useState, type ReactNode } from "react";
+        ╵                                                     ~~~~~~~
+
+  You can mark the path "react" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "react/jsx-runtime"
+
+    src/cards/env-card.tsx:111:6:
+      111 │       <>
+          ╵       ^
+
+  You can mark the path "react/jsx-runtime" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three"
+
+    src/viewers/model-stage.ts:24:7:
+      24 │ } from 'three'
+         ╵        ~~~~~~~
+
+  You can mark the path "three" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three/examples/jsm/controls/OrbitControls.js"
+
+    src/viewers/model-stage.ts:25:30:
+      25 │ ...rbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+         ╵                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "three/examples/jsm/controls/OrbitControls.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three"
+
+    src/viewers/model-parse.ts:12:101:
+      12 │ ...gManager, Mesh, MeshStandardMaterial, type Object3D } from 'three'
+         ╵                                                               ~~~~~~~
+
+  You can mark the path "three" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three/examples/jsm/loaders/FBXLoader.js"
+
+    src/viewers/model-parse.ts:13:26:
+      13 │ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
+         ╵                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "three/examples/jsm/loaders/FBXLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three/examples/jsm/loaders/GLTFLoader.js"
+
+    src/viewers/model-parse.ts:14:27:
+      14 │ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+         ╵                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "three/examples/jsm/loaders/GLTFLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three/examples/jsm/loaders/MTLLoader.js"
+
+    src/viewers/model-parse.ts:15:26:
+      15 │ import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js'
+         ╵                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "three/examples/jsm/loaders/MTLLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three/examples/jsm/loaders/OBJLoader.js"
+
+    src/viewers/model-parse.ts:16:26:
+      16 │ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
+         ╵                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "three/examples/jsm/loaders/OBJLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three/examples/jsm/loaders/STLLoader.js"
+
+    src/viewers/model-parse.ts:17:26:
+      17 │ import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js'
+         ╵                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "three/examples/jsm/loaders/STLLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three/examples/jsm/loaders/3MFLoader.js"
+
+    src/viewers/model-parse.ts:18:30:
+      18 │ ...t { ThreeMFLoader } from 'three/examples/jsm/loaders/3MFLoader.js'
+         ╵                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "three/examples/jsm/loaders/3MFLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three/examples/jsm/loaders/USDLoader.js"
+
+    src/viewers/model-parse.ts:19:26:
+      19 │ import { USDLoader } from 'three/examples/jsm/loaders/USDLoader.js'
+         ╵                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "three/examples/jsm/loaders/USDLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three"
+
+    src/viewers/model-data.ts:16:7:
+      16 │ } from 'three'
+         ╵        ~~~~~~~
+
+  You can mark the path "three" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "react"
+
+    src/viewers/env-viewer.tsx:1:52:
+      1 │ import { useEffect, useState, type ReactNode } from "react";
+        ╵                                                     ~~~~~~~
+
+  You can mark the path "react" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "react/jsx-runtime"
+
+    src/viewers/env-viewer.tsx:53:48:
+      53 │   if (v.error && fallback !== undefined) return <>{fallback}</>;
+         ╵                                                 ^
+
+  You can mark the path "react/jsx-runtime" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "react"
+
+    src/viewers/env-lifecycle.ts:1:51:
+      1 │ import { useEffect, useId, useRef, useState } from "react";
+        ╵                                                    ~~~~~~~
+
+  You can mark the path "react" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three"
+
+    src/viewers/env-stage.ts:1:19:
+      1 │ import * as T from "three";
+        ╵                    ~~~~~~~
+
+  You can mark the path "three" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three/examples/jsm/loaders/RGBELoader.js"
+
+    src/viewers/env-stage.ts:2:27:
+      2 │ import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
+        ╵                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "three/examples/jsm/loaders/RGBELoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three/examples/jsm/loaders/EXRLoader.js"
+
+    src/viewers/env-stage.ts:3:26:
+      3 │ import { EXRLoader } from "three/examples/jsm/loaders/EXRLoader.js";
+        ╵                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "three/examples/jsm/loaders/EXRLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+✘ [ERROR] Could not resolve "three/examples/jsm/controls/OrbitControls.js"
+
+    src/viewers/env-stage.ts:4:30:
+      4 │ ...rbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+        ╵                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  You can mark the path "three/examples/jsm/controls/OrbitControls.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.
+
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > creates an actual WebGL context, not a canvas or renderer stand-in
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > captures 4 canonical named PNG views and a nonblank correctly sized sheet
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > captures 6 canonical named PNG views and a nonblank correctly sized sheet
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > defaults tileSize to 384 and supports both documented boundary sizes
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > rejects invalid requests instead of allocating unbounded render targets and preserves the live stage
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > renders four distinct shading passes and transparent versus opaque studio backgrounds
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > captures a single paused animated pose deterministically and restores camera, shading, grid, canvas size and animation
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > restores the live stage even when canvas PNG encoding throws partway through capture
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > real HDR image-based lighting changes textured AND clay model pixels; clearing recovers the exact original snapshot
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > can show an HDR background, clear it via null, and survive malformed HDR without corrupting the stage
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: stages locally then records valid provenance before enabling a review-only reskin handoff
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: /upload failure never enables reskin or sends a composer message
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: /provenance failure never enables reskin or sends a composer message
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: profile switch while upload is pending blocks late provenance and composer handoff
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: connectionId switch while upload is pending blocks late provenance and composer handoff
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: stages locally then records valid provenance before enabling a review-only reskin handoff
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: /upload failure never enables reskin or sends a composer message
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: /provenance failure never enables reskin or sends a composer message
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: profile switch while upload is pending blocks late provenance and composer handoff
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: connectionId switch while upload is pending blocks late provenance and composer handoff
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source standalone ModelViewer supports multiview without a ModelCard or callbacks
+ ↓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source ModelCard forwards envSource and loads the HDR locally without a cloud or paid request
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL
+Error: Build failed with 13 errors:
+src/viewers/model-data.ts:16:7: ERROR: Could not resolve "three"
+src/viewers/model-parse.ts:12:101: ERROR: Could not resolve "three"
+src/viewers/model-parse.ts:13:26: ERROR: Could not resolve "three/examples/jsm/loaders/FBXLoader.js"
+src/viewers/model-parse.ts:14:27: ERROR: Could not resolve "three/examples/jsm/loaders/GLTFLoader.js"
+src/viewers/model-parse.ts:15:26: ERROR: Could not resolve "three/examples/jsm/loaders/MTLLoader.js"
+...
+ ❯ failureErrorWithLog ../v09/node_modules/esbuild/lib/main.js:1752:15
+    1750| ${file}:${line}:${column}: ERROR: ${pluginText}${e.text}`;
+    1751|   }).join("");
+    1752|   let error = new Error(text);
+       |               ^
+    1753|   for (const [key, value] of [["errors", errors], ["warnings", warning…
+    1754|     Object.defineProperty(error, key, {
+ ❯ ../v09/node_modules/esbuild/lib/main.js:1211:25
+ ❯ ../v09/node_modules/esbuild/lib/main.js:1163:52
+ ❯ buildResponseToResult ../v09/node_modules/esbuild/lib/main.js:1209:7
+ ❯ ../v09/node_modules/esbuild/lib/main.js:1236:16
+ ❯ responseCallbacks.<computed> ../v09/node_modules/esbuild/lib/main.js:886:9
+ ❯ handleIncomingPacket ../v09/node_modules/esbuild/lib/main.js:941:12
+ ❯ Socket.readFromStdout ../v09/node_modules/esbuild/lib/main.js:864:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { errors: [ { detail: undefined, id: '', location: { column: 7, file: 'src/viewers/model-data.ts', length: 7, line: 16, lineText: '} from \'three\'', namespace: '', suggestion: '' }, notes: [ { location: null, text: 'You can mark the path "three" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.' } ], pluginName: '', text: 'Could not resolve "three"' }, { detail: undefined, id: '', location: { column: 101, file: 'src/viewers/model-parse.ts', length: 7, line: 12, lineText: 'import { type AnimationClip, Group, LoadingManager, Mesh, MeshStandardMaterial, type Object3D } from \'three\'', namespace: '', suggestion: '' }, notes: [ { location: null, text: 'You can mark the path "three" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.' } ], pluginName: '', text: 'Could not resolve "three"' }, { detail: undefined, id: '', location: { column: 26, file: 'src/viewers/model-parse.ts', length: 41, line: 13, lineText: 'import { FBXLoader } from \'three/examples/jsm/loaders/FBXLoader.js\'', namespace: '', suggestion: '' }, notes: [ { location: null, text: 'You can mark the path "three/examples/jsm/loaders/FBXLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.' } ], pluginName: '', text: 'Could not resolve "three/examples/jsm/loaders/FBXLoader.js"' }, { detail: undefined, id: '', location: { column: 27, file: 'src/viewers/model-parse.ts', length: 42, line: 14, lineText: 'import { GLTFLoader } from \'three/examples/jsm/loaders/GLTFLoader.js\'', namespace: '', suggestion: '' }, notes: [ { location: null, text: 'You can mark the path "three/examples/jsm/loaders/GLTFLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.' } ], pluginName: '', text: 'Could not resolve "three/examples/jsm/loaders/GLTFLoader.js"' }, { detail: undefined, id: '', location: { column: 26, file: 'src/viewers/model-parse.ts', length: 41, line: 15, lineText: 'import { MTLLoader } from \'three/examples/jsm/loaders/MTLLoader.js\'', namespace: '', suggestion: '' }, notes: [ { location: null, text: 'You can mark the path "three/examples/jsm/loaders/MTLLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.' } ], pluginName: '', text: 'Could not resolve "three/examples/jsm/loaders/MTLLoader.js"' }, { detail: undefined, id: '', location: { column: 26, file: 'src/viewers/model-parse.ts', length: 41, line: 16, lineText: 'import { OBJLoader } from \'three/examples/jsm/loaders/OBJLoader.js\'', namespace: '', suggestion: '' }, notes: [ { location: null, text: 'You can mark the path "three/examples/jsm/loaders/OBJLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.' } ], pluginName: '', text: 'Could not resolve "three/examples/jsm/loaders/OBJLoader.js"' }, { detail: undefined, id: '', location: { column: 26, file: 'src/viewers/model-parse.ts', length: 41, line: 17, lineText: 'import { STLLoader } from \'three/examples/jsm/loaders/STLLoader.js\'', namespace: '', suggestion: '' }, notes: [ { location: null, text: 'You can mark the path "three/examples/jsm/loaders/STLLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.' } ], pluginName: '', text: 'Could not resolve "three/examples/jsm/loaders/STLLoader.js"' }, { detail: undefined, id: '', location: { column: 30, file: 'src/viewers/model-parse.ts', length: 41, line: 18, lineText: 'import { ThreeMFLoader } from \'three/examples/jsm/loaders/3MFLoader.js\'', namespace: '', suggestion: '' }, notes: [ { location: null, text: 'You can mark the path "three/examples/jsm/loaders/3MFLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.' } ], pluginName: '', text: 'Could not resolve "three/examples/jsm/loaders/3MFLoader.js"' }, { detail: undefined, id: '', location: { column: 26, file: 'src/viewers/model-parse.ts', length: 41, line: 19, lineText: 'import { USDLoader } from \'three/examples/jsm/loaders/USDLoader.js\'', namespace: '', suggestion: '' }, notes: [ { location: null, text: 'You can mark the path "three/examples/jsm/loaders/USDLoader.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.' } ], pluginName: '', text: 'Could not resolve "three/examples/jsm/loaders/USDLoader.js"' }, { detail: undefined, id: '', location: { column: 7, file: 'src/viewers/model-stage.ts', length: 7, line: 24, lineText: '} from \'three\'', namespace: '', suggestion: '' }, notes: [ { location: null, text: 'You can mark the path "three" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.' } ], pluginName: '', text: 'Could not resolve "three"' }, { detail: undefined, id: '', location: { column: 30, file: 'src/viewers/model-stage.ts', length: 46, line: 25, lineText: 'import { OrbitControls } from \'three/examples/jsm/controls/OrbitControls.js\'', namespace: '', suggestion: '' }, notes: [ { location: null, text: 'You can mark the path "three/examples/jsm/controls/OrbitControls.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.' } ], pluginName: '', text: 'Could not resolve "three/examples/jsm/controls/OrbitControls.js"' }, { detail: undefined, id: '', location: { column: 27, file: '<stdin>', length: 46, line: 3, lineText: 'import {GLTFExporter} from \'three/examples/jsm/exporters/GLTFExporter.js\';', namespace: '', suggestion: '' }, notes: [ { location: null, text: 'You can mark the path "three/examples/jsm/exporters/GLTFExporter.js" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.' } ], pluginName: '', text: 'Could not resolve "three/examples/jsm/exporters/GLTFExporter.js"' }, { detail: undefined, id: '', location: { column: 58, file: '<stdin>', length: 7, line: 4, lineText: 'import {Scene,Mesh,BoxGeometry,MeshStandardMaterial} from \'three\';', namespace: '', suggestion: '' }, notes: [ { location: null, text: 'You can mark the path "three" as external to exclude it from the bundle, which will remove this error and leave the unresolved path in the bundle.' } ], pluginName: '', text: 'Could not resolve "three"' } ], warnings: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  24 skipped (24)
+   Start at  19:50:06
+   Duration  654ms (transform 84ms, setup 0ms, collect 372ms, tests 40ms, environment 0ms, prepare 74ms)
+
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10
+
+▲ [WARNING] Import "registerPlugin" will always be undefined because there is no matching export in "tests/scaffold/sdk-stub.ts" [import-is-undefined]
+
+    desktop/plugin.js:43459:3:
+      43459 │ he.registerPlugin?.(vC);
+            ╵    ~~~~~~~~~~~~~~
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > creates an actual WebGL context, not a canvas or renderer stand-in 295ms
+   → page.evaluate: TypeError: window.stage?.dispose is not a function
+    at window.initStage (<anonymous>:42150:19)
+    at eval (eval at evaluate (:370:30), <anonymous>:1:18)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > captures 4 canonical named PNG views and a nonblank correctly sized sheet 254ms
+   → page.evaluate: TypeError: window.stage?.dispose is not a function
+    at window.initStage (<anonymous>:42150:19)
+    at eval (eval at evaluate (:370:30), <anonymous>:1:18)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > captures 6 canonical named PNG views and a nonblank correctly sized sheet 225ms
+   → page.evaluate: TypeError: window.stage?.dispose is not a function
+    at window.initStage (<anonymous>:42150:19)
+    at eval (eval at evaluate (:370:30), <anonymous>:1:18)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > defaults tileSize to 384 and supports both documented boundary sizes 250ms
+   → page.evaluate: TypeError: window.stage?.dispose is not a function
+    at window.initStage (<anonymous>:42150:19)
+    at eval (eval at evaluate (:370:30), <anonymous>:1:18)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > rejects invalid requests instead of allocating unbounded render targets and preserves the live stage 230ms
+   → page.evaluate: TypeError: window.stage?.dispose is not a function
+    at window.initStage (<anonymous>:42150:19)
+    at eval (eval at evaluate (:370:30), <anonymous>:1:18)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > renders four distinct shading passes and transparent versus opaque studio backgrounds 245ms
+   → page.evaluate: TypeError: window.stage?.dispose is not a function
+    at window.initStage (<anonymous>:42150:19)
+    at eval (eval at evaluate (:370:30), <anonymous>:1:18)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > captures a single paused animated pose deterministically and restores camera, shading, grid, canvas size and animation 243ms
+   → page.evaluate: TypeError: window.stage?.dispose is not a function
+    at window.initStage (<anonymous>:42150:19)
+    at eval (eval at evaluate (:370:30), <anonymous>:1:18)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > restores the live stage even when canvas PNG encoding throws partway through capture 267ms
+   → page.evaluate: TypeError: window.stage?.dispose is not a function
+    at window.initStage (<anonymous>:42150:19)
+    at eval (eval at evaluate (:370:30), <anonymous>:1:18)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > real HDR image-based lighting changes textured AND clay model pixels; clearing recovers the exact original snapshot 277ms
+   → page.evaluate: TypeError: window.stage?.dispose is not a function
+    at window.initStage (<anonymous>:42150:19)
+    at eval (eval at evaluate (:370:30), <anonymous>:1:18)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > can show an HDR background, clear it via null, and survive malformed HDR without corrupting the stage 225ms
+   → page.evaluate: TypeError: window.stage?.dispose is not a function
+    at window.initStage (<anonymous>:42150:19)
+    at eval (eval at evaluate (:370:30), <anonymous>:1:18)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG 6086ms
+   → expect(locator).toHaveValue(expected) failed
+
+Locator: getByLabel('Multiview views', { exact: true })
+Expected: "4"
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toHaveValue" getByLabel('Multiview views', { exact: true }) with timeout 5000ms
+  - waiting for getByLabel('Multiview views', { exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: stages locally then records valid provenance before enabling a review-only reskin handoff 5677ms
+   → expect(locator).toBeDisabled() failed
+
+Locator: getByRole('button', { name: 'Reskin 3D in Chat', exact: true })
+Expected: disabled
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeDisabled" getByRole('button', { name: 'Reskin 3D in Chat', exact: true }) with timeout 5000ms
+  - waiting for getByRole('button', { name: 'Reskin 3D in Chat', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: /upload failure never enables reskin or sends a composer message 4622ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: /provenance failure never enables reskin or sends a composer message 4701ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: profile switch while upload is pending blocks late provenance and composer handoff 4723ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: connectionId switch while upload is pending blocks late provenance and composer handoff 4663ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG 5689ms
+   → expect(locator).toHaveValue(expected) failed
+
+Locator: getByLabel('Multiview views', { exact: true })
+Expected: "4"
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toHaveValue" getByLabel('Multiview views', { exact: true }) with timeout 5000ms
+  - waiting for getByLabel('Multiview views', { exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: stages locally then records valid provenance before enabling a review-only reskin handoff 5730ms
+   → expect(locator).toBeDisabled() failed
+
+Locator: getByRole('button', { name: 'Reskin 3D in Chat', exact: true })
+Expected: disabled
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeDisabled" getByRole('button', { name: 'Reskin 3D in Chat', exact: true }) with timeout 5000ms
+  - waiting for getByRole('button', { name: 'Reskin 3D in Chat', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: /upload failure never enables reskin or sends a composer message 4701ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: /provenance failure never enables reskin or sends a composer message 4729ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: profile switch while upload is pending blocks late provenance and composer handoff 4728ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: connectionId switch while upload is pending blocks late provenance and composer handoff 4689ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source standalone ModelViewer supports multiview without a ModelCard or callbacks 4678ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source ModelCard forwards envSource and loads the HDR locally without a cloud or paid request 4686ms
+   → page.waitForFunction: Timeout 4000ms exceeded.
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 24 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > creates an actual WebGL context, not a canvas or renderer stand-in
+Error: page.evaluate: TypeError: window.stage?.dispose is not a function
+    at window.initStage (<anonymous>:42150:19)
+    at eval (eval at evaluate (:370:30), <anonymous>:1:18)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ stagePage tests/viewers/multiview-ibl.test.ts:112:16
+    110| async function stagePage(rig = false) {
+    111|   const h = await newPage(stageCode)
+    112|   await h.page.evaluate(rig => (window as any).initStage(rig), rig)
+       |                ^
+    113|   return h
+    114| }
+ ❯ tests/viewers/multiview-ibl.test.ts:146:39
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/24]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > captures 4 canonical named PNG views and a nonblank correctly sized sheet
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > captures 6 canonical named PNG views and a nonblank correctly sized sheet
+Error: page.evaluate: TypeError: window.stage?.dispose is not a function
+    at window.initStage (<anonymous>:42150:19)
+    at eval (eval at evaluate (:370:30), <anonymous>:1:18)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ stagePage tests/viewers/multiview-ibl.test.ts:112:16
+    110| async function stagePage(rig = false) {
+    111|   const h = await newPage(stageCode)
+    112|   await h.page.evaluate(rig => (window as any).initStage(rig), rig)
+       |                ^
+    113|   return h
+    114| }
+ ❯ tests/viewers/multiview-ibl.test.ts:156:39
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/24]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > defaults tileSize to 384 and supports both documented boundary sizes
+Error: page.evaluate: TypeError: window.stage?.dispose is not a function
+    at window.initStage (<anonymous>:42150:19)
+    at eval (eval at evaluate (:370:30), <anonymous>:1:18)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ stagePage tests/viewers/multiview-ibl.test.ts:112:16
+    110| async function stagePage(rig = false) {
+    111|   const h = await newPage(stageCode)
+    112|   await h.page.evaluate(rig => (window as any).initStage(rig), rig)
+       |                ^
+    113|   return h
+    114| }
+ ❯ tests/viewers/multiview-ibl.test.ts:182:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/24]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > rejects invalid requests instead of allocating unbounded render targets and preserves the live stage
+Error: page.evaluate: TypeError: window.stage?.dispose is not a function
+    at window.initStage (<anonymous>:42150:19)
+    at eval (eval at evaluate (:370:30), <anonymous>:1:18)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ stagePage tests/viewers/multiview-ibl.test.ts:112:16
+    110| async function stagePage(rig = false) {
+    111|   const h = await newPage(stageCode)
+    112|   await h.page.evaluate(rig => (window as any).initStage(rig), rig)
+       |                ^
+    113|   return h
+    114| }
+ ❯ tests/viewers/multiview-ibl.test.ts:193:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/24]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > renders four distinct shading passes and transparent versus opaque studio backgrounds
+Error: page.evaluate: TypeError: window.stage?.dispose is not a function
+    at window.initStage (<anonymous>:42150:19)
+    at eval (eval at evaluate (:370:30), <anonymous>:1:18)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ stagePage tests/viewers/multiview-ibl.test.ts:112:16
+    110| async function stagePage(rig = false) {
+    111|   const h = await newPage(stageCode)
+    112|   await h.page.evaluate(rig => (window as any).initStage(rig), rig)
+       |                ^
+    113|   return h
+    114| }
+ ❯ tests/viewers/multiview-ibl.test.ts:208:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/24]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > captures a single paused animated pose deterministically and restores camera, shading, grid, canvas size and animation
+Error: page.evaluate: TypeError: window.stage?.dispose is not a function
+    at window.initStage (<anonymous>:42150:19)
+    at eval (eval at evaluate (:370:30), <anonymous>:1:18)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ stagePage tests/viewers/multiview-ibl.test.ts:112:16
+    110| async function stagePage(rig = false) {
+    111|   const h = await newPage(stageCode)
+    112|   await h.page.evaluate(rig => (window as any).initStage(rig), rig)
+       |                ^
+    113|   return h
+    114| }
+ ❯ tests/viewers/multiview-ibl.test.ts:223:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/24]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > restores the live stage even when canvas PNG encoding throws partway through capture
+Error: page.evaluate: TypeError: window.stage?.dispose is not a function
+    at window.initStage (<anonymous>:42150:19)
+    at eval (eval at evaluate (:370:30), <anonymous>:1:18)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ stagePage tests/viewers/multiview-ibl.test.ts:112:16
+    110| async function stagePage(rig = false) {
+    111|   const h = await newPage(stageCode)
+    112|   await h.page.evaluate(rig => (window as any).initStage(rig), rig)
+       |                ^
+    113|   return h
+    114| }
+ ❯ tests/viewers/multiview-ibl.test.ts:242:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/24]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > real HDR image-based lighting changes textured AND clay model pixels; clearing recovers the exact original snapshot
+Error: page.evaluate: TypeError: window.stage?.dispose is not a function
+    at window.initStage (<anonymous>:42150:19)
+    at eval (eval at evaluate (:370:30), <anonymous>:1:18)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ stagePage tests/viewers/multiview-ibl.test.ts:112:16
+    110| async function stagePage(rig = false) {
+    111|   const h = await newPage(stageCode)
+    112|   await h.page.evaluate(rig => (window as any).initStage(rig), rig)
+       |                ^
+    113|   return h
+    114| }
+ ❯ tests/viewers/multiview-ibl.test.ts:261:39
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/24]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > can show an HDR background, clear it via null, and survive malformed HDR without corrupting the stage
+Error: page.evaluate: TypeError: window.stage?.dispose is not a function
+    at window.initStage (<anonymous>:42150:19)
+    at eval (eval at evaluate (:370:30), <anonymous>:1:18)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ stagePage tests/viewers/multiview-ibl.test.ts:112:16
+    110| async function stagePage(rig = false) {
+    111|   const h = await newPage(stageCode)
+    112|   await h.page.evaluate(rig => (window as any).initStage(rig), rig)
+       |                ^
+    113|   return h
+    114| }
+ ❯ tests/viewers/multiview-ibl.test.ts:285:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/24]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG
+Error: expect(locator).toHaveValue(expected) failed
+
+Locator: getByLabel('Multiview views', { exact: true })
+Expected: "4"
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toHaveValue" getByLabel('Multiview views', { exact: true }) with timeout 5000ms
+  - waiting for getByLabel('Multiview views', { exact: true })
+
+ ❯ captureRawStack ../v09/node_modules/playwright/node_modules/playwright-core/lib/coreBundle.js:9282:17
+ ❯ callMatcherAsStep ../v09/node_modules/playwright/lib/matchers/expect.js:13316:57
+ ❯ Object.toHaveValue ../v09/node_modules/playwright/lib/matchers/expect.js:13308:23
+ ❯ tests/viewers/multiview-ibl.test.ts:306:32
+    304|         await loadUI(page)
+    305|         const views=page.getByLabel('Multiview views',{exact:true}), p…
+    306|         await webExpect(views).toHaveValue('4'); await webExpect(pass)…
+       |                                ^
+    307|         expect(await views.locator('option').evaluateAll(o=>o.map(v=>(…
+    308|         expect((await pass.locator('option').evaluateAll(o=>o.map(v=>(…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { matcherResult: { name: 'toHaveValue', expected: '4', message: 'expect(locator).toHaveValue(expected) failed\n\nLocator: getByLabel(\'Multiview views\', { exact: true })\nExpected: "4"\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect "toHaveValue" getByLabel(\'Multiview views\', { exact: true }) with timeout 5000ms\n  - waiting for getByLabel(\'Multiview views\', { exact: true })\n', pass: false, actual: undefined, log: [ '  - Expect "toHaveValue" getByLabel(\'Multiview views\', { exact: true }) with timeout 5000ms', '  - waiting for getByLabel(\'Multiview views\', { exact: true })' ], timeout: 5000, ariaSnapshot: '- article:\n  - strong: cube.glb\n  - text: 3D / Motion\n  - button "Download"\n  - button "Save to project"\n  - toolbar "Model controls":\n    - text: Shading\n    - combobox "Shading mode":\n      - option "textured" [selected]\n      - option "wireframe"\n      - option "clay"\n      - option "normals"\n    - button "Auto-rotate"\n    - button "Grid" [pressed]\n    - button "Reset camera"\n    - combobox "Download format":\n      - option "Download…" [selected]\n      - option "cube.glb"\n  - text: 8 vertices · 12 triangles · 1 meshes · 0 bones/joints · 0 clips\n  - group: Next · review and approve in chat' } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/24]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: stages locally then records valid provenance before enabling a review-only reskin handoff
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: stages locally then records valid provenance before enabling a review-only reskin handoff
+Error: expect(locator).toBeDisabled() failed
+
+Locator: getByRole('button', { name: 'Reskin 3D in Chat', exact: true })
+Expected: disabled
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeDisabled" getByRole('button', { name: 'Reskin 3D in Chat', exact: true }) with timeout 5000ms
+  - waiting for getByRole('button', { name: 'Reskin 3D in Chat', exact: true })
+
+ ❯ captureRawStack ../v09/node_modules/playwright/node_modules/playwright-core/lib/coreBundle.js:9282:17
+ ❯ callMatcherAsStep ../v09/node_modules/playwright/lib/matchers/expect.js:13316:57
+ ❯ Object.toBeDisabled ../v09/node_modules/playwright/lib/matchers/expect.js:13308:23
+ ❯ tests/viewers/multiview-ibl.test.ts:327:33
+    325|         await loadUI(page)
+    326|         const reskin=page.getByRole('button',{name:'Reskin 3D in Chat'…
+    327|         await webExpect(reskin).toBeDisabled();await captureUI(page)
+       |                                 ^
+    328|         await page.waitForFunction(()=>(window as any).calls.some(c=>c…
+    329|         await webExpect(reskin).toBeDisabled()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { matcherResult: { message: 'expect(locator).toBeDisabled() failed\n\nLocator: getByRole(\'button\', { name: \'Reskin 3D in Chat\', exact: true })\nExpected: disabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect "toBeDisabled" getByRole(\'button\', { name: \'Reskin 3D in Chat\', exact: true }) with timeout 5000ms\n  - waiting for getByRole(\'button\', { name: \'Reskin 3D in Chat\', exact: true })\n', pass: false, actual: undefined, name: 'toBeDisabled', expected: 'disabled', log: [ '  - Expect "toBeDisabled" getByRole(\'button\', { name: \'Reskin 3D in Chat\', exact: true }) with timeout 5000ms', '  - waiting for getByRole(\'button\', { name: \'Reskin 3D in Chat\', exact: true })' ], timeout: 5000, ariaSnapshot: '- article:\n  - strong: cube.glb\n  - text: 3D / Motion\n  - button "Download"\n  - button "Save to project"\n  - toolbar "Model controls":\n    - text: Shading\n    - combobox "Shading mode":\n      - option "textured" [selected]\n      - option "wireframe"\n      - option "clay"\n      - option "normals"\n    - button "Auto-rotate"\n    - button "Grid" [pressed]\n    - button "Reset camera"\n    - combobox "Download format":\n      - option "Download…" [selected]\n      - option "cube.glb"\n  - text: 8 vertices · 12 triangles · 1 meshes · 0 bones/joints · 0 clips\n  - group: Next · review and approve in chat' } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/24]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: /upload failure never enables reskin or sends a composer message
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: /provenance failure never enables reskin or sends a composer message
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: /upload failure never enables reskin or sends a composer message
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: /provenance failure never enables reskin or sends a composer message
+TimeoutError: locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ ❯ captureUI tests/viewers/multiview-ibl.test.ts:123:78
+    121| }
+    122| async function captureUI(page: Page) {
+    123|   await page.getByRole('button', { name: 'Capture Multiview', exact: t…
+       |                                                                              ^
+    124|   await webExpect(page.getByAltText('Multiview Reference Preview', { e…
+    125| }
+ ❯ tests/viewers/multiview-ibl.test.ts:356:103
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [ '  - waiting for getByRole(\'button\', { name: \'Capture Multiview\', exact: true })' ] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/24]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: profile switch while upload is pending blocks late provenance and composer handoff
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: connectionId switch while upload is pending blocks late provenance and composer handoff
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: profile switch while upload is pending blocks late provenance and composer handoff
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: connectionId switch while upload is pending blocks late provenance and composer handoff
+TimeoutError: locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ ❯ captureUI tests/viewers/multiview-ibl.test.ts:123:78
+    121| }
+    122| async function captureUI(page: Page) {
+    123|   await page.getByRole('button', { name: 'Capture Multiview', exact: t…
+       |                                                                              ^
+    124|   await webExpect(page.getByAltText('Multiview Reference Preview', { e…
+    125| }
+ ❯ tests/viewers/multiview-ibl.test.ts:369:93
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [ '  - waiting for getByRole(\'button\', { name: \'Capture Multiview\', exact: true })' ] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/24]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source standalone ModelViewer supports multiview without a ModelCard or callbacks
+TimeoutError: locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ ❯ captureUI tests/viewers/multiview-ibl.test.ts:123:78
+    121| }
+    122| async function captureUI(page: Page) {
+    123|   await page.getByRole('button', { name: 'Capture Multiview', exact: t…
+       |                                                                              ^
+    124|   await webExpect(page.getByAltText('Multiview Reference Preview', { e…
+    125| }
+ ❯ tests/viewers/multiview-ibl.test.ts:387:89
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [ '  - waiting for getByRole(\'button\', { name: \'Capture Multiview\', exact: true })' ] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/24]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source ModelCard forwards envSource and loads the HDR locally without a cloud or paid request
+TimeoutError: page.waitForFunction: Timeout 4000ms exceeded.
+ ❯ tests/viewers/multiview-ibl.test.ts:397:18
+    395|     try{
+    396|       await page.evaluate(()=>(window as any).mount('card',true));awai…
+    397|       await page.waitForFunction(()=>(window as any).calls.some(c=>c.p…
+       |                  ^
+    398|       await captureUI(page);await assertNoPaid(page);expect(errors).to…
+    399|     }finally{await page.close()}
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/24]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  24 failed (24)
+   Start at  19:50:18
+   Duration  74.01s (transform 80ms, setup 0ms, collect 371ms, tests 73.38s, environment 0ms, prepare 74ms)
+
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10
+
+▲ [WARNING] Import "registerPlugin" will always be undefined because there is no matching export in "tests/scaffold/sdk-stub.ts" [import-is-undefined]
+
+    desktop/plugin.js:43459:3:
+      43459 │ he.registerPlugin?.(vC);
+            ╵    ~~~~~~~~~~~~~~
+
+ ✓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > creates an actual WebGL context, not a canvas or renderer stand-in 1082ms
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > captures 4 canonical named PNG views and a nonblank correctly sized sheet 415ms
+   → page.evaluate: TypeError: window.stage.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:1:28)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > captures 6 canonical named PNG views and a nonblank correctly sized sheet 463ms
+   → page.evaluate: TypeError: window.stage.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:1:28)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > defaults tileSize to 384 and supports both documented boundary sizes 445ms
+   → page.evaluate: TypeError: window.stage.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:1:28)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ✓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > rejects invalid requests instead of allocating unbounded render targets and preserves the live stage 427ms
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > renders four distinct shading passes and transparent versus opaque studio backgrounds 443ms
+   → page.evaluate: TypeError: window.stage.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:1:28)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > captures a single paused animated pose deterministically and restores camera, shading, grid, canvas size and animation 548ms
+   → page.evaluate: TypeError: s.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:13:29)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > restores the live stage even when canvas PNG encoding throws partway through capture 593ms
+   → page.evaluate: TypeError: s.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:20:35)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > real HDR image-based lighting changes textured AND clay model pixels; clearing recovers the exact original snapshot 468ms
+   → page.evaluate: TypeError: s.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:6:32)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > can show an HDR background, clear it via null, and survive malformed HDR without corrupting the stage 460ms
+   → page.evaluate: TypeError: s.setEnvironment is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:3:17)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG 6082ms
+   → expect(locator).toHaveValue(expected) failed
+
+Locator: getByLabel('Multiview views', { exact: true })
+Expected: "4"
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toHaveValue" getByLabel('Multiview views', { exact: true }) with timeout 5000ms
+  - waiting for getByLabel('Multiview views', { exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: stages locally then records valid provenance before enabling a review-only reskin handoff 5620ms
+   → expect(locator).toBeDisabled() failed
+
+Locator: getByRole('button', { name: 'Reskin 3D in Chat', exact: true })
+Expected: disabled
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeDisabled" getByRole('button', { name: 'Reskin 3D in Chat', exact: true }) with timeout 5000ms
+  - waiting for getByRole('button', { name: 'Reskin 3D in Chat', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: /upload failure never enables reskin or sends a composer message 4646ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: /provenance failure never enables reskin or sends a composer message 4680ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: profile switch while upload is pending blocks late provenance and composer handoff 4729ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: connectionId switch while upload is pending blocks late provenance and composer handoff 4677ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG 5696ms
+   → expect(locator).toHaveValue(expected) failed
+
+Locator: getByLabel('Multiview views', { exact: true })
+Expected: "4"
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toHaveValue" getByLabel('Multiview views', { exact: true }) with timeout 5000ms
+  - waiting for getByLabel('Multiview views', { exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: stages locally then records valid provenance before enabling a review-only reskin handoff 5726ms
+   → expect(locator).toBeDisabled() failed
+
+Locator: getByRole('button', { name: 'Reskin 3D in Chat', exact: true })
+Expected: disabled
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeDisabled" getByRole('button', { name: 'Reskin 3D in Chat', exact: true }) with timeout 5000ms
+  - waiting for getByRole('button', { name: 'Reskin 3D in Chat', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: /upload failure never enables reskin or sends a composer message 4683ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: /provenance failure never enables reskin or sends a composer message 4707ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: profile switch while upload is pending blocks late provenance and composer handoff 4725ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: connectionId switch while upload is pending blocks late provenance and composer handoff 4728ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source standalone ModelViewer supports multiview without a ModelCard or callbacks 4637ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source ModelCard forwards envSource and loads the HDR locally without a cloud or paid request 4661ms
+   → page.waitForFunction: Timeout 4000ms exceeded.
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 22 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > captures 4 canonical named PNG views and a nonblank correctly sized sheet
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > captures 6 canonical named PNG views and a nonblank correctly sized sheet
+Error: page.evaluate: TypeError: window.stage.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:1:28)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ capture tests/viewers/multiview-ibl.test.ts:118:15
+    116| }
+    117| async function capture(page: Page, options: Record<string, unknown> = …
+    118|   return page.evaluate(options => (window as any).stage.captureMultivi…
+       |               ^
+    119| }
+    120| async function loadUI(page: Page) {
+ ❯ tests/viewers/multiview-ibl.test.ts:160:28
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/22]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > defaults tileSize to 384 and supports both documented boundary sizes
+Error: page.evaluate: TypeError: window.stage.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:1:28)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ capture tests/viewers/multiview-ibl.test.ts:118:15
+    116| }
+    117| async function capture(page: Page, options: Record<string, unknown> = …
+    118|   return page.evaluate(options => (window as any).stage.captureMultivi…
+       |               ^
+    119| }
+    120| async function loadUI(page: Page) {
+ ❯ tests/viewers/multiview-ibl.test.ts:186:30
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/22]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > renders four distinct shading passes and transparent versus opaque studio backgrounds
+Error: page.evaluate: TypeError: window.stage.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:1:28)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ capture tests/viewers/multiview-ibl.test.ts:118:15
+    116| }
+    117| async function capture(page: Page, options: Record<string, unknown> = …
+    118|   return page.evaluate(options => (window as any).stage.captureMultivi…
+       |               ^
+    119| }
+    120| async function loadUI(page: Page) {
+ ❯ tests/viewers/multiview-ibl.test.ts:214:30
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/22]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > captures a single paused animated pose deterministically and restores camera, shading, grid, canvas size and animation
+Error: page.evaluate: TypeError: s.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:13:29)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ tests/viewers/multiview-ibl.test.ts:227:33
+    225|     const { page } = await stagePage(true)
+    226|     try {
+    227|       const result = await page.evaluate(async () => {
+       |                                 ^
+    228|         const s = (window as any).stage, a = s.animation();s.setAutoRo…
+    229|         a.select('Wave');a.setPlaying(false);a.setSpeed(2);a.setLoop(f…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/22]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > restores the live stage even when canvas PNG encoding throws partway through capture
+Error: page.evaluate: TypeError: s.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:20:35)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ tests/viewers/multiview-ibl.test.ts:246:33
+    244|     const { page } = await stagePage(true)
+    245|     try {
+    246|       const result = await page.evaluate(async () => {
+       |                                 ^
+    247|         const s = (window as any).stage;s.setShading('wireframe');s.se…
+    248|         const before = s.snapshot(), state = s.animation().state(), or…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/22]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > real HDR image-based lighting changes textured AND clay model pixels; clearing recovers the exact original snapshot
+Error: page.evaluate: TypeError: s.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:6:32)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ tests/viewers/multiview-ibl.test.ts:265:33
+    263|     const { page, errors, blocked } = await stagePage()
+    264|     try {
+    265|       const result = await page.evaluate(async () => {
+       |                                 ^
+    266|         const s = (window as any).stage, passes = []
+    267|         for (const shading of ['textured','clay']) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/22]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > can show an HDR background, clear it via null, and survive malformed HDR without corrupting the stage
+Error: page.evaluate: TypeError: s.setEnvironment is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:3:17)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ tests/viewers/multiview-ibl.test.ts:289:33
+    287|     const { page } = await stagePage()
+    288|     try {
+    289|       const result = await page.evaluate(async () => {
+       |                                 ^
+    290|         const s=(window as any).stage,before=s.snapshot();await s.setE…
+    291|         await s.setEnvironment((window as any).hdr,'studio.hdr',true);…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/22]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG
+Error: expect(locator).toHaveValue(expected) failed
+
+Locator: getByLabel('Multiview views', { exact: true })
+Expected: "4"
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toHaveValue" getByLabel('Multiview views', { exact: true }) with timeout 5000ms
+  - waiting for getByLabel('Multiview views', { exact: true })
+
+ ❯ captureRawStack ../v09/node_modules/playwright/node_modules/playwright-core/lib/coreBundle.js:9282:17
+ ❯ callMatcherAsStep ../v09/node_modules/playwright/lib/matchers/expect.js:13316:57
+ ❯ Object.toHaveValue ../v09/node_modules/playwright/lib/matchers/expect.js:13308:23
+ ❯ tests/viewers/multiview-ibl.test.ts:308:32
+    306|         await loadUI(page)
+    307|         const views=page.getByLabel('Multiview views',{exact:true}), p…
+    308|         await webExpect(views).toHaveValue('4'); await webExpect(pass)…
+       |                                ^
+    309|         expect(await views.locator('option').evaluateAll(o=>o.map(v=>(…
+    310|         expect((await pass.locator('option').evaluateAll(o=>o.map(v=>(…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { matcherResult: { name: 'toHaveValue', expected: '4', message: 'expect(locator).toHaveValue(expected) failed\n\nLocator: getByLabel(\'Multiview views\', { exact: true })\nExpected: "4"\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect "toHaveValue" getByLabel(\'Multiview views\', { exact: true }) with timeout 5000ms\n  - waiting for getByLabel(\'Multiview views\', { exact: true })\n', pass: false, actual: undefined, log: [ '  - Expect "toHaveValue" getByLabel(\'Multiview views\', { exact: true }) with timeout 5000ms', '  - waiting for getByLabel(\'Multiview views\', { exact: true })' ], timeout: 5000, ariaSnapshot: '- article:\n  - strong: cube.glb\n  - text: 3D / Motion\n  - button "Download"\n  - button "Save to project"\n  - toolbar "Model controls":\n    - text: Shading\n    - combobox "Shading mode":\n      - option "textured" [selected]\n      - option "wireframe"\n      - option "clay"\n      - option "normals"\n    - button "Auto-rotate"\n    - button "Grid" [pressed]\n    - button "Reset camera"\n    - combobox "Download format":\n      - option "Download…" [selected]\n      - option "cube.glb"\n  - text: 8 vertices · 12 triangles · 1 meshes · 0 bones/joints · 0 clips\n  - group: Next · review and approve in chat' } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/22]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: stages locally then records valid provenance before enabling a review-only reskin handoff
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: stages locally then records valid provenance before enabling a review-only reskin handoff
+Error: expect(locator).toBeDisabled() failed
+
+Locator: getByRole('button', { name: 'Reskin 3D in Chat', exact: true })
+Expected: disabled
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeDisabled" getByRole('button', { name: 'Reskin 3D in Chat', exact: true }) with timeout 5000ms
+  - waiting for getByRole('button', { name: 'Reskin 3D in Chat', exact: true })
+
+ ❯ captureRawStack ../v09/node_modules/playwright/node_modules/playwright-core/lib/coreBundle.js:9282:17
+ ❯ callMatcherAsStep ../v09/node_modules/playwright/lib/matchers/expect.js:13316:57
+ ❯ Object.toBeDisabled ../v09/node_modules/playwright/lib/matchers/expect.js:13308:23
+ ❯ tests/viewers/multiview-ibl.test.ts:329:33
+    327|         await loadUI(page)
+    328|         const reskin=page.getByRole('button',{name:'Reskin 3D in Chat'…
+    329|         await webExpect(reskin).toBeDisabled();await captureUI(page)
+       |                                 ^
+    330|         await page.waitForFunction(()=>(window as any).calls.some(c=>c…
+    331|         await webExpect(reskin).toBeDisabled()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { matcherResult: { message: 'expect(locator).toBeDisabled() failed\n\nLocator: getByRole(\'button\', { name: \'Reskin 3D in Chat\', exact: true })\nExpected: disabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect "toBeDisabled" getByRole(\'button\', { name: \'Reskin 3D in Chat\', exact: true }) with timeout 5000ms\n  - waiting for getByRole(\'button\', { name: \'Reskin 3D in Chat\', exact: true })\n', pass: false, actual: undefined, name: 'toBeDisabled', expected: 'disabled', log: [ '  - Expect "toBeDisabled" getByRole(\'button\', { name: \'Reskin 3D in Chat\', exact: true }) with timeout 5000ms', '  - waiting for getByRole(\'button\', { name: \'Reskin 3D in Chat\', exact: true })' ], timeout: 5000, ariaSnapshot: '- article:\n  - strong: cube.glb\n  - text: 3D / Motion\n  - button "Download"\n  - button "Save to project"\n  - toolbar "Model controls":\n    - text: Shading\n    - combobox "Shading mode":\n      - option "textured" [selected]\n      - option "wireframe"\n      - option "clay"\n      - option "normals"\n    - button "Auto-rotate"\n    - button "Grid" [pressed]\n    - button "Reset camera"\n    - combobox "Download format":\n      - option "Download…" [selected]\n      - option "cube.glb"\n  - text: 8 vertices · 12 triangles · 1 meshes · 0 bones/joints · 0 clips\n  - group: Next · review and approve in chat' } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/22]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: /upload failure never enables reskin or sends a composer message
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: /provenance failure never enables reskin or sends a composer message
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: /upload failure never enables reskin or sends a composer message
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: /provenance failure never enables reskin or sends a composer message
+TimeoutError: locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ ❯ captureUI tests/viewers/multiview-ibl.test.ts:125:78
+    123| }
+    124| async function captureUI(page: Page) {
+    125|   await page.getByRole('button', { name: 'Capture Multiview', exact: t…
+       |                                                                              ^
+    126|   await webExpect(page.getByAltText('Multiview Reference Preview', { e…
+    127| }
+ ❯ tests/viewers/multiview-ibl.test.ts:358:103
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [ '  - waiting for getByRole(\'button\', { name: \'Capture Multiview\', exact: true })' ] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/22]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: profile switch while upload is pending blocks late provenance and composer handoff
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: connectionId switch while upload is pending blocks late provenance and composer handoff
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: profile switch while upload is pending blocks late provenance and composer handoff
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: connectionId switch while upload is pending blocks late provenance and composer handoff
+TimeoutError: locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ ❯ captureUI tests/viewers/multiview-ibl.test.ts:125:78
+    123| }
+    124| async function captureUI(page: Page) {
+    125|   await page.getByRole('button', { name: 'Capture Multiview', exact: t…
+       |                                                                              ^
+    126|   await webExpect(page.getByAltText('Multiview Reference Preview', { e…
+    127| }
+ ❯ tests/viewers/multiview-ibl.test.ts:371:93
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [ '  - waiting for getByRole(\'button\', { name: \'Capture Multiview\', exact: true })' ] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/22]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source standalone ModelViewer supports multiview without a ModelCard or callbacks
+TimeoutError: locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ ❯ captureUI tests/viewers/multiview-ibl.test.ts:125:78
+    123| }
+    124| async function captureUI(page: Page) {
+    125|   await page.getByRole('button', { name: 'Capture Multiview', exact: t…
+       |                                                                              ^
+    126|   await webExpect(page.getByAltText('Multiview Reference Preview', { e…
+    127| }
+ ❯ tests/viewers/multiview-ibl.test.ts:389:89
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [ '  - waiting for getByRole(\'button\', { name: \'Capture Multiview\', exact: true })' ] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/22]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source ModelCard forwards envSource and loads the HDR locally without a cloud or paid request
+TimeoutError: page.waitForFunction: Timeout 4000ms exceeded.
+ ❯ tests/viewers/multiview-ibl.test.ts:399:18
+    397|     try{
+    398|       await page.evaluate(()=>(window as any).mount('card',true));awai…
+    399|       await page.waitForFunction(()=>(window as any).calls.some(c=>c.p…
+       |                  ^
+    400|       await captureUI(page);await assertNoPaid(page);expect(errors).to…
+    401|     }finally{await page.close()}
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/22]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  22 failed | 2 passed (24)
+   Start at  19:52:01
+   Duration  76.53s (transform 90ms, setup 0ms, collect 388ms, tests 75.90s, environment 0ms, prepare 72ms)
+
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10
+
+▲ [WARNING] Import "registerPlugin" will always be undefined because there is no matching export in "tests/scaffold/sdk-stub.ts" [import-is-undefined]
+
+    desktop/plugin.js:43459:3:
+      43459 │ he.registerPlugin?.(vC);
+            ╵    ~~~~~~~~~~~~~~
+
+ ✓ tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > creates an actual WebGL context, not a canvas or renderer stand-in 1043ms
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > captures 4 canonical named PNG views and a nonblank correctly sized sheet 425ms
+   → page.evaluate: TypeError: window.stage.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:1:28)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > captures 6 canonical named PNG views and a nonblank correctly sized sheet 429ms
+   → page.evaluate: TypeError: window.stage.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:1:28)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > defaults tileSize to 384 and supports both documented boundary sizes 405ms
+   → page.evaluate: TypeError: window.stage.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:1:28)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > rejects invalid requests instead of allocating unbounded render targets and preserves the live stage 475ms
+   → page.evaluate: TypeError: s.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:3:17)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > renders four distinct shading passes and transparent versus opaque studio backgrounds 376ms
+   → page.evaluate: TypeError: window.stage.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:1:28)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > captures a single paused animated pose deterministically and restores camera, shading, grid, canvas size and animation 560ms
+   → page.evaluate: TypeError: s.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:13:29)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > restores the live stage even when canvas PNG encoding throws partway through capture 612ms
+   → page.evaluate: TypeError: s.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:20:35)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > real HDR image-based lighting changes textured AND clay model pixels; clearing recovers the exact original snapshot 487ms
+   → page.evaluate: TypeError: s.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:6:32)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > can show an HDR background, clear it via null, and survive malformed HDR without corrupting the stage 502ms
+   → page.evaluate: TypeError: s.setEnvironment is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:3:17)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG 6023ms
+   → expect(locator).toHaveValue(expected) failed
+
+Locator: getByLabel('Multiview views', { exact: true })
+Expected: "4"
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toHaveValue" getByLabel('Multiview views', { exact: true }) with timeout 5000ms
+  - waiting for getByLabel('Multiview views', { exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: stages locally then records valid provenance before enabling a review-only reskin handoff 5713ms
+   → expect(locator).toBeDisabled() failed
+
+Locator: getByRole('button', { name: 'Reskin 3D in Chat', exact: true })
+Expected: disabled
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeDisabled" getByRole('button', { name: 'Reskin 3D in Chat', exact: true }) with timeout 5000ms
+  - waiting for getByRole('button', { name: 'Reskin 3D in Chat', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: /upload failure never enables reskin or sends a composer message 4684ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: /provenance failure never enables reskin or sends a composer message 4689ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: profile switch while upload is pending blocks late provenance and composer handoff 4692ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: connectionId switch while upload is pending blocks late provenance and composer handoff 4708ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG 5741ms
+   → expect(locator).toHaveValue(expected) failed
+
+Locator: getByLabel('Multiview views', { exact: true })
+Expected: "4"
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toHaveValue" getByLabel('Multiview views', { exact: true }) with timeout 5000ms
+  - waiting for getByLabel('Multiview views', { exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: stages locally then records valid provenance before enabling a review-only reskin handoff 5690ms
+   → expect(locator).toBeDisabled() failed
+
+Locator: getByRole('button', { name: 'Reskin 3D in Chat', exact: true })
+Expected: disabled
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeDisabled" getByRole('button', { name: 'Reskin 3D in Chat', exact: true }) with timeout 5000ms
+  - waiting for getByRole('button', { name: 'Reskin 3D in Chat', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: /upload failure never enables reskin or sends a composer message 4660ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: /provenance failure never enables reskin or sends a composer message 4793ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: profile switch while upload is pending blocks late provenance and composer handoff 4733ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: connectionId switch while upload is pending blocks late provenance and composer handoff 4683ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source standalone ModelViewer supports multiview without a ModelCard or callbacks 4639ms
+   → locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ × tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source ModelCard forwards envSource and loads the HDR locally without a cloud or paid request 4699ms
+   → page.waitForFunction: Timeout 4000ms exceeded.
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 23 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > captures 4 canonical named PNG views and a nonblank correctly sized sheet
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > captures 6 canonical named PNG views and a nonblank correctly sized sheet
+Error: page.evaluate: TypeError: window.stage.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:1:28)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ capture tests/viewers/multiview-ibl.test.ts:124:15
+    122| }
+    123| async function capture(page: Page, options: Record<string, unknown> = …
+    124|   return page.evaluate(options => (window as any).stage.captureMultivi…
+       |               ^
+    125| }
+    126| async function loadUI(page: Page) {
+ ❯ tests/viewers/multiview-ibl.test.ts:166:28
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/23]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > defaults tileSize to 384 and supports both documented boundary sizes
+Error: page.evaluate: TypeError: window.stage.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:1:28)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ capture tests/viewers/multiview-ibl.test.ts:124:15
+    122| }
+    123| async function capture(page: Page, options: Record<string, unknown> = …
+    124|   return page.evaluate(options => (window as any).stage.captureMultivi…
+       |               ^
+    125| }
+    126| async function loadUI(page: Page) {
+ ❯ tests/viewers/multiview-ibl.test.ts:192:30
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/23]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > rejects invalid requests instead of allocating unbounded render targets and preserves the live stage
+Error: page.evaluate: TypeError: s.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:3:17)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ tests/viewers/multiview-ibl.test.ts:203:33
+    201|     const { page } = await stagePage()
+    202|     try {
+    203|       const result = await page.evaluate(async () => {
+       |                                 ^
+    204|         const s = (window as any).stage, before = s.snapshot(), failur…
+    205|         // Prove the valid API exists before testing rejection: a miss…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/23]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > renders four distinct shading passes and transparent versus opaque studio backgrounds
+Error: page.evaluate: TypeError: window.stage.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:1:28)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ capture tests/viewers/multiview-ibl.test.ts:124:15
+    122| }
+    123| async function capture(page: Page, options: Record<string, unknown> = …
+    124|   return page.evaluate(options => (window as any).stage.captureMultivi…
+       |               ^
+    125| }
+    126| async function loadUI(page: Page) {
+ ❯ tests/viewers/multiview-ibl.test.ts:223:30
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/23]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > captures a single paused animated pose deterministically and restores camera, shading, grid, canvas size and animation
+Error: page.evaluate: TypeError: s.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:13:29)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ tests/viewers/multiview-ibl.test.ts:236:33
+    234|     const { page } = await stagePage(true)
+    235|     try {
+    236|       const result = await page.evaluate(async () => {
+       |                                 ^
+    237|         const s = (window as any).stage, a = s.animation();s.setAutoRo…
+    238|         a.select('Wave');a.setPlaying(false);a.setSpeed(2);a.setLoop(f…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/23]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > restores the live stage even when canvas PNG encoding throws partway through capture
+Error: page.evaluate: TypeError: s.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:20:35)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ tests/viewers/multiview-ibl.test.ts:255:33
+    253|     const { page } = await stagePage(true)
+    254|     try {
+    255|       const result = await page.evaluate(async () => {
+       |                                 ^
+    256|         const s = (window as any).stage;s.setShading('wireframe');s.se…
+    257|         const before = s.snapshot(), state = s.animation().state(), or…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/23]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > real HDR image-based lighting changes textured AND clay model pixels; clearing recovers the exact original snapshot
+Error: page.evaluate: TypeError: s.captureMultiview is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:6:32)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ tests/viewers/multiview-ibl.test.ts:274:33
+    272|     const { page, errors, blocked } = await stagePage()
+    273|     try {
+    274|       const result = await page.evaluate(async () => {
+       |                                 ^
+    275|         const s = (window as any).stage, passes = []
+    276|         for (const shading of ['textured','clay']) {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/23]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > can show an HDR background, clear it via null, and survive malformed HDR without corrupting the stage
+Error: page.evaluate: TypeError: s.setEnvironment is not a function
+    at eval (eval at evaluate (:370:30), <anonymous>:3:17)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+ ❯ tests/viewers/multiview-ibl.test.ts:298:33
+    296|     const { page } = await stagePage()
+    297|     try {
+    298|       const result = await page.evaluate(async () => {
+       |                                 ^
+    299|         const s=(window as any).stage,before=s.snapshot();await s.setE…
+    300|         await s.setEnvironment((window as any).hdr,'studio.hdr',true);…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/23]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG
+Error: expect(locator).toHaveValue(expected) failed
+
+Locator: getByLabel('Multiview views', { exact: true })
+Expected: "4"
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toHaveValue" getByLabel('Multiview views', { exact: true }) with timeout 5000ms
+  - waiting for getByLabel('Multiview views', { exact: true })
+
+ ❯ captureRawStack ../v09/node_modules/playwright/node_modules/playwright-core/lib/coreBundle.js:9282:17
+ ❯ callMatcherAsStep ../v09/node_modules/playwright/lib/matchers/expect.js:13316:57
+ ❯ Object.toHaveValue ../v09/node_modules/playwright/lib/matchers/expect.js:13308:23
+ ❯ tests/viewers/multiview-ibl.test.ts:317:32
+    315|         await loadUI(page)
+    316|         const views=page.getByLabel('Multiview views',{exact:true}), p…
+    317|         await webExpect(views).toHaveValue('4'); await webExpect(pass)…
+       |                                ^
+    318|         expect(await views.locator('option').evaluateAll(o=>o.map(v=>(…
+    319|         expect((await pass.locator('option').evaluateAll(o=>o.map(v=>(…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { matcherResult: { name: 'toHaveValue', expected: '4', message: 'expect(locator).toHaveValue(expected) failed\n\nLocator: getByLabel(\'Multiview views\', { exact: true })\nExpected: "4"\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect "toHaveValue" getByLabel(\'Multiview views\', { exact: true }) with timeout 5000ms\n  - waiting for getByLabel(\'Multiview views\', { exact: true })\n', pass: false, actual: undefined, log: [ '  - Expect "toHaveValue" getByLabel(\'Multiview views\', { exact: true }) with timeout 5000ms', '  - waiting for getByLabel(\'Multiview views\', { exact: true })' ], timeout: 5000, ariaSnapshot: '- article:\n  - strong: cube.glb\n  - text: 3D / Motion\n  - button "Download"\n  - button "Save to project"\n  - toolbar "Model controls":\n    - text: Shading\n    - combobox "Shading mode":\n      - option "textured" [selected]\n      - option "wireframe"\n      - option "clay"\n      - option "normals"\n    - button "Auto-rotate"\n    - button "Grid" [pressed]\n    - button "Reset camera"\n    - combobox "Download format":\n      - option "Download…" [selected]\n      - option "cube.glb"\n  - text: 8 vertices · 12 triangles · 1 meshes · 0 bones/joints · 0 clips\n  - group: Next · review and approve in chat' } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/23]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: stages locally then records valid provenance before enabling a review-only reskin handoff
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: stages locally then records valid provenance before enabling a review-only reskin handoff
+Error: expect(locator).toBeDisabled() failed
+
+Locator: getByRole('button', { name: 'Reskin 3D in Chat', exact: true })
+Expected: disabled
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeDisabled" getByRole('button', { name: 'Reskin 3D in Chat', exact: true }) with timeout 5000ms
+  - waiting for getByRole('button', { name: 'Reskin 3D in Chat', exact: true })
+
+ ❯ captureRawStack ../v09/node_modules/playwright/node_modules/playwright-core/lib/coreBundle.js:9282:17
+ ❯ callMatcherAsStep ../v09/node_modules/playwright/lib/matchers/expect.js:13316:57
+ ❯ Object.toBeDisabled ../v09/node_modules/playwright/lib/matchers/expect.js:13308:23
+ ❯ tests/viewers/multiview-ibl.test.ts:338:33
+    336|         await loadUI(page)
+    337|         const reskin=page.getByRole('button',{name:'Reskin 3D in Chat'…
+    338|         await webExpect(reskin).toBeDisabled();await captureUI(page)
+       |                                 ^
+    339|         await page.waitForFunction(()=>(window as any).calls.some(c=>c…
+    340|         await webExpect(reskin).toBeDisabled()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { matcherResult: { message: 'expect(locator).toBeDisabled() failed\n\nLocator: getByRole(\'button\', { name: \'Reskin 3D in Chat\', exact: true })\nExpected: disabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect "toBeDisabled" getByRole(\'button\', { name: \'Reskin 3D in Chat\', exact: true }) with timeout 5000ms\n  - waiting for getByRole(\'button\', { name: \'Reskin 3D in Chat\', exact: true })\n', pass: false, actual: undefined, name: 'toBeDisabled', expected: 'disabled', log: [ '  - Expect "toBeDisabled" getByRole(\'button\', { name: \'Reskin 3D in Chat\', exact: true }) with timeout 5000ms', '  - waiting for getByRole(\'button\', { name: \'Reskin 3D in Chat\', exact: true })' ], timeout: 5000, ariaSnapshot: '- article:\n  - strong: cube.glb\n  - text: 3D / Motion\n  - button "Download"\n  - button "Save to project"\n  - toolbar "Model controls":\n    - text: Shading\n    - combobox "Shading mode":\n      - option "textured" [selected]\n      - option "wireframe"\n      - option "clay"\n      - option "normals"\n    - button "Auto-rotate"\n    - button "Grid" [pressed]\n    - button "Reset camera"\n    - combobox "Download format":\n      - option "Download…" [selected]\n      - option "cube.glb"\n  - text: 8 vertices · 12 triangles · 1 meshes · 0 bones/joints · 0 clips\n  - group: Next · review and approve in chat' } }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/23]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: /upload failure never enables reskin or sends a composer message
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: /provenance failure never enables reskin or sends a composer message
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: /upload failure never enables reskin or sends a composer message
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: /provenance failure never enables reskin or sends a composer message
+TimeoutError: locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ ❯ captureUI tests/viewers/multiview-ibl.test.ts:131:78
+    129| }
+    130| async function captureUI(page: Page) {
+    131|   await page.getByRole('button', { name: 'Capture Multiview', exact: t…
+       |                                                                              ^
+    132|   await webExpect(page.getByAltText('Multiview Reference Preview', { e…
+    133| }
+ ❯ tests/viewers/multiview-ibl.test.ts:367:103
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [ '  - waiting for getByRole(\'button\', { name: \'Capture Multiview\', exact: true })' ] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/23]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: profile switch while upload is pending blocks late provenance and composer handoff
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source: connectionId switch while upload is pending blocks late provenance and composer handoff
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: profile switch while upload is pending blocks late provenance and composer handoff
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > desktop: connectionId switch while upload is pending blocks late provenance and composer handoff
+TimeoutError: locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ ❯ captureUI tests/viewers/multiview-ibl.test.ts:131:78
+    129| }
+    130| async function captureUI(page: Page) {
+    131|   await page.getByRole('button', { name: 'Capture Multiview', exact: t…
+       |                                                                              ^
+    132|   await webExpect(page.getByAltText('Multiview Reference Preview', { e…
+    133| }
+ ❯ tests/viewers/multiview-ibl.test.ts:380:93
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [ '  - waiting for getByRole(\'button\', { name: \'Capture Multiview\', exact: true })' ] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/23]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source standalone ModelViewer supports multiview without a ModelCard or callbacks
+TimeoutError: locator.click: Timeout 4000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Capture Multiview', exact: true })
+
+ ❯ captureUI tests/viewers/multiview-ibl.test.ts:131:78
+    129| }
+    130| async function captureUI(page: Page) {
+    131|   await page.getByRole('button', { name: 'Capture Multiview', exact: t…
+       |                                                                              ^
+    132|   await webExpect(page.getByAltText('Multiview Reference Preview', { e…
+    133| }
+ ❯ tests/viewers/multiview-ibl.test.ts:398:89
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [ '  - waiting for getByRole(\'button\', { name: \'Capture Multiview\', exact: true })' ] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/23]⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > source ModelCard forwards envSource and loads the HDR locally without a cloud or paid request
+TimeoutError: page.waitForFunction: Timeout 4000ms exceeded.
+ ❯ tests/viewers/multiview-ibl.test.ts:408:18
+    406|     try{
+    407|       await page.evaluate(()=>(window as any).mount('card',true));awai…
+    408|       await page.waitForFunction(()=>(window as any).calls.some(c=>c.p…
+       |                  ^
+    409|       await captureUI(page);await assertNoPaid(page);expect(errors).to…
+    410|     }finally{await page.close()}
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { log: [] }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/23]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  23 failed | 1 passed (24)
+   Start at  19:53:51
+   Duration  76.63s (transform 95ms, setup 0ms, collect 363ms, tests 75.99s, environment 0ms, prepare 96ms)
+

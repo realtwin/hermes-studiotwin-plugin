@@ -1,0 +1,65 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13
+
+ ❯ tests/workspace/state-machines.test.ts (29 tests | 1 failed) 15ms
+   × stage residency preserves snapshots and failures; ignores late ready 10ms
+     → expected { Object (phase, poster) } to be { phase: 'error', poster: 'snapshot' } // Object.is equality
+   ✓ multiview preserves downloadable capture on staging failure and rejects out-of-order events 1ms
+   ✓ task derivation gives terminal results priority over cancellation 0ms
+   ✓ normalizes "submitted" to queued without throwing 0ms
+   ✓ normalizes "pending" to queued without throwing 0ms
+   ✓ normalizes "draft" to queued without throwing 0ms
+   ✓ normalizes "queued" to queued without throwing 0ms
+   ✓ normalizes "executing" to running without throwing 0ms
+   ✓ normalizes "in-progress" to running without throwing 0ms
+   ✓ normalizes "IN PROGRESS" to running without throwing 0ms
+   ✓ normalizes "processing" to running without throwing 0ms
+   ✓ normalizes "running" to running without throwing 0ms
+   ✓ normalizes "done" to completed without throwing 0ms
+   ✓ normalizes "complete" to completed without throwing 0ms
+   ✓ normalizes "completed" to completed without throwing 0ms
+   ✓ normalizes "succeeded" to completed without throwing 0ms
+   ✓ normalizes "success" to completed without throwing 0ms
+   ✓ normalizes "canceled" to cancelled without throwing 0ms
+   ✓ normalizes "cancelled" to cancelled without throwing 0ms
+   ✓ normalizes "failed" to failed without throwing 0ms
+   ✓ normalizes "error" to failed without throwing 0ms
+   ✓ normalizes undefined to queued without throwing 0ms
+   ✓ normalizes null to queued without throwing 0ms
+   ✓ normalizes {} to queued without throwing 0ms
+   ✓ normalizes "future-state" to queued without throwing 0ms
+   ✓ stage transitions cannot manufacture readiness from passive or terminal states 1ms
+   ✓ multiview accepts only in-order completion and permits retry after failure 0ms
+   ✓ inspector covers jobOnly and error precedence without losing local fallback 0ms
+   ✓ task covers cancellation and query errors explicitly 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workspace/state-machines.test.ts > stage residency preserves snapshots and failures; ignores late ready
+AssertionError: expected { Object (phase, poster) } to be { phase: 'error', poster: 'snapshot' } // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "phase": "error",[39m
+[31m+   "phase": "evicted",[39m
+[2m    "poster": "snapshot",[22m
+[2m  }[22m
+
+ ❯ tests/workspace/state-machines.test.ts:12:58
+     10|   s = machines.stageTransition(s, { type: 'start' })
+     11|   s = machines.stageTransition(s, { type: 'error' })
+     12|   expect(machines.stageTransition(s, { type: 'evict' })).toBe(s)
+       |                                                          ^
+     13|   expect(machines.stageProjection(s)).toEqual({ live: false, ready: fa…
+     14|   expect(machines.stageTransition(s, { type: 'reset', poster: 'new' })…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 28 passed (29)
+   Start at  17:52:50
+   Duration  307ms (transform 67ms, setup 0ms, collect 62ms, tests 15ms, environment 0ms, prepare 73ms)
+

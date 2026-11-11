@@ -1,0 +1,85 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v11
+
+ ❯ tests/workspace/v11-data.test.ts (5 tests | 4 failed) 22ms
+   × V11: strips suffix IDs without losing leading-cache compatibility 16ms
+     → expected { …(2) } to deeply equal { title: 'mod1_chassis_001.png', …(1) }
+   × V11: names nameless cloud assets from S3 and shortens generated identifiers 1ms
+     → assetDisplayName is not a function
+   × V11: classifies real cloud HDR/EXR and PBR image records, preserving explicit non-image types 2ms
+     → expected 'image' to be 'environment' // Object.is equality
+   × V11: assembles all five siblings without mixing folders or stems or overriding explicit maps 0ms
+     → siblingMaterialMaps is not a function
+   ✓ V11: job prompt fallbacks, rig metadata, timings and friendly labels preserve provider detail 1ms
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 1 passed (5)
+   Start at  06:31:18
+   Duration  972ms (transform 420ms, setup 0ms, collect 693ms, tests 22ms, environment 0ms, prepare 84ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workspace/v11-data.test.ts > V11: strips suffix IDs without losing leading-cache compatibility
+AssertionError: expected { …(2) } to deeply equal { title: 'mod1_chassis_001.png', …(1) }
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "shortId": "01d1d8fc",[39m
+[32m-   "title": "mod1_chassis_001.png",[39m
+[31m+   "shortId": "",[39m
+[31m+   "title": "mod1_chassis_001.png@01d1d8fc-bbe5-4db7-8134-b297b065e1ca",[39m
+[2m  }[22m
+
+ ❯ tests/workspace/v11-data.test.ts:11:60
+      9| const siblings = channels.map((c, i) => ({ uuid: `${uuid}-${i}`, type:…
+     10| it('V11: strips suffix IDs without losing leading-cache compatibility'…
+     11|   expect(cleanDisplayName(`mod1_chassis_001.png@${uuid}`)).toEqual({ t…
+       |                                                            ^
+     12|   expect(cleanDisplayName(`${uuid}-crate.glb`).title).toBe('crate.glb')
+     13|   expect(data.assetSource({ uuid, name: `crate.glb@${uuid}` })).toMatc…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/workspace/v11-data.test.ts > V11: names nameless cloud assets from S3 and shortens generated identifiers
+TypeError: assetDisplayName is not a function
+ ❯ tests/workspace/v11-data.test.ts:16:15
+     14| })
+     15| it('V11: names nameless cloud assets from S3 and shortens generated id…
+     16|   expect(data.assetDisplayName({ uuid, s3Uri: directory + 'patina-base…
+       |               ^
+     17|   expect(data.assetDisplayName({ uuid, type: 'image', extension: 'png'…
+     18|   expect(data.assetDisplayName({ uuid, type: 'image', extension: 'png'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  tests/workspace/v11-data.test.ts > V11: classifies real cloud HDR/EXR and PBR image records, preserving explicit non-image types
+AssertionError: expected 'image' to be 'environment' // Object.is equality
+
+Expected: [32m"environment"[39m
+Received: [31m"image"[39m
+
+ ❯ tests/workspace/v11-data.test.ts:22:54
+     20| it('V11: classifies real cloud HDR/EXR and PBR image records, preservi…
+     21|   for (const row of [{ extension: 'hdr' }, { s3Uri: directory + 'panor…
+     22|     expect(data.modality({ type: 'image', ...row })).toBe('environment…
+       |                                                      ^
+     23|   for (const row of siblings) expect(data.modality(row)).toBe('materia…
+     24|   expect(data.modality({ ...siblings[0], type: '3d_model' })).toBe('3d…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  tests/workspace/v11-data.test.ts > V11: assembles all five siblings without mixing folders or stems or overriding explicit maps
+TypeError: siblingMaterialMaps is not a function
+ ❯ tests/workspace/v11-data.test.ts:28:21
+     26| it('V11: assembles all five siblings without mixing folders or stems o…
+     27|   const others = [{ uuid: 'wrong', s3Uri: directory + 'other-normal.pn…
+     28|   const maps = data.siblingMaterialMaps(siblings[1], [...others, ...si…
+       |                     ^
+     29|   expect(Object.keys(maps).sort()).toEqual(['albedo', 'heightmap', 'me…
+     30|   expect(maps.albedo).toMatchObject({ asset: siblings[0].uuid })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+

@@ -1,0 +1,42 @@
+....F
+=================================== FAILURES ===================================
+_________________ test_real_multiview[clay-4-static-cube.glb] __________________
+
+tmp_path = PosixPath('/home/deploy/.hermes/profiles/mercury/cache/scratch/pytest-of-deploy/pytest-470/test_real_multiview_clay_4_sta0')
+model = 'static-cube.glb', views = 4, shading = 'clay'
+
+    @pytest.mark.parametrize('model', ['static-cube.glb', 'rigged-animated.glb'])
+    @pytest.mark.parametrize('views', [4, 6])
+    @pytest.mark.parametrize('shading', ['textured', 'clay', 'normals', 'wireframe'])
+    def test_real_multiview(tmp_path, model, views, shading):
+        assert shutil.which('node') and Path(CHROME).is_file()
+        source = MEDIA / model
+        original = source.read_bytes()
+        sheet = tmp_path / 'sheet.png'
+        split = tmp_path / 'tiles'
+        result, data = run(source, '--out', sheet, '--split-dir', split, '--views', views,
+                           '--shading', shading, '--tile-size', 128, '--transparent', '--no-labels', '--chrome', CHROME)
+        assert result.returncode == 0, data
+        assert set(data) == {'ok', 'sheet', 'views', 'split_files', 'shading', 'width', 'height', 'bytes'}
+        assert data['ok'] and data['sheet'] == str(sheet)
+        assert data['views'] == NAMES[:views]
+        assert data['shading'] == shading
+        assert (data['width'], data['height']) == (128 * (views // 2), 256)
+        assert data['bytes'] == sheet.stat().st_size
+        assert set(data['split_files']) == set(NAMES[:views])
+        with Image.open(sheet) as image:
+            assert image.size == (data['width'], data['height'])
+            assert image.mode == 'RGBA'
+            assert image.getpixel((0, 0))[3] == 0
+            for i, name in enumerate(NAMES[:views]):
+                with Image.open(data['split_files'][name]) as tile:
+                    assert tile.size == (128, 128)
+>                   assert max(ImageStat.Stat(tile).var[:3]) > 10
+E                   assert 0.0 > 10
+E                    +  where 0.0 = max([0.0, 0.0, 0.0])
+
+tests/python/test_multiview_script.py:50: AssertionError
+=========================== short test summary info ============================
+FAILED tests/python/test_multiview_script.py::test_real_multiview[clay-4-static-cube.glb]
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 4 passed in 11.78s

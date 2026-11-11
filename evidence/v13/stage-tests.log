@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13
+
+ ✓ tests/workspace/stage-states.test.ts (27 tests) 800ms
+
+ Test Files  1 passed (1)
+      Tests  27 passed (27)
+   Start at  17:49:13
+   Duration  2.00s (transform 238ms, setup 0ms, collect 416ms, tests 800ms, environment 512ms, prepare 74ms)
+

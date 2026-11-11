@@ -1,0 +1,56 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v08b
+
+ ❯ tests/bundle/plugin-bundle.test.ts (4 tests | 1 failed) 17198ms
+   ✓ ships a single compiled ESM artifact with only namespace SDK imports and allowed external modules  755ms
+   ✓ bundles the complete discoverable workflow skill and documents the manifest settings 3ms
+   × Chromium imports the committed bundle, registers and renders all surfaces (full SDK) 12200ms
+     → Error: expect(locator).toHaveCount(expected) failed
+
+Locator:  getByText('model fallback', { exact: true })
+Expected: 2
+Received: 0
+Timeout:  5000ms
+
+Call log:
+  - Expect "toHaveCount" getByText('model fallback', { exact: true }) with timeout 5000ms
+  - waiting for getByText('model fallback', { exact: true })
+    14 × locator resolved to 0 elements
+       - unexpected value "0"
+
+Chromium errors: []
+   ✓ Chromium imports the committed bundle, registers and renders all surfaces (missing area/registration exports)  4237ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/bundle/plugin-bundle.test.ts > Chromium imports the committed bundle, registers and renders all surfaces (full SDK)
+Error: Error: expect(locator).toHaveCount(expected) failed
+
+Locator:  getByText('model fallback', { exact: true })
+Expected: 2
+Received: 0
+Timeout:  5000ms
+
+Call log:
+  - Expect "toHaveCount" getByText('model fallback', { exact: true }) with timeout 5000ms
+  - waiting for getByText('model fallback', { exact: true })
+    14 × locator resolved to 0 elements
+       - unexpected value "0"
+
+Chromium errors: []
+ ❯ tests/bundle/plugin-bundle.test.ts:602:13
+    600|       expect(h.blocked).toEqual([]);
+    601|     } catch (error) {
+    602|       throw new Error(
+       |             ^
+    603|         String(error) + "\nChromium errors: " + JSON.stringify(h.error…
+    604|       );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  06:50:57
+   Duration  18.09s (transform 101ms, setup 0ms, collect 641ms, tests 17.20s, environment 0ms, prepare 67ms)
+

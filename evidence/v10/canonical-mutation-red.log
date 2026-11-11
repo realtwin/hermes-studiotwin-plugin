@@ -1,0 +1,59 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10
+
+▲ [WARNING] Import "registerPlugin" will always be undefined because there is no matching export in "tests/scaffold/sdk-stub.ts" [import-is-undefined]
+
+    desktop/plugin.js:43663:3:
+      43663 │ he.registerPlugin?.(EC);
+            ╵    ~~~~~~~~~~~~~~
+
+ ❯ tests/viewers/multiview-ibl.test.ts (26 tests | 1 failed | 25 skipped) 1587ms
+   ↓ V10 real Chromium multiview + IBL > creates an actual WebGL context, not a canvas or renderer stand-in
+   ↓ V10 real Chromium multiview + IBL > captures 4 canonical named PNG views and a nonblank correctly sized sheet
+   ↓ V10 real Chromium multiview + IBL > captures 6 canonical named PNG views and a nonblank correctly sized sheet
+   × V10 real Chromium multiview + IBL > uses the actual canonical camera yaw and pitch, not merely distinct labels 1072ms
+     → expected 45 to be close to 35, received difference is 10, but expected 5e-7
+   ↓ V10 real Chromium multiview + IBL > production bundle stages an actual PNG through the real router and persists readable Made from lineage without spending
+   ↓ V10 real Chromium multiview + IBL > defaults tileSize to 384 and supports both documented boundary sizes
+   ↓ V10 real Chromium multiview + IBL > rejects invalid requests instead of allocating unbounded render targets and preserves the live stage
+   ↓ V10 real Chromium multiview + IBL > renders four distinct shading passes and transparent versus opaque studio backgrounds
+   ↓ V10 real Chromium multiview + IBL > captures a single paused animated pose deterministically and restores camera, shading, grid, canvas size and animation
+   ↓ V10 real Chromium multiview + IBL > restores the live stage even when canvas PNG encoding throws partway through capture
+   ↓ V10 real Chromium multiview + IBL > real HDR image-based lighting changes textured AND clay model pixels; clearing recovers the exact original snapshot
+   ↓ V10 real Chromium multiview + IBL > can show an HDR background, clear it via null, and survive malformed HDR without corrupting the stage
+   ↓ V10 real Chromium multiview + IBL > source: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG
+   ↓ V10 real Chromium multiview + IBL > source: stages locally then records valid provenance before enabling a review-only reskin handoff
+   ↓ V10 real Chromium multiview + IBL > source: /upload failure never enables reskin or sends a composer message
+   ↓ V10 real Chromium multiview + IBL > source: /provenance failure never enables reskin or sends a composer message
+   ↓ V10 real Chromium multiview + IBL > source: profile switch while upload is pending blocks late provenance and composer handoff
+   ↓ V10 real Chromium multiview + IBL > source: connectionId switch while upload is pending blocks late provenance and composer handoff
+   ↓ V10 real Chromium multiview + IBL > desktop: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG
+   ↓ V10 real Chromium multiview + IBL > desktop: stages locally then records valid provenance before enabling a review-only reskin handoff
+   ↓ V10 real Chromium multiview + IBL > desktop: /upload failure never enables reskin or sends a composer message
+   ↓ V10 real Chromium multiview + IBL > desktop: /provenance failure never enables reskin or sends a composer message
+   ↓ V10 real Chromium multiview + IBL > desktop: profile switch while upload is pending blocks late provenance and composer handoff
+   ↓ V10 real Chromium multiview + IBL > desktop: connectionId switch while upload is pending blocks late provenance and composer handoff
+   ↓ V10 real Chromium multiview + IBL > source standalone ModelViewer supports multiview without a ModelCard or callbacks
+   ↓ V10 real Chromium multiview + IBL > source ModelCard forwards envSource and loads the HDR locally without a cloud or paid request
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > uses the actual canonical camera yaw and pitch, not merely distinct labels
+AssertionError: expected 45 to be close to 35, received difference is 10, but expected 5e-7
+ ❯ tests/viewers/multiview-ibl.test.ts:206:26
+    204|       const expected = [[0,12],[90,12],[180,12],[-90,12],[35,22],[0,85…
+    205|       angles.forEach((angle: number[], i: number) => {
+    206|         expect(angle[0]).toBeCloseTo(expected[i][0], 6)
+       |                          ^
+    207|         expect(angle[1]).toBeCloseTo(expected[i][1], 6)
+    208|       })
+ ❯ tests/viewers/multiview-ibl.test.ts:205:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 25 skipped (26)
+   Start at  20:11:46
+   Duration  2.28s (transform 134ms, setup 0ms, collect 443ms, tests 1.59s, environment 0ms, prepare 72ms)
+

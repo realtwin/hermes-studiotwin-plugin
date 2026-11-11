@@ -1,0 +1,83 @@
+....F..F.F.F..                                                           [100%]
+=================================== FAILURES ===================================
+_ test_v13_terminal_job_aliases_share_progress_actions_and_active_contract[success] _
+
+api = (<starlette.testclient.TestClient object at 0x74a232560310>, <module 'v01_api' from '/home/deploy/work/realtwin/hermes...27.0.0.1', port=35109, api_key='STCANARY_API_KEY_2e9bc6c94a', requests=[]), {'api_base_url': 'http://127.0.0.1:35109'})
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x74a232682310>
+status = 'success'
+
+    @pytest.mark.parametrize('status', ['done', 'complete', 'completed', 'succeeded', 'success'])
+    def test_v13_terminal_job_aliases_share_progress_actions_and_active_contract(api, monkeypatch, status):
+        c, mod, _, _ = api
+        jid = '00000001-0001-4000-8000-000000000001'
+        row = {'status': status, 'outputs': {'environmentHDR': 's3://fixture/output.hdr'}}
+        monkeypatch.setattr(mod, '_call', lambda *_: row)
+        result = c.get('/jobs/' + jid).json()
+        assert result['status'] == status  # retain provider status on the wire
+>       assert result['progress'] == 100
+E       assert None == 100
+
+tests/python/test_plugin_api.py:339: AssertionError
+___ test_v13_active_job_aliases_stay_active_without_invented_progress[draft] ___
+
+api = (<starlette.testclient.TestClient object at 0x74a23246c1d0>, <module 'v01_api' from '/home/deploy/work/realtwin/hermes...27.0.0.1', port=50169, api_key='STCANARY_API_KEY_2e9bc6c94a', requests=[]), {'api_base_url': 'http://127.0.0.1:50169'})
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x74a2326b7750>
+status = 'draft'
+
+    @pytest.mark.parametrize('status', ['submitted', 'pending', 'draft', 'queued', 'executing', 'in_progress', 'processing', 'running'])
+    def test_v13_active_job_aliases_stay_active_without_invented_progress(api, monkeypatch, status):
+        c, mod, _, _ = api
+        jid = '00000001-0001-4000-8000-000000000001'
+        monkeypatch.setattr(mod, '_call', lambda *_: {'status': status})
+        result = c.get('/active', params={'tasks': jid}).json()
+>       assert result['done'] == []
+E       AssertionError: assert ['00000001-00...000000000001'] == []
+E         
+E         Left contains one more item: '00000001-0001-4000-8000-000000000001'
+E         Use -v to get more diff
+
+tests/python/test_plugin_api.py:350: AssertionError
+_ test_v13_active_job_aliases_stay_active_without_invented_progress[executing] _
+
+api = (<starlette.testclient.TestClient object at 0x74a23251d750>, <module 'v01_api' from '/home/deploy/work/realtwin/hermes...27.0.0.1', port=39981, api_key='STCANARY_API_KEY_2e9bc6c94a', requests=[]), {'api_base_url': 'http://127.0.0.1:39981'})
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x74a23246ee50>
+status = 'executing'
+
+    @pytest.mark.parametrize('status', ['submitted', 'pending', 'draft', 'queued', 'executing', 'in_progress', 'processing', 'running'])
+    def test_v13_active_job_aliases_stay_active_without_invented_progress(api, monkeypatch, status):
+        c, mod, _, _ = api
+        jid = '00000001-0001-4000-8000-000000000001'
+        monkeypatch.setattr(mod, '_call', lambda *_: {'status': status})
+        result = c.get('/active', params={'tasks': jid}).json()
+>       assert result['done'] == []
+E       AssertionError: assert ['00000001-00...000000000001'] == []
+E         
+E         Left contains one more item: '00000001-0001-4000-8000-000000000001'
+E         Use -v to get more diff
+
+tests/python/test_plugin_api.py:350: AssertionError
+_ test_v13_active_job_aliases_stay_active_without_invented_progress[processing] _
+
+api = (<starlette.testclient.TestClient object at 0x74a232361310>, <module 'v01_api' from '/home/deploy/work/realtwin/hermes...27.0.0.1', port=60765, api_key='STCANARY_API_KEY_2e9bc6c94a', requests=[]), {'api_base_url': 'http://127.0.0.1:60765'})
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x74a23252bbd0>
+status = 'processing'
+
+    @pytest.mark.parametrize('status', ['submitted', 'pending', 'draft', 'queued', 'executing', 'in_progress', 'processing', 'running'])
+    def test_v13_active_job_aliases_stay_active_without_invented_progress(api, monkeypatch, status):
+        c, mod, _, _ = api
+        jid = '00000001-0001-4000-8000-000000000001'
+        monkeypatch.setattr(mod, '_call', lambda *_: {'status': status})
+        result = c.get('/active', params={'tasks': jid}).json()
+>       assert result['done'] == []
+E       AssertionError: assert ['00000001-00...000000000001'] == []
+E         
+E         Left contains one more item: '00000001-0001-4000-8000-000000000001'
+E         Use -v to get more diff
+
+tests/python/test_plugin_api.py:350: AssertionError
+=========================== short test summary info ============================
+FAILED tests/python/test_plugin_api.py::test_v13_terminal_job_aliases_share_progress_actions_and_active_contract[success]
+FAILED tests/python/test_plugin_api.py::test_v13_active_job_aliases_stay_active_without_invented_progress[draft]
+FAILED tests/python/test_plugin_api.py::test_v13_active_job_aliases_stay_active_without_invented_progress[executing]
+FAILED tests/python/test_plugin_api.py::test_v13_active_job_aliases_stay_active_without_invented_progress[processing]
+4 failed, 10 passed, 59 deselected in 4.24s

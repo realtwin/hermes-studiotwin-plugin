@@ -1,0 +1,26 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v08b
+
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/viewers/settings.test.ts [ tests/viewers/settings.test.ts ]
+Error: Cannot find module '../../src/settings' imported from '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v08b/tests/viewers/settings.test.ts'
+ ❯ tests/viewers/settings.test.ts:2:1
+      1| import { expect, it } from 'vitest'
+      2| import { normalizeSettings } from '../../src/settings'
+       | ^
+      3| it('uses manifest defaults for missing and malformed settings', () => {
+      4|   expect(normalizeSettings(undefined)).toEqual({inline_cards:true, aut…
+
+Caused by: Error: Failed to load url ../../src/settings (resolved id: ../../src/settings) in /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v08b/tests/viewers/settings.test.ts. Does the file exist?
+ ❯ loadAndTransform ../v08a/node_modules/vite/dist/node/chunks/config.js:22907:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  06:39:06
+   Duration  271ms (transform 40ms, setup 0ms, collect 0ms, tests 0ms, environment 0ms, prepare 65ms)
+

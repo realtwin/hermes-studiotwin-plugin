@@ -1,0 +1,104 @@
+hermes-studiotwin
+Copyright (c) 2026 RealTwin
+
+This package adapts selected files from Nous Research's official Hermes plugins under
+the MIT License. Each upstream package's license text is preserved verbatim in
+licenses/ with its original copyright line:
+
+  licenses/MESHY-LICENSE             MIT, Copyright (c) 2025 Nous Research  (meshy/LICENSE)
+  licenses/ELEVENLABS-SFX-LICENSE    MIT, Copyright (c) 2026 Nous Research  (elevenlabs-sound-effects/LICENSE)
+  licenses/ELEVENLABS-MUSIC-LICENSE  MIT, Copyright (c) 2026 Nous Research  (elevenlabs-music/LICENSE)
+
+Upstream repository: https://github.com/NousResearch/hermes-official-plugins
+Pinned upstream commit: 1e326ddd28ae261821d7714d106fe114999a0bba
+
+Every vendored or adapted file keeps the upstream MIT notice of the package it came
+from. Meshy's MCP server is not vendored, and no Meshy or ElevenLabs runtime, key,
+endpoint or SDK ships in this package.
+
+src/sdk.d.ts declares the shapes of the public Hermes Desktop plugin SDK as published
+by hermes-agent (MIT, Copyright (c) 2025 Nous Research) at
+088f657ecf77674c7b8e2ededf4e3576d82e042c. It is written for this package and copies no
+upstream plugin file, so it is not a retained vendoring target.
+
+Inventory
+---------
+The block below maps each upstream file to its target path, upstream path at the
+pinned commit, disposition and license. tools/check-slice-scopes.py reads it; keep one
+row per line and the field order unchanged.
+
+  retained  target path is a vendoring target that exactly one build slice must own.
+  excluded  upstream file is dropped, regenerated, or replaced by a rewrite with no
+            target in this package. It is listed so the exclusion is explicit.
+
+A target path ending in /** is a bounded directory target. A target fed by several
+upstream files appears once per upstream file. Target files are created by their owning
+slices; until then a row records the plan, not a file that exists.
+
+BEGIN STUDIOTWIN VENDORING INVENTORY v1
+retained | licenses/MESHY-LICENSE | meshy/LICENSE@1e326ddd28ae261821d7714d106fe114999a0bba | verbatim | MIT, Copyright (c) 2025 Nous Research
+retained | plugin.json | meshy/plugin.json@1e326ddd28ae261821d7714d106fe114999a0bba | rewrite | MIT, Copyright (c) 2025 Nous Research
+retained | mcp.json | meshy/mcp.json@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+retained | src/media/model/formats.ts | meshy/src/formats.ts@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+retained | src/media/model/parse-model.ts | meshy/src/parse-model.ts@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+retained | src/media/model/stage.ts | meshy/src/stage.ts@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+retained | src/media/model/views.tsx | meshy/src/views.tsx@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+retained | src/data/job-query.ts | meshy/src/task-poll.ts@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+retained | src/data/active-jobs.ts | meshy/src/active.ts@1e326ddd28ae261821d7714d106fe114999a0bba | rewrite | MIT, Copyright (c) 2025 Nous Research
+retained | src/cards/job-card.tsx | meshy/src/task-card.tsx@1e326ddd28ae261821d7714d106fe114999a0bba | rewrite | MIT, Copyright (c) 2025 Nous Research
+retained | src/cards/job-progress.tsx | meshy/src/progress.tsx@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+retained | src/pages/library.tsx | meshy/src/gallery.ts@1e326ddd28ae261821d7714d106fe114999a0bba | rewrite | MIT, Copyright (c) 2025 Nous Research
+retained | src/data/provenance.ts | meshy/src/provenance.ts@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+retained | src/data/upload.ts | meshy/src/upload.ts@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+retained | src/actions/send-to-chat.ts | meshy/src/chat.ts@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+retained | src/chrome/status.tsx | meshy/src/status.ts@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+retained | src/data/scope.ts | meshy/src/scope.ts@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+retained | src/plugin.tsx | meshy/src/plugin.tsx@1e326ddd28ae261821d7714d106fe114999a0bba | rewrite | MIT, Copyright (c) 2025 Nous Research
+retained | dashboard/plugin_api.py | meshy/dashboard/plugin_api.py@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+retained | skills/studiotwin-creative-suite/scripts/glb_stats.py | meshy/skills/meshy-3d/scripts/glb_stats.py@1e326ddd28ae261821d7714d106fe114999a0bba | verbatim | MIT, Copyright (c) 2025 Nous Research
+retained | skills/studiotwin-creative-suite/scripts/render_preview.mjs | meshy/skills/meshy-3d/scripts/render_preview.mjs@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+retained | skills/studiotwin-creative-suite/scripts/blender_handoff.py | meshy/skills/meshy-3d/scripts/blender_handoff.py@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+retained | skills/studiotwin-creative-suite/SKILL.md | meshy/skills/meshy-3d/SKILL.md@1e326ddd28ae261821d7714d106fe114999a0bba | rewrite | MIT, Copyright (c) 2025 Nous Research
+retained | skills/studiotwin-creative-suite/references/** | meshy/skills/meshy-3d/references/**@1e326ddd28ae261821d7714d106fe114999a0bba | rewrite | MIT, Copyright (c) 2025 Nous Research
+retained | tests/python/test_plugin_api_hardening.py | meshy/tests/test_plugin_api_hardening.py@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+retained | tests/python/test_plugin_api_contract.py | meshy/tests/test_plugin_api.py@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+retained | tests/python/test_plugin_api_contract.py | meshy/tests/test_plugin_api_tasks.py@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+retained | tests/python/test_plugin_api_contract.py | meshy/tests/test_plugin_api_desktop.py@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+retained | tests/walking/image-walking.test.ts | meshy/tests/gallery.test.mjs@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+retained | tests/integration/built-plugin.test.ts | meshy/tests/desktop.test.mjs@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+retained | tests/integration/built-plugin.test.ts | meshy/tests/active.test.mjs@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2025 Nous Research
+excluded | - | meshy/desktop/plugin.js@1e326ddd28ae261821d7714d106fe114999a0bba | drop/regenerate | generated bundle; rebuilt from src by vite
+excluded | - | meshy/dashboard/dist/index.js@1e326ddd28ae261821d7714d106fe114999a0bba | drop/regenerate | generated bundle
+excluded | - | meshy/package-lock.json@1e326ddd28ae261821d7714d106fe114999a0bba | drop/regenerate | dependency lock; this package locks its own
+excluded | - | meshy/mcp-server@1e326ddd28ae261821d7714d106fe114999a0bba | never vendored | Meshy's MCP server (@meshy-ai/meshy-mcp-server) is not used
+retained | licenses/ELEVENLABS-SFX-LICENSE | elevenlabs-sound-effects/LICENSE@1e326ddd28ae261821d7714d106fe114999a0bba | verbatim | MIT, Copyright (c) 2026 Nous Research
+excluded | - | elevenlabs-sound-effects/plugin.yaml@1e326ddd28ae261821d7714d106fe114999a0bba | drop | standalone direct-HTTP tool is the wrong authority
+excluded | - | elevenlabs-sound-effects/sound_effects.py@1e326ddd28ae261821d7714d106fe114999a0bba | rewrite/drop | direct provider call replaced by StudioTwin MCP jobs
+excluded | - | elevenlabs-sound-effects/audio_length.py@1e326ddd28ae261821d7714d106fe114999a0bba | rewrite/drop | provider billing helper replaced by StudioTwin estimates
+retained | dashboard/provenance_store.py | elevenlabs-sound-effects/provenance.py@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2026 Nous Research
+retained | src/media/audio/audio.ts | elevenlabs-sound-effects/src/audio.ts@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2026 Nous Research
+retained | src/media/audio/ui.tsx | elevenlabs-sound-effects/src/ui.tsx@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2026 Nous Research
+retained | src/media/audio/model.ts | elevenlabs-sound-effects/src/sound.ts@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2026 Nous Research
+retained | src/cards/audio-card.tsx | elevenlabs-sound-effects/src/card.tsx@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2026 Nous Research
+retained | src/pages/library-audio.tsx | elevenlabs-sound-effects/src/library.tsx@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2026 Nous Research
+retained | src/plugin.tsx | elevenlabs-sound-effects/src/plugin.tsx@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2026 Nous Research
+retained | skills/studiotwin-creative-suite/scripts/sfx_tool.py | elevenlabs-sound-effects/skills/elevenlabs-sound-design/scripts/sfx_tool.py@1e326ddd28ae261821d7714d106fe114999a0bba | verbatim | MIT, Copyright (c) 2026 Nous Research
+retained | tests/python/audio/** | elevenlabs-sound-effects/tests/test_sfx_tool_script.py@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2026 Nous Research
+retained | tests/python/audio/** | elevenlabs-sound-effects/tests/test_library.py@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2026 Nous Research
+retained | tests/node/audio/** | elevenlabs-sound-effects/tests/sound.test.mjs@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2026 Nous Research
+retained | tests/node/audio/** | elevenlabs-sound-effects/tests/plugin.test.mjs@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2026 Nous Research
+excluded | - | elevenlabs-sound-effects/tests/test_sound_effects.py@1e326ddd28ae261821d7714d106fe114999a0bba | drop | tests the dropped direct-HTTP tool
+excluded | - | elevenlabs-sound-effects/tests/test_audio_length.py@1e326ddd28ae261821d7714d106fe114999a0bba | drop | tests the dropped billing helper
+retained | licenses/ELEVENLABS-MUSIC-LICENSE | elevenlabs-music/LICENSE@1e326ddd28ae261821d7714d106fe114999a0bba | verbatim | MIT, Copyright (c) 2026 Nous Research
+excluded | - | elevenlabs-music/plugin.yaml@1e326ddd28ae261821d7714d106fe114999a0bba | drop | no StudioTwin music surface
+excluded | - | elevenlabs-music/elevenlabs_api.py@1e326ddd28ae261821d7714d106fe114999a0bba | drop | direct ElevenLabs runtime is forbidden
+excluded | - | elevenlabs-music/inputs.py@1e326ddd28ae261821d7714d106fe114999a0bba | drop | no StudioTwin music surface
+excluded | - | elevenlabs-music/schemas.py@1e326ddd28ae261821d7714d106fe114999a0bba | drop | no StudioTwin music surface
+retained | gateway/background_wait.py | elevenlabs-music/jobs.py@1e326ddd28ae261821d7714d106fe114999a0bba | adapt | MIT, Copyright (c) 2026 Nous Research
+retained | skills/studiotwin-creative-suite/references/background-jobs.md | elevenlabs-music/music_tools.py@1e326ddd28ae261821d7714d106fe114999a0bba | adapt pattern only | MIT, Copyright (c) 2026 Nous Research
+excluded | - | elevenlabs-music/provenance.py@1e326ddd28ae261821d7714d106fe114999a0bba | drop | unified provenance supersedes the track-only store
+excluded | - | elevenlabs-music/src/card.tsx@1e326ddd28ae261821d7714d106fe114999a0bba | drop for v1 | no music or stems tools
+excluded | - | elevenlabs-music/src/music.ts@1e326ddd28ae261821d7714d106fe114999a0bba | drop for v1 | no music or stems tools
+excluded | - | elevenlabs-music/src/library.tsx@1e326ddd28ae261821d7714d106fe114999a0bba | drop for v1 | no music or stems tools
+retained | tests/python/test_background_wait.py | elevenlabs-music/tests/test_tools.py@1e326ddd28ae261821d7714d106fe114999a0bba | adapt selected jobs tests | MIT, Copyright (c) 2026 Nous Research
+END STUDIOTWIN VENDORING INVENTORY v1

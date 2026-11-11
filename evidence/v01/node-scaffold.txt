@@ -1,0 +1,18 @@
+$ npm run test:scaffold
+
+> hermes-studiotwin@0.1.0 test:scaffold
+> vitest run tests/scaffold/scaffold.test.ts --pool=forks --poolOptions.forks.singleFork=true
+
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v01
+
+ ✓ tests/scaffold/scaffold.test.ts (19 tests) 1122ms
+   ✓ @hermes/plugin-sdk declarations > typechecks the declarations, configs and the SDK usage contract with the locked TypeScript  1105ms
+
+ Test Files  1 passed (1)
+      Tests  19 passed (19)
+   Start at  03:38:34
+   Duration  1.61s (transform 124ms, setup 0ms, collect 253ms, tests 1.12s, environment 0ms, prepare 75ms)
+
+
+exit_code=0

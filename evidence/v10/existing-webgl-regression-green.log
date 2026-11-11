@@ -1,0 +1,16 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10
+
+ ✓ tests/visual/visual-qa.test.ts (1 test) 35659ms
+   ✓ real Chromium: production bundle, eight viewers, four tabs, themes and mixed WebGL budget  35656ms
+stderr | tests/viewers/env-material.test.ts > environment and material contracts > decodes real Radiance and EXR pixels
+RGBELoader has been deprecated. Please use HDRLoader instead.
+
+ ✓ tests/viewers/env-material.test.ts (13 tests) 7057ms
+   ✓ mounted real Chromium WebGL environment and five-map material, lifecycle and scoped cards  7039ms
+
+ Test Files  2 passed (2)
+      Tests  14 passed (14)
+   Start at  20:06:45
+   Duration  43.70s (transform 280ms, setup 0ms, collect 720ms, tests 42.72s, environment 0ms, prepare 75ms)
+

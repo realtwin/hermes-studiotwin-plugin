@@ -1,0 +1,8 @@
+.venv
+node_modules
+__pycache__/
+*.pyc
+.pytest_cache/
+.verification/
+# Exact-commit gate output is generated after committing the payload.
+evidence/v10/exact-head/

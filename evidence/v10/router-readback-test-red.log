@@ -1,0 +1,69 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v10
+
+▲ [WARNING] Import "registerPlugin" will always be undefined because there is no matching export in "tests/scaffold/sdk-stub.ts" [import-is-undefined]
+
+    desktop/plugin.js:43663:3:
+      43663 │ he.registerPlugin?.(EC);
+            ╵    ~~~~~~~~~~~~~~
+
+ ❯ tests/viewers/multiview-ibl.test.ts (26 tests | 1 failed) 27940ms
+   ✓ V10 real Chromium multiview + IBL > creates an actual WebGL context, not a canvas or renderer stand-in  1057ms
+   ✓ V10 real Chromium multiview + IBL > captures 4 canonical named PNG views and a nonblank correctly sized sheet  813ms
+   ✓ V10 real Chromium multiview + IBL > captures 6 canonical named PNG views and a nonblank correctly sized sheet  592ms
+   ✓ V10 real Chromium multiview + IBL > uses the actual canonical camera yaw and pitch, not merely distinct labels  543ms
+   × V10 real Chromium multiview + IBL > production bundle stages an actual PNG through the real router and persists readable Made from lineage without spending 2850ms
+     → expected { …(3) } to match object { …(4) }
+   ✓ V10 real Chromium multiview + IBL > defaults tileSize to 384 and supports both documented boundary sizes  955ms
+   ✓ V10 real Chromium multiview + IBL > rejects invalid requests instead of allocating unbounded render targets and preserves the live stage  912ms
+   ✓ V10 real Chromium multiview + IBL > renders four distinct shading passes and transparent versus opaque studio backgrounds  843ms
+   ✓ V10 real Chromium multiview + IBL > captures a single paused animated pose deterministically and restores camera, shading, grid, canvas size and animation  952ms
+   ✓ V10 real Chromium multiview + IBL > restores the live stage even when canvas PNG encoding throws partway through capture  719ms
+   ✓ V10 real Chromium multiview + IBL > real HDR image-based lighting changes textured AND clay model pixels; clearing recovers the exact original snapshot  942ms
+   ✓ V10 real Chromium multiview + IBL > can show an HDR background, clear it via null, and survive malformed HDR without corrupting the stage  863ms
+   ✓ V10 real Chromium multiview + IBL > source: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG  1614ms
+   ✓ V10 real Chromium multiview + IBL > source: stages locally then records valid provenance before enabling a review-only reskin handoff  1015ms
+   ✓ V10 real Chromium multiview + IBL > source: /upload failure never enables reskin or sends a composer message  1017ms
+   ✓ V10 real Chromium multiview + IBL > source: /provenance failure never enables reskin or sends a composer message  976ms
+   ✓ V10 real Chromium multiview + IBL > source: profile switch while upload is pending blocks late provenance and composer handoff  1057ms
+   ✓ V10 real Chromium multiview + IBL > source: connectionId switch while upload is pending blocks late provenance and composer handoff  1079ms
+   ✓ V10 real Chromium multiview + IBL > desktop: exposes accessible 4/6 controls, all passes, preview and a real downloadable PNG  1082ms
+   ✓ V10 real Chromium multiview + IBL > desktop: stages locally then records valid provenance before enabling a review-only reskin handoff  984ms
+   ✓ V10 real Chromium multiview + IBL > desktop: /upload failure never enables reskin or sends a composer message  1054ms
+   ✓ V10 real Chromium multiview + IBL > desktop: /provenance failure never enables reskin or sends a composer message  1106ms
+   ✓ V10 real Chromium multiview + IBL > desktop: profile switch while upload is pending blocks late provenance and composer handoff  1128ms
+   ✓ V10 real Chromium multiview + IBL > desktop: connectionId switch while upload is pending blocks late provenance and composer handoff  1181ms
+   ✓ V10 real Chromium multiview + IBL > source standalone ModelViewer supports multiview without a ModelCard or callbacks  949ms
+   ✓ V10 real Chromium multiview + IBL > source ModelCard forwards envSource and loads the HDR locally without a cloud or paid request  1116ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/viewers/multiview-ibl.test.ts > V10 real Chromium multiview + IBL > production bundle stages an actual PNG through the real router and persists readable Made from lineage without spending
+AssertionError: expected { …(3) } to match object { …(4) }
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "id": "7b462456-f289-45db-9eba-7b339aa0b889",[39m
+[2m    "prompt": "Multiview sheet \"/home/deploy/.hermes/profiles/mercury/cache/scratch/v06-workspace-ete02u4z/.hermes/plugin-data/agent-plugin-hermes-studiotwin/uploads/cf5dd3a7fef943c280d2fd8b25318616-cube-multiview-6v-normals.png\" (6 views, normals). Made from source 3D model {\"path\":\"/home/deploy/.hermes/profiles/mercury/cache/scratch/v06-workspace-ete02u4z/.hermes/plugin-data/agent-plugin-hermes-studiotwin/uploads/42295583c60045d3ae0757552fec8ee4-static-cube.glb\",\"name\":\"cube.glb\"}.",[22m
+[2m    "session_id": "origin-chat",[22m
+[2m    "tool": "capture-multiview",[22m
+[2m  }[22m
+
+ ❯ tests/viewers/multiview-ibl.test.ts:230:30
+    228|       const lineage = await fetch(h.url + '/api/plugins/hermes-studiot…
+    229|       expect(lineage.recorded).toBe(true)
+    230|       expect(lineage.record).toMatchObject(record)
+       |                              ^
+    231|       expect(lineage.made_from).toContain('Made from')
+    232|       expect(lineage.record.prompt).toContain(source)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 25 passed (26)
+   Start at  20:09:39
+   Duration  28.59s (transform 119ms, setup 0ms, collect 412ms, tests 27.94s, environment 0ms, prepare 53ms)
+

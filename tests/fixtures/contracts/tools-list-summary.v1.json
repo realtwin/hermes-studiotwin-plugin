@@ -1,0 +1,376 @@
+{
+  "format": "studiotwin-tools-list-summary/v1",
+  "capture": "tests/fixtures/tools-list-2026-10-30.json",
+  "captureSha256": "39ffcc1ecb6b16392d3f9bf1af6960aa3acf7ad87588c9ba43835d29cad50c4b",
+  "sourcePath": "/home/deploy/work/realtwin/studiotwin-platform/handoffs/hermes-studiotwin-plugin/studiotwin-staging-tools-2026-10-30.json",
+  "server": {
+    "name": "studiotwin",
+    "title": "StudioTwin",
+    "version": "1.2.4"
+  },
+  "toolCount": 45,
+  "tools": [
+    {
+      "name": "text-to-motion-edit",
+      "family": "generation",
+      "fixedCost": 5,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "a857cfef78ef967a845757e92bf10c1e4fc7f2b8f3f9a430da0574e61bac5d0c"
+    },
+    {
+      "name": "text-to-motion",
+      "family": "generation",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "cd60bf7c62cb185280d5529824063f361747910d6f3aec979398ff8633096a7b"
+    },
+    {
+      "name": "text-to-motion-kimodo",
+      "family": "generation",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "f6bcb0f9783eb9ecd1c211004217b667ba8ceb8e7a213756a9638e862600c44b"
+    },
+    {
+      "name": "text-to-motion-control",
+      "family": "generation",
+      "fixedCost": 5,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "208ecfe14a4f21d3874a1f86b0bd100a9472893ee1df1402ec6100cfcb8e30f3"
+    },
+    {
+      "name": "motion-stitch-single",
+      "family": "generation",
+      "fixedCost": 5,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "89ac2f840b4c48cdcd43c77c80ef4a758a2e20af1c44bb4fe666504a43d08bcf"
+    },
+    {
+      "name": "text-to-environment-map",
+      "family": "generation",
+      "fixedCost": 20,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "8b86b6ff4d6ab525188ebecae023ca2688d42785b58fc5d8256735bc06362117"
+    },
+    {
+      "name": "image-to-environment-map",
+      "family": "generation",
+      "fixedCost": 25,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "4deb289d645e8d33b1c96bfb9c63500cae242f804e1aee2b6d0c9c0b16bc2d55"
+    },
+    {
+      "name": "environment-map-to-world",
+      "family": "generation",
+      "fixedCost": 80,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "7fa2b59ae42b43ef2bed64da3b3416ac7f4b9dc26da7e99b130ef8a3f5172c69"
+    },
+    {
+      "name": "environment-map-upscale-cpu",
+      "family": "generation",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "95e441b52baa6448be071e0c49b2339ba44a754eb0021b142ac499fc3ff361f5"
+    },
+    {
+      "name": "pano-sticker-placement",
+      "family": "generation",
+      "fixedCost": 1,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "21de0f69c4509741bbc679ecf3c86cbf8cef874d62c0b91988d5f8e7e67c838c"
+    },
+    {
+      "name": "pano-stickers",
+      "family": "generation",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "da31c381bfaacee204bc26f1fa14f0b74fbea84324cde5d4c93ec9f14c2481ff"
+    },
+    {
+      "name": "text-to-material",
+      "family": "generation",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "dadb52192061c8051b84a54f076df9b238ffff09035fb5000941ddc7dee441c6"
+    },
+    {
+      "name": "texture-to-material",
+      "family": "generation",
+      "fixedCost": 20,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "7c2e613f8fd8c079676bde45af891c91366a79cbb5b36d9aea0c10e56f8485c5"
+    },
+    {
+      "name": "image-to-material",
+      "family": "generation",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "cdb9c809cb12308d884f09446c6ef015c2ce15f41bee45cd542318814f1fdfc9"
+    },
+    {
+      "name": "image-to-3d-mesh",
+      "family": "generation",
+      "fixedCost": 25,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "7e433a06bbff1f109c2d44abca44db22e486ab8b115cc234780a5a76e5db3c80"
+    },
+    {
+      "name": "tripo-image-to-3d-mesh",
+      "family": "generation",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "72f6187194467f8b1e15e00710a9e27c725ee5357f82caf8a99c09b2fc0bb080"
+    },
+    {
+      "name": "tripo-rig-check",
+      "family": "generation",
+      "fixedCost": 0,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "9082753f3b27f4985e04024b2b811a80cae0876f223a741dd41b59fa7df0f23a"
+    },
+    {
+      "name": "blender-auto-rig",
+      "family": "generation",
+      "fixedCost": 15,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "40f4cd5f9231ff5cd914d1602bf0be334307b3fcd521e545a907894006f9f22a"
+    },
+    {
+      "name": "tripo-auto-rig",
+      "family": "generation",
+      "fixedCost": 45,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "886a0450d558108260b9808adcdc77433ba4b8e336e117c3dd3164c42fe1573a"
+    },
+    {
+      "name": "tripo-retopology",
+      "family": "generation",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "4667c70f7357b747157b48b0946e055e18f2d62c3b6bd77495671d90c6091190"
+    },
+    {
+      "name": "text-to-sound-effect",
+      "family": "generation",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "b292dc96fd6e0021c9bb002e8552947018292705b42be0aa9de4ebc215395ede"
+    },
+    {
+      "name": "prompt-to-dart-translation",
+      "family": "generation",
+      "fixedCost": 1,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "bd01629c70e87420dcb76703e2ce2976cbc56595e5d47df65a856ea66d7840a2"
+    },
+    {
+      "name": "openai-gpt-image-2-v4-fn",
+      "family": "generation",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "3164195655d06f82835f50eab88bb627a0d9039da7835ee5ed2e997292d9e004"
+    },
+    {
+      "name": "concept-lab-img-fn",
+      "family": "generation",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "436f86e7bd77db2ee80fb504014f6ea8cebcb82dd7c5498558d12835567d1560"
+    },
+    {
+      "name": "studiotwin_get_job_status",
+      "family": "platform",
+      "fixedCost": null,
+      "hasOutputSchema": false,
+      "conceptPaid": false,
+      "schemaHash": "aa64007304a6698ee7ee00bc7e241f0fed15619e37da60e29fd76e77d590d8d1"
+    },
+    {
+      "name": "studiotwin_estimate_cost",
+      "family": "platform",
+      "fixedCost": null,
+      "hasOutputSchema": false,
+      "conceptPaid": false,
+      "schemaHash": "72595c3cecfbadbdb48af31cf0252d14199c1069145405ae5b592eb0716ce42c"
+    },
+    {
+      "name": "studiotwin_get_credit_balance",
+      "family": "platform",
+      "fixedCost": null,
+      "hasOutputSchema": false,
+      "conceptPaid": false,
+      "schemaHash": "6d44d44808ee42826dacb5d0e29396a67cd8354922ec934c2b628219caedb09a"
+    },
+    {
+      "name": "studiotwin_list_my_jobs",
+      "family": "platform",
+      "fixedCost": null,
+      "hasOutputSchema": false,
+      "conceptPaid": false,
+      "schemaHash": "30625427f42cb8ead31d5abf5bb22137424840cbf5dff7c75ebc4aa88a54c751"
+    },
+    {
+      "name": "studiotwin_cancel_job",
+      "family": "platform",
+      "fixedCost": null,
+      "hasOutputSchema": false,
+      "conceptPaid": false,
+      "schemaHash": "810feb437ffab3327db2c388c789311e388051431f27db75e80898252c920f2f"
+    },
+    {
+      "name": "studiotwin_list_my_assets",
+      "family": "platform",
+      "fixedCost": null,
+      "hasOutputSchema": false,
+      "conceptPaid": false,
+      "schemaHash": "ec86c7bd601ca6763e90737681f984847e5916af987e91bbebfaca7dabf04485"
+    },
+    {
+      "name": "studiotwin_upload_asset",
+      "family": "platform",
+      "fixedCost": null,
+      "hasOutputSchema": false,
+      "conceptPaid": false,
+      "schemaHash": "dc526c3965946b6cab5f276832f026e1d4b31e8fd2a82078df8423b98ed833ea"
+    },
+    {
+      "name": "studiotwin_complete_asset_upload",
+      "family": "platform",
+      "fixedCost": null,
+      "hasOutputSchema": false,
+      "conceptPaid": false,
+      "schemaHash": "0129cf473a30d0648f77ca98118bd9552f1d94b6ff49563c353df0383ebc9774"
+    },
+    {
+      "name": "studiotwin_resolve_asset",
+      "family": "platform",
+      "fixedCost": null,
+      "hasOutputSchema": false,
+      "conceptPaid": false,
+      "schemaHash": "42218c7d7f138388c904952b0651e38448a46606a193003cc4ae93cded3e702a"
+    },
+    {
+      "name": "studiotwin_conceptlab_create",
+      "family": "concept",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "f5637cc435dfdd23033351a188527cd40c19edd8cb2a32a40369ba5dcac42dd1"
+    },
+    {
+      "name": "studiotwin_conceptlab_create_and_generate",
+      "family": "concept",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": true,
+      "schemaHash": "3627b1ecc1ca6c37576d35b45491430c993bc2dbdc63dbbf0e0360d73e7360d2"
+    },
+    {
+      "name": "studiotwin_conceptlab_list",
+      "family": "concept",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "837b9eafb9a4e1c95a54b16937cc4d313e49cf08b3ddd600563e42e51a2e4ea3"
+    },
+    {
+      "name": "studiotwin_conceptlab_get",
+      "family": "concept",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "214a65d892b566b33b4a330830f3a063653e6fad3574113eab0969e5644266a4"
+    },
+    {
+      "name": "studiotwin_conceptlab_get_status",
+      "family": "concept",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "5d417102da929cb3da952d87cf38ed3f9d8db5836a954a90870e281c513b3d38"
+    },
+    {
+      "name": "studiotwin_conceptlab_attach_asset",
+      "family": "concept",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "9fa04bee33c308f0be907b305dbe2913134efab429e06a023f40aefe76367aa7"
+    },
+    {
+      "name": "studiotwin_conceptlab_generate",
+      "family": "concept",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": true,
+      "schemaHash": "506b9fb1c9ddd2feae52fe436404d3b936a31869d9a3d8377813811a83836646"
+    },
+    {
+      "name": "studiotwin_conceptlab_edit",
+      "family": "concept",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": true,
+      "schemaHash": "0ef89f4c5388141527cc92b93973b577545bf316b4803b3e7f7368a0387af00c"
+    },
+    {
+      "name": "studiotwin_conceptlab_clone",
+      "family": "concept",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "307c661c35d1bb47c76474b9a221cb5c6ad8da007b2018ccbdd2bf0d676150cb"
+    },
+    {
+      "name": "studiotwin_conceptlab_set_active_asset",
+      "family": "concept",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "28eecf380af12fc368176c7bed9969600a09293f5c8b74b6375db43f05e38338"
+    },
+    {
+      "name": "studiotwin_conceptlab_update",
+      "family": "concept",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "dae13181e2c8de6fddf7855b485766409e690aeb59eb9be01a7b4883f64b6ea5"
+    },
+    {
+      "name": "studiotwin_conceptlab_delete",
+      "family": "concept",
+      "fixedCost": null,
+      "hasOutputSchema": true,
+      "conceptPaid": false,
+      "schemaHash": "0d724ebe4aa9c1489f43d858728aef59f2192a8b1f45dfff573ee194f2065b73"
+    }
+  ],
+  "unclassifiedFixtureTool": "fixture-unclassified-hologram-fn",
+  "schemaHashRule": "sha256 of compact sorted JSON {name,inputSchema,outputSchema} (fixture helper only)"
+}

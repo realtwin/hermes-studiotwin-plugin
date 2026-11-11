@@ -1,0 +1,5577 @@
+{
+  "server": {
+    "name": "studiotwin",
+    "title": "StudioTwin",
+    "version": "1.2.4"
+  },
+  "instructions": "StudioTwin generates production assets (environment maps, PBR materials, 3D meshes, character motion, sound effects) for Unreal Engine, Blender and 3D web projects. Workflow: (1) optionally call studiotwin_estimate_cost, (2) call a generation tool \u2014 it returns a job uuid immediately, (3) poll studiotwin_get_job_status until COMPLETE, (4) download outputs via the returned URLs, or pass asset references to in-engine StudioTwin integrations (UE / Blender MCP toolsets) which can import by asset id. Use studiotwin_upload_asset to create a presigned upload session, upload files to S3, then call studiotwin_complete_asset_upload to add them to the asset library. Use studiotwin_list_my_assets to browse, studiotwin_resolve_asset for a presigned download URL, and studiotwin_cancel_job to cancel a queued/submitted job you own. Use studiotwin_conceptlab_* tools to create and manage durable ConceptLab creative iterations; poll studiotwin_conceptlab_get_status after ConceptLab image operations. Generations cost credits; failures with code 40001 mean the wallet balance is too low.",
+  "tools": [
+    {
+      "name": "text-to-motion-edit",
+      "description": "StudioTwin generation function text-to-motion-edit. Costs 5 credits.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "animation": {
+            "type": "object",
+            "properties": {
+              "frames": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "keypoints3D": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "quaternions": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "smplPoses": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "rootTranslation": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "required": [
+                    "keypoints3D"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "frames"
+            ],
+            "additionalProperties": true
+          },
+          "editMode": {
+            "type": "string"
+          },
+          "seed": {
+            "type": "number"
+          },
+          "textPrompt": {
+            "type": "string"
+          },
+          "timeRange": {
+            "type": "array",
+            "minLength": 2,
+            "maxLength": 2,
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "animation",
+          "editMode",
+          "seed",
+          "textPrompt",
+          "timeRange"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "json": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "json"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "text-to-motion",
+      "description": "StudioTwin generation function text-to-motion. Cost depends on inputs; use studiotwin_estimate_cost for an exact estimate.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "durations": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "seed": {
+            "type": "number"
+          },
+          "textPrompts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "durations",
+          "seed",
+          "textPrompts"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "json": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "json"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "text-to-motion-kimodo",
+      "description": "StudioTwin generation function text-to-motion-kimodo. Cost depends on inputs; use studiotwin_estimate_cost for an exact estimate.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "durations": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "seed": {
+            "type": "number"
+          },
+          "textPrompts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "durations",
+          "seed",
+          "textPrompts"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "json": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "json"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "text-to-motion-control",
+      "description": "StudioTwin generation function text-to-motion-control. Costs 5 credits.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "seed": {
+            "type": "number"
+          },
+          "textPrompt": {
+            "type": "string"
+          },
+          "trajectory": {
+            "type": "object",
+            "properties": {
+              "rotations": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              "waypoints": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "waypoints"
+            ],
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "seed",
+          "textPrompt",
+          "trajectory"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "json": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "json"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "motion-stitch-single",
+      "description": "StudioTwin generation function motion-stitch-single. Costs 5 credits.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "blendLength": {
+            "type": "number"
+          },
+          "bridgeFrames": {
+            "type": "number"
+          },
+          "contextFrames": {
+            "type": "number"
+          },
+          "lhsAnimation": {
+            "type": "object",
+            "properties": {
+              "frames": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "keypoints3D": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "quaternions": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "smplPoses": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "rootTranslation": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "required": [
+                    "keypoints3D"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "frames"
+            ],
+            "additionalProperties": true
+          },
+          "rhsAnimation": {
+            "type": "object",
+            "properties": {
+              "frames": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "keypoints3D": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "quaternions": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "smplPoses": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "rootTranslation": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "required": [
+                    "keypoints3D"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "frames"
+            ],
+            "additionalProperties": true
+          },
+          "seed": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "lhsAnimation",
+          "rhsAnimation",
+          "seed"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "json": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "json"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "text-to-environment-map",
+      "description": "StudioTwin generation function text-to-environment-map. Costs 20 credits.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "brightnessLevel": {
+            "type": "number",
+            "default": 0
+          },
+          "negativePrompt": {
+            "type": "string",
+            "default": ""
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "seed": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "prompt",
+          "seed"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "environmentHDR": {
+            "type": "string"
+          },
+          "environmentPNG": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "environmentHDR",
+          "environmentPNG"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "image-to-environment-map",
+      "description": "StudioTwin generation function image-to-environment-map. Costs 25 credits.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "brightnessLevel": {
+            "type": "number",
+            "default": 0
+          },
+          "negativePrompt": {
+            "type": "string",
+            "default": ""
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "referenceImage": {
+            "type": "string",
+            "description": "A vpc::assets/<uuid> reference or a Base64 data URI."
+          },
+          "seed": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "prompt",
+          "referenceImage",
+          "seed"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "environmentHDR": {
+            "type": "string"
+          },
+          "environmentPNG": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "environmentHDR",
+          "environmentPNG"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "environment-map-to-world",
+      "description": "StudioTwin generation function environment-map-to-world. Costs 80 credits.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "environmentMap": {
+            "type": "string",
+            "description": "A vpc::assets/<uuid> reference or a Base64 data URI."
+          },
+          "layer": {
+            "type": "string",
+            "default": ""
+          },
+          "quality": {
+            "type": "string"
+          },
+          "seed": {
+            "type": "number"
+          },
+          "worldType": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "environmentMap",
+          "quality",
+          "seed",
+          "worldType"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "skyMap": {
+            "type": "string"
+          },
+          "worldMesh": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "worldMesh"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "environment-map-upscale-cpu",
+      "description": "StudioTwin generation function environment-map-upscale-cpu. Cost depends on inputs; use studiotwin_estimate_cost for an exact estimate.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "hdrAware": {
+            "type": "boolean",
+            "default": true
+          },
+          "icoFovDeg": {
+            "type": "number",
+            "default": 72,
+            "minimum": 30,
+            "maximum": 120
+          },
+          "icoSoftnessDeg": {
+            "type": "number",
+            "default": 14,
+            "minimum": 1,
+            "maximum": 60
+          },
+          "inputEnvmap": {
+            "type": "string",
+            "description": "A vpc::assets/<uuid> reference or a Base64 data URI."
+          },
+          "outputHeight": {
+            "type": "number",
+            "default": 8192,
+            "enum": [
+              2048,
+              4096,
+              8192
+            ]
+          },
+          "targetMp": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 128
+          },
+          "tileMode": {
+            "type": "string",
+            "default": "ico",
+            "enum": [
+              "ico",
+              "cubemap"
+            ]
+          },
+          "tileSize": {
+            "type": "number",
+            "minimum": 1
+          },
+          "upscaler": {
+            "type": "string",
+            "default": "pruna-p-image-upscale",
+            "enum": [
+              "pruna-p-image-upscale"
+            ]
+          }
+        },
+        "required": [
+          "inputEnvmap"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "environmentHDR": {
+            "type": "string"
+          },
+          "environmentPNG": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "environmentPNG"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "pano-sticker-placement",
+      "description": "StudioTwin generation function pano-sticker-placement. Costs 1 credits.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "coverage": {
+            "type": "number",
+            "description": "Panorama coverage in degrees. 360 = full sphere (yaw -180..180); 180 = front hemisphere (yaw -90..90).",
+            "default": 360,
+            "enum": [
+              180,
+              360
+            ]
+          },
+          "environmentPrompt": {
+            "type": "string",
+            "description": "Optional description of the whole environment, used as context to choose a fitting placement (e.g. 'grand cathedral interior at dusk').",
+            "default": ""
+          },
+          "sticker": {
+            "type": "string",
+            "description": "The sticker image to place, provided as a StudioTwin asset reference (vpc::assets/<uuid>) or Base64 data URI. Supported formats: PNG, JPG/JPEG, and WEBP."
+          }
+        },
+        "required": [
+          "sticker"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "hFovDeg": {
+            "type": "number",
+            "description": "Horizontal angular width of the sticker on the sphere (its prominence), clamped to [10,120]."
+          },
+          "pitchDeg": {
+            "type": "number",
+            "description": "Vertical direction, 0 = horizon, + = up, clamped to [-89,89]."
+          },
+          "rollDeg": {
+            "type": "number",
+            "description": "In-plane tilt of the sticker, usually 0."
+          },
+          "sourceAspect": {
+            "type": "number",
+            "description": "Sticker width/height, measured from the image. Feed this through to the stickers[] entry."
+          },
+          "vFovDeg": {
+            "type": "number",
+            "description": "Vertical angular extent implied by hFOV and the sticker aspect (informational; the worker recomputes from hFOV + sourceAspect)."
+          },
+          "yawDeg": {
+            "type": "number",
+            "description": "Horizontal direction on the sphere, 0 = front, + = right, wrapped to [-180,180)."
+          }
+        },
+        "required": [
+          "hFovDeg",
+          "pitchDeg",
+          "rollDeg",
+          "sourceAspect",
+          "vFovDeg",
+          "yawDeg"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "pano-stickers",
+      "description": "StudioTwin generation function pano-stickers. Cost depends on inputs; use studiotwin_estimate_cost for an exact estimate.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "cfg": {
+            "type": "number",
+            "default": 5
+          },
+          "coverage": {
+            "type": "number",
+            "default": 360
+          },
+          "denoise": {
+            "type": "number",
+            "default": 1
+          },
+          "loraStrength": {
+            "type": "number",
+            "default": 0.9
+          },
+          "negativePrompt": {
+            "type": "string",
+            "default": "text, worst quality, blurry, ugly"
+          },
+          "outputPreset": {
+            "type": "number",
+            "default": 2048
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "samplerName": {
+            "type": "string",
+            "default": "euler"
+          },
+          "scheduler": {
+            "type": "string",
+            "default": "simple"
+          },
+          "seed": {
+            "type": "number"
+          },
+          "steps": {
+            "type": "number",
+            "default": 20
+          },
+          "stickers": {
+            "type": "array",
+            "default": [],
+            "items": {
+              "type": "object",
+              "properties": {
+                "assetId": {
+                  "type": "string",
+                  "description": "A vpc::assets/<uuid> reference or a Base64 data URI."
+                },
+                "pitchDeg": {
+                  "type": "number"
+                },
+                "yawDeg": {
+                  "type": "number"
+                },
+                "hFovDeg": {
+                  "type": "number"
+                },
+                "rollDeg": {
+                  "type": "number",
+                  "default": 0
+                }
+              },
+              "required": [
+                "assetId",
+                "pitchDeg",
+                "yawDeg",
+                "hFovDeg"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "upscale": {
+            "type": "string",
+            "default": "none"
+          }
+        },
+        "required": [
+          "prompt",
+          "seed"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "panorama": {
+            "type": "string"
+          },
+          "panoramaHDR": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "panorama",
+          "panoramaHDR"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "text-to-material",
+      "description": "StudioTwin generation function text-to-material. Cost depends on inputs; use studiotwin_estimate_cost for an exact estimate.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "enablePromptExpansion": {
+            "type": "boolean",
+            "description": "Expand the prompt with an LLM for richer detail (~$0.0025 extra per call). Recommended for terse prompts.",
+            "default": true
+          },
+          "enableSafetyChecker": {
+            "type": "boolean",
+            "description": "Enable fal.ai's built-in content safety filter.",
+            "default": true
+          },
+          "imageSize": {
+            "type": "string",
+            "description": "Output dimensions: enum preset ('square_hd', 'square', 'portrait_4_3', 'portrait_16_9', 'landscape_4_3', 'landscape_16_9') or custom {width,height} object (dimensions in [1, 14142]).",
+            "default": "square_hd",
+            "enum": [
+              "square_hd",
+              "square",
+              "portrait_4_3",
+              "portrait_16_9",
+              "landscape_4_3",
+              "landscape_16_9"
+            ]
+          },
+          "maps": {
+            "type": "array",
+            "description": "Which PBR maps to predict. Defaults to all five.",
+            "default": [
+              "basecolor",
+              "normal",
+              "roughness",
+              "metalness",
+              "height"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "basecolor",
+                "normal",
+                "roughness",
+                "metalness",
+                "height"
+              ]
+            }
+          },
+          "maskUrl": {
+            "type": "string",
+            "description": "Optional inpainting mask (white = regenerate, black = preserve), provided as a StudioTwin asset reference (vpc::assets/<uuid>) or Base64 data URI. Supported formats: PNG, JPG/JPEG, and WEBP; maximum 20 MB. Requires referenceImageUrl."
+          },
+          "maxPollTimeMs": {
+            "type": "number",
+            "description": "Maximum time to wait for generation to complete (milliseconds). Default 10 minutes.",
+            "default": 600000,
+            "minimum": 10000
+          },
+          "numImages": {
+            "type": "number",
+            "description": "Number of variants to generate in one request (1-4). Each variant returns a full PBR set.",
+            "default": 1,
+            "minimum": 1,
+            "maximum": 4
+          },
+          "numInferenceSteps": {
+            "type": "number",
+            "description": "Denoising steps. Higher = better quality, slower. fal.ai Patina is optimized for 1-8 steps.",
+            "default": 8,
+            "minimum": 1,
+            "maximum": 8
+          },
+          "outputFormat": {
+            "type": "string",
+            "description": "Image encoding: 'png' (lossless, default), 'jpeg' (smaller), or 'webp'.",
+            "default": "png",
+            "enum": [
+              "png",
+              "jpeg",
+              "webp"
+            ]
+          },
+          "referenceImageUrl": {
+            "type": "string",
+            "description": "Optional reference image for image-guided generation (img2img), provided as a StudioTwin asset reference (vpc::assets/<uuid>) or Base64 data URI. Supported formats: PNG, JPG/JPEG, and WEBP; maximum 20 MB. Pair with 'strength' to control how much the output deviates."
+          },
+          "resolution": {
+            "type": "number",
+            "description": "Custom output width (pixels). Overrides imageSize enum when both width+height are provided.",
+            "minimum": 1,
+            "maximum": 14142
+          },
+          "seed": {
+            "type": "number",
+            "description": "Random seed for reproducible generation. Omit or set null for random."
+          },
+          "strength": {
+            "type": "number",
+            "description": "Image-to-image transformation intensity (0 < x \u2264 1). 1 = ignore reference; lower = stick closer to it.",
+            "default": 0.75,
+            "minimum": 0,
+            "maximum": 1
+          },
+          "textPrompt": {
+            "type": "string",
+            "description": "Text prompt describing the material to generate (e.g. 'weathered oak floorboards'). Max 2500 characters."
+          },
+          "tileSize": {
+            "type": "number",
+            "description": "Latent-space tile size (32-256). 128 \u2248 1024px output. Advanced parameter \u2014 use defaults unless tuning.",
+            "default": 128,
+            "minimum": 32,
+            "maximum": 256
+          },
+          "tileStride": {
+            "type": "number",
+            "description": "Latent-space tile stride (16-128). Advanced parameter.",
+            "default": 64,
+            "minimum": 16,
+            "maximum": 128
+          },
+          "tilingMode": {
+            "type": "string",
+            "description": "Seamless tiling direction: 'both' (omnidirectional), 'horizontal', or 'vertical'.",
+            "default": "both",
+            "enum": [
+              "both",
+              "horizontal",
+              "vertical"
+            ]
+          },
+          "upscaleFactor": {
+            "type": "number",
+            "description": "Upscale PBR maps after generation. 0 = none, 2 = 2\u00d7, 4 = 4\u00d7 (enables 8K output). Adds cost: $0.004/MP/map at 2\u00d7, $0.016/MP/map at 4\u00d7.",
+            "default": 0,
+            "enum": [
+              0,
+              2,
+              4
+            ]
+          }
+        },
+        "required": [
+          "resolution",
+          "textPrompt"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "albedo": {
+            "type": "string",
+            "description": "S3 presigned URL for the basecolor (albedo) map. 1-hour expiry."
+          },
+          "heightmap": {
+            "type": "string",
+            "description": "S3 presigned URL for the height/displacement map."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional metadata about the generation."
+          },
+          "metalness": {
+            "type": "string",
+            "description": "S3 presigned URL for the metalness map."
+          },
+          "normals": {
+            "type": "string",
+            "description": "S3 presigned URL for the tangent-space normal map."
+          },
+          "previewUrl": {
+            "type": "string",
+            "description": "S3 presigned URL for the composite preview render."
+          },
+          "requestId": {
+            "type": "string",
+            "description": "fal.ai request ID for traceability."
+          },
+          "roughness": {
+            "type": "string",
+            "description": "S3 presigned URL for the roughness map."
+          },
+          "s3Uris": {
+            "type": "object",
+            "description": "Raw s3:// URIs for each generated map (keyed by map type, e.g. { basecolor: 's3://...' })."
+          },
+          "seed": {
+            "type": "number",
+            "description": "Seed used for generation. Pass this back in a future request to reproduce the material."
+          }
+        },
+        "required": [
+          "metadata",
+          "s3Uris"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "texture-to-material",
+      "description": "StudioTwin generation function texture-to-material. Costs 20 credits.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "enableSafetyChecker": {
+            "type": "boolean",
+            "description": "Enable fal.ai's built-in content safety filter.",
+            "default": true
+          },
+          "maps": {
+            "type": "array",
+            "description": "Which PBR maps to predict. Defaults to all five.",
+            "default": [
+              "basecolor",
+              "normal",
+              "roughness",
+              "metalness",
+              "height"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "basecolor",
+                "normal",
+                "roughness",
+                "metalness",
+                "height"
+              ]
+            }
+          },
+          "maxPollTimeMs": {
+            "type": "number",
+            "description": "Maximum time to wait for generation to complete (milliseconds). Default 5 minutes (image-to-maps is fast).",
+            "default": 300000,
+            "minimum": 10000
+          },
+          "outputFormat": {
+            "type": "string",
+            "description": "Image encoding: 'png' (lossless), 'jpeg' (smaller), or 'webp'.",
+            "default": "png",
+            "enum": [
+              "png",
+              "jpeg",
+              "webp"
+            ]
+          },
+          "referenceTexture": {
+            "type": "string",
+            "description": "Input image to decompose (photograph or render), provided as a StudioTwin asset reference (vpc::assets/<uuid>) or Base64 data URI. Supported formats: PNG, JPG/JPEG, and WEBP; maximum 20 MB."
+          },
+          "seed": {
+            "type": "number",
+            "description": "Random seed for reproducibility. Omit or set null for random."
+          },
+          "syncMode": {
+            "type": "boolean",
+            "description": "If true, fal.ai returns data URIs inline instead of CDN URLs. Generally leave off \u2014 we stream CDN URLs to S3 ourselves.",
+            "default": false
+          }
+        },
+        "required": [
+          "referenceTexture"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "albedo": {
+            "type": "string",
+            "description": "S3 presigned URL for the basecolor (albedo) map. 1-hour expiry."
+          },
+          "heightmap": {
+            "type": "string",
+            "description": "S3 presigned URL for the height/displacement map."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional metadata about the generation."
+          },
+          "metalness": {
+            "type": "string",
+            "description": "S3 presigned URL for the metalness map."
+          },
+          "normals": {
+            "type": "string",
+            "description": "S3 presigned URL for the tangent-space normal map."
+          },
+          "previewUrl": {
+            "type": "string",
+            "description": "S3 presigned URL for the composite preview render (if returned)."
+          },
+          "requestId": {
+            "type": "string",
+            "description": "fal.ai request ID for traceability."
+          },
+          "roughness": {
+            "type": "string",
+            "description": "S3 presigned URL for the roughness map."
+          },
+          "s3Uris": {
+            "type": "object",
+            "description": "Raw s3:// URIs for each generated map (keyed by map type)."
+          },
+          "seed": {
+            "type": "number",
+            "description": "Seed used for generation."
+          }
+        },
+        "required": [
+          "metadata",
+          "s3Uris"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "image-to-material",
+      "description": "StudioTwin generation function image-to-material. Cost depends on inputs; use studiotwin_estimate_cost for an exact estimate.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "enablePromptExpansion": {
+            "type": "boolean",
+            "description": "Expand the prompt with an LLM for richer detail.",
+            "default": true
+          },
+          "enableSafetyChecker": {
+            "type": "boolean",
+            "description": "Enable fal.ai's built-in content safety filter.",
+            "default": true
+          },
+          "imageSize": {
+            "type": "string",
+            "description": "Output tile dimensions: enum preset or custom {width,height}.",
+            "default": "square_hd",
+            "enum": [
+              "square_hd",
+              "square",
+              "portrait_4_3",
+              "portrait_16_9",
+              "landscape_4_3",
+              "landscape_16_9"
+            ]
+          },
+          "maps": {
+            "type": "array",
+            "description": "Which PBR maps to predict. Defaults to all five.",
+            "default": [
+              "basecolor",
+              "normal",
+              "roughness",
+              "metalness",
+              "height"
+            ],
+            "items": {
+              "type": "string",
+              "enum": [
+                "basecolor",
+                "normal",
+                "roughness",
+                "metalness",
+                "height"
+              ]
+            }
+          },
+          "maxPollTimeMs": {
+            "type": "number",
+            "description": "Maximum time to wait for generation to complete (milliseconds). Default 10 minutes.",
+            "default": 600000,
+            "minimum": 10000
+          },
+          "numImages": {
+            "type": "number",
+            "description": "Number of variant extractions (1-4).",
+            "default": 1,
+            "minimum": 1,
+            "maximum": 4
+          },
+          "numInferenceSteps": {
+            "type": "number",
+            "description": "Denoising steps (1-8).",
+            "default": 8,
+            "minimum": 1,
+            "maximum": 8
+          },
+          "outputFormat": {
+            "type": "string",
+            "description": "Image encoding: 'png' (lossless, default), 'jpeg' (smaller), or 'webp'.",
+            "default": "png",
+            "enum": [
+              "png",
+              "jpeg",
+              "webp"
+            ]
+          },
+          "referenceImage": {
+            "type": "string",
+            "description": "Source image to extract from, provided as a StudioTwin asset reference (vpc::assets/<uuid>) or Base64 data URI. Supported formats: PNG, JPG/JPEG, and WEBP; maximum 20 MB."
+          },
+          "resolution": {
+            "type": "number",
+            "description": "Custom output width (pixels). Overrides imageSize enum when paired with height.",
+            "minimum": 1,
+            "maximum": 14142
+          },
+          "seed": {
+            "type": "number",
+            "description": "Random seed for reproducibility. Omit or set null for random."
+          },
+          "strength": {
+            "type": "number",
+            "description": "Extraction intensity (0 < x \u2264 1). Higher = more creative liberty, lower = stays closer to the source region.",
+            "default": 0.75,
+            "minimum": 0,
+            "maximum": 1
+          },
+          "textPrompt": {
+            "type": "string",
+            "description": "Text prompt describing which texture/material to extract from the image (e.g. 'the brass hardware', 'the oak wood grain'). Max 2500 characters."
+          },
+          "tileSize": {
+            "type": "number",
+            "description": "Latent-space tile size (32-256). Advanced.",
+            "default": 128,
+            "minimum": 32,
+            "maximum": 256
+          },
+          "tileStride": {
+            "type": "number",
+            "description": "Latent-space tile stride (16-128). Advanced.",
+            "default": 64,
+            "minimum": 16,
+            "maximum": 128
+          },
+          "tilingMode": {
+            "type": "string",
+            "description": "Seamless tiling direction: 'both' (omnidirectional), 'horizontal', or 'vertical'.",
+            "default": "both",
+            "enum": [
+              "both",
+              "horizontal",
+              "vertical"
+            ]
+          },
+          "upscaleFactor": {
+            "type": "number",
+            "description": "Upscale PBR maps after generation. 0 = none, 2 = 2\u00d7, 4 = 4\u00d7 (enables 8K output).",
+            "default": 0,
+            "enum": [
+              0,
+              2,
+              4
+            ]
+          }
+        },
+        "required": [
+          "referenceImage",
+          "resolution",
+          "textPrompt"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "albedo": {
+            "type": "string",
+            "description": "S3 presigned URL for the basecolor (albedo) map. 1-hour expiry."
+          },
+          "heightmap": {
+            "type": "string",
+            "description": "S3 presigned URL for the height/displacement map."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional metadata about the generation."
+          },
+          "metalness": {
+            "type": "string",
+            "description": "S3 presigned URL for the metalness map."
+          },
+          "normals": {
+            "type": "string",
+            "description": "S3 presigned URL for the tangent-space normal map."
+          },
+          "previewUrl": {
+            "type": "string",
+            "description": "S3 presigned URL for the composite preview of the extracted tile."
+          },
+          "requestId": {
+            "type": "string",
+            "description": "fal.ai request ID for traceability."
+          },
+          "roughness": {
+            "type": "string",
+            "description": "S3 presigned URL for the roughness map."
+          },
+          "s3Uris": {
+            "type": "object",
+            "description": "Raw s3:// URIs for each generated map (keyed by map type)."
+          },
+          "seed": {
+            "type": "number",
+            "description": "Seed used for generation."
+          }
+        },
+        "required": [
+          "metadata",
+          "s3Uris"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "image-to-3d-mesh",
+      "description": "StudioTwin generation function image-to-3d-mesh. Costs 25 credits.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "referenceImage": {
+            "type": "string",
+            "description": "A vpc::assets/<uuid> reference or a Base64 data URI."
+          },
+          "seed": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "referenceImage",
+          "seed"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "mesh": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "mesh"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "tripo-image-to-3d-mesh",
+      "description": "StudioTwin generation function tripo-image-to-3d-mesh. Cost depends on inputs; use studiotwin_estimate_cost for an exact estimate.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "autoScale": {
+            "type": "boolean",
+            "description": "Whether to automatically scale the model to real-world dimensions in meters.",
+            "default": false
+          },
+          "compression": {
+            "type": "string",
+            "description": "Output compression. 'none' omits Tripo's compress option; 'geometry' enables Meshopt geometry compression for GLB triangle output.",
+            "default": "none",
+            "enum": [
+              "none",
+              "geometry"
+            ]
+          },
+          "enableImageAutofix": {
+            "type": "boolean",
+            "description": "Whether to optimize the input image for better generation results (takes longer). Default: false.",
+            "default": false
+          },
+          "exportOrientation": {
+            "type": "string",
+            "description": "Optional forward axis for the exported model. Leave unset when later Tripo post-processing is planned.",
+            "enum": [
+              "+x",
+              "-x",
+              "-y",
+              "+y"
+            ]
+          },
+          "exportUv": {
+            "type": "boolean",
+            "description": "Whether to perform UV unwrapping during generation. Disabling it speeds up generation and reduces mesh size. Default: true.",
+            "default": true
+          },
+          "faceLimit": {
+            "type": "number",
+            "description": "Maximum face count. P1 supports 50\u201320,000; P2 supports 48\u201350,000 for triangles or 48\u201325,000 for quads; v3.1 supports up to 2,000,000."
+          },
+          "generateParts": {
+            "type": "boolean",
+            "description": "Output segmented 3D models where each part is individually editable. v3.1 only. Requires texture=false and pbr=false. +20 credits. Incompatible with quad=true.",
+            "default": false
+          },
+          "geometryQuality": {
+            "type": "string",
+            "description": "Geometry detail level. 'detailed' produces maximum-detail meshes for intricate models. 'standard' is balanced. v3.1 only. +20 credits.",
+            "default": "standard",
+            "enum": [
+              "standard",
+              "detailed"
+            ]
+          },
+          "maxPollTimeMs": {
+            "type": "number",
+            "description": "Maximum time to wait for generation to complete (milliseconds). Default: 900000 (15 minutes).",
+            "default": 900000,
+            "minimum": 10000
+          },
+          "modelVersion": {
+            "type": "string",
+            "description": "Tripo3D model version. P2 is the next-generation P Series preview with quad output.",
+            "default": "P1-20260311",
+            "enum": [
+              "P1-20260311",
+              "P2-20260801",
+              "v3.1-20260211"
+            ]
+          },
+          "needPbr": {
+            "type": "boolean",
+            "description": "Whether to generate PBR textures (basecolor, normal, roughness, metalness) embedded in the output model.",
+            "default": true
+          },
+          "needQuadMesh": {
+            "type": "boolean",
+            "description": "Whether to output a quad-dominant mesh vs. a triangle mesh. Supported by P2 and v3.1.",
+            "default": false
+          },
+          "orientation": {
+            "type": "string",
+            "description": "Auto-rotate the model to align with the original image. 'align_image' enables this and only affects textured output.",
+            "default": "default",
+            "enum": [
+              "default",
+              "align_image"
+            ]
+          },
+          "referenceImage": {
+            "type": "string",
+            "description": "Input image (photograph, render, or illustration) provided as a StudioTwin asset reference (vpc::assets/<uuid>) or Base64 data URI. Supported formats: PNG, JPG/JPEG, and WEBP; maximum 20 MB."
+          },
+          "seed": {
+            "type": "number",
+            "description": "Random seed (0\u20132\u00b3\u00b9\u22121) for reproducible geometry generation. Omit for a random result."
+          },
+          "smartLowPoly": {
+            "type": "boolean",
+            "description": "Generate low-poly meshes with hand-crafted topology. Best for simple inputs. May fail on complex models. v3.1 only. +10 credits.",
+            "default": false
+          },
+          "texture": {
+            "type": "boolean",
+            "description": "Whether to generate texture maps for the model. When false, the result is bare geometry. Default: true.",
+            "default": true
+          },
+          "textureAlignment": {
+            "type": "string",
+            "description": "Prioritization of texture alignment in the 3D model. 'original_image' (default) favors visual fidelity; 'geometry' favors 3D structural accuracy.",
+            "default": "original_image",
+            "enum": [
+              "original_image",
+              "geometry"
+            ]
+          },
+          "textureQuality": {
+            "type": "string",
+            "description": "Texture quality for PBR maps. 'extreme' requests Tripo's highest-fidelity 8K textures.",
+            "default": "standard",
+            "enum": [
+              "standard",
+              "detailed",
+              "extreme"
+            ]
+          },
+          "textureSeed": {
+            "type": "number",
+            "description": "Seed for texture generation. Keep the model seed and vary this value to retain geometry while varying textures."
+          }
+        },
+        "required": [
+          "referenceImage"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "mesh": {
+            "type": "string",
+            "description": "S3 presigned URL for the generated 3D mesh file (GLB for triangle output or FBX when quad=true, 1-hour expiry). Prefers the PBR-textured variant if available, otherwise the base model."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional metadata about the generation."
+          }
+        },
+        "required": [
+          "mesh",
+          "metadata"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "tripo-rig-check",
+      "description": "StudioTwin generation function tripo-rig-check. Costs 0 credits.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sourceModel": {
+            "type": "string",
+            "description": "Source GLB provided as a StudioTwin asset reference (vpc::assets/<uuid>) or Base64 data URI; maximum 150 MB."
+          }
+        },
+        "required": [
+          "sourceModel"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "creditCost": {
+            "type": "number",
+            "description": "Service credits charged; always zero for this free check."
+          },
+          "processingTime": {
+            "type": "number",
+            "description": "Wall-clock processing time in seconds."
+          },
+          "providerCredits": {
+            "type": "number",
+            "description": "Provider credits consumed; always zero for this free check."
+          },
+          "rigCheckTaskId": {
+            "type": "string",
+            "description": "Tripo rig-check task ID."
+          },
+          "riggable": {
+            "type": "boolean",
+            "description": "Whether Tripo reports the model as compatible with auto-rig."
+          },
+          "rigType": {
+            "type": "string",
+            "description": "Provider-selected rig type when the model is riggable."
+          }
+        },
+        "required": [
+          "creditCost",
+          "processingTime",
+          "providerCredits",
+          "rigCheckTaskId",
+          "riggable"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "blender-auto-rig",
+      "description": "StudioTwin generation function blender-auto-rig. Costs 15 credits.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mesh": {
+            "type": "string",
+            "description": "A vpc::assets/<uuid> reference or a Base64 data URI."
+          }
+        },
+        "required": [
+          "mesh"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "audit": {
+            "type": "string"
+          },
+          "mesh": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "audit",
+          "mesh"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "tripo-auto-rig",
+      "description": "StudioTwin generation function tripo-auto-rig. Costs 45 credits.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "rigType": {
+            "type": "string",
+            "description": "Rig type used only when skipRigCheck is true; defaults to biped.",
+            "enum": [
+              "biped",
+              "quadruped",
+              "hexapod",
+              "octopod",
+              "avian",
+              "serpentine",
+              "aquatic"
+            ]
+          },
+          "skipRigCheck": {
+            "type": "boolean",
+            "description": "Skip the free riggability check and submit paid auto-rigging directly. Required true for FBX because Tripo rig-check supports GLB only.",
+            "default": false
+          },
+          "sourceModel": {
+            "type": "string",
+            "description": "Source GLB or FBX provided as a StudioTwin asset reference (vpc::assets/<uuid>) or Base64 data URI. Maximum 150 MB overall; FBX is limited to 20 MB."
+          }
+        },
+        "required": [
+          "sourceModel"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "mesh": {
+            "type": "string",
+            "description": "One-hour presigned S3 URL for the validated rigged GLB or FBX; omitted when a GLB is not riggable."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Compatibility, task IDs, actual outputFormat, provider credits, marked-up service credits, and processing time."
+          }
+        },
+        "required": [
+          "metadata"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "tripo-retopology",
+      "description": "StudioTwin generation function tripo-retopology. Cost depends on inputs; use studiotwin_estimate_cost for an exact estimate.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "bakeTextures": {
+            "type": "boolean",
+            "description": "Bake textures in Smart mode. The worker defaults it to true only after mode validation. Unsupported and rejected in Basic mode."
+          },
+          "faceLimit": {
+            "type": "number",
+            "description": "Smart: optional, 500\u201320,000 triangles or 500\u201310,000 quads. Basic: required, up to 2,000,000 triangles or 150,000 quads."
+          },
+          "mode": {
+            "type": "string",
+            "description": "Smart v2.0 retopology (30 provider credits) or Basic v1.0 decimation (10 provider credits).",
+            "default": "smart",
+            "enum": [
+              "smart",
+              "basic"
+            ]
+          },
+          "sourceModel": {
+            "type": "string",
+            "description": "Source model provided as a StudioTwin asset reference (vpc::assets/<uuid>) or Base64 data URI. Supported formats: GLB, GLTF, FBX, OBJ, and STL; maximum 150 MB."
+          },
+          "topology": {
+            "type": "string",
+            "description": "Triangle or quad output topology.",
+            "enum": [
+              "triangles",
+              "quads"
+            ]
+          }
+        },
+        "required": [
+          "sourceModel",
+          "topology"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "mesh": {
+            "type": "string",
+            "description": "Stable s3:// URI for the retopologized GLB."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Task, settings, provider billing, service billing, and timing metadata."
+          }
+        },
+        "required": [
+          "mesh",
+          "metadata"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "text-to-sound-effect",
+      "description": "StudioTwin generation function text-to-sound-effect. Cost depends on inputs; use studiotwin_estimate_cost for an exact estimate.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "duration": {
+            "type": "number",
+            "description": "Optional generated sound duration in seconds. Omit to let ElevenLabs choose the duration from the prompt.",
+            "minimum": 0.5,
+            "maximum": 30
+          },
+          "loop": {
+            "type": "boolean",
+            "description": "Whether to generate an audio loop with a smooth transition between end and beginning. Supported by the default eleven_text_to_sound_v2 model.",
+            "default": false
+          },
+          "modelId": {
+            "type": "string",
+            "description": "ElevenLabs model ID to use for sound generation.",
+            "default": "eleven_text_to_sound_v2"
+          },
+          "outputFormat": {
+            "type": "string",
+            "description": "Requested ElevenLabs output format. PCM options are delivered as WAV files containing signed 16-bit little-endian stereo audio.",
+            "default": "pcm_48000",
+            "enum": [
+              "mp3_22050_32",
+              "mp3_24000_48",
+              "mp3_44100_32",
+              "mp3_44100_64",
+              "mp3_44100_96",
+              "mp3_44100_128",
+              "mp3_44100_192",
+              "pcm_8000",
+              "pcm_16000",
+              "pcm_22050",
+              "pcm_24000",
+              "pcm_32000",
+              "pcm_44100",
+              "pcm_48000",
+              "ulaw_8000",
+              "alaw_8000",
+              "opus_48000_32",
+              "opus_48000_64",
+              "opus_48000_96",
+              "opus_48000_128",
+              "opus_48000_192"
+            ]
+          },
+          "prompt": {
+            "type": "string",
+            "description": "Text prompt describing the sound effect to generate (e.g. 'cinematic brass braam with deep sub impact'). Max 450 characters.",
+            "maxLength": 450
+          },
+          "promptInfluence": {
+            "type": "number",
+            "description": "How closely the generation should follow the prompt. Higher values are more literal and less variable.",
+            "default": 0.3,
+            "minimum": 0,
+            "maximum": 1
+          },
+          "timeoutMs": {
+            "type": "number",
+            "description": "Maximum HTTP request time in milliseconds. Default 5 minutes.",
+            "default": 300000,
+            "minimum": 10000,
+            "maximum": 900000
+          }
+        },
+        "required": [
+          "prompt"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "audioClip": {
+            "type": "string",
+            "description": "S3 presigned URL for the generated sound effect. 1-hour expiry."
+          },
+          "contentType": {
+            "type": "string",
+            "description": "MIME type of the generated audio file."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Generation metadata including requested and delivered formats, generatedDurationSeconds, PCM audio properties when applicable, prompt, model, request ID, character cost, and timing."
+          },
+          "s3Uri": {
+            "type": "string",
+            "description": "Raw s3:// URI for the generated sound effect."
+          },
+          "sizeBytes": {
+            "type": "number",
+            "description": "Size of the generated audio file in bytes."
+          }
+        },
+        "required": [
+          "audioClip",
+          "contentType",
+          "metadata",
+          "s3Uri",
+          "sizeBytes"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "prompt-to-dart-translation",
+      "description": "StudioTwin generation function prompt-to-dart-translation. Costs 1 credits.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "inputPrompt": {
+            "type": "string",
+            "description": "Key-value pairs for template variable replacement"
+          },
+          "maxTokens": {
+            "type": "number",
+            "description": "Maximum number of tokens for the response",
+            "default": 200
+          },
+          "prompt": {
+            "type": "string",
+            "description": "Template prompt with {{varName}} placeholders for variable replacement"
+          },
+          "temperature": {
+            "type": "number",
+            "description": "Temperature for generation (0.0 to 1.0, higher = more creative)",
+            "default": 0.7
+          }
+        },
+        "required": [
+          "inputPrompt",
+          "prompt"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "generatedOutput": {
+            "type": "string",
+            "description": "Generated output from the prompt"
+          }
+        },
+        "required": [
+          "generatedOutput"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "openai-gpt-image-2-v4-fn",
+      "description": "StudioTwin generation function openai-gpt-image-2-v4-fn. Cost depends on inputs; use studiotwin_estimate_cost for an exact estimate.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "background": {
+            "type": "string",
+            "description": "Output background handling. 'opaque' (default) produces a solid background. 'transparent' is NOT supported by GPT Image 2.5 \u2014 the tool will drop this parameter and surface a warning. 'auto' lets the model decide.",
+            "default": "opaque",
+            "enum": [
+              "opaque",
+              "transparent",
+              "auto"
+            ]
+          },
+          "enhancePrompt": {
+            "type": "boolean",
+            "description": "Prefix the user prompt with optional 3D concept-image instructions before sending it to OpenAI. Disable to send the prompt unchanged.",
+            "default": true
+          },
+          "height": {
+            "type": "number",
+            "description": "Custom output height (pixels). Same constraints as 'width'.",
+            "minimum": 16,
+            "maximum": 3840
+          },
+          "masks": {
+            "type": "array",
+            "description": "Optional inpainting mask when a source asset is supplied. PNG where transparent pixels indicate the area to regenerate; opaque pixels are preserved. Dimensions must exactly match the source image.",
+            "maxItems": 1,
+            "items": {
+              "type": "file",
+              "allowedTypes": [
+                "png"
+              ],
+              "fileGroup": "images",
+              "maxSizeMb": 50
+            }
+          },
+          "maxPollTimeMs": {
+            "type": "number",
+            "description": "Maximum wall-clock time for the whole job (milliseconds). Default 5 minutes. The OpenAI endpoint is synchronous (no polling needed), but this ceiling protects against stuck requests.",
+            "default": 300000,
+            "minimum": 10000
+          },
+          "mode": {
+            "type": "string",
+            "description": "Required semantic operation mode. Generate may use an optional source image as a reference; edit requires one source image.",
+            "enum": [
+              "edit",
+              "generate"
+            ]
+          },
+          "n": {
+            "type": "number",
+            "description": "Number of variants to generate in one call (1\u20134). Each variant counts separately against billing. When n>1, the tool returns an 'imageUrls' array instead of 'imageUrl'.",
+            "default": 1,
+            "minimum": 1,
+            "maximum": 4
+          },
+          "prompt": {
+            "type": "string",
+            "description": "Text prompt describing the desired image (generate mode) or the edit instruction (edit mode). Required."
+          },
+          "quality": {
+            "type": "string",
+            "description": "Render quality. 'medium' is the recommended default (best cost/quality balance). Token cost scales roughly with output pixel area.",
+            "default": "medium",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          },
+          "seed": {
+            "type": "number",
+            "description": "Random seed for reproducible generation. Only honoured in generate mode; GPT Image 2.5 does not reliably echo back seeds in edit mode, so the seed will not be surfaced in outputs for edits."
+          },
+          "size": {
+            "type": "string",
+            "description": "Output resolution preset. Either pass one of these strings, OR pass 'width'+'height' integers. If both are provided, 'size' wins. Use 'auto' to let OpenAI pick the resolution.",
+            "default": "1024x1024",
+            "enum": [
+              "auto",
+              "832x832",
+              "768x1152",
+              "720x1280",
+              "1280x720",
+              "1024x1024",
+              "1024x1536",
+              "1536x1024",
+              "1152x2048",
+              "2048x1152",
+              "1536x2304",
+              "1440x2560",
+              "2560x1440",
+              "2048x2048",
+              "2048x3072",
+              "2160x3840",
+              "2880x2880",
+              "3840x2160"
+            ]
+          },
+          "sourceAsset": {
+            "type": "string",
+            "description": "Single input image provided as a StudioTwin asset reference (vpc::assets/<uuid>) or Base64 data URI. Optional reference in generate mode; required source image in edit mode."
+          },
+          "width": {
+            "type": "number",
+            "description": "Custom output width (pixels). Alternative to 'size' preset. Must be divisible by 16, \u22643840, and combine with 'height' to satisfy OpenAI's resolution constraints (pixels between 655,360 and 8,294,400, aspect ratio \u22643:1). If the resolved (width,height) is not in the preset list, the tool snaps to the nearest preset (tie \u2192 smaller).",
+            "minimum": 16,
+            "maximum": 3840
+          }
+        },
+        "required": [
+          "mode",
+          "prompt"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "imageUrl": {
+            "type": "string",
+            "description": "S3 URI of the generated/edited image. Returned when n=1."
+          },
+          "imageUrls": {
+            "type": "array",
+            "description": "Array of S3 URIs, one per variant. Returned when n>1.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional job metadata."
+          },
+          "mode": {
+            "type": "string",
+            "description": "Requested semantic operation mode: 'edit' or 'generate'. Generate with a reference still reports 'generate'."
+          },
+          "model": {
+            "type": "string",
+            "description": "OpenAI model identifier used."
+          },
+          "prompt": {
+            "type": "object",
+            "description": "Prompt provenance: the caller's original prompt, the effective prompt sent to OpenAI, and enhancement metadata."
+          },
+          "quality": {
+            "type": "string",
+            "description": "Quality tier used."
+          },
+          "size": {
+            "type": "string",
+            "description": "Actual output resolution returned by OpenAI (WIDTHxHEIGHT). May differ from the requested size when snapping occurred."
+          },
+          "sizeRequested": {
+            "type": "string",
+            "description": "What the caller originally requested. 'WxH' for explicit sizes, 'auto' if size='auto' was passed."
+          },
+          "sizeSnapped": {
+            "type": "boolean",
+            "description": "True if the tool changed the resolution client-side (caller asked for a size not in the preset list)."
+          },
+          "sourceAsset": {
+            "type": "string",
+            "description": "Input source asset S3 URI, propagated unchanged when supplied."
+          },
+          "usage": {
+            "type": "object",
+            "description": "OpenAI token usage pass-through: { input_tokens, output_tokens, total_tokens, input_tokens_details: { image_tokens, text_tokens }, output_tokens_details: { image_tokens, text_tokens } }."
+          }
+        },
+        "required": [
+          "metadata",
+          "mode",
+          "model",
+          "prompt",
+          "quality",
+          "size",
+          "sizeRequested",
+          "sizeSnapped",
+          "usage"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "concept-lab-img-fn",
+      "description": "StudioTwin generation function concept-lab-img-fn. Cost depends on inputs; use studiotwin_estimate_cost for an exact estimate.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "background": {
+            "type": "string",
+            "description": "Output background handling. 'opaque' (default) produces a solid background. 'transparent' is NOT supported by GPT Image 2.5 \u2014 the tool will drop this parameter and surface a warning. 'auto' lets the model decide.",
+            "default": "opaque",
+            "enum": [
+              "opaque",
+              "transparent",
+              "auto"
+            ]
+          },
+          "conceptType": {
+            "type": "string",
+            "description": "Canonical Concept Lab concept type used to apply type-specific image guidance.",
+            "enum": [
+              "object",
+              "character",
+              "environmentMap",
+              "world"
+            ]
+          },
+          "enhancePrompt": {
+            "type": "boolean",
+            "description": "Use Gemini to rewrite the user prompt into a concept-aware image-generation prompt. When disabled, deterministic concept guidance is appended without a Gemini call.",
+            "default": true
+          },
+          "height": {
+            "type": "number",
+            "description": "Custom output height (pixels). Same constraints as 'width'.",
+            "minimum": 16,
+            "maximum": 3840
+          },
+          "masks": {
+            "type": "array",
+            "description": "Optional inpainting mask when a source asset is supplied. PNG where transparent pixels indicate the area to regenerate; opaque pixels are preserved. Dimensions must exactly match the source image.",
+            "maxItems": 1,
+            "items": {
+              "type": "file",
+              "allowedTypes": [
+                "png"
+              ],
+              "fileGroup": "images",
+              "maxSizeMb": 50
+            }
+          },
+          "mode": {
+            "type": "string",
+            "description": "Required semantic operation mode. Generate may use an optional source image as a reference; edit requires one source image.",
+            "enum": [
+              "edit",
+              "generate"
+            ]
+          },
+          "n": {
+            "type": "number",
+            "description": "Number of variants to generate in one call (1\u20134). Each variant counts separately against billing. When n>1, the tool returns an 'imageUrls' array instead of 'imageUrl'.",
+            "default": 1,
+            "minimum": 1,
+            "maximum": 4
+          },
+          "prompt": {
+            "type": "string",
+            "description": "Text prompt describing the desired image (generate mode) or the edit instruction (edit mode). Required."
+          },
+          "quality": {
+            "type": "string",
+            "description": "Render quality. 'medium' is the recommended default (best cost/quality balance). Token cost scales roughly with output pixel area.",
+            "default": "medium",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          },
+          "referenceAssets": {
+            "type": "array",
+            "description": "Optional reference image assets.",
+            "items": {
+              "type": "file",
+              "allowedTypes": [
+                "png",
+                "jpg",
+                "jpeg",
+                "webp"
+              ],
+              "fileGroup": "images",
+              "maxSizeMb": 50
+            }
+          },
+          "seed": {
+            "type": "number",
+            "description": "Random seed for reproducible generation. Only honoured in generate mode; GPT Image 2.5 does not reliably echo back seeds in edit mode, so the seed will not be surfaced in outputs for edits."
+          },
+          "size": {
+            "type": "string",
+            "description": "Output resolution preset. Either pass one of these strings, OR pass 'width'+'height' integers. If both are provided, 'size' wins. Use 'auto' to let OpenAI pick the resolution.",
+            "default": "1024x1024",
+            "enum": [
+              "auto",
+              "832x832",
+              "768x1152",
+              "720x1280",
+              "1280x720",
+              "1024x1024",
+              "1024x1536",
+              "1536x1024",
+              "1152x2048",
+              "2048x1152",
+              "1536x2304",
+              "1440x2560",
+              "2560x1440",
+              "2048x2048",
+              "2048x3072",
+              "2160x3840",
+              "2880x2880",
+              "3840x2160"
+            ]
+          },
+          "sourceAsset": {
+            "type": "string",
+            "description": "Single input image provided as a StudioTwin asset reference (vpc::assets/<uuid>) or Base64 data URI. Optional reference in generate mode; required source image in edit mode."
+          },
+          "width": {
+            "type": "number",
+            "description": "Custom output width (pixels). Alternative to 'size' preset. Must be divisible by 16, \u22643840, and combine with 'height' to satisfy OpenAI's resolution constraints (pixels between 655,360 and 8,294,400, aspect ratio \u22643:1). If the resolved (width,height) is not in the preset list, the tool snaps to the nearest preset (tie \u2192 smaller).",
+            "minimum": 16,
+            "maximum": 3840
+          }
+        },
+        "required": [
+          "conceptType",
+          "mode",
+          "prompt"
+        ],
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "conceptType": {
+            "type": "string",
+            "description": "Canonical Concept Lab type used for prompt guidance."
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "S3 URI of the generated/edited image. Returned when n=1."
+          },
+          "imageUrls": {
+            "type": "array",
+            "description": "Array of S3 URIs, one per variant. Returned when n>1.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional job metadata."
+          },
+          "mode": {
+            "type": "string",
+            "description": "Requested semantic operation mode: 'edit' or 'generate'. Generate with a reference still reports 'generate'."
+          },
+          "model": {
+            "type": "string",
+            "description": "OpenAI model identifier used."
+          },
+          "prompt": {
+            "type": "object",
+            "description": "Prompt provenance: the caller's original prompt, the effective prompt sent to OpenAI, and enhancement metadata."
+          },
+          "quality": {
+            "type": "string",
+            "description": "Quality tier used."
+          },
+          "size": {
+            "type": "string",
+            "description": "Actual output resolution returned by OpenAI (WIDTHxHEIGHT). May differ from the requested size when snapping occurred."
+          },
+          "sizeRequested": {
+            "type": "string",
+            "description": "What the caller originally requested. 'WxH' for explicit sizes, 'auto' if size='auto' was passed."
+          },
+          "sizeSnapped": {
+            "type": "boolean",
+            "description": "True if the tool changed the resolution client-side (caller asked for a size not in the preset list)."
+          },
+          "sourceAsset": {
+            "type": "string",
+            "description": "Input source asset S3 URI, propagated unchanged when supplied."
+          },
+          "usage": {
+            "type": "object",
+            "description": "OpenAI token usage pass-through: { input_tokens, output_tokens, total_tokens, input_tokens_details: { image_tokens, text_tokens }, output_tokens_details: { image_tokens, text_tokens } }."
+          }
+        },
+        "required": [
+          "conceptType",
+          "metadata",
+          "mode",
+          "model",
+          "prompt",
+          "quality",
+          "size",
+          "sizeRequested",
+          "sizeSnapped",
+          "usage"
+        ],
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "studiotwin_get_job_status",
+      "description": "Get the status and outputs of a previously submitted generation job. Poll this after any generation tool call until status is COMPLETE or FAILED. Outputs include presigned download URLs and asset references.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string",
+            "description": "The job uuid returned by a generation tool."
+          }
+        },
+        "required": [
+          "jobId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "studiotwin_estimate_cost",
+      "description": "Estimate the credit cost of a generation before running it, and check whether the wallet balance covers it. Use before expensive generations.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "functionName": {
+            "type": "string",
+            "description": "The generation tool / function name."
+          },
+          "inputs": {
+            "type": "object",
+            "description": "The inputs you intend to send."
+          }
+        },
+        "required": [
+          "functionName"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "studiotwin_get_credit_balance",
+      "description": "Get the current credit balance of the authenticated wallet.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "studiotwin_list_my_jobs",
+      "description": "List recent generation jobs for the authenticated user (newest first).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "number",
+            "description": "Max jobs to return (default 10)."
+          },
+          "offset": {
+            "type": "number",
+            "description": "Pagination offset (default 0)."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "studiotwin_cancel_job",
+      "description": "Cancel a generation job you own that is still queued or submitted (not yet running). Refunds reserved credits. Fails if the job belongs to another user or is past the cancellable stage.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string",
+            "description": "The job uuid returned by a generation tool."
+          }
+        },
+        "required": [
+          "jobId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "studiotwin_list_my_assets",
+      "description": "List assets owned by the authenticated user (pinned first). With an org API key, this is the key minter's library \u2014 the same user identity used when creating jobs and uploading assets. Filter by category or legacy jpg/png extension aliases.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Category (image, image_sequence, 3d_model, animation, audio, video, unknown) or jpg/png suffix alias. image_sequence is set only after archive validation.",
+            "enum": [
+              "image",
+              "image_sequence",
+              "3d_model",
+              "animation",
+              "audio",
+              "video",
+              "unknown",
+              "jpg",
+              "png"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "studiotwin_upload_asset",
+      "description": "Create an upload session for the authenticated user's asset library. Returns an S3 presigned POST with a url and required form fields. Upload one or more files directly to that URL as multipart/form-data, including every returned field and the file, then call studiotwin_complete_asset_upload with the session uuid.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "studiotwin_complete_asset_upload",
+      "description": "Close a StudioTwin asset upload session after its presigned S3 POST uploads finish. Creates asset records for the uploaded files and returns their asset uuids for use as generation inputs.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "uploadSessionId": {
+            "type": "string",
+            "description": "The upload session uuid returned by studiotwin_upload_asset."
+          },
+          "entries": {
+            "type": "array",
+            "description": "Required for a tar upload: ordered ustar entries with header offsets.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "offset": {
+                  "type": "integer"
+                },
+                "size": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "name",
+                "offset",
+                "size"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "uploadSessionId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "studiotwin_resolve_asset",
+      "description": "Resolve an owned asset by uuid \u2014 returns metadata plus a presigned download URL. Same as GET /assets/:uuid.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "assetId": {
+            "type": "string",
+            "description": "Asset uuid from upload, list, or job outputs."
+          }
+        },
+        "required": [
+          "assetId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "studiotwin_conceptlab_create",
+      "title": "Create ConceptLab Concept",
+      "description": "Create an empty draft Concept from a type and non-empty name. Does not generate media or consume credits.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "conceptType": {
+            "type": "string",
+            "enum": [
+              "object",
+              "character",
+              "environmentMap",
+              "world"
+            ],
+            "description": "Kind of creative subject represented by the Concept."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Concept name."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Caller-defined Concept metadata.",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "conceptType",
+          "name"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+            "description": "Concept UUID."
+          },
+          "conceptType": {
+            "type": "string",
+            "enum": [
+              "object",
+              "character",
+              "environmentMap",
+              "world"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "ownerOrganizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdByUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sharedWithUsers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "pendingInvites": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "assets": {
+            "type": "array",
+            "description": "Completed, pending, and retained unsuccessful image attempts ordered by asset createdAt ascending, with missing timestamps first.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "assetId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid",
+                  "description": "Null while generation is pending or when an unsuccessful submitted operation is retained."
+                },
+                "isActive": {
+                  "type": "boolean"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When the completed asset became related to the Concept."
+                },
+                "operation": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "upload",
+                        "generate",
+                        "edit",
+                        "clone",
+                        "upscale"
+                      ]
+                    },
+                    "vpJobId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "VP job UUID for an asynchronous operation."
+                    },
+                    "submittedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the image operation claimed the Concept operation slot."
+                    },
+                    "reconciledAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Present after the linked job reaches a terminal outcome; a null asset with this field is retained history, not pending work."
+                    },
+                    "error": {
+                      "type": "object",
+                      "description": "Safe failure detail retained for an unsuccessful operation; raw provider diagnostics are never stored here.",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "prompt": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "description": "Prompt recorded for the operation.",
+                      "properties": {
+                        "user": {
+                          "type": "string"
+                        },
+                        "effective": {
+                          "type": "string"
+                        },
+                        "enhancement": {
+                          "type": "object",
+                          "properties": {
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "instructionVersion": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "enabled"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "user",
+                        "enhancement"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "modelId": {
+                      "type": "string",
+                      "enum": [
+                        "openai/gpt-image-2"
+                      ]
+                    },
+                    "sourceAssetId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "uuid",
+                      "description": "Source asset UUID when the operation has image lineage."
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "assetId",
+                "isActive",
+                "operation"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "resultJobs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Successful Image-to-3D VP job UUIDs."
+          },
+          "executionJobId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "thumbnailAssetId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Caller-defined Concept metadata.",
+            "additionalProperties": true
+          },
+          "lifecycleStatus": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "executing",
+              "completed"
+            ],
+            "description": "draft is editable; executing has Image-to-3D work running; completed has a successful Image-to-3D result."
+          },
+          "sourceConceptId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "uuid",
+          "conceptType",
+          "name",
+          "ownerOrganizationId",
+          "createdByUserId",
+          "assets",
+          "resultJobs",
+          "metadata",
+          "lifecycleStatus",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "studiotwin_conceptlab_create_and_generate",
+      "title": "Create and Generate ConceptLab Concept",
+      "description": "Create a typed draft and queue one billable image. Defaults to medium quality at 1024x1024 (about 6 credits); an owned source image adds 2 credits. Cost varies with quality and resolution (about 1\u201374 credits). Returns a pending Concept; poll studiotwin_conceptlab_get_status.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "conceptType": {
+            "type": "string",
+            "enum": [
+              "object",
+              "character",
+              "environmentMap",
+              "world"
+            ],
+            "description": "Kind of creative subject represented by the Concept."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Concept name."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Caller-defined Concept metadata.",
+            "additionalProperties": true
+          },
+          "jobInputs": {
+            "type": "object",
+            "properties": {
+              "modelId": {
+                "type": "string",
+                "enum": [
+                  "openai/gpt-image-2"
+                ],
+                "description": "Image model. Currently only openai/gpt-image-2 is supported."
+              },
+              "prompt": {
+                "type": "object",
+                "properties": {
+                  "user": {
+                    "type": "string",
+                    "description": "Required image-generation or edit instruction, including when a source image is used."
+                  },
+                  "enhancement": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "description": "Whether StudioTwin may enhance the prompt; false uses the instruction as supplied."
+                      }
+                    },
+                    "required": [
+                      "enabled"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "user",
+                  "enhancement"
+                ],
+                "additionalProperties": false
+              },
+              "sourceAsset": {
+                "type": "string",
+                "pattern": "^(?:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|vpc::assets/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$",
+                "description": "Optional owned source image used to guide generation. Adds 2 credits; a prompt is still required."
+              },
+              "params": {
+                "type": "object",
+                "description": "Optional model-specific generation parameters. conceptType is derived from the Concept and cannot be overridden here.",
+                "properties": {
+                  "quality": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ],
+                    "default": "medium",
+                    "description": "Output quality; defaults to medium. Higher quality generally costs more credits."
+                  },
+                  "resolution": {
+                    "type": "string",
+                    "enum": [
+                      "auto",
+                      "832x832",
+                      "1024x1024",
+                      "2048x2048",
+                      "2880x2880",
+                      "768x1152",
+                      "1024x1536",
+                      "1152x2048",
+                      "1536x2304",
+                      "2048x3072",
+                      "2160x3840",
+                      "1536x1024",
+                      "2048x1152",
+                      "3840x2160",
+                      "720x1280",
+                      "1440x2560",
+                      "1280x720",
+                      "2560x1440"
+                    ],
+                    "default": "1024x1024",
+                    "description": "Output resolution; defaults to 1024x1024 and affects cost. auto lets the provider choose and is estimated as 1024x1024. Prefer square for object, portrait for character, and landscape for environmentMap or world Concepts."
+                  }
+                },
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "modelId",
+              "prompt"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "conceptType",
+          "name",
+          "jobInputs"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+            "description": "Concept UUID."
+          },
+          "conceptType": {
+            "type": "string",
+            "enum": [
+              "object",
+              "character",
+              "environmentMap",
+              "world"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "ownerOrganizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdByUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sharedWithUsers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "pendingInvites": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "assets": {
+            "type": "array",
+            "description": "Completed, pending, and retained unsuccessful image attempts ordered by asset createdAt ascending, with missing timestamps first.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "assetId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid",
+                  "description": "Null while generation is pending or when an unsuccessful submitted operation is retained."
+                },
+                "isActive": {
+                  "type": "boolean"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When the completed asset became related to the Concept."
+                },
+                "operation": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "upload",
+                        "generate",
+                        "edit",
+                        "clone",
+                        "upscale"
+                      ]
+                    },
+                    "vpJobId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "VP job UUID for an asynchronous operation."
+                    },
+                    "submittedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the image operation claimed the Concept operation slot."
+                    },
+                    "reconciledAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Present after the linked job reaches a terminal outcome; a null asset with this field is retained history, not pending work."
+                    },
+                    "error": {
+                      "type": "object",
+                      "description": "Safe failure detail retained for an unsuccessful operation; raw provider diagnostics are never stored here.",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "prompt": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "description": "Prompt recorded for the operation.",
+                      "properties": {
+                        "user": {
+                          "type": "string"
+                        },
+                        "effective": {
+                          "type": "string"
+                        },
+                        "enhancement": {
+                          "type": "object",
+                          "properties": {
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "instructionVersion": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "enabled"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "user",
+                        "enhancement"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "modelId": {
+                      "type": "string",
+                      "enum": [
+                        "openai/gpt-image-2"
+                      ]
+                    },
+                    "sourceAssetId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "uuid",
+                      "description": "Source asset UUID when the operation has image lineage."
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "assetId",
+                "isActive",
+                "operation"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "resultJobs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Successful Image-to-3D VP job UUIDs."
+          },
+          "executionJobId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "thumbnailAssetId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Caller-defined Concept metadata.",
+            "additionalProperties": true
+          },
+          "lifecycleStatus": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "executing",
+              "completed"
+            ],
+            "description": "draft is editable; executing has Image-to-3D work running; completed has a successful Image-to-3D result."
+          },
+          "sourceConceptId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "uuid",
+          "conceptType",
+          "name",
+          "ownerOrganizationId",
+          "createdByUserId",
+          "assets",
+          "resultJobs",
+          "metadata",
+          "lifecycleStatus",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "studiotwin_conceptlab_list",
+      "title": "List ConceptLab Concepts",
+      "description": "List Concepts in the authenticated organization, newest-updated first. Uses offset pagination (limit defaults to 20, maximum 100) and returns {concepts: Concept[]} without a total count.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 20,
+            "description": "Maximum Concepts to return."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0,
+            "description": "Number of Concepts to skip."
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "concepts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "uuid": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+                  "description": "Concept UUID."
+                },
+                "conceptType": {
+                  "type": "string",
+                  "enum": [
+                    "object",
+                    "character",
+                    "environmentMap",
+                    "world"
+                  ]
+                },
+                "name": {
+                  "type": "string"
+                },
+                "ownerOrganizationId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "createdByUserId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "sharedWithUsers": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "pendingInvites": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "assets": {
+                  "type": "array",
+                  "description": "Completed, pending, and retained unsuccessful image attempts ordered by asset createdAt ascending, with missing timestamps first.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "assetId": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "format": "uuid",
+                        "description": "Null while generation is pending or when an unsuccessful submitted operation is retained."
+                      },
+                      "isActive": {
+                        "type": "boolean"
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When the completed asset became related to the Concept."
+                      },
+                      "operation": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "upload",
+                              "generate",
+                              "edit",
+                              "clone",
+                              "upscale"
+                            ]
+                          },
+                          "vpJobId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "description": "VP job UUID for an asynchronous operation."
+                          },
+                          "submittedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "When the image operation claimed the Concept operation slot."
+                          },
+                          "reconciledAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "Present after the linked job reaches a terminal outcome; a null asset with this field is retained history, not pending work."
+                          },
+                          "error": {
+                            "type": "object",
+                            "description": "Safe failure detail retained for an unsuccessful operation; raw provider diagnostics are never stored here.",
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "message"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "prompt": {
+                            "type": [
+                              "object",
+                              "null"
+                            ],
+                            "description": "Prompt recorded for the operation.",
+                            "properties": {
+                              "user": {
+                                "type": "string"
+                              },
+                              "effective": {
+                                "type": "string"
+                              },
+                              "enhancement": {
+                                "type": "object",
+                                "properties": {
+                                  "enabled": {
+                                    "type": "boolean"
+                                  },
+                                  "instructionVersion": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "enabled"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "required": [
+                              "user",
+                              "enhancement"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "modelId": {
+                            "type": "string",
+                            "enum": [
+                              "openai/gpt-image-2"
+                            ]
+                          },
+                          "sourceAssetId": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "format": "uuid",
+                            "description": "Source asset UUID when the operation has image lineage."
+                          }
+                        },
+                        "required": [
+                          "type"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "required": [
+                      "assetId",
+                      "isActive",
+                      "operation"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "resultJobs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "description": "Successful Image-to-3D VP job UUIDs."
+                },
+                "executionJobId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "thumbnailAssetId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid"
+                },
+                "metadata": {
+                  "type": "object",
+                  "description": "Caller-defined Concept metadata.",
+                  "additionalProperties": true
+                },
+                "lifecycleStatus": {
+                  "type": "string",
+                  "enum": [
+                    "draft",
+                    "executing",
+                    "completed"
+                  ],
+                  "description": "draft is editable; executing has Image-to-3D work running; completed has a successful Image-to-3D result."
+                },
+                "sourceConceptId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "uuid",
+                "conceptType",
+                "name",
+                "ownerOrganizationId",
+                "createdByUserId",
+                "assets",
+                "resultJobs",
+                "metadata",
+                "lifecycleStatus",
+                "createdAt",
+                "updatedAt"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "concepts"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "studiotwin_conceptlab_get",
+      "title": "Get ConceptLab Concept",
+      "description": "Get a Concept in the authenticated organization, reconciling completed asynchronous operations before returning its current state.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "conceptId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+            "description": "Concept UUID."
+          }
+        },
+        "required": [
+          "conceptId"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+            "description": "Concept UUID."
+          },
+          "conceptType": {
+            "type": "string",
+            "enum": [
+              "object",
+              "character",
+              "environmentMap",
+              "world"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "ownerOrganizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdByUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sharedWithUsers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "pendingInvites": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "assets": {
+            "type": "array",
+            "description": "Completed, pending, and retained unsuccessful image attempts ordered by asset createdAt ascending, with missing timestamps first.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "assetId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid",
+                  "description": "Null while generation is pending or when an unsuccessful submitted operation is retained."
+                },
+                "isActive": {
+                  "type": "boolean"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When the completed asset became related to the Concept."
+                },
+                "operation": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "upload",
+                        "generate",
+                        "edit",
+                        "clone",
+                        "upscale"
+                      ]
+                    },
+                    "vpJobId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "VP job UUID for an asynchronous operation."
+                    },
+                    "submittedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the image operation claimed the Concept operation slot."
+                    },
+                    "reconciledAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Present after the linked job reaches a terminal outcome; a null asset with this field is retained history, not pending work."
+                    },
+                    "error": {
+                      "type": "object",
+                      "description": "Safe failure detail retained for an unsuccessful operation; raw provider diagnostics are never stored here.",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "prompt": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "description": "Prompt recorded for the operation.",
+                      "properties": {
+                        "user": {
+                          "type": "string"
+                        },
+                        "effective": {
+                          "type": "string"
+                        },
+                        "enhancement": {
+                          "type": "object",
+                          "properties": {
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "instructionVersion": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "enabled"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "user",
+                        "enhancement"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "modelId": {
+                      "type": "string",
+                      "enum": [
+                        "openai/gpt-image-2"
+                      ]
+                    },
+                    "sourceAssetId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "uuid",
+                      "description": "Source asset UUID when the operation has image lineage."
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "assetId",
+                "isActive",
+                "operation"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "resultJobs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Successful Image-to-3D VP job UUIDs."
+          },
+          "executionJobId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "thumbnailAssetId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Caller-defined Concept metadata.",
+            "additionalProperties": true
+          },
+          "lifecycleStatus": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "executing",
+              "completed"
+            ],
+            "description": "draft is editable; executing has Image-to-3D work running; completed has a successful Image-to-3D result."
+          },
+          "sourceConceptId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "uuid",
+          "conceptType",
+          "name",
+          "ownerOrganizationId",
+          "createdByUserId",
+          "assets",
+          "resultJobs",
+          "metadata",
+          "lifecycleStatus",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "studiotwin_conceptlab_get_status",
+      "title": "Get ConceptLab Status",
+      "description": "Poll after create_and_generate, generate, or edit. Reconciles completed work and returns lifecycle plus the latest operation: draft, queued, and running are in progress; done, failed, and cancelled are terminal.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "conceptId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+            "description": "Concept UUID."
+          }
+        },
+        "required": [
+          "conceptId"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "conceptId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+            "description": "Concept UUID."
+          },
+          "lifecycleStatus": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "executing",
+              "completed"
+            ],
+            "description": "draft is editable; executing has Image-to-3D work running; completed has a successful Image-to-3D result."
+          },
+          "operation": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "vpJobId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "action": {
+                "type": "string",
+                "enum": [
+                  "generate",
+                  "edit",
+                  "upscale",
+                  "execute"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "draft",
+                  "queued",
+                  "running",
+                  "failed",
+                  "done",
+                  "cancelled"
+                ],
+                "description": "draft, queued, or running means in progress; done, failed, or cancelled is terminal."
+              },
+              "error": {
+                "type": "object",
+                "description": "Safe user-facing failure detail, present only for failed or cancelled operations.",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "vpJobId",
+              "action",
+              "status"
+            ],
+            "additionalProperties": false
+          },
+          "resultJobs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "required": [
+          "conceptId",
+          "lifecycleStatus",
+          "operation",
+          "resultJobs"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "studiotwin_conceptlab_attach_asset",
+      "title": "Attach Asset to ConceptLab Concept",
+      "description": "Attach one existing owned asset to an idle draft Concept, including after generation. Multiple assets can be attached in separate calls. Accepts an asset UUID or vpc::assets/<uuid>. makeActive defaults to false; set it to true or call set_active_asset afterward to select the primary asset.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "conceptId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+            "description": "Concept UUID."
+          },
+          "assetId": {
+            "type": "string",
+            "pattern": "^(?:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|vpc::assets/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$",
+            "description": "Asset UUID or vpc::assets/<uuid> reference."
+          },
+          "makeActive": {
+            "type": "boolean",
+            "default": false,
+            "description": "Make the attached asset primary."
+          }
+        },
+        "required": [
+          "conceptId",
+          "assetId"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+            "description": "Concept UUID."
+          },
+          "conceptType": {
+            "type": "string",
+            "enum": [
+              "object",
+              "character",
+              "environmentMap",
+              "world"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "ownerOrganizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdByUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sharedWithUsers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "pendingInvites": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "assets": {
+            "type": "array",
+            "description": "Completed, pending, and retained unsuccessful image attempts ordered by asset createdAt ascending, with missing timestamps first.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "assetId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid",
+                  "description": "Null while generation is pending or when an unsuccessful submitted operation is retained."
+                },
+                "isActive": {
+                  "type": "boolean"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When the completed asset became related to the Concept."
+                },
+                "operation": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "upload",
+                        "generate",
+                        "edit",
+                        "clone",
+                        "upscale"
+                      ]
+                    },
+                    "vpJobId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "VP job UUID for an asynchronous operation."
+                    },
+                    "submittedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the image operation claimed the Concept operation slot."
+                    },
+                    "reconciledAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Present after the linked job reaches a terminal outcome; a null asset with this field is retained history, not pending work."
+                    },
+                    "error": {
+                      "type": "object",
+                      "description": "Safe failure detail retained for an unsuccessful operation; raw provider diagnostics are never stored here.",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "prompt": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "description": "Prompt recorded for the operation.",
+                      "properties": {
+                        "user": {
+                          "type": "string"
+                        },
+                        "effective": {
+                          "type": "string"
+                        },
+                        "enhancement": {
+                          "type": "object",
+                          "properties": {
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "instructionVersion": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "enabled"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "user",
+                        "enhancement"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "modelId": {
+                      "type": "string",
+                      "enum": [
+                        "openai/gpt-image-2"
+                      ]
+                    },
+                    "sourceAssetId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "uuid",
+                      "description": "Source asset UUID when the operation has image lineage."
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "assetId",
+                "isActive",
+                "operation"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "resultJobs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Successful Image-to-3D VP job UUIDs."
+          },
+          "executionJobId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "thumbnailAssetId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Caller-defined Concept metadata.",
+            "additionalProperties": true
+          },
+          "lifecycleStatus": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "executing",
+              "completed"
+            ],
+            "description": "draft is editable; executing has Image-to-3D work running; completed has a successful Image-to-3D result."
+          },
+          "sourceConceptId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "uuid",
+          "conceptType",
+          "name",
+          "ownerOrganizationId",
+          "createdByUserId",
+          "assets",
+          "resultJobs",
+          "metadata",
+          "lifecycleStatus",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "studiotwin_conceptlab_generate",
+      "title": "Generate ConceptLab Image",
+      "description": "Queue one billable image on an idle draft Concept. Defaults to medium quality at 1024x1024 (about 6 credits); an owned source image adds 2 credits. Cost varies with quality and resolution (about 1\u201374 credits). The persisted conceptType is used. Poll studiotwin_conceptlab_get_status.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "conceptId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+            "description": "Concept UUID."
+          },
+          "jobInputs": {
+            "type": "object",
+            "properties": {
+              "modelId": {
+                "type": "string",
+                "enum": [
+                  "openai/gpt-image-2"
+                ],
+                "description": "Image model. Currently only openai/gpt-image-2 is supported."
+              },
+              "prompt": {
+                "type": "object",
+                "properties": {
+                  "user": {
+                    "type": "string",
+                    "description": "Required image-generation or edit instruction, including when a source image is used."
+                  },
+                  "enhancement": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "description": "Whether StudioTwin may enhance the prompt; false uses the instruction as supplied."
+                      }
+                    },
+                    "required": [
+                      "enabled"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "user",
+                  "enhancement"
+                ],
+                "additionalProperties": false
+              },
+              "sourceAsset": {
+                "type": "string",
+                "pattern": "^(?:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|vpc::assets/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$",
+                "description": "Optional owned source image used to guide generation. Adds 2 credits; a prompt is still required."
+              },
+              "params": {
+                "type": "object",
+                "description": "Optional model-specific generation parameters. conceptType is derived from the Concept and cannot be overridden here.",
+                "properties": {
+                  "quality": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ],
+                    "default": "medium",
+                    "description": "Output quality; defaults to medium. Higher quality generally costs more credits."
+                  },
+                  "resolution": {
+                    "type": "string",
+                    "enum": [
+                      "auto",
+                      "832x832",
+                      "1024x1024",
+                      "2048x2048",
+                      "2880x2880",
+                      "768x1152",
+                      "1024x1536",
+                      "1152x2048",
+                      "1536x2304",
+                      "2048x3072",
+                      "2160x3840",
+                      "1536x1024",
+                      "2048x1152",
+                      "3840x2160",
+                      "720x1280",
+                      "1440x2560",
+                      "1280x720",
+                      "2560x1440"
+                    ],
+                    "default": "1024x1024",
+                    "description": "Output resolution; defaults to 1024x1024 and affects cost. auto lets the provider choose and is estimated as 1024x1024. Prefer square for object, portrait for character, and landscape for environmentMap or world Concepts."
+                  }
+                },
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "modelId",
+              "prompt"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "conceptId",
+          "jobInputs"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+            "description": "Concept UUID."
+          },
+          "conceptType": {
+            "type": "string",
+            "enum": [
+              "object",
+              "character",
+              "environmentMap",
+              "world"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "ownerOrganizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdByUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sharedWithUsers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "pendingInvites": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "assets": {
+            "type": "array",
+            "description": "Completed, pending, and retained unsuccessful image attempts ordered by asset createdAt ascending, with missing timestamps first.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "assetId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid",
+                  "description": "Null while generation is pending or when an unsuccessful submitted operation is retained."
+                },
+                "isActive": {
+                  "type": "boolean"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When the completed asset became related to the Concept."
+                },
+                "operation": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "upload",
+                        "generate",
+                        "edit",
+                        "clone",
+                        "upscale"
+                      ]
+                    },
+                    "vpJobId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "VP job UUID for an asynchronous operation."
+                    },
+                    "submittedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the image operation claimed the Concept operation slot."
+                    },
+                    "reconciledAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Present after the linked job reaches a terminal outcome; a null asset with this field is retained history, not pending work."
+                    },
+                    "error": {
+                      "type": "object",
+                      "description": "Safe failure detail retained for an unsuccessful operation; raw provider diagnostics are never stored here.",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "prompt": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "description": "Prompt recorded for the operation.",
+                      "properties": {
+                        "user": {
+                          "type": "string"
+                        },
+                        "effective": {
+                          "type": "string"
+                        },
+                        "enhancement": {
+                          "type": "object",
+                          "properties": {
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "instructionVersion": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "enabled"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "user",
+                        "enhancement"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "modelId": {
+                      "type": "string",
+                      "enum": [
+                        "openai/gpt-image-2"
+                      ]
+                    },
+                    "sourceAssetId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "uuid",
+                      "description": "Source asset UUID when the operation has image lineage."
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "assetId",
+                "isActive",
+                "operation"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "resultJobs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Successful Image-to-3D VP job UUIDs."
+          },
+          "executionJobId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "thumbnailAssetId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Caller-defined Concept metadata.",
+            "additionalProperties": true
+          },
+          "lifecycleStatus": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "executing",
+              "completed"
+            ],
+            "description": "draft is editable; executing has Image-to-3D work running; completed has a successful Image-to-3D result."
+          },
+          "sourceConceptId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "uuid",
+          "conceptType",
+          "name",
+          "ownerOrganizationId",
+          "createdByUserId",
+          "assets",
+          "resultJobs",
+          "metadata",
+          "lifecycleStatus",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "studiotwin_conceptlab_edit",
+      "title": "Edit ConceptLab Image",
+      "description": "Queue one billable edit on an idle draft Concept with an active completed image. The active image is used automatically and adds 2 credits; default cost is about 8 credits and the range is about 3\u201374. The persisted conceptType is used. Poll studiotwin_conceptlab_get_status.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "conceptId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+            "description": "Concept UUID."
+          },
+          "jobInputs": {
+            "type": "object",
+            "properties": {
+              "modelId": {
+                "type": "string",
+                "enum": [
+                  "openai/gpt-image-2"
+                ],
+                "description": "Image model. Currently only openai/gpt-image-2 is supported."
+              },
+              "prompt": {
+                "type": "object",
+                "properties": {
+                  "user": {
+                    "type": "string",
+                    "description": "Required image-generation or edit instruction, including when a source image is used."
+                  },
+                  "enhancement": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "description": "Whether StudioTwin may enhance the prompt; false uses the instruction as supplied."
+                      }
+                    },
+                    "required": [
+                      "enabled"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "user",
+                  "enhancement"
+                ],
+                "additionalProperties": false
+              },
+              "params": {
+                "type": "object",
+                "description": "Optional model-specific generation parameters. conceptType is derived from the Concept and cannot be overridden here.",
+                "properties": {
+                  "quality": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ],
+                    "default": "medium",
+                    "description": "Output quality; defaults to medium. Higher quality generally costs more credits."
+                  },
+                  "resolution": {
+                    "type": "string",
+                    "enum": [
+                      "auto",
+                      "832x832",
+                      "1024x1024",
+                      "2048x2048",
+                      "2880x2880",
+                      "768x1152",
+                      "1024x1536",
+                      "1152x2048",
+                      "1536x2304",
+                      "2048x3072",
+                      "2160x3840",
+                      "1536x1024",
+                      "2048x1152",
+                      "3840x2160",
+                      "720x1280",
+                      "1440x2560",
+                      "1280x720",
+                      "2560x1440"
+                    ],
+                    "default": "1024x1024",
+                    "description": "Output resolution; defaults to 1024x1024 and affects cost. auto lets the provider choose and is estimated as 1024x1024. Prefer square for object, portrait for character, and landscape for environmentMap or world Concepts."
+                  }
+                },
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "modelId",
+              "prompt"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "conceptId",
+          "jobInputs"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+            "description": "Concept UUID."
+          },
+          "conceptType": {
+            "type": "string",
+            "enum": [
+              "object",
+              "character",
+              "environmentMap",
+              "world"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "ownerOrganizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdByUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sharedWithUsers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "pendingInvites": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "assets": {
+            "type": "array",
+            "description": "Completed, pending, and retained unsuccessful image attempts ordered by asset createdAt ascending, with missing timestamps first.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "assetId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid",
+                  "description": "Null while generation is pending or when an unsuccessful submitted operation is retained."
+                },
+                "isActive": {
+                  "type": "boolean"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When the completed asset became related to the Concept."
+                },
+                "operation": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "upload",
+                        "generate",
+                        "edit",
+                        "clone",
+                        "upscale"
+                      ]
+                    },
+                    "vpJobId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "VP job UUID for an asynchronous operation."
+                    },
+                    "submittedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the image operation claimed the Concept operation slot."
+                    },
+                    "reconciledAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Present after the linked job reaches a terminal outcome; a null asset with this field is retained history, not pending work."
+                    },
+                    "error": {
+                      "type": "object",
+                      "description": "Safe failure detail retained for an unsuccessful operation; raw provider diagnostics are never stored here.",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "prompt": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "description": "Prompt recorded for the operation.",
+                      "properties": {
+                        "user": {
+                          "type": "string"
+                        },
+                        "effective": {
+                          "type": "string"
+                        },
+                        "enhancement": {
+                          "type": "object",
+                          "properties": {
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "instructionVersion": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "enabled"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "user",
+                        "enhancement"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "modelId": {
+                      "type": "string",
+                      "enum": [
+                        "openai/gpt-image-2"
+                      ]
+                    },
+                    "sourceAssetId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "uuid",
+                      "description": "Source asset UUID when the operation has image lineage."
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "assetId",
+                "isActive",
+                "operation"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "resultJobs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Successful Image-to-3D VP job UUIDs."
+          },
+          "executionJobId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "thumbnailAssetId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Caller-defined Concept metadata.",
+            "additionalProperties": true
+          },
+          "lifecycleStatus": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "executing",
+              "completed"
+            ],
+            "description": "draft is editable; executing has Image-to-3D work running; completed has a successful Image-to-3D result."
+          },
+          "sourceConceptId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "uuid",
+          "conceptType",
+          "name",
+          "ownerOrganizationId",
+          "createdByUserId",
+          "assets",
+          "resultJobs",
+          "metadata",
+          "lifecycleStatus",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "studiotwin_conceptlab_clone",
+      "title": "Clone ConceptLab Concept",
+      "description": "Reconcile a Concept in the authenticated organization, then create a new draft with the same type and name. Its active asset is carried over when present; history and metadata are not copied.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "conceptId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+            "description": "Concept UUID."
+          }
+        },
+        "required": [
+          "conceptId"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+            "description": "Concept UUID."
+          },
+          "conceptType": {
+            "type": "string",
+            "enum": [
+              "object",
+              "character",
+              "environmentMap",
+              "world"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "ownerOrganizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdByUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sharedWithUsers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "pendingInvites": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "assets": {
+            "type": "array",
+            "description": "Completed, pending, and retained unsuccessful image attempts ordered by asset createdAt ascending, with missing timestamps first.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "assetId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid",
+                  "description": "Null while generation is pending or when an unsuccessful submitted operation is retained."
+                },
+                "isActive": {
+                  "type": "boolean"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When the completed asset became related to the Concept."
+                },
+                "operation": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "upload",
+                        "generate",
+                        "edit",
+                        "clone",
+                        "upscale"
+                      ]
+                    },
+                    "vpJobId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "VP job UUID for an asynchronous operation."
+                    },
+                    "submittedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the image operation claimed the Concept operation slot."
+                    },
+                    "reconciledAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Present after the linked job reaches a terminal outcome; a null asset with this field is retained history, not pending work."
+                    },
+                    "error": {
+                      "type": "object",
+                      "description": "Safe failure detail retained for an unsuccessful operation; raw provider diagnostics are never stored here.",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "prompt": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "description": "Prompt recorded for the operation.",
+                      "properties": {
+                        "user": {
+                          "type": "string"
+                        },
+                        "effective": {
+                          "type": "string"
+                        },
+                        "enhancement": {
+                          "type": "object",
+                          "properties": {
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "instructionVersion": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "enabled"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "user",
+                        "enhancement"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "modelId": {
+                      "type": "string",
+                      "enum": [
+                        "openai/gpt-image-2"
+                      ]
+                    },
+                    "sourceAssetId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "uuid",
+                      "description": "Source asset UUID when the operation has image lineage."
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "assetId",
+                "isActive",
+                "operation"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "resultJobs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Successful Image-to-3D VP job UUIDs."
+          },
+          "executionJobId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "thumbnailAssetId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Caller-defined Concept metadata.",
+            "additionalProperties": true
+          },
+          "lifecycleStatus": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "executing",
+              "completed"
+            ],
+            "description": "draft is editable; executing has Image-to-3D work running; completed has a successful Image-to-3D result."
+          },
+          "sourceConceptId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "uuid",
+          "conceptType",
+          "name",
+          "ownerOrganizationId",
+          "createdByUserId",
+          "assets",
+          "resultJobs",
+          "metadata",
+          "lifecycleStatus",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "studiotwin_conceptlab_set_active_asset",
+      "title": "Set Active ConceptLab Asset",
+      "description": "On an idle draft Concept, select a completed asset already in that Concept as active. This does not attach an arbitrary library asset.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "conceptId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+            "description": "Concept UUID."
+          },
+          "assetId": {
+            "type": "string",
+            "pattern": "^(?:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|vpc::assets/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$",
+            "description": "Asset UUID or vpc::assets/<uuid> reference."
+          }
+        },
+        "required": [
+          "conceptId",
+          "assetId"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+            "description": "Concept UUID."
+          },
+          "conceptType": {
+            "type": "string",
+            "enum": [
+              "object",
+              "character",
+              "environmentMap",
+              "world"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "ownerOrganizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdByUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sharedWithUsers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "pendingInvites": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "assets": {
+            "type": "array",
+            "description": "Completed, pending, and retained unsuccessful image attempts ordered by asset createdAt ascending, with missing timestamps first.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "assetId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid",
+                  "description": "Null while generation is pending or when an unsuccessful submitted operation is retained."
+                },
+                "isActive": {
+                  "type": "boolean"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When the completed asset became related to the Concept."
+                },
+                "operation": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "upload",
+                        "generate",
+                        "edit",
+                        "clone",
+                        "upscale"
+                      ]
+                    },
+                    "vpJobId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "VP job UUID for an asynchronous operation."
+                    },
+                    "submittedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the image operation claimed the Concept operation slot."
+                    },
+                    "reconciledAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Present after the linked job reaches a terminal outcome; a null asset with this field is retained history, not pending work."
+                    },
+                    "error": {
+                      "type": "object",
+                      "description": "Safe failure detail retained for an unsuccessful operation; raw provider diagnostics are never stored here.",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "prompt": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "description": "Prompt recorded for the operation.",
+                      "properties": {
+                        "user": {
+                          "type": "string"
+                        },
+                        "effective": {
+                          "type": "string"
+                        },
+                        "enhancement": {
+                          "type": "object",
+                          "properties": {
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "instructionVersion": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "enabled"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "user",
+                        "enhancement"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "modelId": {
+                      "type": "string",
+                      "enum": [
+                        "openai/gpt-image-2"
+                      ]
+                    },
+                    "sourceAssetId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "uuid",
+                      "description": "Source asset UUID when the operation has image lineage."
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "assetId",
+                "isActive",
+                "operation"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "resultJobs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Successful Image-to-3D VP job UUIDs."
+          },
+          "executionJobId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "thumbnailAssetId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Caller-defined Concept metadata.",
+            "additionalProperties": true
+          },
+          "lifecycleStatus": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "executing",
+              "completed"
+            ],
+            "description": "draft is editable; executing has Image-to-3D work running; completed has a successful Image-to-3D result."
+          },
+          "sourceConceptId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "uuid",
+          "conceptType",
+          "name",
+          "ownerOrganizationId",
+          "createdByUserId",
+          "assets",
+          "resultJobs",
+          "metadata",
+          "lifecycleStatus",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "studiotwin_conceptlab_update",
+      "title": "Update ConceptLab Concept",
+      "description": "Update a Concept name and/or metadata in the authenticated organization. Supplying metadata replaces the complete metadata object rather than merging it.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "conceptId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+            "description": "Concept UUID."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Concept name."
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Caller-defined Concept metadata.",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "conceptId"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+            "description": "Concept UUID."
+          },
+          "conceptType": {
+            "type": "string",
+            "enum": [
+              "object",
+              "character",
+              "environmentMap",
+              "world"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "ownerOrganizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdByUserId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sharedWithUsers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "pendingInvites": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "assets": {
+            "type": "array",
+            "description": "Completed, pending, and retained unsuccessful image attempts ordered by asset createdAt ascending, with missing timestamps first.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "assetId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "uuid",
+                  "description": "Null while generation is pending or when an unsuccessful submitted operation is retained."
+                },
+                "isActive": {
+                  "type": "boolean"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When the completed asset became related to the Concept."
+                },
+                "operation": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "upload",
+                        "generate",
+                        "edit",
+                        "clone",
+                        "upscale"
+                      ]
+                    },
+                    "vpJobId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "VP job UUID for an asynchronous operation."
+                    },
+                    "submittedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "When the image operation claimed the Concept operation slot."
+                    },
+                    "reconciledAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Present after the linked job reaches a terminal outcome; a null asset with this field is retained history, not pending work."
+                    },
+                    "error": {
+                      "type": "object",
+                      "description": "Safe failure detail retained for an unsuccessful operation; raw provider diagnostics are never stored here.",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "prompt": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "description": "Prompt recorded for the operation.",
+                      "properties": {
+                        "user": {
+                          "type": "string"
+                        },
+                        "effective": {
+                          "type": "string"
+                        },
+                        "enhancement": {
+                          "type": "object",
+                          "properties": {
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "instructionVersion": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "enabled"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "user",
+                        "enhancement"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "modelId": {
+                      "type": "string",
+                      "enum": [
+                        "openai/gpt-image-2"
+                      ]
+                    },
+                    "sourceAssetId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "uuid",
+                      "description": "Source asset UUID when the operation has image lineage."
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "assetId",
+                "isActive",
+                "operation"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "resultJobs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Successful Image-to-3D VP job UUIDs."
+          },
+          "executionJobId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "thumbnailAssetId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Caller-defined Concept metadata.",
+            "additionalProperties": true
+          },
+          "lifecycleStatus": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "executing",
+              "completed"
+            ],
+            "description": "draft is editable; executing has Image-to-3D work running; completed has a successful Image-to-3D result."
+          },
+          "sourceConceptId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "uuid",
+          "conceptType",
+          "name",
+          "ownerOrganizationId",
+          "createdByUserId",
+          "assets",
+          "resultJobs",
+          "metadata",
+          "lifecycleStatus",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "studiotwin_conceptlab_delete",
+      "title": "Delete ConceptLab Concept",
+      "description": "Permanently delete a Concept and its unreferenced generated assets. Uploaded assets and job history are retained.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "conceptId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+            "description": "Concept UUID."
+          }
+        },
+        "required": [
+          "conceptId"
+        ],
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+            "description": "Concept UUID."
+          },
+          "deleted": {
+            "type": "boolean",
+            "const": true
+          },
+          "deletedAssetIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "required": [
+          "uuid",
+          "deleted",
+          "deletedAssetIds"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    }
+  ]
+}

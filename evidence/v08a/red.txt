@@ -1,0 +1,109 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v08a
+
+ ❯ tests/viewers/image-video-task.test.ts (17 tests | 2 failed | 15 skipped) 205ms
+   × loads image metadata, provenance, comparison, zoom lightbox and owner-chat Next with quoted credit estimates 202ms
+     → expected "spy" to be called with arguments: [ 'owner', …(1) ][90m
+
+Received: 
+
+[1m  1st spy call:
+
+[22m[2m  [[22m
+[2m    "owner",[22m
+[32m-   StringContaining "estimate first",[90m
+[31m+   "StudioTwin source {\"path\":\"/image.png\"}: Edit Concept Image using studiotwin_conceptlab_edit (estimate 5 credits). Read the live tool schema, verify compatibility, estimate the exact inputs with studiotwin_estimate_cost and ask me to approve the cost before submitting. Ask before uploading this local file.",[90m
+[2m  ][22m
+[39m[90m
+
+Number of calls: [1m1[22m
+[39m
+   ↓ keeps image fetch/decode failures on fallback and discards pending old-scope data
+   ↓ polls queued → running → completed and morphs to an image with backend actions
+   ↓ cancels queued once, never running; stops polling and actions permanently on connection switch
+   ↓ stops at failed/cancelled, permanent polling error fallback persists
+   × registers explicit image tools (bare and canonical), directives and no terminal claim 2ms
+     → expected [ 'openai-gpt-image-1-v1-fn', …(22) ] to include 'openai-gpt-image-2-v4-fn'
+   ↓ renders video controls, handles decode failure with persistent fallback
+   ↓ requires explicit sequence timing rather than inventing a playback rate
+   ↓ all V05 presentation colors use theme variables
+   ↓ stops polling terminal failed jobs and exposes no Cancel or generation retry
+   ↓ stops polling terminal cancelled jobs and exposes no Cancel or generation retry
+   ↓ discards a pending response and never resurrects the old card after switching away and back
+   ↓ never labels a cancellation acknowledgement as cancelled until status confirms it
+   ↓ polls Concept operation.status, resolves active history, comparison lineage and asset-specific /actions
+   ↓ normalizes status vocabulary and Concept history, preserves delivery links and only trusts host media schemes from the resolver
+   ↓ Chromium: registered and completed 6-fps video decoded steps, image inspection, sequence, jobs and invalidation
+   ↓ Chromium: registered and completed 10-fps video decoded steps, image inspection, sequence, jobs and invalidation
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/viewers/catalog-routing.test.ts [ tests/viewers/catalog-routing.test.ts ]
+Error: [vitest] No "Button" export is defined on the "@hermes/plugin-sdk" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+vi[33m.[39m[34mmock[39m([35mimport[39m([32m"@hermes/plugin-sdk"[39m)[33m,[39m [35masync[39m (importOriginal) [33m=>[39m {
+  [35mconst[39m actual [33m=[39m [35mawait[39m [34mimportOriginal[39m()
+  [35mreturn[39m {
+    [33m...[39mactual[33m,[39m
+    [90m// your mocked methods[39m
+  }
+})
+
+ ❯ src/viewers/image-viewer.tsx:2:9
+      1| import * as sdk from '@hermes/plugin-sdk'
+      2| const { Button } = sdk
+       |         ^
+      3| import { useEffect, useRef, useState, type ReactNode } from 'react'
+      4| import type { MediaScope, MediaSource } from '../cards/next-actions.ts'
+ ❯ src/cards/image-card.tsx:3:1
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/viewers/image-video-task.test.ts > loads image metadata, provenance, comparison, zoom lightbox and owner-chat Next with quoted credit estimates
+AssertionError: expected "spy" to be called with arguments: [ 'owner', …(1) ][90m
+
+Received: 
+
+[1m  1st spy call:
+
+[22m[2m  [[22m
+[2m    "owner",[22m
+[32m-   StringContaining "estimate first",[90m
+[31m+   "StudioTwin source {\"path\":\"/image.png\"}: Edit Concept Image using studiotwin_conceptlab_edit (estimate 5 credits). Read the live tool schema, verify compatibility, estimate the exact inputs with studiotwin_estimate_cost and ask me to approve the cost before submitting. Ask before uploading this local file.",[90m
+[2m  ][22m
+[39m[90m
+
+Number of calls: [1m1[22m
+[39m
+ ❯ tests/viewers/image-video-task.test.ts:112:24
+    110|   fireEvent.click(screen.getByRole('button', { name: 'Close inspection…
+    111|   fireEvent.click(screen.getByRole('button', { name: /Edit Concept Ima…
+    112|   expect(owner.submit).toHaveBeenCalledWith('owner', expect.stringCont…
+       |                        ^
+    113|   expect(owner.submit.mock.calls[0][1]).not.toMatch(/\d+ credits/)
+    114|   switchScope()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/viewers/image-video-task.test.ts > registers explicit image tools (bare and canonical), directives and no terminal claim
+AssertionError: expected [ 'openai-gpt-image-1-v1-fn', …(22) ] to include 'openai-gpt-image-2-v4-fn'
+ ❯ tests/viewers/image-video-task.test.ts:189:17
+    187|   const tools = (rows[0].data as any).tools
+    188|   expect(tools).toContain('openai-gpt-image-1-v1-fn')
+    189|   expect(tools).toContain('openai-gpt-image-2-v4-fn')
+       |                 ^
+    190|   expect(tools).toContain('mcp__studiotwin__studiotwin_conceptlab_edit…
+    191|   expect(tools).not.toContain('terminal')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 15 skipped (17)
+   Start at  06:20:09
+   Duration  2.51s (transform 323ms, setup 0ms, collect 1.46s, tests 205ms, environment 537ms, prepare 72ms)
+

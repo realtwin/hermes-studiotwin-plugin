@@ -1,0 +1,60 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "hermes-studiotwin",
+  "version": "0.3.2",
+  "description": "StudioTwin remote MCP for images, environments, materials, meshes, rigs, motion, audio and Concepts, with a Desktop media backend. Paid tools use Hermes native approval. Variable costs require a fresh StudioTwin estimate; there is no plugin session spend cap.",
+  "author": {"name": "RealTwin"},
+  "license": "MIT",
+  "keywords": ["studiotwin", "3d", "audio", "environments", "materials", "concepts", "mcp"],
+  "extensions": {
+    "com.nousresearch.hermes": {
+      "servers": {
+        "studiotwin": {
+          "trust": "untrusted",
+          "timeout": 1500,
+          "cost_unit": "credits",
+          "costs": {
+            "text-to-motion-edit": 5,
+            "text-to-motion": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "text-to-motion-kimodo": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "text-to-motion-control": 5,
+            "motion-stitch-single": 5,
+            "text-to-environment-map": 20,
+            "image-to-environment-map": 25,
+            "environment-map-to-world": 80,
+            "environment-map-upscale-cpu": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "pano-sticker-placement": 1,
+            "pano-stickers": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "text-to-material": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "texture-to-material": 20,
+            "image-to-material": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "image-to-3d-mesh": 25,
+            "tripo-image-to-3d-mesh": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "tripo-rig-check": 0,
+            "blender-auto-rig": 15,
+            "tripo-auto-rig": 45,
+            "tripo-retopology": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "text-to-sound-effect": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "prompt-to-dart-translation": 1,
+            "openai-gpt-image-2-v4-fn": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "concept-lab-img-fn": {"credits": [1, 100], "note": "Illustrative approval estimate, not a provider maximum. Input-dependent; call studiotwin_estimate_cost with exact inputs before approval."},
+            "studiotwin_conceptlab_create_and_generate": {"credits": [1, 74], "note": "Approximate range from the tool description; obtain a fresh estimate for the selected quality and resolution."},
+            "studiotwin_conceptlab_generate": {"credits": [1, 74], "note": "Approximate range from the tool description; obtain a fresh estimate for the selected quality and resolution."},
+            "studiotwin_conceptlab_edit": {"credits": [3, 74], "note": "Approximate range from the tool description, includes source image; obtain a fresh estimate."}
+          }
+        }
+      },
+      "config_schema": {
+        "api_key": {"type": "secret", "env": "STUDIOTWIN_API_KEY", "label": "StudioTwin API key", "description": "Profile-scoped key used by the remote MCP connection and Desktop backend. Never sent to the browser."},
+        "api_base_url": {"type": "str", "default": "https://api.studiotwin.ai", "label": "Desktop API endpoint", "description": "HTTPS StudioTwin API base URL. HTTP is allowed only for localhost or 127.0.0.1 test servers. The agent MCP declaration connects directly to production."},
+        "show_credits": {"type": "bool", "default": true, "label": "Show credits", "description": "Show the credit balance in Desktop."},
+        "inline_cards": {"type": "bool", "default": true, "label": "Inline cards", "description": "Show StudioTwin media cards in chat."},
+        "auto_rotate": {"type": "bool", "default": true, "label": "Auto-rotate", "description": "Rotate models in Desktop viewers."},
+        "webgl_limit": {"type": "int", "default": 4, "label": "Live 3D viewers", "description": "Maximum live WebGL viewers (1-4)."},
+        "gallery_limit": {"type": "int", "default": 24, "label": "Gallery size", "description": "Recent assets shown (1-100)."},
+        "blender_handoff": {"type": "str", "choices": ["ask", "always", "never"], "default": "ask", "label": "Blender handoff", "description": "Offer a new local Blender project after downloading an asset."},
+        "blender_path": {"type": "str", "default": "", "label": "Blender executable", "description": "Full Blender executable path; empty finds it on PATH."}
+      }
+    }
+  }
+}

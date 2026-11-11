@@ -1,0 +1,49 @@
+$ /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v01/.venv/bin/python -B -m pytest -q tests/python/test_plugin_api.py -k file_ranges --tb=short
+.FFFFFFF                                                                 [100%]
+=================================== FAILURES ===================================
+_____________________ test_file_ranges[bytes=2-5-206-2345] _____________________
+tests/python/test_plugin_api.py:94: in test_file_ranges
+    assert r.status_code == status
+E   assert 200 == 206
+E    +  where 200 = <Response [200 OK]>.status_code
+______________________ test_file_ranges[bytes=-3-206-789] ______________________
+tests/python/test_plugin_api.py:94: in test_file_ranges
+    assert r.status_code == status
+E   assert 200 == 206
+E    +  where 200 = <Response [200 OK]>.status_code
+_____________________ test_file_ranges[bytes=5--206-56789] _____________________
+tests/python/test_plugin_api.py:94: in test_file_ranges
+    assert r.status_code == status
+E   assert 200 == 206
+E    +  where 200 = <Response [200 OK]>.status_code
+_____________________ test_file_ranges[bytes=99--416-None] _____________________
+tests/python/test_plugin_api.py:94: in test_file_ranges
+    assert r.status_code == status
+E   assert 200 == 416
+E    +  where 200 = <Response [200 OK]>.status_code
+_____________________ test_file_ranges[bytes=3-2-416-None] _____________________
+tests/python/test_plugin_api.py:94: in test_file_ranges
+    assert r.status_code == status
+E   assert 200 == 416
+E    +  where 200 = <Response [200 OK]>.status_code
+___________________ test_file_ranges[bytes=0-1,3-4-416-None] ___________________
+tests/python/test_plugin_api.py:94: in test_file_ranges
+    assert r.status_code == status
+E   assert 200 == 416
+E    +  where 200 = <Response [200 OK]>.status_code
+_____________________ test_file_ranges[bytes=-0-416-None] ______________________
+tests/python/test_plugin_api.py:94: in test_file_ranges
+    assert r.status_code == status
+E   assert 200 == 416
+E    +  where 200 = <Response [200 OK]>.status_code
+=========================== short test summary info ============================
+FAILED tests/python/test_plugin_api.py::test_file_ranges[bytes=2-5-206-2345]
+FAILED tests/python/test_plugin_api.py::test_file_ranges[bytes=-3-206-789] - ...
+FAILED tests/python/test_plugin_api.py::test_file_ranges[bytes=5--206-56789]
+FAILED tests/python/test_plugin_api.py::test_file_ranges[bytes=99--416-None]
+FAILED tests/python/test_plugin_api.py::test_file_ranges[bytes=3-2-416-None]
+FAILED tests/python/test_plugin_api.py::test_file_ranges[bytes=0-1,3-4-416-None]
+FAILED tests/python/test_plugin_api.py::test_file_ranges[bytes=-0-416-None]
+7 failed, 1 passed, 26 deselected in 2.79s
+
+exit_code=1

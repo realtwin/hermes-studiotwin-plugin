@@ -1,0 +1,107 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v12
+
+ ❯ tests/workspace/v11-studio.test.ts (6 tests | 3 failed | 3 skipped) 7063ms
+   × V12 uses explicit SDK control hierarchy everywhere 101ms
+     → expected [ …(10) ] to deeply equal []
+   × V12 selection is soft and readable rather than primary blue with background-colored text 1ms
+     → expected 'var(--ui-accent)' to contain '16%'
+   × V12 production inspection rooms are achromatic in light and dark with dedicated right-hand Close controls 6958ms
+     → expect(locator).toContainText(expected) failed
+
+Locator: getByRole('dialog', { name: 'Asset inspection', exact: true }).getByRole('button', { name: 'Close asset inspection', exact: true })
+Expected substring: "ESC"
+Received string:    "Close asset inspection"
+Timeout: 5000ms
+
+Call log:
+  - Expect "toContainText" getByRole('dialog', { name: 'Asset inspection', exact: true }).getByRole('button', { name: 'Close asset inspection', exact: true }) with timeout 5000ms
+  - waiting for getByRole('dialog', { name: 'Asset inspection', exact: true }).getByRole('button', { name: 'Close asset inspection', exact: true })
+    14 × locator resolved to <button>Close asset inspection</button>
+       - unexpected value "Close asset inspection"
+
+   ↓ V11 production bundle: cloud-shaped names, real image posters, HDR classification and five-channel sibling PBR inspection
+   ↓ V11 production bundle: job prompts, metadata, copy and reuse preserve canonical tool and originating chat
+   ↓ V11 production bundle: unindexed completed model, HDR, audio and negative rig-check outputs inspect without resubmission
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 3 skipped (6)
+   Start at  05:57:34
+   Duration  8.06s (transform 118ms, setup 0ms, collect 729ms, tests 7.06s, environment 0ms, prepare 75ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workspace/v11-studio.test.ts > V12 uses explicit SDK control hierarchy everywhere
+AssertionError: expected [ …(10) ] to deeply equal []
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [][39m
+[31m+ [[39m
+[31m+   "src/pages/asset-inspector.tsx:51 sdk.Badge",[39m
+[31m+   "src/pages/asset-inspector.tsx:260 sdk.Badge",[39m
+[31m+   "src/pages/asset-inspector.tsx:261 sdk.Badge",[39m
+[31m+   "src/pages/asset-inspector.tsx:262 sdk.Button",[39m
+[31m+   "src/pages/asset-inspector.tsx:263 sdk.Button",[39m
+[31m+   "src/pages/asset-inspector.tsx:272 sdk.Button",[39m
+[31m+   "src/pages/asset-inspector.tsx:276 sdk.Badge",[39m
+[31m+   "src/pages/asset-inspector.tsx:304 sdk.Button",[39m
+[31m+   "src/pages/asset-inspector.tsx:308 sdk.Button",[39m
+[31m+   "src/pages/asset-inspector.tsx:327 sdk.Button",[39m
+[31m+ ][39m
+
+ ❯ tests/workspace/v11-studio.test.ts:25:19
+     23|     visit(source)
+     24|   }
+     25|   expect(missing).toEqual([])
+       |                   ^
+     26| })
+     27| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/workspace/v11-studio.test.ts > V12 selection is soft and readable rather than primary blue with background-colored text
+AssertionError: expected 'var(--ui-accent)' to contain '16%'
+
+Expected: [32m"16%"[39m
+Received: [31m"var(--ui-accent)"[39m
+
+ ❯ tests/workspace/v11-studio.test.ts:29:44
+     27| 
+     28| it('V12 selection is soft and readable rather than primary blue with b…
+     29|   expect(filterPillStyle(true).background).toContain('16%')
+       |                                            ^
+     30|   expect(filterPillStyle(true).color).toBe('var(--ui-text-primary, var…
+     31|   expect(tabButtonStyle(true).background).not.toContain('--ui-accent')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/workspace/v11-studio.test.ts > V12 production inspection rooms are achromatic in light and dark with dedicated right-hand Close controls
+Error: expect(locator).toContainText(expected) failed
+
+Locator: getByRole('dialog', { name: 'Asset inspection', exact: true }).getByRole('button', { name: 'Close asset inspection', exact: true })
+Expected substring: "ESC"
+Received string:    "Close asset inspection"
+Timeout: 5000ms
+
+Call log:
+  - Expect "toContainText" getByRole('dialog', { name: 'Asset inspection', exact: true }).getByRole('button', { name: 'Close asset inspection', exact: true }) with timeout 5000ms
+  - waiting for getByRole('dialog', { name: 'Asset inspection', exact: true }).getByRole('button', { name: 'Close asset inspection', exact: true })
+    14 × locator resolved to <button>Close asset inspection</button>
+       - unexpected value "Close asset inspection"
+
+ ❯ captureRawStack ../v09/node_modules/playwright/node_modules/playwright-core/lib/coreBundle.js:9282:17
+ ❯ callMatcherAsStep ../v09/node_modules/playwright/lib/matchers/expect.js:13316:57
+ ❯ Object.toContainText ../v09/node_modules/playwright/lib/matchers/expect.js:13308:23
+ ❯ tests/workspace/v11-studio.test.ts:45:23
+     43|       const close = dialog.getByRole('button', { name: 'Close asset in…
+     44|       await pw(close).toContainText('Close')
+     45|       await pw(close).toContainText('ESC')
+       |                       ^
+     46|       const neutral = async (locator: any) => {
+     47|         const colors = await locator.evaluate((node: HTMLElement) => {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+

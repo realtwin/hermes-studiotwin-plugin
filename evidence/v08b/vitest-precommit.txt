@@ -1,0 +1,115 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v08b
+
+ ❯ tests/workspace/workspace.test.ts (20 tests | 1 failed) 61065ms
+   × Chromium: settings events change recent gallery page sizes, not complete-library paging or workspace previews 12544ms
+     → locator.click: Timeout 10000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Inspect crate.glb', exact: true })
+
+   ✓ Chromium loopback backend: real router/MCP/storage, image decoding, local/cloud upload and pre-network validation  1457ms
+   ✓ Chromium: registers the route, sidebar, six palette commands, and live credits/active-job chrome  2089ms
+   ✓ Chromium: real library filters/search, model inspector, backend lineage and quoted Next actions address origin chat  3578ms
+   ✓ Chromium: complete merged library beyond 100 rows supports late modality, search and inspection  3810ms
+   ✓ Chromium: a failed later library page reports an error, not missing assets, and refresh retries all pages  2298ms
+   ✓ Chromium: real job filters, queued-only cancellation and Inspect Output opens the real image viewer  2450ms
+   ✓ Chromium: Concepts history/active badge and four composer-only workflows use the captured owner  2357ms
+   ✓ Chromium: local selection and explicit cloud drop upload go through the real router without leaking presigned POST fields  2293ms
+   ✓ Chromium: cached PBR, cloud HDR, rigged animation, audio and video open their real rich viewers  4197ms
+   ✓ Chromium: every palette command and chip opens the requested registered workspace tab; settings toggle is live  2462ms
+   ✓ Chromium: all four tabs inherit light/dark theme variables, with no hardcoded color styles  2288ms
+   ✓ Chromium: profile switch permanently revokes captured workspace actions  2587ms
+   ✓ Chromium: connectionId switch permanently revokes captured workspace actions  2552ms
+   ✓ Chromium: pending upload cannot expose Use in Chat after profile changes away and back  2210ms
+   ✓ Chromium: pending upload cannot expose Use in Chat after connectionId changes away and back  2295ms
+   ✓ Chromium: file-read scope change refuses upload before network dispatch (profile)  2369ms
+   ✓ Chromium: file-read scope change refuses upload before network dispatch (connectionId)  2218ms
+   ✓ Chromium: missing key setup opens settings with optional settings door=true  2493ms
+   ✓ Chromium: missing key setup opens settings with optional settings door=false  2517ms
+ ✓ tests/bundle/plugin-bundle.test.ts (4 tests) 11515ms
+   ✓ ships a single compiled ESM artifact with only namespace SDK imports and allowed external modules  641ms
+   ✓ Chromium imports the committed bundle, registers and renders all surfaces (full SDK)  6211ms
+   ✓ Chromium imports the committed bundle, registers and renders all surfaces (missing area/registration exports)  4661ms
+ ✓ tests/viewers/model-animation.test.ts (13 tests) 10660ms
+   ✓ mounted viewers enforce cap and animate through real WebGL  3317ms
+   ✓ standalone errors survive disposal and recover only on retry or source replacement  7304ms
+stderr | tests/viewers/env-material.test.ts > environment and material contracts > decodes real Radiance and EXR pixels
+RGBELoader has been deprecated. Please use HDRLoader instead.
+
+ ✓ tests/viewers/env-material.test.ts (13 tests) 5836ms
+   ✓ mounted real Chromium WebGL environment and five-map material, lifecycle and scoped cards  5819ms
+ ❯ tests/scaffold/scaffold.test.ts (19 tests | 1 failed) 3184ms
+   ✓ locked runner > is the pinned Vitest 3.2.7 in a single forked worker 1ms
+   ✓ locked runner > runs on the supported Node line 0ms
+   ✓ locked runner > has no Jest-only runner or flag anywhere in the project manifest 0ms
+   ✓ @hermes/plugin-sdk declarations > ROUTES_AREA matches pinned core, the declaration and the test stub 0ms
+   ✓ @hermes/plugin-sdk declarations > SIDEBAR_NAV_AREA matches pinned core, the declaration and the test stub 0ms
+   ✓ @hermes/plugin-sdk declarations > PALETTE_AREA matches pinned core, the declaration and the test stub 0ms
+   ✓ @hermes/plugin-sdk declarations > KEYBINDS_AREA matches pinned core, the declaration and the test stub 0ms
+   ✓ @hermes/plugin-sdk declarations > TRANSCRIPT_DIRECTIVE_AREA matches pinned core, the declaration and the test stub 0ms
+   ✓ @hermes/plugin-sdk declarations > TOOL_MEDIA_RENDERER_AREA matches pinned core, the declaration and the test stub 0ms
+   ✓ @hermes/plugin-sdk declarations > SETTINGS_PLUGINS_AREA matches pinned core, the declaration and the test stub 0ms
+   ✓ @hermes/plugin-sdk declarations > pins the grouped areas to core 1ms
+   ✓ @hermes/plugin-sdk declarations > feature-detects every seam newer than the oldest supported Desktop 0ms
+   ✓ @hermes/plugin-sdk declarations > typechecks the declarations, configs and the SDK usage contract with the locked TypeScript  3155ms
+   ✓ build and test config > bundles one ESM desktop/plugin.js with only the host-provided specifiers external 1ms
+   ✓ build and test config > resolves @hermes/plugin-sdk to the test stub only under Vitest 1ms
+   ✓ import isolation > the scaffold test graph reaches only scaffold and config files, never src/ 3ms
+   × import isolation > src/ holds only the SDK declaration file at S01 8ms
+     → expected [ 'inline-settings.tsx', …(2) ] to deeply equal [ 'sdk.d.ts' ]
+   ✓ import isolation > the graph walker does catch a future-leaf import (self-check) 0ms
+   ✓ import isolation > the graph walker follows a future-leaf import into src/ (self-check) 1ms
+ ✓ tests/viewers/video-timing.test.ts (6 tests) 10ms
+ ✓ tests/viewers/settings.test.ts (2 tests) 1ms
+ ✓ tests/viewers/image-video-task.test.ts (17 tests) 8624ms
+   ✓ Chromium: registered and completed 6-fps video decoded steps, image inspection, sequence, jobs and invalidation  3933ms
+   ✓ Chromium: registered and completed 10-fps video decoded steps, image inspection, sequence, jobs and invalidation  3856ms
+ ✓ tests/viewers/audio.test.ts (20 tests) 2085ms
+   ✓ Chromium: real WAV/MP3 decode, canvas resize/theme, audition, seek, download and scope invalidation  1254ms
+ ✓ tests/viewers/catalog-routing.test.ts (33 tests) 92ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/scaffold/scaffold.test.ts > import isolation > src/ holds only the SDK declaration file at S01
+AssertionError: expected [ 'inline-settings.tsx', …(2) ] to deeply equal [ 'sdk.d.ts' ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  [[22m
+[31m+   "inline-settings.tsx",[39m
+[2m    "sdk.d.ts",[22m
+[31m+   "settings.ts",[39m
+[2m  ][22m
+
+ ❯ tests/scaffold/scaffold.test.ts:158:137
+    156| 
+    157|   it('src/ holds only the SDK declaration file at S01', () => {
+    158|     expect(readdirSync(join(ROOT, 'src')).filter(name => !['viewers', …
+       |                                                                                                                                         ^
+    159|   })
+    160| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/workspace/workspace.test.ts > Chromium: settings events change recent gallery page sizes, not complete-library paging or workspace previews
+TimeoutError: locator.click: Timeout 10000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: 'Inspect crate.glb', exact: true })
+
+ ❯ tests/workspace/workspace.test.ts:59:72
+     57|   await page.getByRole('tab',{name:'Library',exact:true}).click();
+     58|   await page.waitForFunction(()=>(window as any).requests.some((r:any)…
+     59|   await page.getByRole('button',{name:'Inspect crate.glb',exact:true})…
+       |                                                                        ^
+     60|   await page.getByRole('button',{name:'Click to load 3D',exact:true}).…
+     61|   const spin = page.getByRole('button',{name:'Auto-rotate',exact:true}…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 8 passed (10)
+      Tests  2 failed | 145 passed (147)
+   Start at  06:42:17
+   Duration  107.14s (transform 863ms, setup 0ms, collect 3.03s, tests 103.07s, environment 509ms, prepare 123ms)
+

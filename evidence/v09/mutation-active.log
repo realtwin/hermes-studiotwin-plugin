@@ -1,0 +1,36 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v09
+
+ ❯ tests/visual/ui-polish.test.ts (2 tests | 2 failed) 2298ms
+   × cleans only complete cache prefixes, preserving ordinary names and short IDs 5ms
+     → expected 'var(--ui-bg-secondary)' not to be 'var(--ui-bg-secondary)' // Object.is equality
+   × production bundle: active pills, channel/geometry controls, env reset, responsive concepts and raw filenames 2292ms
+     → expected 'rgb(233, 237, 244)' not to be 'rgb(233, 237, 244)' // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/visual/ui-polish.test.ts > cleans only complete cache prefixes, preserving ordinary names and short IDs
+AssertionError: expected 'var(--ui-bg-secondary)' not to be 'var(--ui-bg-secondary)' // Object.is equality
+ ❯ tests/visual/ui-polish.test.ts:12:48
+     10|   for (const name of ['hero-reference.png', '1234-concept.png', '000a5…
+     11|     expect(cleanDisplayName(name)).toEqual({ title: name, shortId: '' …
+     12|   expect(filterPillStyle(true).background).not.toBe(filterPillStyle(fa…
+       |                                                ^
+     13|   expect(tabButtonStyle(true).color).not.toBe(tabButtonStyle(false).co…
+     14| })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/visual/ui-polish.test.ts > production bundle: active pills, channel/geometry controls, env reset, responsive concepts and raw filenames
+AssertionError: expected 'rgb(233, 237, 244)' not to be 'rgb(233, 237, 244)' // Object.is equality
+ ❯ tests/visual/ui-polish.test.ts:28:61
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  15:19:03
+   Duration  2.94s (transform 88ms, setup 0ms, collect 366ms, tests 2.30s, environment 0ms, prepare 82ms)
+

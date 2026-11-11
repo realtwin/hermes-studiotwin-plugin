@@ -1,0 +1,412 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v08a
+
+ ❯ tests/viewers/catalog-routing.test.ts (33 tests | 18 failed) 64ms
+   × exclusive media ownership and registration aliases: text-to-motion-edit 12ms
+     → studiotwin-video-media / mcp__studiotwin__text-to-motion-edit: expected false to be true // Object.is equality
+   × exclusive media ownership and registration aliases: text-to-motion 1ms
+     → studiotwin-video-media / mcp__studiotwin__text-to-motion: expected false to be true // Object.is equality
+   × exclusive media ownership and registration aliases: text-to-motion-kimodo 1ms
+     → studiotwin-video-media / mcp__studiotwin__text-to-motion-kimodo: expected false to be true // Object.is equality
+   × exclusive media ownership and registration aliases: text-to-motion-control 1ms
+     → studiotwin-video-media / mcp__studiotwin__text-to-motion-control: expected false to be true // Object.is equality
+   ✓ exclusive media ownership and registration aliases: motion-stitch-single 3ms
+   × exclusive media ownership and registration aliases: text-to-environment-map 2ms
+     → studiotwin-env-media / mcp__studiotwin__text-to-environment-map: expected false to be true // Object.is equality
+   × exclusive media ownership and registration aliases: image-to-environment-map 1ms
+     → studiotwin-env-media / mcp__studiotwin__image-to-environment-map: expected false to be true // Object.is equality
+   × exclusive media ownership and registration aliases: environment-map-to-world 1ms
+     → studiotwin-video-media / mcp__studiotwin__environment-map-to-world: expected false to be true // Object.is equality
+   × exclusive media ownership and registration aliases: environment-map-upscale-cpu 1ms
+     → studiotwin-env-media / mcp__studiotwin__environment-map-upscale-cpu: expected false to be true // Object.is equality
+   × exclusive media ownership and registration aliases: pano-sticker-placement 1ms
+     → studiotwin-env-media / mcp__studiotwin__pano-sticker-placement: expected false to be true // Object.is equality
+   × exclusive media ownership and registration aliases: pano-stickers 1ms
+     → studiotwin-env-media / mcp__studiotwin__pano-stickers: expected false to be true // Object.is equality
+   × exclusive media ownership and registration aliases: text-to-material 1ms
+     → studiotwin-material-media / mcp__studiotwin__text-to-material: expected false to be true // Object.is equality
+   × exclusive media ownership and registration aliases: texture-to-material 1ms
+     → studiotwin-material-media / mcp__studiotwin__texture-to-material: expected false to be true // Object.is equality
+   × exclusive media ownership and registration aliases: image-to-material 1ms
+     → studiotwin-material-media / mcp__studiotwin__image-to-material: expected false to be true // Object.is equality
+   × exclusive media ownership and registration aliases: image-to-3d-mesh 1ms
+     → studiotwin-video-media / mcp__studiotwin__image-to-3d-mesh: expected false to be true // Object.is equality
+   × exclusive media ownership and registration aliases: tripo-image-to-3d-mesh 1ms
+     → studiotwin-video-media / mcp__studiotwin__tripo-image-to-3d-mesh: expected false to be true // Object.is equality
+   ✓ exclusive media ownership and registration aliases: tripo-rig-check 2ms
+   ✓ exclusive media ownership and registration aliases: blender-auto-rig 2ms
+   ✓ exclusive media ownership and registration aliases: tripo-auto-rig 2ms
+   ✓ exclusive media ownership and registration aliases: tripo-retopology 2ms
+   ✓ exclusive media ownership and registration aliases: text-to-sound-effect 2ms
+   ✓ exclusive media ownership and registration aliases: prompt-to-dart-translation 2ms
+   × exclusive media ownership and registration aliases: openai-gpt-image-2-v4-fn 2ms
+     → mcp__studiotwin__openai-gpt-image-2-v4-fn / image / out.png: expected [] to deeply equal [ 'studiotwin-image-media' ]
+   × exclusive media ownership and registration aliases: concept-lab-img-fn 1ms
+     → mcp__studiotwin__concept-lab-img-fn / image / out.png: expected [] to deeply equal [ 'studiotwin-image-media' ]
+   ✓ exclusive media ownership and registration aliases: studiotwin_conceptlab_create_and_generate 1ms
+   ✓ exclusive media ownership and registration aliases: studiotwin_conceptlab_generate 2ms
+   ✓ exclusive media ownership and registration aliases: studiotwin_conceptlab_edit 2ms
+   × exclusive media ownership and registration aliases: openai-gpt-image-1-v1-fn 1ms
+     → mcp__studiotwin__openai-gpt-image-1-v1-fn / image / out.png: expected [] to deeply equal [ 'studiotwin-image-media' ]
+   ✓ exclusive media ownership and registration aliases: studiotwin_conceptlab_get 2ms
+   ✓ exclusive media ownership and registration aliases: studiotwin_conceptlab_get_status 2ms
+   ✓ exclusive media ownership and registration aliases: terminal 2ms
+   ✓ exclusive media ownership and registration aliases: foreign-image-tool 4ms
+   ✓ all image, environment and material next-action prices match the captured fixedCost 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 18 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/viewers/catalog-routing.test.ts > exclusive media ownership and registration aliases: text-to-motion-edit
+AssertionError: studiotwin-video-media / mcp__studiotwin__text-to-motion-edit: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/viewers/catalog-routing.test.ts:46:53
+     44|         const family = r.id.split('-')[1]
+     45|         const shouldClaim = ({image: images, video: videos, env: envs,…
+     46|         expect(claimsTool, `${r.id} / ${toolName}`).toBe(shouldClaim)
+       |                                                     ^
+     47|       }
+     48|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/18]⎯
+
+ FAIL  tests/viewers/catalog-routing.test.ts > exclusive media ownership and registration aliases: text-to-motion
+AssertionError: studiotwin-video-media / mcp__studiotwin__text-to-motion: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/viewers/catalog-routing.test.ts:46:53
+     44|         const family = r.id.split('-')[1]
+     45|         const shouldClaim = ({image: images, video: videos, env: envs,…
+     46|         expect(claimsTool, `${r.id} / ${toolName}`).toBe(shouldClaim)
+       |                                                     ^
+     47|       }
+     48|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/18]⎯
+
+ FAIL  tests/viewers/catalog-routing.test.ts > exclusive media ownership and registration aliases: text-to-motion-kimodo
+AssertionError: studiotwin-video-media / mcp__studiotwin__text-to-motion-kimodo: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/viewers/catalog-routing.test.ts:46:53
+     44|         const family = r.id.split('-')[1]
+     45|         const shouldClaim = ({image: images, video: videos, env: envs,…
+     46|         expect(claimsTool, `${r.id} / ${toolName}`).toBe(shouldClaim)
+       |                                                     ^
+     47|       }
+     48|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/18]⎯
+
+ FAIL  tests/viewers/catalog-routing.test.ts > exclusive media ownership and registration aliases: text-to-motion-control
+AssertionError: studiotwin-video-media / mcp__studiotwin__text-to-motion-control: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/viewers/catalog-routing.test.ts:46:53
+     44|         const family = r.id.split('-')[1]
+     45|         const shouldClaim = ({image: images, video: videos, env: envs,…
+     46|         expect(claimsTool, `${r.id} / ${toolName}`).toBe(shouldClaim)
+       |                                                     ^
+     47|       }
+     48|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/18]⎯
+
+ FAIL  tests/viewers/catalog-routing.test.ts > exclusive media ownership and registration aliases: text-to-environment-map
+AssertionError: studiotwin-env-media / mcp__studiotwin__text-to-environment-map: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/viewers/catalog-routing.test.ts:46:53
+     44|         const family = r.id.split('-')[1]
+     45|         const shouldClaim = ({image: images, video: videos, env: envs,…
+     46|         expect(claimsTool, `${r.id} / ${toolName}`).toBe(shouldClaim)
+       |                                                     ^
+     47|       }
+     48|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/18]⎯
+
+ FAIL  tests/viewers/catalog-routing.test.ts > exclusive media ownership and registration aliases: image-to-environment-map
+AssertionError: studiotwin-env-media / mcp__studiotwin__image-to-environment-map: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/viewers/catalog-routing.test.ts:46:53
+     44|         const family = r.id.split('-')[1]
+     45|         const shouldClaim = ({image: images, video: videos, env: envs,…
+     46|         expect(claimsTool, `${r.id} / ${toolName}`).toBe(shouldClaim)
+       |                                                     ^
+     47|       }
+     48|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/18]⎯
+
+ FAIL  tests/viewers/catalog-routing.test.ts > exclusive media ownership and registration aliases: environment-map-to-world
+AssertionError: studiotwin-video-media / mcp__studiotwin__environment-map-to-world: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/viewers/catalog-routing.test.ts:46:53
+     44|         const family = r.id.split('-')[1]
+     45|         const shouldClaim = ({image: images, video: videos, env: envs,…
+     46|         expect(claimsTool, `${r.id} / ${toolName}`).toBe(shouldClaim)
+       |                                                     ^
+     47|       }
+     48|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/18]⎯
+
+ FAIL  tests/viewers/catalog-routing.test.ts > exclusive media ownership and registration aliases: environment-map-upscale-cpu
+AssertionError: studiotwin-env-media / mcp__studiotwin__environment-map-upscale-cpu: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/viewers/catalog-routing.test.ts:46:53
+     44|         const family = r.id.split('-')[1]
+     45|         const shouldClaim = ({image: images, video: videos, env: envs,…
+     46|         expect(claimsTool, `${r.id} / ${toolName}`).toBe(shouldClaim)
+       |                                                     ^
+     47|       }
+     48|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/18]⎯
+
+ FAIL  tests/viewers/catalog-routing.test.ts > exclusive media ownership and registration aliases: pano-sticker-placement
+AssertionError: studiotwin-env-media / mcp__studiotwin__pano-sticker-placement: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/viewers/catalog-routing.test.ts:46:53
+     44|         const family = r.id.split('-')[1]
+     45|         const shouldClaim = ({image: images, video: videos, env: envs,…
+     46|         expect(claimsTool, `${r.id} / ${toolName}`).toBe(shouldClaim)
+       |                                                     ^
+     47|       }
+     48|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/18]⎯
+
+ FAIL  tests/viewers/catalog-routing.test.ts > exclusive media ownership and registration aliases: pano-stickers
+AssertionError: studiotwin-env-media / mcp__studiotwin__pano-stickers: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/viewers/catalog-routing.test.ts:46:53
+     44|         const family = r.id.split('-')[1]
+     45|         const shouldClaim = ({image: images, video: videos, env: envs,…
+     46|         expect(claimsTool, `${r.id} / ${toolName}`).toBe(shouldClaim)
+       |                                                     ^
+     47|       }
+     48|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/18]⎯
+
+ FAIL  tests/viewers/catalog-routing.test.ts > exclusive media ownership and registration aliases: text-to-material
+AssertionError: studiotwin-material-media / mcp__studiotwin__text-to-material: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/viewers/catalog-routing.test.ts:46:53
+     44|         const family = r.id.split('-')[1]
+     45|         const shouldClaim = ({image: images, video: videos, env: envs,…
+     46|         expect(claimsTool, `${r.id} / ${toolName}`).toBe(shouldClaim)
+       |                                                     ^
+     47|       }
+     48|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/18]⎯
+
+ FAIL  tests/viewers/catalog-routing.test.ts > exclusive media ownership and registration aliases: texture-to-material
+AssertionError: studiotwin-material-media / mcp__studiotwin__texture-to-material: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/viewers/catalog-routing.test.ts:46:53
+     44|         const family = r.id.split('-')[1]
+     45|         const shouldClaim = ({image: images, video: videos, env: envs,…
+     46|         expect(claimsTool, `${r.id} / ${toolName}`).toBe(shouldClaim)
+       |                                                     ^
+     47|       }
+     48|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/18]⎯
+
+ FAIL  tests/viewers/catalog-routing.test.ts > exclusive media ownership and registration aliases: image-to-material
+AssertionError: studiotwin-material-media / mcp__studiotwin__image-to-material: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/viewers/catalog-routing.test.ts:46:53
+     44|         const family = r.id.split('-')[1]
+     45|         const shouldClaim = ({image: images, video: videos, env: envs,…
+     46|         expect(claimsTool, `${r.id} / ${toolName}`).toBe(shouldClaim)
+       |                                                     ^
+     47|       }
+     48|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/18]⎯
+
+ FAIL  tests/viewers/catalog-routing.test.ts > exclusive media ownership and registration aliases: image-to-3d-mesh
+AssertionError: studiotwin-video-media / mcp__studiotwin__image-to-3d-mesh: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/viewers/catalog-routing.test.ts:46:53
+     44|         const family = r.id.split('-')[1]
+     45|         const shouldClaim = ({image: images, video: videos, env: envs,…
+     46|         expect(claimsTool, `${r.id} / ${toolName}`).toBe(shouldClaim)
+       |                                                     ^
+     47|       }
+     48|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/18]⎯
+
+ FAIL  tests/viewers/catalog-routing.test.ts > exclusive media ownership and registration aliases: tripo-image-to-3d-mesh
+AssertionError: studiotwin-video-media / mcp__studiotwin__tripo-image-to-3d-mesh: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/viewers/catalog-routing.test.ts:46:53
+     44|         const family = r.id.split('-')[1]
+     45|         const shouldClaim = ({image: images, video: videos, env: envs,…
+     46|         expect(claimsTool, `${r.id} / ${toolName}`).toBe(shouldClaim)
+       |                                                     ^
+     47|       }
+     48|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/18]⎯
+
+ FAIL  tests/viewers/catalog-routing.test.ts > exclusive media ownership and registration aliases: openai-gpt-image-2-v4-fn
+AssertionError: mcp__studiotwin__openai-gpt-image-2-v4-fn / image / out.png: expected [] to deeply equal [ 'studiotwin-image-media' ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [[39m
+[32m-   "studiotwin-image-media",[39m
+[32m- ][39m
+[31m+ [][39m
+
+ ❯ tests/viewers/catalog-routing.test.ts:41:57
+     39|         : kind === 'image' && images.includes(tool) ? 'image' : undefi…
+     40|       const owners = media.filter(r => r.data.render(props) !== 'fallb…
+     41|       expect(owners, `${toolName} / ${kind} / ${name}`).toEqual(expect…
+       |                                                         ^
+     42|       for (const r of media.filter(r => r.id !== 'studiotwin-model-med…
+     43|         const claimsTool = r.data.tools.includes(toolName)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/18]⎯
+
+ FAIL  tests/viewers/catalog-routing.test.ts > exclusive media ownership and registration aliases: concept-lab-img-fn
+AssertionError: mcp__studiotwin__concept-lab-img-fn / image / out.png: expected [] to deeply equal [ 'studiotwin-image-media' ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [[39m
+[32m-   "studiotwin-image-media",[39m
+[32m- ][39m
+[31m+ [][39m
+
+ ❯ tests/viewers/catalog-routing.test.ts:41:57
+     39|         : kind === 'image' && images.includes(tool) ? 'image' : undefi…
+     40|       const owners = media.filter(r => r.data.render(props) !== 'fallb…
+     41|       expect(owners, `${toolName} / ${kind} / ${name}`).toEqual(expect…
+       |                                                         ^
+     42|       for (const r of media.filter(r => r.id !== 'studiotwin-model-med…
+     43|         const claimsTool = r.data.tools.includes(toolName)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/18]⎯
+
+ FAIL  tests/viewers/catalog-routing.test.ts > exclusive media ownership and registration aliases: openai-gpt-image-1-v1-fn
+AssertionError: mcp__studiotwin__openai-gpt-image-1-v1-fn / image / out.png: expected [] to deeply equal [ 'studiotwin-image-media' ]
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [[39m
+[32m-   "studiotwin-image-media",[39m
+[32m- ][39m
+[31m+ [][39m
+
+ ❯ tests/viewers/catalog-routing.test.ts:41:57
+     39|         : kind === 'image' && images.includes(tool) ? 'image' : undefi…
+     40|       const owners = media.filter(r => r.data.render(props) !== 'fallb…
+     41|       expect(owners, `${toolName} / ${kind} / ${name}`).toEqual(expect…
+       |                                                         ^
+     42|       for (const r of media.filter(r => r.id !== 'studiotwin-model-med…
+     43|         const claimsTool = r.data.tools.includes(toolName)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/18]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  18 failed | 15 passed (33)
+   Start at  06:29:29
+   Duration  1.38s (transform 358ms, setup 0ms, collect 537ms, tests 64ms, environment 505ms, prepare 74ms)
+

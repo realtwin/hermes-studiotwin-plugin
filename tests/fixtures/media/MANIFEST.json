@@ -1,0 +1,167 @@
+{
+  "files": {
+    "audio/tone-44k.mp3": {
+      "bytes": 1358,
+      "kind": "mp3",
+      "needs": "ffmpeg",
+      "sha256": "8a048a55b8dd6ba64405f98fbf27f47c5af6f8c06a594311deba3f504f5e358d"
+    },
+    "audio/tone-48k.wav": {
+      "bytes": 48044,
+      "channels": 2,
+      "kind": "wav",
+      "rate": 48000,
+      "seconds": 0.25,
+      "sha256": "e2681c0d4a7b28a08984886d625b6871e0eec2172ca072955623f495e7047624"
+    },
+    "env/equirect-32x16.exr": {
+      "bytes": 6713,
+      "height": 16,
+      "kind": "exr",
+      "sha256": "e0e193530394f00fac176c5b11d8c801a30e88dede0dd393e355b0bd0133ae4d",
+      "width": 32
+    },
+    "env/equirect-64x32.hdr": {
+      "bytes": 8262,
+      "height": 32,
+      "kind": "hdr",
+      "sha256": "fd65cd1221e2c9337efd1375965612f2a5c86d40615ef42cbfd6d011862e1b21",
+      "width": 64
+    },
+    "env/equirect-64x32.png": {
+      "bytes": 205,
+      "height": 32,
+      "kind": "png",
+      "projection": "equirectangular",
+      "sha256": "4d3eb27402bb15820b6a6c223dc067c5e0ce783c37eb2edfabbd11822ade83fc",
+      "width": 64
+    },
+    "image/concept-64.png": {
+      "bytes": 4898,
+      "height": 64,
+      "kind": "png",
+      "sha256": "f1222f2f8b4d749c7aed756d88f97161ff39ac1707a4768572e3e39323f6b086",
+      "width": 64
+    },
+    "material/pbr-albedo.png": {
+      "bytes": 532,
+      "kind": "png",
+      "role": "basecolor",
+      "sha256": "740d93622a7376b112dc909d639d94598dd7b0526248a62ab745b8e876a98476"
+    },
+    "material/pbr-metalness.png": {
+      "bytes": 74,
+      "kind": "png",
+      "role": "metalness",
+      "sha256": "a9f58f18d3b4252144b8e0c4f80d4677f657d643b688f54385d77ebade421ae1"
+    },
+    "material/pbr-normal.png": {
+      "bytes": 79,
+      "kind": "png",
+      "role": "normal",
+      "sha256": "aa552c67f483c6ab010b10e50c81f3a6bdf3858c2d066901f6f0151e12ed2594"
+    },
+    "material/pbr-roughness.png": {
+      "bytes": 72,
+      "kind": "png",
+      "role": "roughness",
+      "sha256": "489c3a0beda32cda062e315a67f2725b0274c8172770db72b4ee9e2d723b3c6b"
+    },
+    "model/rig-audit.json": {
+      "bytes": 103,
+      "kind": "json",
+      "sha256": "26e23aba0d3c644380de5bd7ffe607841b1b29487d96a7a0a2e2b4d96c7dd074"
+    },
+    "model/rigged-animated.glb": {
+      "bytes": 2492,
+      "clips": [
+        "Wave",
+        "Idle"
+      ],
+      "kind": "glb",
+      "rigged": true,
+      "sha256": "df5998b5fbf315404d32185641f3df6b267595361bff790d0e192676fd6fd377"
+    },
+    "model/static-cube.glb": {
+      "bytes": 864,
+      "kind": "glb",
+      "rigged": false,
+      "sha256": "c30c3cfad24b004923ab0cc3c15cc9f2a2e1f5f62dcee7517439ff63273b482b"
+    },
+    "motion/walk-clip.json": {
+      "bytes": 439,
+      "kind": "json",
+      "sha256": "fd13d2ccb6748327b213f3354e1473b344d18a70959e37717d816e893ad16d67"
+    },
+    "sequence/frames-4x16.tar": {
+      "bytes": 10240,
+      "entries": [
+        {
+          "name": "frame_0000.png",
+          "offset": 0,
+          "size": 151
+        },
+        {
+          "name": "frame_0001.png",
+          "offset": 1024,
+          "size": 157
+        },
+        {
+          "name": "frame_0002.png",
+          "offset": 2048,
+          "size": 173
+        },
+        {
+          "name": "frame_0003.png",
+          "offset": 3072,
+          "size": 175
+        }
+      ],
+      "frames": 4,
+      "kind": "tar",
+      "sha256": "d45d561fcbdce988a32d0507a8e0a6b48d61d549ae8a0251916886af22085fe4"
+    },
+    "sequence/traversal-hostile.tar": {
+      "bytes": 10240,
+      "entries": [
+        {
+          "name": "frame_0000.png",
+          "offset": 0,
+          "size": 151
+        },
+        {
+          "name": "../../escape.txt",
+          "offset": 1024,
+          "size": 22
+        }
+      ],
+      "hostile": true,
+      "kind": "tar",
+      "sha256": "d83ad86961404ee1b93502ac7849f8268da3dd5d13f1ed35ca4e1c8ad2dd9961"
+    },
+    "video/testsrc-32.mp4": {
+      "bytes": 2257,
+      "height": 32,
+      "kind": "mp4",
+      "needs": "ffmpeg",
+      "sha256": "3279fab0666327a071b5496ca6f086206210484adfa08310566745b4414ca6fe",
+      "width": 32
+    }
+  },
+  "format": "studiotwin-fixture-media/v1",
+  "generator": "tests/fixtures/media/generate_media.py",
+  "material_set": {
+    "missing": [
+      "height"
+    ],
+    "name": "fixture-pbr",
+    "present": [
+      "basecolor",
+      "normal",
+      "roughness",
+      "metalness"
+    ]
+  },
+  "not_produced": [],
+  "notes": "MP3/MP4 need ffmpeg; all other files are stdlib-generated."
+}

@@ -1,0 +1,18 @@
+
+> hermes-studiotwin@0.1.0 typecheck
+> tsc --noEmit -p tsconfig.json
+
+src/cards/task-card.tsx(11,57): error TS2307: Cannot find module '../lib/state-machines.ts' or its corresponding type declarations.
+src/pages/asset-inspector.tsx(3,45): error TS2307: Cannot find module './workspace-state.ts' or its corresponding type declarations.
+src/pages/jobs-tab.tsx(6,36): error TS2307: Cannot find module '../lib/state-machines.ts' or its corresponding type declarations.
+src/pages/upload-drawer.tsx(5,43): error TS2307: Cannot find module '../lib/state-machines.ts' or its corresponding type declarations.
+src/viewers/audio-viewer.tsx(9,39): error TS2307: Cannot find module '../lib/state-machines.ts' or its corresponding type declarations.
+src/viewers/audio-viewer.tsx(145,20): error TS7006: Parameter 'current' implicitly has an 'any' type.
+src/viewers/audio-viewer.tsx(149,37): error TS7006: Parameter 'current' implicitly has an 'any' type.
+src/viewers/video-viewer.tsx(7,37): error TS2307: Cannot find module '../lib/state-machines.ts' or its corresponding type declarations.
+src/viewers/video-viewer.tsx(110,75): error TS7006: Parameter 'current' implicitly has an 'any' type.
+tests/workspace/task-states.test.ts(78,64): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(role: ByRoleMatcher, options?: ByRoleOptions | undefined): HTMLElement', gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+  Overload 2 of 2, '(role: ByRoleMatcher, options?: ByRoleOptions | undefined): HTMLElement', gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.

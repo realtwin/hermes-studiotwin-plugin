@@ -1,0 +1,69 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13
+
+ ❯ tests/workspace/state-machines.test.ts (29 tests | 1 failed) 22ms
+   ✓ stage residency preserves snapshots and failures; ignores late ready 5ms
+   × multiview preserves downloadable capture on staging failure and rejects out-of-order events 13ms
+     → expected { phase: 'error', …(1) } to deeply equal { phase: 'partial_error', …(2) }
+   ✓ task derivation gives terminal results priority over cancellation 0ms
+   ✓ normalizes "submitted" to queued without throwing 0ms
+   ✓ normalizes "pending" to queued without throwing 0ms
+   ✓ normalizes "draft" to queued without throwing 0ms
+   ✓ normalizes "queued" to queued without throwing 0ms
+   ✓ normalizes "executing" to running without throwing 0ms
+   ✓ normalizes "in-progress" to running without throwing 0ms
+   ✓ normalizes "IN PROGRESS" to running without throwing 0ms
+   ✓ normalizes "processing" to running without throwing 0ms
+   ✓ normalizes "running" to running without throwing 0ms
+   ✓ normalizes "done" to completed without throwing 0ms
+   ✓ normalizes "complete" to completed without throwing 0ms
+   ✓ normalizes "completed" to completed without throwing 0ms
+   ✓ normalizes "succeeded" to completed without throwing 0ms
+   ✓ normalizes "success" to completed without throwing 0ms
+   ✓ normalizes "canceled" to cancelled without throwing 0ms
+   ✓ normalizes "cancelled" to cancelled without throwing 0ms
+   ✓ normalizes "failed" to failed without throwing 0ms
+   ✓ normalizes "error" to failed without throwing 0ms
+   ✓ normalizes undefined to queued without throwing 0ms
+   ✓ normalizes null to queued without throwing 0ms
+   ✓ normalizes {} to queued without throwing 0ms
+   ✓ normalizes "future-state" to queued without throwing 0ms
+   ✓ stage transitions cannot manufacture readiness from passive or terminal states 0ms
+   ✓ multiview accepts only in-order completion and permits retry after failure 0ms
+   ✓ inspector covers jobOnly and error precedence without losing local fallback 0ms
+   ✓ task covers cancellation and query errors explicitly 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workspace/state-machines.test.ts > multiview preserves downloadable capture on staging failure and rejects out-of-order events
+AssertionError: expected { phase: 'error', …(1) } to deeply equal { phase: 'partial_error', …(2) }
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[2m  {[22m
+[32m-   "capture": {[39m
+[32m-     "sheetDataUrl": "png",[39m
+[32m-     "views": [],[39m
+[32m-   },[39m
+[2m    "message": "host failed",[22m
+[32m-   "phase": "partial_error",[39m
+[31m+   "phase": "error",[39m
+[2m  }[22m
+
+ ❯ tests/workspace/state-machines.test.ts:25:86
+     23|   s = machines.multiviewTransition(s, { type: 'captured', capture })
+     24|   expect(s).toEqual({ phase: 'staging', capture })
+     25|   expect(machines.multiviewTransition(s, { type: 'error', message: 'ho…
+       |                                                                                      ^
+     26|   expect(machines.multiviewTransition(s, { type: 'staged', sheetPath: …
+     27|   expect(machines.multiviewTransition({ phase: 'capturing' }, { type: …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 28 passed (29)
+   Start at  17:52:51
+   Duration  358ms (transform 65ms, setup 0ms, collect 61ms, tests 22ms, environment 0ms, prepare 76ms)
+

@@ -1,0 +1,66 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v08a
+
+ ❯ tests/viewers/catalog-routing.test.ts (33 tests | 1 failed | 32 skipped) 13ms
+   ↓ exclusive media ownership and registration aliases: text-to-motion-edit
+   ↓ exclusive media ownership and registration aliases: text-to-motion
+   ↓ exclusive media ownership and registration aliases: text-to-motion-kimodo
+   ↓ exclusive media ownership and registration aliases: text-to-motion-control
+   ↓ exclusive media ownership and registration aliases: motion-stitch-single
+   ↓ exclusive media ownership and registration aliases: text-to-environment-map
+   ↓ exclusive media ownership and registration aliases: image-to-environment-map
+   ↓ exclusive media ownership and registration aliases: environment-map-to-world
+   ↓ exclusive media ownership and registration aliases: environment-map-upscale-cpu
+   ↓ exclusive media ownership and registration aliases: pano-sticker-placement
+   ↓ exclusive media ownership and registration aliases: pano-stickers
+   ↓ exclusive media ownership and registration aliases: text-to-material
+   ↓ exclusive media ownership and registration aliases: texture-to-material
+   ↓ exclusive media ownership and registration aliases: image-to-material
+   ↓ exclusive media ownership and registration aliases: image-to-3d-mesh
+   ↓ exclusive media ownership and registration aliases: tripo-image-to-3d-mesh
+   ↓ exclusive media ownership and registration aliases: tripo-rig-check
+   ↓ exclusive media ownership and registration aliases: blender-auto-rig
+   ↓ exclusive media ownership and registration aliases: tripo-auto-rig
+   ↓ exclusive media ownership and registration aliases: tripo-retopology
+   ↓ exclusive media ownership and registration aliases: text-to-sound-effect
+   ↓ exclusive media ownership and registration aliases: prompt-to-dart-translation
+   ↓ exclusive media ownership and registration aliases: openai-gpt-image-2-v4-fn
+   ↓ exclusive media ownership and registration aliases: concept-lab-img-fn
+   ↓ exclusive media ownership and registration aliases: studiotwin_conceptlab_create_and_generate
+   ↓ exclusive media ownership and registration aliases: studiotwin_conceptlab_generate
+   ↓ exclusive media ownership and registration aliases: studiotwin_conceptlab_edit
+   ↓ exclusive media ownership and registration aliases: openai-gpt-image-1-v1-fn
+   ↓ exclusive media ownership and registration aliases: studiotwin_conceptlab_get
+   ↓ exclusive media ownership and registration aliases: studiotwin_conceptlab_get_status
+   ↓ exclusive media ownership and registration aliases: terminal
+   ↓ exclusive media ownership and registration aliases: foreign-image-tool
+   × all image, environment and material next-action prices match the captured fixedCost 11ms
+     → expected 30 to be 25 // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/viewers/catalog-routing.test.ts > all image, environment and material next-action prices match the captured fixedCost
+AssertionError: expected 30 to be 25 // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 25[39m
+[31m+ 30[39m
+
+ ❯ tests/viewers/catalog-routing.test.ts:53:18
+     51| it('all image, environment and material next-action prices match the c…
+     52|   for (const [tool, cost] of Object.entries(NEXT_ACTION_COSTS)) {
+     53|     expect(cost).toBe(catalog.find((t: any) => t.name === tool)?.fixed…
+       |                  ^
+     54|   }
+     55|   expect(media.find(r => r.id === 'studiotwin-model-media').data.tools…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 32 skipped (33)
+   Start at  06:29:17
+   Duration  1.35s (transform 299ms, setup 0ms, collect 462ms, tests 13ms, environment 590ms, prepare 73ms)
+

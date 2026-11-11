@@ -1,0 +1,372 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13
+
+ × tests/workspace/stage-states.test.ts > model exposes poster → loading → ready without simultaneous retry and loading UI 145ms
+   → expected 'poster' to be 'loading' // Object.is equality
+ ✓ tests/workspace/stage-states.test.ts > environment exposes poster → loading → ready without simultaneous retry and loading UI 27ms
+ ✓ tests/workspace/stage-states.test.ts > material exposes poster → loading → ready without simultaneous retry and loading UI 38ms
+ × tests/workspace/stage-states.test.ts > model retains its snapshot after offscreen eviction and can acquire a fresh stage 16ms
+   → expected 'poster' to be 'ready' // Object.is equality
+ ✓ tests/workspace/stage-states.test.ts > environment retains its snapshot after offscreen eviction and can acquire a fresh stage 41ms
+ ✓ tests/workspace/stage-states.test.ts > material retains its snapshot after offscreen eviction and can acquire a fresh stage 33ms
+ × tests/workspace/stage-states.test.ts > model load failure survives lease release; retry is exclusive with status and actually reloads 9ms
+   → expected 'poster' to be 'error' // Object.is equality
+ ✓ tests/workspace/stage-states.test.ts > environment load failure survives lease release; retry is exclusive with status and actually reloads 22ms
+ ✓ tests/workspace/stage-states.test.ts > material load failure survives lease release; retry is exclusive with status and actually reloads 28ms
+ × tests/workspace/stage-states.test.ts > model fallback still exposes error instead of erasing failed load during disposal 8ms
+   → expected 'poster' to be 'error' // Object.is equality
+ ✓ tests/workspace/stage-states.test.ts > environment fallback still exposes error instead of erasing failed load during disposal 7ms
+ ✓ tests/workspace/stage-states.test.ts > material fallback still exposes error instead of erasing failed load during disposal 6ms
+ × tests/workspace/stage-states.test.ts > 'model' ignores superseded load completion (success=true) 7ms
+   → expected 'poster' to be 'loading' // Object.is equality
+ × tests/workspace/stage-states.test.ts > 'model' ignores superseded load completion (success=false) 12ms
+   → expected 'poster' to be 'ready' // Object.is equality
+ ✓ tests/workspace/stage-states.test.ts > 'environment' ignores superseded load completion (success=true) 15ms
+ ✓ tests/workspace/stage-states.test.ts > 'environment' ignores superseded load completion (success=false) 12ms
+ ✓ tests/workspace/stage-states.test.ts > 'material' ignores superseded load completion (success=true) 21ms
+ ✓ tests/workspace/stage-states.test.ts > 'material' ignores superseded load completion (success=false) 21ms
+ × tests/workspace/stage-states.test.ts > model audit is terminal without loading/retry controls and releases its GPU lease 8ms
+   → expected 'poster' to be 'audit' // Object.is equality
+ ✓ tests/workspace/stage-states.test.ts > real shared pool evicts the first viewer when a second viewer takes its only slot 27ms
+ ✓ tests/workspace/stage-states.test.ts > multiview retains downloadable pixels after upload failure and supports staged/reskin retry 64ms
+ ✓ tests/workspace/stage-states.test.ts > multiview retains downloadable pixels after provenance failure and supports staged/reskin retry 61ms
+ ✓ tests/workspace/stage-states.test.ts > multiview retains downloadable pixels after callback failure and supports staged/reskin retry 54ms
+ ✓ tests/workspace/stage-states.test.ts > multiview capture failure has error without nonexistent download or reskin availability 38ms
+ ✓ tests/workspace/stage-states.test.ts > multiview completion from a superseded model cannot stage a sheet or enable reskin 28ms
+ × tests/workspace/stage-states.test.ts > a superseded model fetch cannot decode into the retired stage or replace current stats 1015ms
+   → expected 'poster' to be 'ready' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<section[39m
+        [33mdata-stage-state[39m=[32m"poster"[39m
+        [33mdata-studiotwin-model-viewer[39m=[32m"true"[39m
+        [33mstyle[39m=[32m"position: relative; min-width: 0px; border-radius: 10px; overflow: hidden; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mstyle[39m=[32m"position: relative; height: 320px;"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"position: absolute; inset: 0px;"[39m
+          [36m/>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33maria-label[39m=[32m"Model controls"[39m
+          [33mrole[39m=[32m"toolbar"[39m
+          [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; gap: 4px; align-items: center; padding: 4px 6px; border-radius: 8px; background: color-mix(in srgb, oklch(from var(--ui-bg) l 0 h) 76%, transparent); backdrop-filter: blur(10px); border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h);"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 12px; font-size: 12px; min-width: 0px; font-variant-numeric: tabular-nums; background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 55%, transparent);"[39m
+          [36m>[39m
+            [0mShading[0m
+            [0m [0m
+            [36m<select[39m
+              [33maria-label[39m=[32m"Shading mode"[39m
+              [33mstyle[39m=[32m"padding: 5px 10px; border-radius: 6px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); font-size: 12px; font-weight: 500; cursor: pointer; min-width: 0px; max-width: 100%;"[39m
+            [36m>[39m
+              [36m<option>[39m
+                [0mtextured[0m
+              [36m</option>[39m
+              [36m<option>[39m
+                [0mwireframe[0m
+              [36m</option>[39m
+              [36m<option>[39m
+                [0mclay[0m
+              [36m</option>[39m
+              [36m<option>[39m
+                [0mnormals[0m
+              [36m</option>[39m
+            [36m</select>[39m
+          [36m</label>[39m
+          [36m<button[39m
+            [33maria-pressed[39m=[32m"true"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; background: color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 14%, transparent); border: 1px solid color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 38%, transparent); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); outline-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+            [33mvariant[39m=[32m"ghost"[39m
+          [36m>[39m
+            [0mAuto-rotate[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33maria-pressed[39m=[32m"true"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; background: color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 14%, transparent); border: 1px solid color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 38%, transparent); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); outline-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+            [33mvariant[39m=[32m"ghost"[39m
+          [36m>[39m
+            [0mGrid[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 500; cursor: pointer; background: color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 6%, transparent); border: 1px solid oklch(from var(--ui-stroke-tertiary, var(--ui-stroke-secondary)) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); outline-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+            [33mvariant[39m=[32m"ghost"[39m
+          [36m>[39m
+            [36m<i[39m
+              [33mdata-codicon[39m=[32m"refresh"[39m
+            [36m/>[39m
+            [0mReset camera[0m
+          [36m</button>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33maria-label[39m=[32m"Multiview"[39m
+          [33mdata-multiview-state[39m=[32m"idle"[39m
+          [33mrole[39m=[32m"group"[39m
+          [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px; font-size: 12px; min-width: 0px; font-variant-numeric: tabular-nums; background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 55%, transparent);"[39m
+        [36m>[39m
+          [36m<strong>[39m
+            [0mMultiview[0m
+          [36m</strong>[39m
+          [36m<select[39m
+            [33maria-label[39m=[32m"Multiview views"[39m
+            [33mstyle[39m=[32m"padding: 5px 10px; border-radius: 6px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); font-size: 12px; font-weight: 500; cursor: pointer; min-width: 0px; max-width: 100%;"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"4"[39m
+            [36m>[39m
+              [0m4 Views[0m
+            [36m</option>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"6"[39m
+            [36m>[39m
+              [0m6 Views[0m
+            [36m</option>[39m
+          [36m</select>[39m
+          [36m<select[39m
+            [33maria-label[39m=[32m"Multiview pass"[39m
+            [33mstyle[39m=[32m"padding: 5px 10px; border-radius: 6px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); font-size: 12px; font-weight: 500; cursor: pointer...
+ ✓ tests/workspace/stage-states.test.ts > a staging completion after model replacement cannot restore the old sheet or enable reskin 39ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > model exposes poster → loading → ready without simultaneous retry and loading UI
+AssertionError: expected 'poster' to be 'loading' // Object.is equality
+
+Expected: [32m"loading"[39m
+Received: [31m"poster"[39m
+
+ ❯ tests/workspace/stage-states.test.ts:93:28
+     91|   expect(screen.queryByRole('status')).toBeNull()
+     92|   await start(kind)
+     93|   expect(phase(container)).toBe('loading')
+       |                            ^
+     94|   expect(screen.getByRole('status').textContent).toMatch(/Loading/)
+     95|   expect(screen.queryByRole('button', { name: startName(kind) })).toBe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > model retains its snapshot after offscreen eviction and can acquire a fresh stage
+AssertionError: expected 'poster' to be 'ready' // Object.is equality
+
+Expected: [32m"ready"[39m
+Received: [31m"poster"[39m
+
+ ❯ tests/workspace/stage-states.test.ts:106:28
+    104|   const { container } = render(viewer(kind))
+    105|   await start(kind)
+    106|   expect(phase(container)).toBe('ready')
+       |                            ^
+    107|   evict(container)
+    108|   expect(phase(container)).toBe('evicted')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > model load failure survives lease release; retry is exclusive with status and actually reloads
+AssertionError: expected 'poster' to be 'error' // Object.is equality
+
+Expected: [32m"[7merro[27mr"[39m
+Received: [31m"[7mposte[27mr"[39m
+
+ ❯ tests/workspace/stage-states.test.ts:124:28
+    122|   await start(kind)
+    123|   await act(async () => pending.reject(Error('GPU decode failed')))
+    124|   expect(phase(container)).toBe('error')
+       |                            ^
+    125|   expect(screen.getByRole('button', { name: retryName(kind) })).toBeDe…
+    126|   expect(screen.queryByRole('status')).toBeNull()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > model fallback still exposes error instead of erasing failed load during disposal
+AssertionError: expected 'poster' to be 'error' // Object.is equality
+
+Expected: [32m"[7merro[27mr"[39m
+Received: [31m"[7mposte[27mr"[39m
+
+ ❯ tests/workspace/stage-states.test.ts:143:28
+    141|   await start(kind)
+    142|   await act(async () => pending.reject(Error('bad file')))
+    143|   expect(phase(container)).toBe('error')
+       |                            ^
+    144|   expect(screen.getByText('Original asset fallback')).toBeDefined()
+    145|   expect(screen.queryByRole('status')).toBeNull()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > 'model' ignores superseded load completion (success=true)
+AssertionError: expected 'poster' to be 'loading' // Object.is equality
+
+Expected: [32m"loading"[39m
+Received: [31m"poster"[39m
+
+ ❯ tests/workspace/stage-states.test.ts:160:30
+    158|     // An obsolete success must not mark the replacement ready before …
+    159|     await act(async () => old.resolve(stats))
+    160|     expect(phase(container)).toBe('loading')
+       |                              ^
+    161|     expect(screen.queryByRole('toolbar')).toBeNull()
+    162|     await act(async () => fresh.resolve(stats))
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > 'model' ignores superseded load completion (success=false)
+AssertionError: expected 'poster' to be 'ready' // Object.is equality
+
+Expected: [32m"ready"[39m
+Received: [31m"poster"[39m
+
+ ❯ tests/workspace/stage-states.test.ts:167:28
+    165|     await act(async () => old.reject(Error('obsolete failure')))
+    166|   }
+    167|   expect(phase(container)).toBe('ready')
+       |                            ^
+    168|   expect(onError).not.toHaveBeenCalled()
+    169|   expect(screen.queryByRole('button', { name: retryName(kind) })).toBe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > model audit is terminal without loading/retry controls and releases its GPU lease
+AssertionError: expected 'poster' to be 'audit' // Object.is equality
+
+Expected: [32m"audit"[39m
+Received: [31m"poster"[39m
+
+ ❯ tests/workspace/stage-states.test.ts:176:28
+    174|   const { container } = render(createElement(ModelViewer, { rest, sour…
+    175|   await start('model')
+    176|   expect(phase(container)).toBe('audit')
+       |                            ^
+    177|   expect(screen.getByText(/Rig audit: passed/)).toBeDefined()
+    178|   expect(screen.getByText('Inspect hands')).toBeDefined()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+ FAIL  tests/workspace/stage-states.test.ts > a superseded model fetch cannot decode into the retired stage or replace current stats
+AssertionError: expected 'poster' to be 'ready' // Object.is equality
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<section[39m
+        [33mdata-stage-state[39m=[32m"poster"[39m
+        [33mdata-studiotwin-model-viewer[39m=[32m"true"[39m
+        [33mstyle[39m=[32m"position: relative; min-width: 0px; border-radius: 10px; overflow: hidden; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mstyle[39m=[32m"position: relative; height: 320px;"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mstyle[39m=[32m"position: absolute; inset: 0px;"[39m
+          [36m/>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33maria-label[39m=[32m"Model controls"[39m
+          [33mrole[39m=[32m"toolbar"[39m
+          [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; gap: 4px; align-items: center; padding: 4px 6px; border-radius: 8px; background: color-mix(in srgb, oklch(from var(--ui-bg) l 0 h) 76%, transparent); backdrop-filter: blur(10px); border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h);"[39m
+        [36m>[39m
+          [36m<label[39m
+            [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 12px; font-size: 12px; min-width: 0px; font-variant-numeric: tabular-nums; background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 55%, transparent);"[39m
+          [36m>[39m
+            [0mShading[0m
+            [0m [0m
+            [36m<select[39m
+              [33maria-label[39m=[32m"Shading mode"[39m
+              [33mstyle[39m=[32m"padding: 5px 10px; border-radius: 6px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); font-size: 12px; font-weight: 500; cursor: pointer; min-width: 0px; max-width: 100%;"[39m
+            [36m>[39m
+              [36m<option>[39m
+                [0mtextured[0m
+              [36m</option>[39m
+              [36m<option>[39m
+                [0mwireframe[0m
+              [36m</option>[39m
+              [36m<option>[39m
+                [0mclay[0m
+              [36m</option>[39m
+              [36m<option>[39m
+                [0mnormals[0m
+              [36m</option>[39m
+            [36m</select>[39m
+          [36m</label>[39m
+          [36m<button[39m
+            [33maria-pressed[39m=[32m"true"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; background: color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 14%, transparent); border: 1px solid color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 38%, transparent); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); outline-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+            [33mvariant[39m=[32m"ghost"[39m
+          [36m>[39m
+            [0mAuto-rotate[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33maria-pressed[39m=[32m"true"[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; background: color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 14%, transparent); border: 1px solid color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 38%, transparent); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); outline-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+            [33mvariant[39m=[32m"ghost"[39m
+          [36m>[39m
+            [0mGrid[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mstyle[39m=[32m"display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 11px; border-radius: 999px; font-size: 12px; font-weight: 500; cursor: pointer; background: color-mix(in srgb, oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h) 6%, transparent); border: 1px solid oklch(from var(--ui-stroke-tertiary, var(--ui-stroke-secondary)) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); outline-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); accent-color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h);"[39m
+            [33mvariant[39m=[32m"ghost"[39m
+          [36m>[39m
+            [36m<i[39m
+              [33mdata-codicon[39m=[32m"refresh"[39m
+            [36m/>[39m
+            [0mReset camera[0m
+          [36m</button>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33maria-label[39m=[32m"Multiview"[39m
+          [33mdata-multiview-state[39m=[32m"idle"[39m
+          [33mrole[39m=[32m"group"[39m
+          [33mstyle[39m=[32m"display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px; font-size: 12px; min-width: 0px; font-variant-numeric: tabular-nums; background: color-mix(in srgb, oklch(from var(--ui-bg-secondary) l 0 h) 55%, transparent);"[39m
+        [36m>[39m
+          [36m<strong>[39m
+            [0mMultiview[0m
+          [36m</strong>[39m
+          [36m<select[39m
+            [33maria-label[39m=[32m"Multiview views"[39m
+            [33mstyle[39m=[32m"padding: 5px 10px; border-radius: 6px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); font-size: 12px; font-weight: 500; cursor: pointer; min-width: 0px; max-width: 100%;"[39m
+          [36m>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"4"[39m
+            [36m>[39m
+              [0m4 Views[0m
+            [36m</option>[39m
+            [36m<option[39m
+              [33mvalue[39m=[32m"6"[39m
+            [36m>[39m
+              [0m6 Views[0m
+            [36m</option>[39m
+          [36m</select>[39m
+          [36m<select[39m
+            [33maria-label[39m=[32m"Multiview pass"[39m
+            [33mstyle[39m=[32m"padding: 5px 10px; border-radius: 6px; border: 1px solid oklch(from var(--ui-stroke-secondary) l 0 h); background: oklch(from var(--ui-bg-secondary) l 0 h); color: oklch(from var(--ui-text-primary, var(--ui-text)) l 0 h); font-size: 12px; font-weight: 500; cursor: pointer...
+
+Expected: [32m"ready"[39m
+Received: [31m"poster"[39m
+
+ ❯ tests/workspace/stage-states.test.ts:290:48
+    288|   await start('model')
+    289|   rerender(viewer('model', 'second'))
+    290|   await waitFor(() => expect(phase(container)).toBe('ready'))
+       |                                                ^
+    291|   await act(async () => old.resolve(file('obsolete.glb')))
+    292|   expect(phase(container)).toBe('ready')
+ ❯ runWithExpensiveErrorDiagnosticsDisabled node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/8]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  8 failed | 19 passed (27)
+   Start at  17:50:21
+   Duration  3.05s (transform 264ms, setup 0ms, collect 483ms, tests 1.80s, environment 497ms, prepare 79ms)
+

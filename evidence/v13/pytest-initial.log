@@ -1,0 +1,30 @@
+Installed 45 packages in 21ms
+
+==================================== ERRORS ====================================
+____________ ERROR collecting tests/python/test_multiview_script.py ____________
+ImportError while importing test module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13/tests/python/test_multiview_script.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/python/test_multiview_script.py:10: in <module>
+    from PIL import Image, ImageChops, ImageStat
+E   ModuleNotFoundError: No module named 'PIL'
+___________ ERROR collecting tests/scaffold/test_manifest_config.py ____________
+ImportError while importing test module '/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13/tests/scaffold/test_manifest_config.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/scaffold/test_manifest_config.py:20: in <module>
+    from hermes_cli.plugin_validate import ValidationReport, _check_config_spec
+../../reference/hermes-agent/hermes_cli/plugin_validate.py:30: in <module>
+    from hermes_cli.plugins_manifest import _CONFIG_SCHEMA_TYPES
+../../reference/hermes-agent/hermes_cli/plugins_manifest.py:17: in <module>
+    from utils import fast_safe_load
+../../reference/hermes-agent/utils.py:20: in <module>
+    import hermes_yaml as yaml
+../../reference/hermes-agent/hermes_yaml.py:10: in <module>
+    from ruamel.yaml import YAML
+E   ModuleNotFoundError: No module named 'ruamel'
+=========================== short test summary info ============================
+ERROR tests/python/test_multiview_script.py
+ERROR tests/scaffold/test_manifest_config.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+2 errors in 1.43s

@@ -1,0 +1,25 @@
+$ /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v01/.venv/bin/python -B -m pytest -q tests/python/test_plugin_api.py -k foreign_redirect_never_reaches_target --tb=short
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_foreign_redirect_never_reaches_target[False-https://foreign.invalid/mcp] _
+tests/python/test_plugin_api.py:329: in test_foreign_redirect_never_reaches_target
+    with pytest.raises(HTTPException):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE HTTPException
+_ test_foreign_redirect_never_reaches_target[False-https://user:password@api.studiotwin.ai/mcp] _
+tests/python/test_plugin_api.py:329: in test_foreign_redirect_never_reaches_target
+    with pytest.raises(HTTPException):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE HTTPException
+_ test_foreign_redirect_never_reaches_target[True-https://other-bucket.s3.amazonaws.com/upload] _
+tests/python/test_plugin_api.py:329: in test_foreign_redirect_never_reaches_target
+    with pytest.raises(HTTPException):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE HTTPException
+=========================== short test summary info ============================
+FAILED tests/python/test_plugin_api.py::test_foreign_redirect_never_reaches_target[False-https://foreign.invalid/mcp]
+FAILED tests/python/test_plugin_api.py::test_foreign_redirect_never_reaches_target[False-https://user:password@api.studiotwin.ai/mcp]
+FAILED tests/python/test_plugin_api.py::test_foreign_redirect_never_reaches_target[True-https://other-bucket.s3.amazonaws.com/upload]
+3 failed, 31 deselected in 1.67s
+
+exit_code=1

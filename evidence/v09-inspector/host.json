@@ -1,0 +1,198 @@
+{
+  "ok": true,
+  "api": {
+    "ok": true,
+    "checks": {
+      "manifest": true,
+      "python": true,
+      "mcp": true,
+      "desktop": true,
+      "skills": true,
+      "isolation": true,
+      "runtime_loaded": true,
+      "dashboard": true,
+      "doctor": true
+    },
+    "validation": {
+      "ok": true,
+      "checks": [
+        {
+          "name": "portable manifest",
+          "ok": true,
+          "detail": "plugin.json parses (Agent Plugins v1)"
+        },
+        {
+          "name": "manifest fields",
+          "ok": true,
+          "detail": "name present"
+        },
+        {
+          "name": "config schema",
+          "ok": true,
+          "detail": "shape valid"
+        },
+        {
+          "name": "server trust: studiotwin",
+          "ok": true,
+          "detail": "untrusted (Hermes asks before every write-capable tool call)"
+        },
+        {
+          "name": "server costs: studiotwin",
+          "ok": true,
+          "detail": "27 costed tool(s), no spend limit"
+        },
+        {
+          "name": "security scan",
+          "ok": true,
+          "detail": "safe"
+        },
+        {
+          "name": "desktop surface",
+          "ok": true,
+          "detail": "stays inside the plugin SDK surface"
+        }
+      ],
+      "warnings": [],
+      "isolation": {
+        "verdict": "portable",
+        "host_ready": true,
+        "reasons": [],
+        "notes": [],
+        "ctx_methods": []
+      }
+    },
+    "python_declaration": {
+      "pyproject_installs": false,
+      "requirements": [
+        "httpx>=0.27,<1"
+      ]
+    },
+    "doctor": {
+      "ok": true,
+      "kind": "standalone",
+      "findings": [],
+      "text": "Plugin Doctor: /home/deploy/.hermes/profiles/mercury/cache/scratch/v08-host-_nnew3r9/hermes/plugins/hermes-studiotwin\n  manifest: hermes-studiotwin 0.2.0 (standalone)\n  OK: runtime discovery, manifest parsing, import, and registration passed\n  registrations: 0 tool(s), 0 hook(s)"
+    },
+    "skills": [
+      "studiotwin"
+    ],
+    "mcp_servers": [
+      "studiotwin"
+    ],
+    "dashboard_routes": [
+      "/actions",
+      "/active",
+      "/assets",
+      "/assets/{uuid}",
+      "/cancel",
+      "/concepts",
+      "/concepts/{concept_id}",
+      "/concepts/{concept_id}/status",
+      "/details",
+      "/file",
+      "/jobs",
+      "/jobs/{job_id}",
+      "/jobs/{job_id}/cancel",
+      "/provenance",
+      "/provenance",
+      "/status",
+      "/task",
+      "/upload",
+      "/uploads"
+    ],
+    "host_module": "/home/deploy/work/realtwin/hermes-studiotwin/reference/hermes-agent/hermes_cli/plugin_validate.py"
+  },
+  "cli_checks": {
+    "reference": {
+      "validate": true,
+      "doctor": true
+    },
+    "installed": {
+      "validate": false,
+      "doctor": false
+    }
+  },
+  "limitations": [
+    {
+      "source": "installed",
+      "authoritative": false,
+      "message": "Installed Hermes CLI did not pass; see unmodified command output. Its schema may reject cost_unit, costs, and timeout."
+    }
+  ],
+  "authoritative_source": "reference",
+  "doctor_invocation": "plugins doctor TARGET --ci (no --json: unsupported by reference parser)",
+  "api_process": {
+    "argv": [
+      "/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v09/.venv/bin/python",
+      "/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v09/tools/verify_v08_host_compat.py",
+      "--probe",
+      "/home/deploy/.hermes/profiles/mercury/cache/scratch/v08-host-_nnew3r9/hermes/plugins/hermes-studiotwin"
+    ],
+    "returncode": 0,
+    "stdout": "{\n  \"ok\": true,\n  \"checks\": {\n    \"manifest\": true,\n    \"python\": true,\n    \"mcp\": true,\n    \"desktop\": true,\n    \"skills\": true,\n    \"isolation\": true,\n    \"runtime_loaded\": true,\n    \"dashboard\": true,\n    \"doctor\": true\n  },\n  \"validation\": {\n    \"ok\": true,\n    \"checks\": [\n      {\n        \"name\": \"portable manifest\",\n        \"ok\": true,\n        \"detail\": \"plugin.json parses (Agent Plugins v1)\"\n      },\n      {\n        \"name\": \"manifest fields\",\n        \"ok\": true,\n        \"detail\": \"name present\"\n      },\n      {\n        \"name\": \"config schema\",\n        \"ok\": true,\n        \"detail\": \"shape valid\"\n      },\n      {\n        \"name\": \"server trust: studiotwin\",\n        \"ok\": true,\n        \"detail\": \"untrusted (Hermes asks before every write-capable tool call)\"\n      },\n      {\n        \"name\": \"server costs: studiotwin\",\n        \"ok\": true,\n        \"detail\": \"27 costed tool(s), no spend limit\"\n      },\n      {\n        \"name\": \"security scan\",\n        \"ok\": true,\n        \"detail\": \"safe\"\n      },\n      {\n        \"name\": \"desktop surface\",\n        \"ok\": true,\n        \"detail\": \"stays inside the plugin SDK surface\"\n      }\n    ],\n    \"warnings\": [],\n    \"isolation\": {\n      \"verdict\": \"portable\",\n      \"host_ready\": true,\n      \"reasons\": [],\n      \"notes\": [],\n      \"ctx_methods\": []\n    }\n  },\n  \"python_declaration\": {\n    \"pyproject_installs\": false,\n    \"requirements\": [\n      \"httpx>=0.27,<1\"\n    ]\n  },\n  \"doctor\": {\n    \"ok\": true,\n    \"kind\": \"standalone\",\n    \"findings\": [],\n    \"text\": \"Plugin Doctor: /home/deploy/.hermes/profiles/mercury/cache/scratch/v08-host-_nnew3r9/hermes/plugins/hermes-studiotwin\\n  manifest: hermes-studiotwin 0.2.0 (standalone)\\n  OK: runtime discovery, manifest parsing, import, and registration passed\\n  registrations: 0 tool(s), 0 hook(s)\"\n  },\n  \"skills\": [\n    \"studiotwin\"\n  ],\n  \"mcp_servers\": [\n    \"studiotwin\"\n  ],\n  \"dashboard_routes\": [\n    \"/actions\",\n    \"/active\",\n    \"/assets\",\n    \"/assets/{uuid}\",\n    \"/cancel\",\n    \"/concepts\",\n    \"/concepts/{concept_id}\",\n    \"/concepts/{concept_id}/status\",\n    \"/details\",\n    \"/file\",\n    \"/jobs\",\n    \"/jobs/{job_id}\",\n    \"/jobs/{job_id}/cancel\",\n    \"/provenance\",\n    \"/provenance\",\n    \"/status\",\n    \"/task\",\n    \"/upload\",\n    \"/uploads\"\n  ],\n  \"host_module\": \"/home/deploy/work/realtwin/hermes-studiotwin/reference/hermes-agent/hermes_cli/plugin_validate.py\"\n}\n",
+    "stderr": ""
+  },
+  "commands": {
+    "reference": {
+      "validate": {
+        "argv": [
+          "/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v09/.venv/bin/python",
+          "-m",
+          "hermes_cli.main",
+          "plugins",
+          "validate",
+          "/home/deploy/.hermes/profiles/mercury/cache/scratch/v08-host-_nnew3r9/hermes/plugins/hermes-studiotwin",
+          "--json"
+        ],
+        "returncode": 0,
+        "stdout": "{\n  \"ok\": true,\n  \"checks\": [\n    {\n      \"name\": \"portable manifest\",\n      \"ok\": true,\n      \"detail\": \"plugin.json parses (Agent Plugins v1)\"\n    },\n    {\n      \"name\": \"manifest fields\",\n      \"ok\": true,\n      \"detail\": \"name present\"\n    },\n    {\n      \"name\": \"config schema\",\n      \"ok\": true,\n      \"detail\": \"shape valid\"\n    },\n    {\n      \"name\": \"server trust: studiotwin\",\n      \"ok\": true,\n      \"detail\": \"untrusted (Hermes asks before every write-capable tool call)\"\n    },\n    {\n      \"name\": \"server costs: studiotwin\",\n      \"ok\": true,\n      \"detail\": \"27 costed tool(s), no spend limit\"\n    },\n    {\n      \"name\": \"security scan\",\n      \"ok\": true,\n      \"detail\": \"safe\"\n    },\n    {\n      \"name\": \"desktop surface\",\n      \"ok\": true,\n      \"detail\": \"stays inside the plugin SDK surface\"\n    }\n  ],\n  \"warnings\": [],\n  \"isolation\": {\n    \"verdict\": \"portable\",\n    \"host_ready\": true,\n    \"reasons\": [],\n    \"notes\": [],\n    \"ctx_methods\": []\n  }\n}\n",
+        "stderr": ""
+      },
+      "doctor": {
+        "argv": [
+          "/home/deploy/work/realtwin/hermes-studiotwin/worktrees/v09/.venv/bin/python",
+          "-m",
+          "hermes_cli.main",
+          "plugins",
+          "doctor",
+          "/home/deploy/.hermes/profiles/mercury/cache/scratch/v08-host-_nnew3r9/hermes/plugins/hermes-studiotwin",
+          "--ci"
+        ],
+        "returncode": 0,
+        "stdout": "Plugin Doctor: \n/home/deploy/.hermes/profiles/mercury/cache/scratch/v08-host-_nnew3r9/hermes/plu\ngins/hermes-studiotwin\n  manifest: hermes-studiotwin 0.2.0 (standalone)\n  OK: runtime discovery, manifest parsing, import, and registration passed\n  registrations: 0 tool(s), 0 hook(s)\n",
+        "stderr": ""
+      }
+    },
+    "installed": {
+      "validate": {
+        "argv": [
+          "/home/deploy/.local/bin/hermes",
+          "plugins",
+          "validate",
+          "/home/deploy/.hermes/profiles/mercury/cache/scratch/v08-host-_nnew3r9/hermes/plugins/hermes-studiotwin",
+          "--json"
+        ],
+        "returncode": 1,
+        "stdout": "{\n  \"ok\": false,\n  \"checks\": [\n    {\n      \"name\": \"portable manifest\",\n      \"ok\": false,\n      \"detail\": \"plugin.json failed validation: server declaration 'studiotwin' has unknown keys ['cost_unit', 'costs', 'timeout']\"\n    }\n  ],\n  \"warnings\": [],\n  \"isolation\": null\n}\n",
+        "stderr": "hermes: completing source-update dependencies...\nhermes: preparing dependencies for this update...\nPreparing the isolated Hermes runtime\u2026\n  \u2192 Installing Python dependencies\u2026\n  \u2713 Installing Python dependencies\n  \u2192 Installing Python dependencies\u2026\n  \u2713 Installing Python dependencies\n"
+      },
+      "doctor": {
+        "argv": [
+          "/home/deploy/.local/bin/hermes",
+          "plugins",
+          "doctor",
+          "/home/deploy/.hermes/profiles/mercury/cache/scratch/v08-host-_nnew3r9/hermes/plugins/hermes-studiotwin",
+          "--ci"
+        ],
+        "returncode": 1,
+        "stdout": "Plugin Doctor: \n/home/deploy/.hermes/profiles/mercury/cache/scratch/v08-host-_nnew3r9/hermes/plu\ngins/hermes-studiotwin\n  ERROR: Plugin registration failed: server declaration 'studiotwin' has unknown\nkeys ['cost_unit', 'costs', 'timeout']\n  registrations: 0 tool(s), 0 hook(s)\n",
+        "stderr": ""
+      }
+    }
+  },
+  "host_root": "/home/deploy/work/realtwin/hermes-studiotwin/reference/hermes-agent",
+  "dependency_path": "/opt/openclaw/claude-code/.hermes/hermes-agent/.hermes/py",
+  "scratch_home": "/home/deploy/.hermes/profiles/mercury/cache/scratch/v08-host-_nnew3r9/hermes",
+  "scratch_removed_on_return": true,
+  "credential_mode": "dummy-only; inherited credentials excluded"
+}

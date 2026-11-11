@@ -1,0 +1,31 @@
+{
+  "python_tests": 194,
+  "vitest_tests": 178,
+  "frozen_files_unchanged": true,
+  "host_ok": true,
+  "host_warnings": [],
+  "host_cli_checks": {
+    "reference": {
+      "validate": true,
+      "doctor": true
+    },
+    "installed": {
+      "validate": false,
+      "doctor": false
+    }
+  },
+  "host_limitations": [
+    {
+      "source": "installed",
+      "authoritative": false,
+      "message": "Installed Hermes CLI did not pass; see unmodified command output. Its schema may reject cost_unit, costs, and timeout."
+    }
+  ],
+  "visual": {
+    "captures": 30,
+    "contact_sheets": 8,
+    "errors": [],
+    "consoleErrors": [],
+    "overflow": []
+  }
+}

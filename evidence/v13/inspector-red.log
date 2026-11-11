@@ -1,0 +1,160 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v13
+
+ ❯ tests/workspace/inspector-states.test.ts (7 tests | 7 failed) 223ms
+   × exposes ready local modality and preserves the selected preview and accessible controls 137ms
+     → expected null to be 'ready' // Object.is equality
+   × keeps cloud selection preview ready while detail metadata is loading 21ms
+     → expected null to be 'ready' // Object.is equality
+   × warns explicitly on failed detail resolution without discarding selected fallback 14ms
+     → expected null to be 'ready' // Object.is equality
+   × merges resolved cloud details and exposes their effective modality 14ms
+     → expected null to be 'ready' // Object.is equality
+   × exposes a rig-check summary including a negative compatibility result 13ms
+     → expected null to be 'rig_check_summary' // Object.is equality
+   × renders loading and error states for an unresolved job output without a misleading preview 10ms
+     → expected null to be 'loading_job_output' // Object.is equality
+   × replaces an unresolved job output with the resolved target preview 11ms
+     → expected null to be 'loading_job_output' // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workspace/inspector-states.test.ts > exposes ready local modality and preserves the selected preview and accessible controls
+AssertionError: expected null to be 'ready' // Object.is equality
+
+[32m- Expected:[39m 
+"ready"
+
+[31m+ Received:[39m 
+null
+
+ ❯ tests/workspace/inspector-states.test.ts:33:57
+     31| it('exposes ready local modality and preserves the selected preview an…
+     32|   mount({ type: 'image', path: '/local/reference.png', name: 'Referenc…
+     33|   expect(dialog().getAttribute('data-inspector-state')).toBe('ready');
+       |                                                         ^
+     34|   expect(dialog().getAttribute('data-inspector-modality')).toBe('image…
+     35|   expect(screen.getByTestId('image-preview').textContent).toContain('/…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  tests/workspace/inspector-states.test.ts > keeps cloud selection preview ready while detail metadata is loading
+AssertionError: expected null to be 'ready' // Object.is equality
+
+[32m- Expected:[39m 
+"ready"
+
+[31m+ Received:[39m 
+null
+
+ ❯ tests/workspace/inspector-states.test.ts:43:57
+     41|   queries.set('/assets/cloud-image', { isLoading: true });
+     42|   mount({ uuid: 'cloud-image', type: 'image', name: 'Selected fallback…
+     43|   expect(dialog().getAttribute('data-inspector-state')).toBe('ready');
+       |                                                         ^
+     44|   expect(screen.getByTestId('image-preview').textContent).toContain('c…
+     45|   expect(screen.queryByRole('alert')).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  tests/workspace/inspector-states.test.ts > warns explicitly on failed detail resolution without discarding selected fallback
+AssertionError: expected null to be 'ready' // Object.is equality
+
+[32m- Expected:[39m 
+"ready"
+
+[31m+ Received:[39m 
+null
+
+ ❯ tests/workspace/inspector-states.test.ts:51:57
+     49|   queries.set('/assets/cloud-image', { isError: true });
+     50|   mount({ uuid: 'cloud-image', type: 'image', name: 'Selected fallback…
+     51|   expect(dialog().getAttribute('data-inspector-state')).toBe('ready');
+       |                                                         ^
+     52|   expect(screen.getByRole('alert').textContent).toMatch(/detail|resolv…
+     53|   expect(screen.getByRole('heading', { name: 'Selected fallback' })).t…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  tests/workspace/inspector-states.test.ts > merges resolved cloud details and exposes their effective modality
+AssertionError: expected null to be 'ready' // Object.is equality
+
+[32m- Expected:[39m 
+"ready"
+
+[31m+ Received:[39m 
+null
+
+ ❯ tests/workspace/inspector-states.test.ts:60:57
+     58|   queries.set('/assets/cloud-image', { data: { type: 'image', name: 'R…
+     59|   mount({ uuid: 'cloud-image', type: 'unknown', name: 'Selected fallba…
+     60|   expect(dialog().getAttribute('data-inspector-state')).toBe('ready');
+       |                                                         ^
+     61|   expect(dialog().getAttribute('data-inspector-modality')).toBe('image…
+     62|   expect(screen.getByRole('heading', { name: 'Resolved image' })).toBe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  tests/workspace/inspector-states.test.ts > exposes a rig-check summary including a negative compatibility result
+AssertionError: expected null to be 'rig_check_summary' // Object.is equality
+
+[32m- Expected:[39m 
+"rig_check_summary"
+
+[31m+ Received:[39m 
+null
+
+ ❯ tests/workspace/inspector-states.test.ts:68:57
+     66| it('exposes a rig-check summary including a negative compatibility res…
+     67|   mount({ type: 'rig_check', riggable: false, name: 'Rig result' });
+     68|   expect(dialog().getAttribute('data-inspector-state')).toBe('rig_chec…
+       |                                                         ^
+     69|   expect(dialog().getAttribute('data-inspector-modality')).toBe('rig_c…
+     70|   expect(screen.getByText('Not riggable')).toBeTruthy();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  tests/workspace/inspector-states.test.ts > renders loading and error states for an unresolved job output without a misleading preview
+AssertionError: expected null to be 'loading_job_output' // Object.is equality
+
+[32m- Expected:[39m 
+"loading_job_output"
+
+[31m+ Received:[39m 
+null
+
+ ❯ tests/workspace/inspector-states.test.ts:78:57
+     76|   queries.set(path, { isLoading: true });
+     77|   const view = mount({ type: 'job_output', jobId: 'job/id', name: 'Com…
+     78|   expect(dialog().getAttribute('data-inspector-state')).toBe('loading_…
+       |                                                         ^
+     79|   expect(within(dialog()).getByRole('status').textContent).toMatch(/lo…
+     80|   expect(screen.queryByTestId('image-preview')).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  tests/workspace/inspector-states.test.ts > replaces an unresolved job output with the resolved target preview
+AssertionError: expected null to be 'loading_job_output' // Object.is equality
+
+[32m- Expected:[39m 
+"loading_job_output"
+
+[31m+ Received:[39m 
+null
+
+ ❯ tests/workspace/inspector-states.test.ts:93:57
+     91|   queries.set(path, { isLoading: true });
+     92|   const view = mount({ type: 'job_output', jobId: 'job-id' });
+     93|   expect(dialog().getAttribute('data-inspector-state')).toBe('loading_…
+       |                                                         ^
+     94|   queries.set(path, { data: { type: 'image', url: 'https://example.com…
+     95|   view.update();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  7 failed (7)
+   Start at  17:23:11
+   Duration  1.78s (transform 418ms, setup 0ms, collect 729ms, tests 223ms, environment 583ms, prepare 50ms)
+

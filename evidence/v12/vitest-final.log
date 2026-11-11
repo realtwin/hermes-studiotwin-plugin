@@ -1,0 +1,182 @@
+
+ RUN  v3.2.7 /home/deploy/work/realtwin/hermes-studiotwin/worktrees/v12
+
+ ✓ tests/workspace/workspace.test.ts (20 tests) 54401ms
+   ✓ Chromium: settings events change recent gallery page sizes, not complete-library paging or workspace previews  3246ms
+   ✓ Chromium loopback backend: real router/MCP/storage, image decoding, local/cloud upload and pre-network validation  1544ms
+   ✓ Chromium: registers the route, sidebar, six palette commands, and live credits/active-job chrome  2256ms
+   ✓ Chromium: real library filters/search, model inspector, backend lineage and quoted Next actions address origin chat  2916ms
+   ✓ Chromium: complete merged library beyond 100 rows supports late modality, search and inspection  4471ms
+   ✓ Chromium: a failed later library page reports an error, not missing assets, and refresh retries all pages  2450ms
+   ✓ Chromium: real job filters, queued-only cancellation and Inspect Output opens the real image viewer  2447ms
+   ✓ Chromium: Concepts history/active badge and four composer-only workflows use the captured owner  2584ms
+   ✓ Chromium: local selection and explicit cloud drop upload go through the real router without leaking presigned POST fields  2387ms
+   ✓ Chromium: cached PBR, cloud HDR, rigged animation, audio and video open their real rich viewers  4811ms
+   ✓ Chromium: every palette command and chip opens the requested registered workspace tab; settings toggle is live  2554ms
+   ✓ Chromium: all four tabs inherit light/dark theme variables, with no hardcoded color styles  2488ms
+   ✓ Chromium: profile switch permanently revokes captured workspace actions  2707ms
+   ✓ Chromium: connectionId switch permanently revokes captured workspace actions  2930ms
+   ✓ Chromium: pending upload cannot expose Use in Chat after profile changes away and back  2351ms
+   ✓ Chromium: pending upload cannot expose Use in Chat after connectionId changes away and back  2380ms
+   ✓ Chromium: file-read scope change refuses upload before network dispatch (profile)  2213ms
+   ✓ Chromium: file-read scope change refuses upload before network dispatch (connectionId)  2389ms
+   ✓ Chromium: missing key setup opens settings with optional settings door=true  2657ms
+   ✓ Chromium: missing key setup opens settings with optional settings door=false  2619ms
+ ✓ tests/visual/visual-qa.test.ts (1 test) 34440ms
+   ✓ real Chromium: production bundle, eight viewers, four tabs, themes and mixed WebGL budget  34439ms
+ ✓ tests/bundle/plugin-bundle.test.ts (4 tests) 12215ms
+   ✓ ships a single compiled ESM artifact with only namespace SDK imports and allowed external modules  717ms
+   ✓ Chromium imports the committed bundle, registers and renders all surfaces (full SDK)  8105ms
+   ✓ Chromium imports the committed bundle, registers and renders all surfaces (missing area/registration exports)  3390ms
+ ✓ tests/workspace/v11-studio.test.ts (6 tests) 21948ms
+   ✓ V12 production inspection rooms are achromatic in light and dark with dedicated right-hand Close controls  9019ms
+   ✓ V11 production bundle: cloud-shaped names, real image posters, HDR classification and five-channel sibling PBR inspection  6376ms
+   ✓ V11 production bundle: job prompts, metadata, copy and reuse preserve canonical tool and originating chat  2151ms
+   ✓ V11 production bundle: unindexed completed model, HDR, audio and negative rig-check outputs inspect without resubmission  4347ms
+ ✓ tests/scaffold/scaffold.test.ts (19 tests) 4040ms
+   ✓ @hermes/plugin-sdk declarations > typechecks the declarations, configs and the SDK usage contract with the locked TypeScript  4031ms
+ ✓ tests/visual/ui-polish.test.ts (2 tests) 3874ms
+   ✓ production bundle: active pills, channel/geometry controls, env reset, responsive concepts and raw filenames  3873ms
+ ✓ tests/visual/inspector-scroll.test.ts (2 tests) 4460ms
+   ✓ production bundle: wheel reaches inspector Next actions in light at 1000x700  2216ms
+   ✓ production bundle: wheel reaches inspector Next actions in dark at 1000x700  2244ms
+ ✓ tests/viewers/composer-cards.test.ts (1 test) 2735ms
+   ✓ mounted model/environment/material actions route missing and draft owners without bypassing scopes  2735ms
+ ✓ tests/viewers/model-animation.test.ts (13 tests | 2 skipped) 39ms
+ ✓ tests/viewers/video-timing.test.ts (6 tests) 10ms
+ ✓ tests/viewers/material-directive.test.ts (30 tests) 25ms
+stderr | tests/viewers/env-material.test.ts > environment and material contracts > decodes real Radiance and EXR pixels
+RGBELoader has been deprecated. Please use HDRLoader instead.
+
+ ✓ tests/viewers/env-material.test.ts (13 tests | 1 skipped) 16ms
+ ✓ tests/viewers/composer-routing.test.ts (23 tests) 3ms
+ ✓ tests/viewers/rig-audit.test.ts (28 tests | 1 skipped) 6ms
+ ✓ tests/workspace/v11-data.test.ts (5 tests) 6ms
+ ✓ tests/viewers/settings.test.ts (2 tests) 1ms
+ ↓ tests/viewers/multiview-ibl.test.ts (34 tests | 34 skipped)
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/viewers/image-viewer.tsx:180:193:
+      180 │ ...Own(sdk, 'Codicon') && <sdk.Codicon name="close" size={16} />}...
+          ╵                                ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/cards/image-card.tsx:62:47:
+      62 │ ...Own(sdk, 'Codicon') && <sdk.Codicon name="file-media" size={16}...
+         ╵                                ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/cards/video-card.tsx:27:47:
+      27 │ ...Own(sdk, 'Codicon') && <sdk.Codicon name="play-circle" size={16...
+         ╵                                ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/viewers/animation-viewer.tsx:66:13:
+      66 │         <sdk.Codicon name={state.playing ? 'debug-pause' : 'play'} />
+         ╵              ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/viewers/model-viewer.tsx:241:53:
+      241 │ ...filterPillStyle(true)}><sdk.Codicon name="play" />{error ? 'Pr...
+          ╵                                ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/viewers/env-viewer.tsx:80:87:
+      80 │ ...Own(sdk, 'Codicon') && <sdk.Codicon name="globe" size={16} />}{...
+         ╵                                ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/cards/env-card.tsx:120:11:
+      120 │       {sdk.Codicon && <sdk.Codicon name="globe" size={16} />}
+          ╵            ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/cards/model-card.tsx:167:13:
+      167 │         {sdk.Codicon && <sdk.Codicon name="symbol-misc" size={16}...
+          ╵              ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/cards/task-card.tsx:182:47:
+      182 │ ...hasOwn(sdk, 'Codicon') && <sdk.Codicon name="pulse" size={16} />}
+          ╵                                   ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/viewers/image-viewer.tsx:180:193:
+      180 │ ...Own(sdk, 'Codicon') && <sdk.Codicon name="close" size={16} />}...
+          ╵                                ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/cards/image-card.tsx:62:47:
+      62 │ ...Own(sdk, 'Codicon') && <sdk.Codicon name="file-media" size={16}...
+         ╵                                ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/cards/video-card.tsx:27:47:
+      27 │ ...Own(sdk, 'Codicon') && <sdk.Codicon name="play-circle" size={16...
+         ╵                                ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/viewers/animation-viewer.tsx:66:13:
+      66 │         <sdk.Codicon name={state.playing ? 'debug-pause' : 'play'} />
+         ╵              ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/viewers/model-viewer.tsx:241:53:
+      241 │ ...filterPillStyle(true)}><sdk.Codicon name="play" />{error ? 'Pr...
+          ╵                                ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/viewers/env-viewer.tsx:80:87:
+      80 │ ...Own(sdk, 'Codicon') && <sdk.Codicon name="globe" size={16} />}{...
+         ╵                                ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/cards/env-card.tsx:120:11:
+      120 │       {sdk.Codicon && <sdk.Codicon name="globe" size={16} />}
+          ╵            ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/cards/model-card.tsx:167:13:
+      167 │         {sdk.Codicon && <sdk.Codicon name="symbol-misc" size={16}...
+          ╵              ~~~~~~~
+
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "shim:sdk" [import-is-undefined]
+
+    src/cards/task-card.tsx:182:47:
+      182 │ ...hasOwn(sdk, 'Codicon') && <sdk.Codicon name="pulse" size={16} />}
+          ╵                                   ~~~~~~~
+
+ ✓ tests/viewers/image-video-task.test.ts (17 tests) 8673ms
+   ✓ Chromium: registered and completed 6-fps video decoded steps, image inspection, sequence, jobs and invalidation  3954ms
+   ✓ Chromium: registered and completed 10-fps video decoded steps, image inspection, sequence, jobs and invalidation  3836ms
+▲ [WARNING] Import "Codicon" will always be undefined because there is no matching export in "host-shim:sdk" [import-is-undefined]
+
+    src/viewers/audio-viewer.tsx:118:45:
+      118 │ ...asOwn(sdk, 'Codicon') && <sdk.Codicon name="unmute" size={16} />}
+          ╵                                  ~~~~~~~
+
+ ✓ tests/viewers/audio.test.ts (20 tests) 2232ms
+   ✓ Chromium: real WAV/MP3 decode, canvas resize/theme, audition, seek, download and scope invalidation  1306ms
+ ✓ tests/viewers/catalog-routing.test.ts (33 tests) 105ms
+
+ Test Files  19 passed | 1 skipped (20)
+      Tests  241 passed | 38 skipped (279)
+   Start at  05:54:33
+   Duration  153.93s (transform 1.19s, setup 0ms, collect 3.60s, tests 149.23s, environment 503ms, prepare 119ms)
+
