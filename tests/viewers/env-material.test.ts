@@ -186,7 +186,7 @@ it.skipIf(process.env.STUDIOTWIN_WEBGL_TEST !== "1")(
  const maps=Object.fromEntries(['albedo','normal','roughness','metalness'].map(c=>[c,{path:'/material/pbr-'+c+'.png'}]));maps.heightmap={path:'/height.png'};
  const stickers=[${JSON.stringify(sticker)}];window.pool=modelWebGLPool;
  window.grid=()=>root.render(React.createElement('div',{className:'grid'},Array.from({length:7},(_,i)=>i===6?React.createElement(ModelViewer,{key:i,rest,source:{path:'/model/static-cube.glb'},height:160}):i%2?React.createElement(MaterialViewer,{key:i,rest,maps,height:160}):React.createElement(EnvViewer,{key:i,rest,source:{path:'/env/equirect-64x32.hdr'},height:160,stickers}))));
- window.env=(name='equirect-64x32.hdr',fallback)=>root.render(React.createElement(EnvViewer,{key:name,rest,source:{path:name==='bad.hdr'?'/bad.hdr':'/env/'+name},stickers,fallback}));
+ window.env=(name='equirect-64x32.hdr',fallback,displayName)=>root.render(React.createElement(EnvViewer,{key:name,rest,source:{path:name==='bad.hdr'?'/bad.hdr':'/env/'+name,name:displayName},stickers,fallback}));
  window.material=()=>root.render(React.createElement(MaterialViewer,{key:'material',rest,maps}));
  window.badMaterial=()=>root.render(React.createElement(MaterialViewer,{key:'bad-material',rest,maps:{albedo:{path:'/bad.hdr'}},fallback:'Material fallback'}));
  let profile='alpha';const listeners=new Set();const scopeState={profile:{get:()=>profile,subscribe:fn=>{listeners.add(fn);return()=>listeners.delete(fn)}}};
@@ -249,6 +249,13 @@ it.skipIf(process.env.STUDIOTWIN_WEBGL_TEST !== "1")(
         .nth(5)
         .evaluate((el) => ((el as HTMLElement).style.display = "none"));
       await page.waitForFunction(() => (window as any).pool.size === 3);
+      // Display labels must never choose the image decoder (including misleading extensions).
+      for (const name of ['equirect-64x32.hdr', 'equirect-64x32.png', 'equirect-32x16.exr']) {
+        await call('env', name, 'Environment preview unavailable.', 'Selene Station 360.jpg');
+        await page.getByRole('button', { name: 'Load environment', exact: true }).click();
+        await browserExpect(page.getByRole('toolbar', { name: 'Environment controls' })).toBeVisible();
+        expect(await page.getByText('Environment preview unavailable.', { exact: true }).count()).toBe(0);
+      }
       // Preserve the original LDR pixel regression and guard HDR separately below.
       await call("env", "equirect-64x32.png");
       await page
