@@ -137,7 +137,7 @@ class MetadataJSON:
                 self.space()
                 if self.advance() != ':':
                     raise ValueError('expected colon')
-                own_inputs = [INPUT_BUDGET, False] if key == 'inputs' else inputs
+                own_inputs = [INPUT_BUDGET, False] if key == 'inputs' and inputs is None else inputs
                 result[key] = self.value(own_inputs, depth + 1, path=path + (key,),
                     embedded=(self.unwrap_text and path == ('result', 'content', '*') and key == 'text'))
                 if key == 'inputs' and own_inputs is not None and own_inputs[1]:
@@ -198,7 +198,15 @@ def read_metadata(chunks, content_type, sequence, wire_limit=128 * 1024 * 1024):
         return MetadataJSON(chars).document()
     # Event data is a lazy character iterator; even multiline SSE events never
     # allocate a full line/frame. Ignore comments and non-data SSE fields.
-    chars = iter(chars)
+    def sse_characters(source):
+        previous_cr = False
+        for c in source:
+            if c == '\r':
+                yield '\n'
+            elif c != '\n' or not previous_cr:
+                yield c
+            previous_cr = c == '\r'
+    chars = iter(sse_characters(chars))
     exhausted = False
     budget = [8 * 1024 * 1024]
     def event():

@@ -40,8 +40,9 @@ def test_invalid_json_fails_closed(data):
         m.read_metadata([data], 'application/json', 1)
 
 
-def test_sse_multiline_data_and_empty_events():
-    data = b': heartbeat\r\n\r\nevent: message\r\ndata: {"id":3,\r\ndata: "result":{"structuredContent":{"ok":true}}}\r\n\r\n'
+@pytest.mark.parametrize('newline', [b'\n', b'\r\n', b'\r'])
+def test_sse_multiline_data_and_empty_events(newline):
+    data = newline.join([b': heartbeat', b'', b'event: message', b'data: {"id":3,', b'data: "result":{"structuredContent":{"ok":true}}}', b'', b''])
     assert m.read_metadata((bytes([c]) for c in data), 'text/event-stream', 3)['result']['structuredContent'] == {'ok':True}
 
 
@@ -56,6 +57,13 @@ def test_dropped_values_refund_budget_for_later_prompt():
     result = read({'id':3,'result':{'structuredContent':row}})['result']['structuredContent']
     assert result['inputs']['prompt'] == 'keep me'
     assert result['inputs_truncated'] is True
+
+
+def test_nested_inputs_share_one_row_budget():
+    row = {'inputs': {f'group{i}': {'inputs': {'text':'a'*16000}} for i in range(5)}}
+    result = read({'id':3,'result':{'structuredContent':row}})['result']['structuredContent']
+    assert result['inputs_truncated'] is True
+    assert len(json.dumps(result['inputs'])) < 65536
 
 
 def test_wire_budget_remains_enforced():
