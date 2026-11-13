@@ -56,3 +56,25 @@ def test_oversized_input_does_not_hide_jobs(monkeypatch, wire, route, tool):
     if len(rows) == 2:
         assert rows[1] == good
     assert len(response.content) < 65536
+
+
+@pytest.mark.parametrize('tool', ['studiotwin_list_my_assets', 'studiotwin_resolve_asset',
+    'studiotwin_conceptlab_list', 'studiotwin_conceptlab_get', 'studiotwin_conceptlab_get_status'])
+def test_sibling_metadata_tools_share_projection(tool):
+    spec = importlib.util.spec_from_file_location('sibling_api', ROOT / 'dashboard/plugin_api.py')
+    api = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(api)
+    value = {'inputs': {'inline': 'A' * 17000, 'prompt': 'keep'}}
+    def handler(request):
+        body = json.loads(request.content) if request.method == 'POST' else {}
+        if body.get('method') == 'notifications/initialized' or request.method == 'DELETE':
+            return httpx.Response(202)
+        result = {'structuredContent': value} if body.get('method') == 'tools/call' else {}
+        return httpx.Response(200, json={'id':body['id'], 'result':result})
+    with api.client_module.StudioTwinClient('https://api.studiotwin.ai', 'fixture-only') as c:
+        c.http.close()
+        c.http = httpx.Client(transport=httpx.MockTransport(handler))
+        result = c.call(tool)
+    assert result['inputs_truncated'] is True
+    assert result['inputs']['prompt'] == 'keep'
+    assert len(json.dumps(result)) < 1000
