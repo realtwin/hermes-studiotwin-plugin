@@ -84,6 +84,7 @@ export function JobsTab({ scope, configured, onInspect, session }: {
             <sdk.Badge variant="muted" style={statusBadgeStyle(row.status)}>{row.status}</sdk.Badge>
             <span style={creditBadgeStyle}>{row.cost ?? row.creditCost ?? row.credits ?? row.estimate ?? 'Unknown'} credits</span>
           </header>
+          {row.inputs_truncated === true && <p style={{ fontSize: 12, color: 'var(--ui-text-secondary)' }}>Inputs too large to display. Large input values were omitted.</p>}
           {prompt && <p style={{ fontSize: 14, lineHeight: 1.6, margin: '0 0 10px', overflowWrap: 'anywhere' }}>{prompt}</p>}
           <div style={{ ...flow, gap: 6, marginBottom: 10 }}>
             {jobMetadata(row).map(text => <span key={text} style={creditBadgeStyle}>{text}</span>)}

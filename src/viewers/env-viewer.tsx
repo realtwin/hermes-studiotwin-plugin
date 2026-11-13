@@ -35,7 +35,8 @@ export function EnvViewer({
     (h) => createEnvStage(h, parseStickers(stickers), setSelected),
     async (s) => {
       const f = await fetchModel(rest, source);
-      await s.load(f.buffer, source.name || f.name);
+      // source.name is a user-facing label, not the fetched file's format.
+      await s.load(f.buffer, f.name);
     },
     rest,
     webgl_limit,

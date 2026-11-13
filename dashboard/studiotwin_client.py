@@ -1,11 +1,27 @@
 """Direct Streamable HTTP MCP client. No local server, credential cache or paid submits."""
 from __future__ import annotations
 
+import importlib
 import json
 from urllib.parse import urljoin, urlsplit
 
 import httpx
 from fastapi import HTTPException
+
+# The bundled wake adapter also loads this client directly by file path.
+if not __package__:
+    import hashlib
+    import sys
+    import types
+    from pathlib import Path
+    name = '_hermes_studiotwin_' + hashlib.sha256(str(Path(__file__).resolve().parent).encode()).hexdigest()[:12]
+    if name not in sys.modules:
+        pkg = types.ModuleType(name)
+        pkg.__path__ = [str(Path(__file__).resolve().parent)]
+        sys.modules[name] = pkg
+    __package__ = name
+
+read_metadata = importlib.import_module(__package__ + '.metadata_json').read_metadata
 
 KEY_ENV = 'STUDIOTWIN_API_KEY'
 MAX_REPLY = 8 * 1024 * 1024
@@ -68,7 +84,7 @@ class StudioTwinClient:
         except (TypeError, ValueError):
             return False
 
-    def request(self, method, url, *, storage=False, cap=MAX_REPLY, **kwargs):
+    def request(self, method, url, *, storage=False, cap=MAX_REPLY, metadata_sequence=None, **kwargs):
         def same_api(u):
             try:
                 parts = urlsplit(u)
@@ -92,6 +108,16 @@ class StudioTwinClient:
                         # Never echo remote bodies or exception strings: upload POST fields
                         # and request credentials can occur in provider diagnostics.
                         raise HTTPException(502, f'StudioTwin request failed (HTTP {response.status_code})')
+                    if metadata_sequence is not None:
+                        try:
+                            envelope = read_metadata(response.iter_bytes(chunk_size=16384),
+                                response.headers.get('content-type', ''), metadata_sequence)
+                            data = json.dumps(envelope).encode()
+                            if len(data) > cap:
+                                raise ValueError('retained metadata exceeds budget')
+                            return {**response.headers, 'content-type': 'application/json'}, data
+                        except (ValueError, UnicodeError, RecursionError):
+                            raise HTTPException(502, 'invalid or excessive StudioTwin metadata') from None
                     data = bytearray()
                     for chunk in response.iter_bytes():
                         if len(data)+len(chunk)>cap:
@@ -111,7 +137,15 @@ class StudioTwinClient:
                    'MCP-Protocol-Version':'2025-06-18'}
         if self.session:
             headers['Mcp-Session-Id'] = self.session
-        headers, data = self.request('POST', self.base+'/mcp', json=payload, headers=headers)
+        # Metadata readers share one bounded input projection. Downloads and
+        # upload handshakes retain their existing binary/transport limits.
+        metadata = method == 'tools/call' and (params or {}).get('name') in {
+            'studiotwin_list_my_jobs', 'studiotwin_get_job_status',
+            'studiotwin_list_my_assets', 'studiotwin_resolve_asset',
+            'studiotwin_conceptlab_list', 'studiotwin_conceptlab_get',
+            'studiotwin_conceptlab_get_status'}
+        headers, data = self.request('POST', self.base+'/mcp', json=payload, headers=headers,
+                                    metadata_sequence=self.sequence if metadata else None)
         if headers.get('mcp-session-id'):
             self.session = headers['mcp-session-id']
         if notification:
