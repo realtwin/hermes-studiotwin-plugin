@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "hermes-studiotwin",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "StudioTwin remote MCP for images, environments, materials, meshes, rigs, motion, audio and Concepts, with a Desktop media backend. Paid tools use Hermes native approval. Variable costs require a fresh StudioTwin estimate; there is no plugin session spend cap.",
   "author": {"name": "RealTwin"},
   "license": "MIT",

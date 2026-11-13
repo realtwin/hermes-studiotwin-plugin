@@ -33020,7 +33020,7 @@ function Gp({
     (v) => VE(v, Uh(t), S),
     async (v) => {
       const w = await cs(n, e);
-      await v.load(w.buffer, e.name || w.name);
+      await v.load(w.buffer, w.name);
     },
     n,
     s,
@@ -42992,6 +42992,7 @@ function qC({ scope: n, configured: e, onInspect: t, session: i }) {
               " credits"
             ] })
           ] }),
+          y.inputs_truncated === !0 && /* @__PURE__ */ C("p", { style: { fontSize: 12, color: "var(--ui-text-secondary)" }, children: "Inputs too large to display. Large input values were omitted." }),
           w && /* @__PURE__ */ C("p", { style: { fontSize: 14, lineHeight: 1.6, margin: "0 0 10px", overflowWrap: "anywhere" }, children: w }),
           /* @__PURE__ */ Z("div", { style: { ...cn, gap: 6, marginBottom: 10 }, children: [
             XC(y).map((D) => /* @__PURE__ */ C("span", { style: hn, children: D }, D)),
@@ -43805,14 +43806,15 @@ function n2({
     queryKey: ["studiotwin-workspace", t.key, "active-job-count"],
     enabled: !i && s.data?.configured === !0,
     retry: !1,
-    refetchInterval: 5e3,
+    // Keep active work responsive without scanning idle/failed wallets every 5s.
+    refetchInterval: (o) => o.state.error || !o.state.data ? 3e4 : 5e3,
     refetchOnWindowFocus: !1,
     refetchOnReconnect: !1,
     queryFn: async () => {
       const o = /* @__PURE__ */ new Set();
       for (let l = 0; ; l += 100) {
         const c = $m(
-          await t.rest(`/jobs?limit=100&offset=${l}`)
+          await t.rest(`/jobs?limit=100&offset=${l}&summary=true`)
         );
         if (c.filter((u) => ["queued", "running"].includes(u.status)).forEach((u) => o.add(u.uuid ?? u.id)), c.length < 100) return o.size;
       }

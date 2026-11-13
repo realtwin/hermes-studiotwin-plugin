@@ -1,6 +1,6 @@
 {
   "name": "hermes-studiotwin",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "StudioTwin creative suite for Hermes Desktop: library, jobs, Concepts and asset viewers backed only by StudioTwin.",
   "license": "MIT",

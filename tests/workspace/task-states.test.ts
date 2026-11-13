@@ -79,3 +79,14 @@ it('JobsTab treats unknown provider states as cancellable active jobs', async ()
   expect(await screen.findByRole('button', { name: 'Cancel queued job' })).toBeTruthy()
   expect(screen.getByRole('progressbar', { name: 'Job progress' })).toBeTruthy()
 })
+it('JobsTab keeps every row and explains omitted oversized inputs per row', async () => {
+  const { scope, mount } = setup(async () => ({ jobs: [
+    { id: 'oversized', status: 'failed', inputs_truncated: true, inputs: { prompt: 'Still usable prompt' } },
+    { id: 'ordinary', status: 'done', inputs: { prompt: 'Other job' } },
+  ] }))
+  mount(createElement(JobsTab, { scope: scope as any, configured: true, onInspect: vi.fn() }))
+  expect(await screen.findByText('Inputs too large to display. Large input values were omitted.')).toBeTruthy()
+  expect(screen.getByText('Still usable prompt')).toBeTruthy()
+  expect(screen.getByText('Other job')).toBeTruthy()
+  expect(screen.queryByText('Could not load jobs.')).toBeNull()
+})

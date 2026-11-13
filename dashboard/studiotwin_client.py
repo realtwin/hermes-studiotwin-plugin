@@ -1,6 +1,7 @@
 """Direct Streamable HTTP MCP client. No local server, credential cache or paid submits."""
 from __future__ import annotations
 
+import importlib
 import json
 from urllib.parse import urljoin, urlsplit
 
@@ -20,7 +21,7 @@ if not __package__:
         sys.modules[name] = pkg
     __package__ = name
 
-from .metadata_json import read_metadata
+read_metadata = importlib.import_module(__package__ + '.metadata_json').read_metadata
 
 KEY_ENV = 'STUDIOTWIN_API_KEY'
 MAX_REPLY = 8 * 1024 * 1024
@@ -144,7 +145,7 @@ class StudioTwinClient:
             'studiotwin_conceptlab_list', 'studiotwin_conceptlab_get',
             'studiotwin_conceptlab_get_status'}
         headers, data = self.request('POST', self.base+'/mcp', json=payload, headers=headers,
-                                    **({'metadata_sequence': self.sequence} if metadata else {}))
+                                    metadata_sequence=self.sequence if metadata else None)
         if headers.get('mcp-session-id'):
             self.session = headers['mcp-session-id']
         if notification:
