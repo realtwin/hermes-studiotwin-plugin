@@ -251,7 +251,7 @@ it.skipIf(process.env.STUDIOTWIN_WEBGL_TEST !== "1")(
       await page.waitForFunction(() => (window as any).pool.size === 3);
       // Display labels must never choose the image decoder (including misleading extensions).
       for (const name of ['equirect-64x32.hdr', 'equirect-64x32.png', 'equirect-32x16.exr']) {
-        await call('env', name, 'Environment preview unavailable.', 'Selene Station 360.jpg');
+        await call('env', name, 'Environment preview unavailable.', 'Panorama preview.jpg');
         await page.getByRole('button', { name: 'Load environment', exact: true }).click();
         await browserExpect(page.getByRole('toolbar', { name: 'Environment controls' })).toBeVisible();
         expect(await page.getByText('Environment preview unavailable.', { exact: true }).count()).toBe(0);
