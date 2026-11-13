@@ -78,3 +78,21 @@ def test_sibling_metadata_tools_share_projection(tool):
     assert result['inputs_truncated'] is True
     assert result['inputs']['prompt'] == 'keep'
     assert len(json.dumps(result)) < 1000
+
+
+def test_statusbar_summary_keeps_only_identity_and_status(monkeypatch):
+    spec = importlib.util.spec_from_file_location('summary_api', ROOT / 'dashboard/plugin_api.py')
+    api = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(api)
+    rows = [{'uuid':'one', 'status':'done', 'inputs':{'prompt':'keep on Jobs tab'},
+             'outputs':{'meshUrl':'https://assets.studiotwin.ai/?signature='+ 'A'*20000}},
+            {'id':'two', 'status':'running'}]
+    monkeypatch.setattr(api, '_call', lambda tool,args: rows)
+    app = FastAPI(); app.include_router(api.router)
+    with TestClient(app) as c:
+        response = c.get('/jobs?limit=100&offset=0&summary=true')
+        full = c.get('/jobs?limit=100&offset=0')
+    assert response.status_code == 200
+    assert response.json() == {'jobs':[{'uuid':'one','status':'done'}, {'id':'two','status':'running'}]}
+    assert len(response.content) < 200
+    assert full.json() == {'jobs':rows}

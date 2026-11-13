@@ -66,14 +66,15 @@ export function ActiveJobsChip({
     queryKey: ["studiotwin-workspace", scope.key, "active-job-count"],
     enabled: !stale && status.data?.configured === true,
     retry: false,
-    refetchInterval: 5000,
+    // Keep active work responsive without scanning idle/failed wallets every 5s.
+    refetchInterval: q => q.state.error || !q.state.data ? 30000 : 5000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     queryFn: async () => {
       const active = new Set<string>();
       for (let offset = 0; ; offset += 100) {
         const rows = normalizedJobs(
-          await scope.rest(`/jobs?limit=100&offset=${offset}`),
+          await scope.rest(`/jobs?limit=100&offset=${offset}&summary=true`),
         );
         rows
           .filter((r) => ["queued", "running"].includes(r.status))

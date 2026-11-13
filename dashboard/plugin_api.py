@@ -371,8 +371,12 @@ def job_output(jid: str):
 
 
 @router.get('/jobs')
-def jobs(limit: int = Query(24,ge=1,le=100),offset: int = Query(0,ge=0)):
-    return {'jobs':_call('studiotwin_list_my_jobs',{'limit':limit,'offset':offset})}
+def jobs(limit: int = Query(24,ge=1,le=100),offset: int = Query(0,ge=0), summary: bool = False):
+    rows = _call('studiotwin_list_my_jobs',{'limit':limit,'offset':offset})
+    if summary:
+        # The background count chip needs no prompts, media, or output URLs.
+        rows = [{k:row[k] for k in ('uuid','id','status') if k in row} for row in rows]
+    return {'jobs':rows}
 
 
 TERMINAL_OK_STATUSES = ('done', 'complete', 'completed', 'succeeded', 'success')
